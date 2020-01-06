@@ -115,3 +115,24 @@ npm install @microsoft/sp-page-context
 ### Copied all original code and updated for new "7" name
 Successfully Gulp Served
 
+Testing:
+gulp clean
+gulp build
+gulp bundle --debug (No errors at this point)
+gulp package-solution --ship (No errors at this point)
+
+Error when
+```bash
+
+Move web part
+Something went wrong
+If the problem persists, contact the site administrator and give them the information in Technical Details.
+TECHNICAL DETAILS
+ERROR:
+Cannot read property 'style' of null
+
+CALL STACK:
+TypeError: Cannot read property 'style' of null
+    at https://mcclickster.sharepoint.com/sites/Apps/ClientSideAssets/d2b78ee9-71d1-4588-b4f4-4c88f4fdd936/track-my-time-7-web-part_cdad9e7290798fc76640f5dc297b8ec1.js:67:279240
+
+```
