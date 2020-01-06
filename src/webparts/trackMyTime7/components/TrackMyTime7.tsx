@@ -1146,8 +1146,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if ( this.props.timeTrackListWeb ) {
       useTrackMyTimeWeb = this.props.timeTrackListWeb;
     }
-
-    
+   
     //const fixedURL = Utils.fixURLs(this.props.listWebURL, this.props.pageContext);
 
     let projectSort: string = "SortOrder";
@@ -1183,6 +1182,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
     const projectWeb = Web(useProjectWeb);
     const trackTimeWeb = Web(useTrackMyTimeWeb);
+    const userWeb = Web(useTrackMyTimeWeb);
 
     let batch: any = sp.createBatch();
 
@@ -1208,6 +1208,12 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     //From https://www.ktskumar.com/2018/11/get-current-user-using-pnp-library-spfx/
     //Removed r: CurrentUser with @pnp/sp v2.
     //sp.web.currentUser.inBatch(batch).get().then((r: CurrentUser) => {
+    // This did not seem to work when on another site:
+    // sp.web.currentUser.inBatch(batch).get().then((r) => {
+    // trackTimeWeb.currentUser.inBatch(batch).get().then((r) => {
+      console.log('sp.web:', sp.web);
+      console.log('sp.web.currentUser:', sp.web.currentUser);    
+
     sp.web.currentUser.inBatch(batch).get().then((r) => {
 
       let currentUser : IUser = {
@@ -1239,14 +1245,22 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       }
 
     }).catch((e) => {
+      console.log('catch sp.web.currentUser');
+      console.log('sp.web:',sp.web);
       this.processCatch(e);
     });
 
-
+    console.log('useProjectWeb:', useProjectWeb);
+    console.log('useProjectList:', useProjectList);
+    console.log('selectCols:', selectCols);
+    console.log('expandThese:', expandThese);
+    console.log('projectRestFilter:', projectRestFilter);
+    console.log('projectSort:', projectSort);
 
     projectWeb.lists.getByTitle(useProjectList).items
     .select(selectCols).expand(expandThese).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
     .then((response) => {
+      console.log('fetched Project Info:', response);
       trackMyProjectsInfo.projectData = response.map((p) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
         let daily: any = false;
@@ -1351,14 +1365,28 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       }
 
     }).catch((e) => {
+      console.log('projectWeb.lists.getByTitle(useProjectList)',useProjectList);
+      console.log('projectWeb',projectWeb);
       this.processCatch(e);
     });
 
     //trackTimeSort
 
+    console.log('useTrackMyTimeWeb:', useTrackMyTimeWeb);
+    console.log('useTrackMyTimeList:', useTrackMyTimeList);
+    console.log('selectColsTrack:', selectColsTrack);
+    console.log('expandTheseTrack:', expandTheseTrack);
+    console.log('trackTimeRestFilter:', trackTimeRestFilter);
+    console.log('trackTimeSort:', trackTimeSort);
+
+    console.log('trackTimeWeb:', trackTimeWeb);
+    console.log('trackTimeSort:', trackTimeSort);
+
     trackTimeWeb.lists.getByTitle(useTrackMyTimeList).items
     .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(200).inBatch(batch).get()
     .then((response) => {
+
+      console.log('fetched History Info:', response);
       //console.log('response: timeTrackData', response);
 
 
@@ -1479,6 +1507,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
 
     }).catch((e) => {
+      console.log('trackTimeWeb.lists.getByTitle(useTrackMyTimeList)',useTrackMyTimeList);
+      console.log('trackTimeWeb',trackTimeWeb);
       this.processCatch(e);
     });
 

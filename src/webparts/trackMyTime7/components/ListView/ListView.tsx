@@ -28,7 +28,7 @@ export function listViewBuilder(parentProps,parentState, theseAreItems: ITimeEnt
       viewFields={viewFields}
       compact={true}
       selectionMode={SelectionMode.none}
-      selection={this._getSelection}
+      //selection={this._getSelection}
       showFilter={true}
       //defaultFilter="John"
       filterPlaceHolder="Search..."
