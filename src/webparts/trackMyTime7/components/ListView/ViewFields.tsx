@@ -7,7 +7,7 @@ export const  initials : IViewField = {
     sorting: true,
     minWidth: 10,
     maxWidth: 30
-}
+};
 
 export const  id : IViewField = {
   name: "id",
@@ -16,7 +16,7 @@ export const  id : IViewField = {
   sorting: true,
   minWidth: 10,
   maxWidth: 30
-}
+};
 
 export const  timeSpan : IViewField = {
   name: "listTimeSpan",
@@ -26,7 +26,7 @@ export const  timeSpan : IViewField = {
   sorting: true,
   minWidth: 150,
   maxWidth: 200
-}
+};
 
 export const  title : IViewField = {
   name: "titleProject",
@@ -35,7 +35,7 @@ export const  title : IViewField = {
   sorting: true,
   minWidth: 150,
   maxWidth: 200
-}
+};
 
 export const  projectWide : IViewField = {
   name: "titleProject",
@@ -44,7 +44,7 @@ export const  projectWide : IViewField = {
   sorting: true,
   minWidth: 250,
   maxWidth: 400,
-}
+};
 
 export const  description : IViewField = {
   name: "description",
@@ -54,7 +54,7 @@ export const  description : IViewField = {
   sorting: true,
   minWidth: 20,
   maxWidth: 100
-}
+};
 
 export const  projects : IViewField = {
   name: "listProjects",
@@ -64,7 +64,7 @@ export const  projects : IViewField = {
   sorting: true,
   minWidth: 20,
   maxWidth: 100
-}
+};
 
 export const  comments : IViewField = {
   name: "listComments",
@@ -74,7 +74,7 @@ export const  comments : IViewField = {
   sorting: true,
   minWidth: 20,
   maxWidth: 100
-}
+};
 
 export const  category : IViewField = {
   name: "listCategory",
@@ -84,7 +84,7 @@ export const  category : IViewField = {
   sorting: true,
   minWidth: 30,
   maxWidth: 100
-}
+};
 
 //This does not yet work because the component ends up showing the field anyway
 export function testField(visible: boolean) {
@@ -96,7 +96,7 @@ export function testField(visible: boolean) {
         sorting: visible ? true : false,
         minWidth: visible ? 30 : 0,
         maxWidth: visible ? 100 : 0,
-    }
+    };
     return test;
 }
 

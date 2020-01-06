@@ -25,13 +25,13 @@ import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 
   export function serviceNow()  {
 
-    let serviceNow : ISmartLinkDef = {
+    let serviceNowX : ISmartLinkDef = {
         host: '',
         rules: [
     
         ]
-    }
-    return serviceNow;
+    };
+    return serviceNowX;
 
 }
 

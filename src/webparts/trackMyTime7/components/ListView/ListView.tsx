@@ -7,7 +7,7 @@ import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 
 import { ListView, IViewField, SelectionMode, GroupOrder, IGrouping } from "@pnp/spfx-controls-react/lib/ListView";
 import {ITimeEntry, IProject} from '../ITrackMyTime7State';
-import * as fields from './ViewFields'
+import * as fields from './ViewFields';
 
 /**
  * 
@@ -18,7 +18,7 @@ import * as fields from './ViewFields'
 
 export function listViewBuilder(parentProps,parentState, theseAreItems: ITimeEntry[]){
 
-  let groupByFields: IGrouping[] = [  {   name: 'timeGroup',   order: 1,   }  ]
+  let groupByFields: IGrouping[] = [  {   name: 'timeGroup',   order: 1,   }  ];
 
   let viewFields = fields.viewFieldsFull();
 

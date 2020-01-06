@@ -14,7 +14,7 @@ import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-
 import { TextField, MaskedTextField } from "office-ui-fabric-react";
 import styles from '../TrackMyTime7.module.scss';
 
-import { IFieldDef } from './fieldDefinitions'
+import { IFieldDef } from './fieldDefinitions';
 
 import {
     Button,
@@ -52,8 +52,8 @@ import {
    // it is possible to have an option to hide labels in lue of placeholder text for more compressed look
 
    let placeHolder = 'Enter ' + field.title;
-    let defaultValue = ""
-    if (currentValue && currentValue !== "*") { defaultValue = currentValue }
+    let defaultValue = "";
+    if (currentValue && currentValue !== "*") { defaultValue = currentValue; }
    placeHolder = '';
 
     let textField = 
@@ -78,8 +78,8 @@ import {
   // it is possible to have an option to hide labels in lue of placeholder text for more compressed look
 
   let placeHolder = 'Enter ' + field.title;
-   let defaultValue = ""
-   if (currentValue && currentValue !== "*") { defaultValue = currentValue }
+   let defaultValue = "";
+   if (currentValue && currentValue !== "*") { defaultValue = currentValue; }
   placeHolder = '';
 
    let textField = 
@@ -157,7 +157,7 @@ import {
     let blinkOnProjectClassName = getBlinkOnProjectClass(field, parentState.blinkOnProject);
 
     if (parentState.formEntry[field.name]['defaultIsPrefix'] === true ){
-      if (parentState.formEntry[field.name]['defaultIsPrefix'] === parentState.formEntry[field.name]['value'] ) { parentState.formEntry[field.name]['value'] = '' }
+      if (parentState.formEntry[field.name]['defaultIsPrefix'] === parentState.formEntry[field.name]['value'] ) { parentState.formEntry[field.name]['value'] = ''; }
       return createPrefixTextField(field, currentValue, onChanged, parentState.formEntry[field.name]['prefix'], blinkOnProjectClassName);
     } else if (mask !== '') {
       return createMaskedTextField(field, mask, currentValue, onChanged, blinkOnProjectClassName);

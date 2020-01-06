@@ -33,7 +33,7 @@ export function createSlider(parentProps:ITrackMyTime7Props , parentState: ITrac
 
   );
 
-};
+}
 
 /*
 function _onChange(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption): void {

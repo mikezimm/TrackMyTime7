@@ -13,19 +13,19 @@ export interface ILinkRuleReturn {
      */
 
     // These are the fields that can be auto-populated based on SmartLink mapping
-    commentText?: string, // This will go into the Comments field
-    activityDesc?: string, // This will be the description or visible text in the Activity URL field
-    category1?: string,  // This is the value for this column
-    category2?: string,  // This is the value for this column
-    projectID1?: string,  // This is the value for this column
-    projectID2?: string,  // This is the value for this column
+    commentText?: string; // This will go into the Comments field
+    activityDesc?: string; // This will be the description or visible text in the Activity URL field
+    category1?: string;  // This is the value for this column
+    category2?: string;  // This is the value for this column
+    projectID1?: string;  // This is the value for this column
+    projectID2?: string;  // This is the value for this column
 
 }
 
 export interface ILinkRule extends ILinkRuleReturn {
 
-    order: number,  // To be used for sorting priority of rule
-    ruleTitle: string,  // Rule title
+    order: number;  // To be used for sorting priority of rule
+    ruleTitle: string;  // Rule title
 
     /**  These are the parts of the URL that can turned into strings.
      *      Examples of different syntax options
@@ -48,22 +48,22 @@ export interface ILinkRule extends ILinkRuleReturn {
 
      */
     
-    keyFolder: string, // Key folder in URL to apply rule too ( like /issues/ )
-    childFolderTitle?: string, // use 'na' to skip this rule.  '' to have no Title.  Last character is spacer
-    child2FolderTitle?: string, // use 'na' to skip this rule.  '' to have no Title.  Last character is spacer
-    parentFolderTitle?: string, // use 'na' to skip this rule.  '' to have no Title.  Last character is spacer
-    parent2FolderTitle?: string, // use 'na' to skip this rule.  '' to have no Title.  Last character is spacer
+    keyFolder: string; // Key folder in URL to apply rule too ( like /issues/ )
+    childFolderTitle?: string; // use 'na' to skip this rule.  '' to have no Title.  Last character is spacer
+    child2FolderTitle?: string; // use 'na' to skip this rule.  '' to have no Title.  Last character is spacer
+    parentFolderTitle?: string; // use 'na' to skip this rule.  '' to have no Title.  Last character is spacer
+    parent2FolderTitle?: string; // use 'na' to skip this rule.  '' to have no Title.  Last character is spacer
 
     /**
      *  These are the properties that define how to build up the designated fields
      */
     // These are the fields that can be auto-populated based on SmartLink mapping
-    commentTextMapping?: string, // This will go into the Comments field
-    activityDescMapping?: string, // This will be the description or visible text in the Activity URL field
-    category1Mapping?: string,  // This is the value for this column
-    category2Mapping?: string,  // This is the value for this column
-    projectID1Mapping?: string,  // This is the value for this column
-    projectID2Mapping?: string,  // This is the value for this column
+    commentTextMapping?: string; // This will go into the Comments field
+    activityDescMapping?: string; // This will be the description or visible text in the Activity URL field
+    category1Mapping?: string;  // This is the value for this column
+    category2Mapping?: string;  // This is the value for this column
+    projectID1Mapping?: string;  // This is the value for this column
+    projectID2Mapping?: string;  // This is the value for this column
 
 }
 
@@ -139,7 +139,7 @@ function applyHostRule(link : string, rule: ILinkRule) {
         category2: category2,
         projectID1: projectID1,
         projectID2: projectID2,
-    }
+    };
 
     console.log('result: ', result);
     return result;
@@ -148,7 +148,7 @@ function applyHostRule(link : string, rule: ILinkRule) {
 function updateRuleLabels(link : string, rule: ILinkRule, parents: string[], children: string[]) {
 
     let rule2 = <ILinkRule>{};
-    rule2 = JSON.parse(JSON.stringify(rule));;
+    rule2 = JSON.parse(JSON.stringify(rule));
     rule2.childFolderTitle = updateFolderLabels(rule.childFolderTitle, 1,  rule, parents, children);
     rule2.child2FolderTitle = updateFolderLabels(rule.child2FolderTitle, 2, rule, parents, children);
     rule2.parentFolderTitle = updateFolderLabels(rule.parentFolderTitle, -1, rule, parents, children);
@@ -190,8 +190,8 @@ function updateFolderLabels(FolderDefinition: string, FolderIndex: number, rule:
 
                 thisText = parents[parents.length + FolderIndex];
 
-                if (toUpperCase) { thisText = thisText.toLocaleUpperCase() }
-                else if (toLowerCase) { thisText = thisText.toLocaleLowerCase() }
+                if (toUpperCase) { thisText = thisText.toLocaleUpperCase(); }
+                else if (toLowerCase) { thisText = thisText.toLocaleLowerCase(); }
                 //else if (toProperCase) { thisText = thisText.toProperCase() }
 
                 thisText = prefix ? prefix + thisText : thisText;
@@ -203,8 +203,8 @@ function updateFolderLabels(FolderDefinition: string, FolderIndex: number, rule:
 
                 thisText = children[FolderIndex - 1];
 
-                if (toUpperCase) { thisText = thisText.toLocaleUpperCase() }
-                else if (toLowerCase) { thisText = thisText.toLocaleLowerCase() }
+                if (toUpperCase) { thisText = thisText.toLocaleUpperCase(); }
+                else if (toLowerCase) { thisText = thisText.toLocaleLowerCase(); }
                 //else if (toProperCase) { thisText = thisText.toProperCase() }
 
                 thisText = prefix ? prefix + thisText : thisText;
@@ -286,8 +286,8 @@ function getTextFromLinkPre48(definition: string, rule: ILinkRule, parents: stri
 
                     thisText = parents[parents.length + index];
 
-                    if (toUpperCase) { thisText = thisText.toLocaleUpperCase() }
-                    else if (toLowerCase) { thisText = thisText.toLocaleLowerCase() }
+                    if (toUpperCase) { thisText = thisText.toLocaleUpperCase(); }
+                    else if (toLowerCase) { thisText = thisText.toLocaleLowerCase(); }
                     //else if (toProperCase) { thisText = thisText.toProperCase() }
 
                     thisText = prefix ? prefix + thisText : thisText;
@@ -299,8 +299,8 @@ function getTextFromLinkPre48(definition: string, rule: ILinkRule, parents: stri
 
                     thisText = children[index - 1];
 
-                    if (toUpperCase) { thisText = thisText.toLocaleUpperCase() }
-                    else if (toLowerCase) { thisText = thisText.toLocaleLowerCase() }
+                    if (toUpperCase) { thisText = thisText.toLocaleUpperCase(); }
+                    else if (toLowerCase) { thisText = thisText.toLocaleLowerCase(); }
                     //else if (toProperCase) { thisText = thisText.toProperCase() }
 
                     thisText = prefix ? prefix + thisText : thisText;
@@ -346,17 +346,17 @@ function makeProperCaseString(str: string) {
 
 function getFolderIndex(member) {
 
-    if ( member === 'parent2FolderTitle' ) { return -2 };
-    if ( member === 'parentFolderTitle' ) { return -1 };
-    if ( member === 'childFolderTitle' ) { return 1 };
-    if ( member === 'child2FolderTitle' ) { return 2 };
-    if ( member === 'title' ) { return null };
-    if ( member === 'keyFolder' ) { return null };
+    if ( member === 'parent2FolderTitle' ) { return -2; }
+    if ( member === 'parentFolderTitle' ) { return -1; }
+    if ( member === 'childFolderTitle' ) { return 1; }
+    if ( member === 'child2FolderTitle' ) { return 2; }
+    if ( member === 'title' ) { return null; }
+    if ( member === 'keyFolder' ) { return null; }
     
 
     console.table('getFolderIndex error, member not recognized:', member);
 
-    return 0
+    return 0;
     
 }
 function getHostRule(link : string, rules: ILinkRule[]) {

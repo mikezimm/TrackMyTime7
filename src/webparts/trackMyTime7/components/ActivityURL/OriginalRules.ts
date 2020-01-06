@@ -110,6 +110,6 @@ export const github : ISmartLinkDef = {
         },
     ]
 
-  }
+  };
 
 

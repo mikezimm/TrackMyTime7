@@ -25,13 +25,13 @@ import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 
   export function sharePointOnline(parentProps: ITrackMyTime7Props)  {
 
-    let sharePointOnline : ISmartLinkDef = {
+    let sharePointOnlineX : ISmartLinkDef = {
         host: parentProps.tenant,
         rules: [
     
         ]
-    }
-    return sharePointOnline;
+    };
+    return sharePointOnlineX;
 
 }
 

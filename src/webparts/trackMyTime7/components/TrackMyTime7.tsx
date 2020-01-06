@@ -27,7 +27,7 @@ import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeS
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry} from './ITrackMyTime7State';
 import { pivotOptionsGroup, } from '../../../services/propPane';
 
-import { buildFormFields } from './fields/fieldDefinitions'
+import { buildFormFields } from './fields/fieldDefinitions';
 
 import ButtonCompound from './createButtons/ICreateButtons';
 import { IButtonProps,ISingleButtonProps,IButtonState } from "./createButtons/ICreateButtons";
@@ -154,7 +154,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           },
         ]
       ,
-    }
+    };
 
     return pivots;
 
@@ -432,11 +432,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     let isSaveDisabled = false;
     if ( this.state.currentTimePicker === 'slider' ) {
-      if ( this.state.timeSliderValue == 0 ) { isSaveDisabled = true}
+      if ( this.state.timeSliderValue == 0 ) { isSaveDisabled = true; }
 
       // Also need to add if the slider would put the start time before the last end time.
     } else if ( this.state.currentTimePicker === 'sinceLast' ) {
-      if ( hoursSinceLastTime > 2 ) { isSaveDisabled = true}
+      if ( hoursSinceLastTime > 2 ) { isSaveDisabled = true; }
 
     } // else if  -- Need to add logic when Manual and days not filled out
 
@@ -449,17 +449,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           From: { getDayTimeToMinutes(this.state.lastEndTime.theTime) } until NOW<br/>
           {( isSaveDisabled ? <div>Is to far in the past.</div> : "" )}
           {( isSaveDisabled ? <div>Use Slider or Manual Mode to save time.</div> : "" )}
-          </div> 
+          </div>; 
 
       } else if  (this.state.currentTimePicker === 'slider' ) 
         if (this.state.timeSliderValue > 0 ) {
            //The START time IS NOW and the end time is in the future (based on slider)
-           theTime = <div className={ styles.timeInFuture }>From NOW until: { getDayTimeToMinutes(this.state.formEntry.endTime) }</div>
+           theTime = <div className={ styles.timeInFuture }>From NOW until: { getDayTimeToMinutes(this.state.formEntry.endTime) }</div>;
         } else if ( this.state.timeSliderValue < 0 )  {
           //The END time IS NOW and the end time is in the past (based on slider)
-          theTime = <div className={ styles.timeInPast }>From { getDayTimeToMinutes(this.state.formEntry.startTime) } until NOW</div>
+          theTime = <div className={ styles.timeInPast }>From { getDayTimeToMinutes(this.state.formEntry.startTime) } until NOW</div>;
         } else { // Value can not be zero or the save button should not be visible.
-          theTime = <div className={ styles.timeError }>Adjust the slider before saving</div>
+          theTime = <div className={ styles.timeError }>Adjust the slider before saving</div>;
         }
       
 
@@ -575,11 +575,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   private _getSelectedProject(items: any[]){
 
-    if (this.state.userLoadStatus !== 'Complete') { return }
-    if (this.state.timeTrackerLoadStatus !== 'Complete') { return }
-    if (this.state.userLoadStatus !== 'Complete') { return }
+    if (this.state.userLoadStatus !== 'Complete') { return; }
+    if (this.state.timeTrackerLoadStatus !== 'Complete') { return; }
+    if (this.state.userLoadStatus !== 'Complete') { return; }
     if (event) { event.preventDefault(); }
-    if (items.length === 0 ) { return }
+    if (items.length === 0 ) { return; }
 
     console.log('Selected items:', items);
     
@@ -665,7 +665,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       formEntry.projectID2.value = result.projectID2 ? result.projectID2 : null;
       console.log('updated formEntry: ', formEntry);
     } else {
-      console.log('Did not update anthing based on activity.')
+      console.log('Did not update anthing based on activity.');
     }
 
 
@@ -867,6 +867,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   public toggleType = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;
+    
+    if (e.ctrlKey) {
+      //Set clicked pivot as the hero pivot
+    } else if (e.altKey) {
+      //Enable-disable ChangePivots options
+    } else {
+    }
 
     let newProjectType = !this.state.projectType;
     console.log('toggleType: item', item);
@@ -888,41 +895,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     return; 
 
-    if (e.ctrlKey) {
-      //Set clicked pivot as the hero pivot
-
-    } else if (e.altKey) {
-      //Enable-disable ChangePivots options
-      this.setState({
-        
-      });
-
-    } else {
-
-      //Filter tiles per clicked category
-
-      let newFilteredProjects = [];
-      let pivotProps = this.props;
-      let pivotState = this.state;
-
-//      newFiltered = this.getOnClickFilteredProjects(pivotProps, pivotState, newCollection, heroIds, newHeros, thisCatColumn, lastCategory)
-
-     // newFilteredProjects = this.getOnClickFilteredProjects(pivotProps, pivotState, this.state.projects.all, this.state.heroIds, this.state.heroTiles, this.state.thisCatColumn, item.props.headerText)
-      
-      let projects = this.state.projects;
-      //projects.lastFiltered = (searchType === 'all' ? this.state.projects.all : this.state.lastFilteredProjects );
-
-      this.setState({
-        filteredCategory: item.props.headerText,
-        projects: projects,
-        searchCount: newFilteredProjects.length,
-        searchType: '',
-        searchWhere: ' in ' + item.props.headerText,
-        //pivotDefSelKey: defaultSelectedKey,
-
-      });
-
-    }
 
   } //End onClick
 
@@ -1408,10 +1380,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         
         let listCategory = "";
         if ( item.Category1 !== null && item.Category1 ) {
-          listCategory += item.Category1.join(', ')
+          listCategory += item.Category1.join(', ');
         }
         if ( item.Category2 !== null && item.Category2 ) {
-          listCategory += item.Category2.join(', ')
+          listCategory += item.Category2.join(', ');
         }
 
         let listProjects = "";
@@ -2049,19 +2021,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       itemEndTime = new Date().toLocaleString();
     }
 
-    let comments = trackTimeItem.comments ? trackTimeItem.comments.value : null
-    let projectID1 = trackTimeItem.projectID1 ? trackTimeItem.projectID1.value : null
-    let projectID2 = trackTimeItem.projectID2 ? trackTimeItem.projectID2.value : null
+    let comments = trackTimeItem.comments ? trackTimeItem.comments.value : null;
+    let projectID1 = trackTimeItem.projectID1 ? trackTimeItem.projectID1.value : null;
+    let projectID2 = trackTimeItem.projectID2 ? trackTimeItem.projectID2.value : null;
 
-    if (trackTimeItem.comments.defaultIsPrefix) {comments = trackTimeItem.comments.prefix + comments }
-    if (trackTimeItem.projectID1.defaultIsPrefix) {projectID1 = trackTimeItem.projectID1.prefix + projectID1 }
-    if (trackTimeItem.projectID2.defaultIsPrefix) {projectID2 = trackTimeItem.projectID2.prefix + projectID2 }
+    if (trackTimeItem.comments.defaultIsPrefix) {comments = trackTimeItem.comments.prefix + comments; }
+    if (trackTimeItem.projectID1.defaultIsPrefix) {projectID1 = trackTimeItem.projectID1.prefix + projectID1; }
+    if (trackTimeItem.projectID2.defaultIsPrefix) {projectID2 = trackTimeItem.projectID2.prefix + projectID2; }
 
 
     let Activity = {
       Description: trackTimeItem.activity.description ?  trackTimeItem.activity.description : null,
       Url: trackTimeItem.activity.url ? trackTimeItem.activity.url : null,
-    }
+    };
 
     let saveThisItem = {
         //Values that would come from Project item
@@ -2159,10 +2131,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       let listCategory = "";
       if ( trackTimeItem.category1 !== null && trackTimeItem.category1 ) {
-        listCategory += trackTimeItem.category1.join(', ')
+        listCategory += trackTimeItem.category1.join(', ');
       }
       if ( trackTimeItem.category2 !== null && trackTimeItem.category2 ) {
-        listCategory += trackTimeItem.category2.join(', ')
+        listCategory += trackTimeItem.category2.join(', ');
       }
       let listTimeSpan = getTimeSpan(trackTimeItem.startTime, trackTimeItem.endTime);
       let listComments = trackTimeItem.comments ? trackTimeItem.comments.value : "";
@@ -2197,7 +2169,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         projectID1 : this.buildSmartText(response.data.ProjectID1) ,  //Example Project # - look for strings starting with * and ?
         projectID2 : this.buildSmartText(response.data.ProjectID2) ,  //Example Cost Center # - look for strings starting with * and ?
       
-      }
+      };
 
       let entries = this.state.entries;
 

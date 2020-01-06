@@ -25,13 +25,13 @@ import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 
   export function jira()  {
 
-    let jira : ISmartLinkDef = {
+    let jiraX : ISmartLinkDef = {
         host: '',
         rules: [
     
         ]
-    }
-    return jira;
+    };
+    return jiraX;
 
 }
 

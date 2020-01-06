@@ -51,14 +51,15 @@ export default class Utils {
  *
  * @returns {boolean}
  */
-public static arrayContainsArray (superset, subset) {
-  if (0 === subset.length) {
-    return false;
+  public static arrayContainsArray (superset, subset) {
+    if (0 === subset.length) {
+      return false;
+    }
+
+    return subset.every( (value) => {
+      return (superset.indexOf(value) >= 0);
+    });
+
   }
-  return subset.every(function (value) {
-    return (superset.indexOf(value) >= 0);
-  });
-}
 
 }
-

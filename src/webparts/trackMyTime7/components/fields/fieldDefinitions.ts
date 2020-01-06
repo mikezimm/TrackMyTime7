@@ -39,7 +39,7 @@ export function createEntryField(name: string, title: string, column: string, ty
         required: false,
         disabled: false,
         blinkOnProject: blinkOnProject,
-    }
+    };
     //console.log('createEntryField: ' + name, field)
     return field;
   }
@@ -59,7 +59,7 @@ export function buildFormFields(parentProps:ITrackMyTime7Props , parentState: IT
         Start: createEntryField("startTime","Start Time","StartTime","Time", false),
         End: createEntryField("endTime","End Time","EndTime","Time", false),
 
-    }
+    };
 
     return fields;
 

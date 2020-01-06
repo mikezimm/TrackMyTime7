@@ -11,7 +11,7 @@ import { ChoiceGroup, IChoiceGroupOption } from 'office-ui-fabric-react/lib/Choi
 
 import styles from '../TrackMyTime7.module.scss';
 
-import { IFieldDef } from './fieldDefinitions'
+import { IFieldDef } from './fieldDefinitions';
 
 /*
 Entry Type Choices need to match these:  \src\services\propPane\WebPartSettingsPage.ts
@@ -47,7 +47,7 @@ export function creatEntryTypeChoices(parentProps:ITrackMyTime7Props , parentSta
       required={true}
     />
   );
-};
+}
 
 /*
 function _onChange(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption): void {

@@ -25,13 +25,13 @@ import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 
   export function Model(parentProps: ITrackMyTime7Props)  {
 
-    let Model : ISmartLinkDef = {
+    let ModelX : ISmartLinkDef = {
         host: 'parentProps.tenant',
         rules: [
     
         ]
-    }
-    return Model;
+    };
+    return ModelX;
 
 }
 

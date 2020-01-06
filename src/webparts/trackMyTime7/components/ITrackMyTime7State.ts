@@ -1,7 +1,7 @@
 
 import { ITrackMyTime7Props } from './ITrackMyTime7Props';
 
-import { IFormFields } from './fields/fieldDefinitions'
+import { IFormFields } from './fields/fieldDefinitions';
 import { ITheTime } from '../../../services/dateServices';
 
 import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
@@ -244,7 +244,7 @@ export interface ITrackMyTime7State {
     user: any;
     projects: any[];
     entries: any[];
-  }
+  };
   // 2 - Source and destination list information
   projectListURL?: string; //Get from list item
   timeTrackerListURL?: string; //Get from list item

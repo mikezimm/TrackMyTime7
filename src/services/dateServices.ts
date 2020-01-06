@@ -11,13 +11,13 @@ export function makeTheTimeObject(timeString) {
 
   let now = new Date();
 
-  if (timeString ) { now = new Date(timeString)}
+  if (timeString ) { now = new Date(timeString);}
 
   let theTime : ITheTime = {
     now: now,
     theTime: now.toUTCString(),
     milliseconds: now.getTime(),
-  }
+  };
 
   return theTime;
 
@@ -25,8 +25,8 @@ export function makeTheTimeObject(timeString) {
 export function getLocalMonths(local,format){
 
     let months = [];
-    var getMonth = function(idx) {
 
+    let getMonth = (idx) => {
         var objDate = new Date();
         objDate.setDate(1);
         objDate.setMonth(idx-1);
