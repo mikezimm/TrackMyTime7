@@ -12,7 +12,7 @@ import { IButtonProps,ISingleButtonProps,IButtonState } from "../createButtons/I
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 
 import { TextField, MaskedTextField } from "office-ui-fabric-react";
-import styles from '../TrackMyTime.module.scss';
+import styles from '../TrackMyTime7.module.scss';
 
 import { IFieldDef } from './fieldDefinitions'
 

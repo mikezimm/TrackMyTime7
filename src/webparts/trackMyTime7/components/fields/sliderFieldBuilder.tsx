@@ -9,7 +9,7 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { Slider, ISliderProps } from 'office-ui-fabric-react/lib/Slider';
 
-import styles from '../TrackMyTime.module.scss';
+import styles from '../TrackMyTime7.module.scss';
 
 
 export function createSlider(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, _onChange){

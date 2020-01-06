@@ -9,7 +9,7 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { ChoiceGroup, IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
-import styles from '../TrackMyTime.module.scss';
+import styles from '../TrackMyTime7.module.scss';
 
 import { IFieldDef } from './fieldDefinitions'
 
