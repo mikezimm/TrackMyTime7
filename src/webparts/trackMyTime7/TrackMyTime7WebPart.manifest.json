@@ -19,9 +19,64 @@
     "group": { "default": "Other" },
     "title": { "default": "TrackMyTime7" },
     "description": { "default": "TrackMyTime web part 7" },
-    "officeFabricIconFontName": "Page",
+    "officeFabricIconFontName": "Timer",
     "properties": {
-      "description": "TrackMyTime7"
+      "description": "TrackMyTime",
+
+      // 1 - Analytics options
+      "useListAnalytics": false,
+      "analyticsWeb": "",
+      "analyticsList": "",
+
+      // 2 - Source and destination list information
+      "projectListTitle": "Projects",
+      "projectListWeb": "https://mcclickster.sharepoint.com/sites/Templates/Tmt/",
+
+      "timeTrackListTitle": "TrackMyTime",
+      "timeTrackListWeb": "https://mcclickster.sharepoint.com/sites/Templates/Tmt/",
+
+      // 3 - General how accurate do you want this to be
+      "roundTime": "none", //Up 5 minutes, Down 5 minutes, No Rounding,
+      "forceCurrentUser": true, //false allows you to put in data for someone else
+      "confirmPrompt": false,  //Make user press confirm
+
+      // 4 -Project options
+      "allowUserProjects": true, //Will build list of ProjectsUser based on existing data from TrackMyTime list
+      "projectMasterPriority": "your", //Use to determine what projects float to top.... your most recent?  last day?
+      "projectUserPriority": "your", //Use to determine what projects float to top.... your most recent?  last day?
+      "onlyActiveProjects": true, //Only read in active projects.
+      //"projectKey": string[], // project props used to determine a unique user project in the choice list
+      "syncProjectPivotsOnToggle": true,  //always keep pivots in sync when toggling projects/history
+      "projectType":false, //Projects = 0 History = 1
+
+      // 5 - UI Defaults
+      "defaultProjectPicker": "your", //Recent, Your Projects, All Projects etc...
+      "defaultTimePicker": "sinceLast", //SinceLast, Slider, Manual???
+      "locationChoices": "Home;Office;Travel",  //semi-colon separated choices
+      "defaultLocation": "Home", //Office, Customer, Traveling, Home
+
+      // 6 - User Feedback:
+      "showElapsedTimeSinceLast": false,  // Idea is that it can be like a clock showing how long it's been since your last entry.
+
+      // Target will be used to provide user feedback on how much/well they are tracking time
+      "showTargetBar": false, //Eventually have some kind of way to tell user that x% of hours have been entered for day/week
+      "showTargetToggle": false, //Maybe give user option to toggle between day/week
+      "dailyTarget": 8, // Target hours per day to have tracked in a day - propLabelDailyTarget
+      "weeklyTarget":  40,  // Target hours per day to have tracked in a week - propLabelWeeklyTarget
+
+      // 7 - Slider Options
+      "showTimeSlider": false, //true allows you to define end time and slider for how long you spent
+      "timeSliderInc": 5, //incriment of time slider
+      "timeSliderMax": 480, //max of time slider
+
+      // 9 - Other web part options
+      "webPartScenario": "Team", //Choice used to create mutiple versions of the webpart.
+
+      "pivotSize": "normal",
+      "pivotFormat": "links",
+      "pivotOptions": "", 
+      "pivotTab": ""
+
     }
   }]
 }
