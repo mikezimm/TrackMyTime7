@@ -112,3 +112,6 @@ npm install --save office-ui-fabric-react
 ### DID NOT DO THIS ONE:
 npm install @microsoft/sp-page-context
 
+### Copied all original code and updated for new "7" name
+Successfully Gulp Served
+

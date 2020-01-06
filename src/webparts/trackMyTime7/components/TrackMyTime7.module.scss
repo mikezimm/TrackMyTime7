@@ -1,8 +1,226 @@
 @import '~office-ui-fabric-react/dist/sass/References.scss';
 
 .trackMyTime7 {
+
+    .pivotLabel {
+      padding-bottom: 10px,
+    }
+
+  .timeValue {
+    font-size: 20px,
+  }
+
+  .timeInPast {
+    @extend .timeValue;
+    color: purple;
+  }
+
+  .timeInFuture {
+    @extend .timeValue;
+    color: green;
+  }
+
+  .timeError {
+    @extend .timeValue;
+    color: red;
+  }
+
+
+  .textField {
+    display: table-cell;
+    width: 100%;
+
+    label {
+      font-weight: bold;
+    }
+
+    input {
+      height: 32px;
+      min-width: 80px;
+    }
+  }
+
+  .textField1 {
+    display: table-cell;
+    width: 100%;
+
+    label {
+      font-weight: bold;
+    }
+
+    input {
+      @extend .highlightBlink1;
+      height: 32px;
+      min-width: 80px;
+    }
+  }
+  
+  .textField2 {
+    display: table-cell;
+    width: 100%;
+
+    label {
+      font-weight: bold;
+    }
+
+    input {
+      @extend .highlightBlink2;
+      height: 32px;
+      min-width: 80px;
+    }
+  }
+
+  .highlightBlink1 {
+    position: relative;
+    animation-name: slide1;
+    animation-duration: .3s;
+    animation-timing-function: ease-in;
+  }
+
+  .highlightBlink2 {
+    position: relative;
+    animation-name: slide2;
+    animation-duration: .3s;
+    animation-timing-function: ease-in;
+  }
+
+  @keyframes slide1 {
+    0% {      background-color: white;    }
+    50% {      background-color: darkgrey;    }
+    100% {      background-color: white;    }
+  }
+
+
+  @keyframes slide2 {
+    0% {      background-color: white;    }
+    50% {      background-color: rgb(153, 153, 153);    }
+    100% {      background-color: white;    }
+  }
+
+
+  //Copied from pivot-tiles
+
+  .hideMe {
+    display:none;
+  }
+
+  .floatLeft {
+    //width: 1200px;
+    //max-width: 500px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    //align-items: center makes items centered vertically
+    align-items: center;
+
+    //These did nothing to prevent the left icons from shifting on hover.
+    //border: 0px;
+    //margin: 0px;
+    //padding: 0px;
+  }
+
+  .searchBox {
+    //@extend .floatLeft;
+    width: 100%;
+    //padding-bottom: 20px;
+  }
+
+  .searchStatus {
+    @extend .floatRight;
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 60px;
+    padding-right: 60px;
+    //text-align: right;
+  }
+
+  .quickTabsGroup {
+    @extend .floatRight;
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 10px;
+    //text-align: right;
+  }
+
+  //May not be neccessary
+  .quickTabsLable {
+    @extend .floatRight;
+    display: inline-block;
+    white-space: nowrap;
+    padding-right: 60px;
+    font-weight: 900;
+    //text-align: right;
+  }
+
+  .pivotRightPad {
+    padding-right: 60px;
+  }
+  .quickTabsCat {
+    @extend .floatRight;
+    display: inline-block;
+    white-space: nowrap;
+    padding-right: 60px;
+    //text-align: right;
+  }
+
+  .quickTabs {
+    @extend .quickTabs;
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 15px;
+    //text-align: right;
+  }
+
+  .padLeft20 {
+    padding-left: 20px;
+  }
+
+  .showSearch {
+    transition:all 0.4s ease;
+    //transition:height 0.4s ease;
+    //transition:padding-bottom 0.4s ease;
+    //transition:transform 0.4s ease;
+    transform:scaleY(1);
+    transform-origin:top;
+    height:50px;
+    //max-height: 100px;
+    overflow: hidden;
+    padding-bottom: 20px;
+  }
+
+  .hideSearch {
+    transition:all 0.4s ease;
+    //transition:height 0.4s ease;
+    //transition:padding-bottom 0.4s ease;
+    //transition:transform 0.4s ease;
+    height:0;
+    overflow: hidden;
+    padding-bottom: 0px;
+    transform:scaleY(0);
+  }
+
+  .floatRight {
+    //width: 1200px;
+    //max-width: 500px;
+    display: flex;
+    justify-content: space-between;
+    //align-items: center makes items centered vertically
+    align-items: center;
+  }
+
+  .showErrorMessage {
+    display:"";
+    padding-left: 40px;
+    padding-bottom: 40px;
+  }
+
+  .showErrorMessageNoPad {
+    display:"";
+    padding-bottom: 40px;
+  }
+
   .container {
-    max-width: 700px;
+    max-width: 1400px;
     margin: 0px auto;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
   }
