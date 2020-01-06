@@ -1,0 +1,16 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "version": "1.9.1",
+    "libraryName": "track-my-time-7",
+    "libraryId": "d2b78ee9-71d1-4588-b4f4-4c88f4fdd936",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "TrackMyTime7",
+    "componentType": "webpart",
+    "framework": "react",
+    "componentName": "TrackMyTime7",
+    "componentDescription": "TrackMyTime web part 7",
+    "isCreatingSolution": true,
+    "isDomainIsolated": false
+  }
+}

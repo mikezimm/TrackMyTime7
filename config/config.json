@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "track-my-time-7-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/trackMyTime7/TrackMyTime7WebPart.js",
+          "manifest": "./src/webparts/trackMyTime7/TrackMyTime7WebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "TrackMyTime7WebPartStrings": "lib/webparts/trackMyTime7/loc/{locale}.js"
+  }
+}
