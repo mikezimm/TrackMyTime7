@@ -35,7 +35,7 @@
     }
 
     input {
-      height: 32px;
+      //height: 32px;
       min-width: 80px;
     }
   }
@@ -50,7 +50,7 @@
 
     input {
       @extend .highlightBlink1;
-      height: 32px;
+      //height: 32px;
       min-width: 80px;
     }
   }
@@ -65,7 +65,7 @@
 
     input {
       @extend .highlightBlink2;
-      height: 32px;
+      //height: 32px;
       min-width: 80px;
     }
   }
