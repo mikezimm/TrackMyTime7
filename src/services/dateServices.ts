@@ -1,5 +1,7 @@
 
 
+import { IUser} from '../webparts/trackMyTime7/components/ITrackMyTime7State';
+
 export interface ITheTime {
   now: Date;
   theTime : string;
@@ -122,7 +124,7 @@ export function getBestTimeDelta(startTime: string,endTime: string){
   }
 }
 
-export function getTimeDelta(time1, time2, inWhat){
+export function getTimeDelta(time1, time2, inWhat : string){
   let date = new Date(time1).getTime();
   let now = new Date(time2).getTime();
   let age : number = (now - date);
@@ -137,7 +139,7 @@ export function getTimeDelta(time1, time2, inWhat){
 
 }
 
-export function getAge(time, inWhat){
+export function getAge(time, inWhat : string){
   let now = new Date().getTime();
   let age = getTimeDelta(time, now, inWhat);
 
@@ -145,7 +147,7 @@ export function getAge(time, inWhat){
 
 }
 
-export function getGreeting(name){
+export function getGreeting(name: IUser){
   let hour = new Date().getHours();
   let message = "";
   if (hour < 1){
@@ -155,7 +157,7 @@ export function getGreeting(name){
   } else if (hour < 7){
     message = "Top O the mornin to younick";    
   } else if (hour < 12){
-    message = "Good morning SharePoint Usernick!";    
+    message = "Good morning nick!";
   } else if (hour < 17){
     message = "Afternoon partnernick";   
   } else if (hour < 18){
@@ -178,26 +180,29 @@ export function getGreeting(name){
 
     } else if (userName.title.indexOf("Zimmerman") > 0 ) {
       message = message.replace('nick'," BM");
+    } else { 
+      message = message.replace('nick', " " + userName.initials);
     }
   }
   return message;
 
 }
 
-export function getNicks(name){
+export function getNicks(name: IUser){
   let hour = new Date().getHours();
   //console.log('getNicks:', name);
   let message = name;
+  let result = "";
   if ( message) {
     if (message.title == 'Clickity McClickster'){
-      message = "Hey Sunshine!";
+      result = "Hey Sunshine!";
     } else if (message.title == 'Mike Zimmerman'){
-      message = "Hey Zimmerman!";
+      result = "Hey Zimmerman!";
     } else {
-      message = 'Hi ' + message.split(' ')[0];
+      result = 'Hi ' + message.title.split(' ')[0];
     }
   }
 
-  return message;
+  return result;
 
 }

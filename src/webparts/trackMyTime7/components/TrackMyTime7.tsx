@@ -1362,7 +1362,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
 
     trackTimeWeb.lists.getByTitle(useTrackMyTimeList).items
-    .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(200).get()
+    .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(400).get()
     .then((response) => {
 
       /**
@@ -2149,15 +2149,15 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         user: this.state.currentUser,
         userInitials: "You!",
         userId: response.data.UserId,
-        filterFlags: ["your","session"],
-        timeGroup: "0. This browser session",
-        duration: getTimeDelta( trackTimeItem.endTime , trackTimeItem.startTime , 'hours').toString(),
-        age: getAge(trackTimeItem.endTime,"days"),
-        deltaT: response.data.DeltaT,
-        created: created,
-        modified: created,
-        createdBy: this.state.currentUser.Id,
-        modifiedBy: this.state.currentUser.Id,
+        filterFlags: ["your","session"],
+        timeGroup: "0. This browser session",
+        duration: getTimeDelta( trackTimeItem.endTime , trackTimeItem.startTime , 'hours').toString(),
+        age: getAge(trackTimeItem.endTime,"days"),
+        deltaT: response.data.DeltaT,
+        created: created,
+        modified: created,
+        createdBy: this.state.currentUser.Id,
+        modifiedBy: this.state.currentUser.Id,
         listCategory: listCategory,
         listComments: listComments,
         listTimeSpan: listTimeSpan,
