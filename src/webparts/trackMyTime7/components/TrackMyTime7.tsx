@@ -401,9 +401,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   public render(): React.ReactElement<ITrackMyTime7Props> {
 
     let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
-    console.log('render setPivot:', setPivot);
-    console.log('render props:', this.props);
-    console.log('render state:', this.state);
+    //console.log('render setPivot:', setPivot);
+    console.log('Public render props:', this.props);
+    console.log('Public render state:', this.state);
 
     /**
      * this section was added to keep pivots in sync when syncProjectPivotsOnToggle === true
@@ -1182,7 +1182,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
     const projectWeb = Web(useProjectWeb);
     const trackTimeWeb = Web(useTrackMyTimeWeb);
-    const userWeb = Web(useTrackMyTimeWeb);
 
     let batch: any = sp.createBatch();
 
@@ -1211,8 +1210,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     // This did not seem to work when on another site:
     // sp.web.currentUser.inBatch(batch).get().then((r) => {
     // trackTimeWeb.currentUser.inBatch(batch).get().then((r) => {
-      console.log('sp.web:', sp.web);
-      console.log('sp.web.currentUser:', sp.web.currentUser);    
+    //  console.log('sp.web:', sp.web);
+    //  console.log('sp.web.currentUser:', sp.web.currentUser);    
 
     sp.web.currentUser.inBatch(batch).get().then((r) => {
 
@@ -1228,7 +1227,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       };
 
       let formEntry =this.createFormEntry();
-      console.log('formEntry', formEntry);
+      //console.log('formEntry: currentUser', formEntry);
       this.setState({  
         formEntry: formEntry,
         loadOrder: (this.state.loadOrder === "") ? 'User' : this.state.loadOrder + ' > User',
@@ -1245,22 +1244,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       }
 
     }).catch((e) => {
-      console.log('catch sp.web.currentUser');
-      console.log('sp.web:',sp.web);
+      console.log('ERROR:  catch sp.web.currentUser');
       this.processCatch(e);
     });
-
-    console.log('useProjectWeb:', useProjectWeb);
-    console.log('useProjectList:', useProjectList);
-    console.log('selectCols:', selectCols);
-    console.log('expandThese:', expandThese);
-    console.log('projectRestFilter:', projectRestFilter);
-    console.log('projectSort:', projectSort);
 
     projectWeb.lists.getByTitle(useProjectList).items
     .select(selectCols).expand(expandThese).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
     .then((response) => {
-      console.log('fetched Project Info:', response);
+      //console.log('fetched Project Info:', response);
       trackMyProjectsInfo.projectData = response.map((p) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
         let daily: any = false;
@@ -1365,30 +1356,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       }
 
     }).catch((e) => {
-      console.log('projectWeb.lists.getByTitle(useProjectList)',useProjectList);
-      console.log('projectWeb',projectWeb);
+      console.log('ERROR:  projectWeb.lists.getByTitle(useProjectList)',useProjectList);
       this.processCatch(e);
     });
 
-    //trackTimeSort
-
-    console.log('useTrackMyTimeWeb:', useTrackMyTimeWeb);
-    console.log('useTrackMyTimeList:', useTrackMyTimeList);
-    console.log('selectColsTrack:', selectColsTrack);
-    console.log('expandTheseTrack:', expandTheseTrack);
-    console.log('trackTimeRestFilter:', trackTimeRestFilter);
-    console.log('trackTimeSort:', trackTimeSort);
-
-    console.log('trackTimeWeb:', trackTimeWeb);
-    console.log('trackTimeSort:', trackTimeSort);
 
     trackTimeWeb.lists.getByTitle(useTrackMyTimeList).items
-    .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(200).inBatch(batch).get()
+    .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(200).get()
     .then((response) => {
-
-      console.log('fetched History Info:', response);
-      //console.log('response: timeTrackData', response);
-
 
       /**
        * This loop loosely increases performance by compounding number of entries.
@@ -1401,7 +1376,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           response = response.concat(response);
         }
       }
-
 
       trackMyProjectsInfo.timeTrackData = response.map((item) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
@@ -1504,11 +1478,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         loadData = null;
       }
 
-
-
     }).catch((e) => {
-      console.log('trackTimeWeb.lists.getByTitle(useTrackMyTimeList)',useTrackMyTimeList);
-      console.log('trackTimeWeb',trackTimeWeb);
+      console.log('ERROR:  trackTimeWeb.lists.getByTitle(useTrackMyTimeList)',useTrackMyTimeList);
       this.processCatch(e);
     });
 
@@ -1534,7 +1505,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     console.log(e.status);
     console.log(e.message);
     let sendMessage = e.status + " - " + e.message;
-    this.setState({  loadStatus: "ListNotFound", loadError: e.message, listError: true, });
+    this.setState({  loadStatus: "Not sure what happened!", loadError: e.message, listError: true, });
 
   }
 
@@ -1826,13 +1797,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     console.log('currentTimePicker state:', this.state);
     console.log('currentTimePicker hoursSinceLastTime:', hoursSinceLastTime);
 
-
     let currentTimePicker = 
     ( hoursSinceLastTime >  2 ) 
     ?  'slider'
     : this.state.currentTimePicker ;
 
-    
     let formEntry = this.state.formEntry;
     formEntry.entryType = currentTimePicker;
 
