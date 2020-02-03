@@ -172,7 +172,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
         // 7 - Slider Options
         showTimeSlider: this.properties.showTimeSlider, //true allows you to define end time and slider for how long you spent
         timeSliderInc: this.properties.timeSliderInc, //incriment of time slider
-        timeSliderMax: this.properties.timeSliderMax, //max of time slider
+        timeSliderMax: this.properties.timeSliderMax * 60, //max of time slider (in hours)
       
         // 9 - Other web part options
         webPartScenario: this.properties.webPartScenario, //Choice used to create mutiple versions of the webpart.

@@ -26,6 +26,8 @@ import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeS
 
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry} from './ITrackMyTime7State';
 import { pivotOptionsGroup, } from '../../../services/propPane';
+import { getHelpfullError, } from '../../../services/ErrorHandler';
+
 
 import { buildFormFields } from './fields/fieldDefinitions';
 
@@ -196,6 +198,28 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   }
 
+  
+    
+    
+  private errTitles() {
+    let options = [
+      'Oh Snap! We have a slight problem!',
+      'Houston, We have a problem!',
+      'Typo Alert!',
+      'Uhhmm... I have an issue!',
+      'Not sure what to say except...',
+      'We call these possible Typos...',
+      'Typos cost 1 Gazzilion lost electrons every year...',
+      'My AutoCorrect never fails... but...',
+      'May I call you ' + this.props.pageContext.user.displayName + '?',
+      'But but but... I know humans don\'t make mistakes',
+      'Please dial ++ (888)-TyposRUs'
+    ];
+
+    return options[Math.floor(Math.random() * options.length)];
+
+  }
+
   private createprojectInfo() {
 
     let projectInfo = {} as IProjectInfo;
@@ -221,8 +245,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       // 1 - Analytics options
 
       // 2 - Source and destination list information
-      projectListURL: '', //Get from list item
-      timeTrackerListURL: '', //Get from list item
+      projectListURL: this.props.projectListWeb ? this.props.projectListWeb : props.pageContext.web.absoluteUrl, //Get from list item
+      timeTrackerListURL: this.props.timeTrackListWeb ? this.props.timeTrackListWeb : props.pageContext.web.absoluteUrl, //Get from list item
 
       projectListName: '',  // Static Name of list (for URL) - used for links and determined by first returned item
       timeTrackListName: '',  // Static Name of list (for URL) - used for links and determined by first returned item
@@ -285,7 +309,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       timeTrackerItemsError: false,
 
       userLoadStatus:"Loading",
-
+      errTitle: this.errTitles(),
       showTips: "none",
       loadError: "",
 
@@ -320,11 +344,12 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     
   }
 
+
   public componentDidMount() {
     this._getListItems();
     
   }
-  
+
   public componentDidUpdate(prevProps){
 
     let rebuildTiles = false;
@@ -400,6 +425,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   public render(): React.ReactElement<ITrackMyTime7Props> {
 
+  
     let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
     //console.log('render setPivot:', setPivot);
     console.log('Public render props:', this.props);
@@ -436,7 +462,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       // Also need to add if the slider would put the start time before the last end time.
     } else if ( this.state.currentTimePicker === 'sinceLast' ) {
-      if ( hoursSinceLastTime > 2 ) { isSaveDisabled = true; }
+      if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabled = true; }
 
     } // else if  -- Need to add logic when Manual and days not filled out
 
@@ -464,6 +490,92 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       
 
     } else { theTime = ""; }
+
+    const projectsWebError = this.props.projectListWeb.indexOf(this.props.tenant) > -1 ? '' :
+    <div>
+        <p>Your Project List is not in this Tenanat...</p>
+        <ul>
+          <li>{ this.props.projectListWeb } &lt;&lt;== Project Web</li>
+          <li>{ this.props.tenant } &lt;&lt;== Should have this in it</li>
+        </ul>
+
+    </div>;
+
+    const timeWebError = this.props.timeTrackListWeb.indexOf(this.props.tenant) > -1 ? '' :
+    <div>
+        <p>Your TimeTrack List is not in this Tenanat...</p>
+        <ul>
+          <li>{ this.props.timeTrackListWeb } &lt;&lt;== TrackTime List Web</li>
+          <li>{ this.props.tenant } &lt;&lt;== Should have this in it</li>
+        </ul>
+    </div>;
+
+    const projectsListError = this.state.projects.master.length !== 0 ? '' :
+      <div>
+        <ul>
+          <li>Is this the right Projects List URL? <b>{ this.state.projectListURL }</b></li>
+          <li>Is this the right Projects List Title? <b>{ this.props.projectListTitle }</b></li>
+          <li>
+            <a href={this.state.projectListURL + '/lists/' + this.props.projectListTitle} target='_blank'>
+              <span>Check your Project list here</span>
+            </a>
+          </li>
+        </ul>
+      </div>;
+
+    const timeListError = this.state.projects.user.length !== 0 ? '' :
+    <div>
+      <ul>
+        <li>Is this the right TrackYourTime List URL? <b>{ this.props.timeTrackListWeb }</b></li>
+        <li>Is this the right TrackYourTime List Title? <b>{ this.props.timeTrackListTitle }</b></li>
+        <li>
+          <a href={this.state.timeTrackerListURL + '/lists/' + this.props.timeTrackListTitle} target='_blank'>
+            <span>Check your TrackTime list here</span>
+          </a>
+        </li>
+      </ul>
+    </div>;
+
+    const listError = this.state.listError === false ? '' :
+      <div style={{ paddingTop: '0px' }}>
+        <h2>{ this.state.errTitle }</h2>
+        <h3>Here are the error(s) we received</h3>
+        <p><mark>{ this.state.loadError }</mark></p>
+        <h3>Here are some suggestions</h3>
+          {projectsWebError} 
+          {projectsListError}
+          {timeWebError}
+          {timeListError}
+
+      </div>;
+    
+
+    const noProjectsFound = this.state.projectType !== false && this.state.projectsLoadStatus === 'Complete' ? '' :
+    <div style={{ paddingTop: '0px' }}>
+      <h2>No Projects found in "{this.state.filteredCategory}" :(</h2>
+      <h3>Get started by checking for other projects</h3>
+      <ul>
+      <li>Click on the other Project Categories like</li>
+        <ol>
+          <li>{this.state.pivots.projects[0].headerText}</li>
+          <li>{this.state.pivots.projects[1].headerText}</li>
+          <li>{this.state.pivots.projects[2].headerText}</li>
+          <li>{this.state.pivots.projects[3].headerText}</li>
+        </ol>
+      </ul>
+      <h3>Can't find any? Create a new one!</h3>
+      <ol>
+        <li>
+          <a href={this.props.projectListWeb + '/lists/' + this.props.projectListTitle} >
+            <span>Go to your list: { this.props.projectListTitle }</span>
+          </a>
+        </li>
+        <li>Create some new projects</li>
+        <li>Make yourself the Leader for easy access</li>
+        <li>Mark generic ones 'Everyone' so they are easy to find</li>
+      </ol>
+    </div>;
+
 
     const buttons: ISingleButtonProps[] =
       [{
@@ -501,9 +613,15 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let activity = formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabled,  this._updateActivity.bind(this));
 
     //let entryType = formBuilders.createThisField(this.props,this.state, this.state.fields., this._updateEntryType.bind(this));
+    
+    let listProjects = null;
+    if (this.state.listError) { listProjects = listError; }
+    else if ( this.state.projectsLoadStatus === 'Complete' && this.state.projects.newFiltered.length===0 ) {
+      listProjects =  noProjectsFound;
+    } else {
+      listProjects = listBuilders.projectBuilder(this.props,this.state,this.state.projects.newFiltered, this._getSelectedProject.bind(this));
+    }
 
-    let listProjects =  (this.state.projects.newFiltered.length===0) ? "" :
-        listBuilders.projectBuilder(this.props,this.state,this.state.projects.newFiltered, this._getSelectedProject.bind(this));
     let listBuild = listBuilders.listViewBuilder(this.props,this.state,this.state.entries.newFiltered);
 
     let userName = this.state.currentUser
@@ -1356,7 +1474,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       }
 
     }).catch((e) => {
-      console.log('ERROR:  projectWeb.lists.getByTitle(useProjectList)',useProjectList);
+      console.log('ERROR:  projectWeb.lists.getByTitle(useProjectList)',useProjectList, e);
+      let projErrMessage = getHelpfullError(e);
+      this.setState({  loadStatus: projErrMessage, loadError: this.state.loadError + '.  ' + projErrMessage, listError: true, projectsListError: true, projectsLoadError: projErrMessage,});
       this.processCatch(e);
     });
 
@@ -1479,7 +1599,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       }
 
     }).catch((e) => {
-      console.log('ERROR:  trackTimeWeb.lists.getByTitle(useTrackMyTimeList)',useTrackMyTimeList);
+      console.log('ERROR:  trackTimeWeb.lists.getByTitle(useTrackMyTimeList)',useTrackMyTimeList, e);
+      let projTimeMessage = getHelpfullError(e);
+      this.setState({  loadStatus: projTimeMessage, loadError: this.state.loadError + '.  ' + projTimeMessage, listError: true, timeTrackerListError: true, timeTrackerLoadError: projTimeMessage,});
       this.processCatch(e);
     });
 
@@ -1501,12 +1623,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     console.log("Can't load data");
     //var m = e.status === 404 ? "Tile List not found: " + useTileList : "Other message";
     //alert(m);
+    let errMessage = getHelpfullError(e);
     console.log(e);
     console.log(e.status);
     console.log(e.message);
     let sendMessage = e.status + " - " + e.message;
-    this.setState({  loadStatus: "Not sure what happened!", loadError: e.message, listError: true, });
-
+    //this.setState({  loadStatus: "Not sure what happened!", loadError: e.message, listError: true, });
+    this.setState({  loadStatus: errMessage, loadError: errMessage, listError: true, });
   }
 
   private processProjects(projectData){
