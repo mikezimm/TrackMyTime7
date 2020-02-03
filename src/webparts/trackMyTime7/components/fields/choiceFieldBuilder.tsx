@@ -29,6 +29,7 @@ export function creatEntryTypeChoices(parentProps:ITrackMyTime7Props , parentSta
   let options : IChoiceGroupOption[] = [];
   let choiceSpacer = '\u00A0\u00A0';
   let spacer4x = choiceSpacer + choiceSpacer + choiceSpacer + choiceSpacer;
+  options.push(  {key: 'start', text: 'Start' + spacer4x });
   options.push(  {key: 'sinceLast', text: 'Since last' + spacer4x });
   options.push(  {key: 'slider', text: 'Slider' + spacer4x });
   options.push(  {key: 'manual', text: 'Manual' + choiceSpacer });

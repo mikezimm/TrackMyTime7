@@ -40,7 +40,7 @@ import * as formBuilders from './fields/textFieldBuilder';
 import * as choiceBuilders from './fields/choiceFieldBuilder';
 import * as sliderBuilders from './fields/sliderFieldBuilder';
 import * as smartLinks from './ActivityURL/ActivityURLMasks';
-
+import * as dateBuilders from './fields/dateFieldBuilder';
   
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
@@ -168,29 +168,30 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     let form : ISaveEntry = {
 
-      titleProject:'Track My Time Development',
-      comments: this.createSmartText('Comments','comments'),
-      category1:[],
-      category2:[],
-      leader:this.createUser(),
-      team:[],
-      leaderId:null,
-      teamIds:[],
-      projectID1:this.createSmartText('Project ID1','projectID1'),
-      projectID2:this.createSmartText('Project ID2','projectID2'),
-      sourceProject:this.createLink(),
-      activity:this.createLink(),
-      ccList:this.createLink(),
-      ccEmail:'',
-      userId: null,
-      startTime:'',
-      endTime:'',
-      entryType:this.props.defaultTimePicker,
-      timeEntryTBD1:'',
-      timeEntryTBD2:'',
-      timeEntryTBD3:'',
-      location:this.props.defaultLocation,
-      settings:'',
+    titleProject:'Tell me what you are doing here :)',
+    comments: this.createSmartText('Comments','comments'),
+    
+    category1:[],
+    category2:[],
+    leader:this.createUser(),
+    team:[],
+    leaderId:null,
+    teamIds:[],
+    projectID1:this.createSmartText('Project ID1','projectID1'),
+    projectID2:this.createSmartText('Project ID2','projectID2'),
+    sourceProject:this.createLink(),
+    activity:this.createLink(),
+    ccList:this.createLink(),
+    ccEmail:'',
+    userId: null,
+    startTime:'',
+    endTime:'',
+    entryType:this.props.defaultTimePicker,
+    timeEntryTBD1:'',
+    timeEntryTBD2:'',
+    timeEntryTBD3:'',
+    location:this.props.defaultLocation,
+    settings:'',
 
     };
 
@@ -425,7 +426,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   public render(): React.ReactElement<ITrackMyTime7Props> {
 
-  
+    const isSinceEntry = this.state.currentTimePicker === 'sinceLast' ? true : false;   
+    const isSliderEntry = this.state.currentTimePicker === 'slider' ? true : false;
+    const isManualEntry = this.state.currentTimePicker === 'manual' ? true : false;
+
     let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
     //console.log('render setPivot:', setPivot);
     console.log('Public render props:', this.props);
@@ -486,7 +490,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           theTime = <div className={ styles.timeInPast }>From { getDayTimeToMinutes(this.state.formEntry.startTime) } until NOW</div>;
         } else { // Value can not be zero or the save button should not be visible.
           theTime = <div className={ styles.timeError }>Adjust the slider before saving</div>;
+        } else if ( this.state.currentTimePicker === 'start' ) {
+          theTime = <div>Creates zero minutes entry to start your day</div>;
         }
+    
       
 
     } else { theTime = ""; }
@@ -578,21 +585,30 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
 
     const buttons: ISingleButtonProps[] =
-      [{
+      [/*
+        {
+        disabled: isSaveDisabled,  
+        checked: true, 
+        primary: true,
+        label: "Start Time",
+        secondary: "Create start ime",
+        buttonOnClick: this.startMyTime.bind(this),
+      },*/
+{
         disabled: false,  
         checked: true, 
         primary: false,
         label: "Clear item",
         secondary: "Press to clear form",
         buttonOnClick: this.clearMyInput.bind(this),
-      },{
+      },      {
         disabled: isSaveDisabled,  
         checked: true, 
         primary: true,
         label: "Save item",
         secondary: "Press to Create entry",
         buttonOnClick: this.trackMyTime.bind(this),
-      }
+      },
 
       ];
 
@@ -603,14 +619,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       />
     </div>;
      
-    let timeSlider = sliderBuilders.createSlider(this.props,this.state, this._updateTimeSlider.bind(this));
-
+    let timeSlider = isSliderEntry ? sliderBuilders.createSlider(this.props,this.state, this._updateTimeSlider.bind(this)) : '';
     let comments = formBuilders.createThisField(this.props,this.state, this.state.fields.Comments, isSaveDisabled, this._updateComments.bind(this));
     let projectTitle = formBuilders.createThisField(this.props,this.state,this.state.fields.Title, isSaveDisabled,  this._updateProjectTitle.bind(this));
     let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabled,  this._updateProjectID1.bind(this));
     let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabled,  this._updateProjectID2.bind(this));
 
     let activity = formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabled,  this._updateActivity.bind(this));
+
+    let startDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.Start, false, this._updateStart.bind(this)) : '';
+    let endDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.End, false, this._updateEnd.bind(this)) : '';
 
     //let entryType = formBuilders.createThisField(this.props,this.state, this.state.fields., this._updateEntryType.bind(this));
     
@@ -654,6 +672,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
               <Stack horizontal={false} horizontalAlign={"end"} tokens={stackFormRowsTokens}>{/* Stack for Buttons and Fields */}
                 { entryOptions }
                 { (timeSlider) }
+                <Stack horizontal={true} wrap={true} horizontalAlign={"end"} tokens={stackFormRowsTokens}>{/* Stack for Buttons and Fields */}
+                { startDate }
+                { endDate }
+                </Stack>  {/* Stack for Buttons and Fields */}
                 { theTime }
                 { projectTitle }
                 { activity }
@@ -787,6 +809,22 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     }
 
 
+    this.setState({ formEntry:formEntry, blinkOnProject: 0,});
+  }
+
+  private _updateStart(newValue){
+    console.log('_updateStart:', typeof newValue, newValue);
+    let formEntry = this.state.formEntry;
+    formEntry.startTime = newValue.toLocaleString();
+    console.log('_updateStart:', formEntry.startTime);   
+    this.setState({ formEntry:formEntry, blinkOnProject: 0,});
+  }
+
+  private _updateEnd(newValue){
+    console.log('_updateEnd:', typeof newValue, newValue);
+    let formEntry = this.state.formEntry;
+    formEntry.endTime = newValue.toLocaleString();
+    console.log('_updateStart:', formEntry.endTime);   
     this.setState({ formEntry:formEntry, blinkOnProject: 0,});
   }
 
@@ -1126,10 +1164,22 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   }
 
+  public startMyTime = () : void => {
+    //alert('trackMyTime');
+    this.saveMyTime (this.state.formEntry , 'master');
+
+  }
+
   public clearMyInput = () : void => {
 
+    let formEntry =this.createFormEntry();
+    //console.log('formEntry: currentUser', formEntry);
+    this.setState({  
+      formEntry: formEntry,
+    });
+
     //this.saveMyTime (this.state.entries.all[0] , 'master');
-    alert('clearMyInput');
+    alert('We cleared all unsaved data.');
   }
 
   public toggleTips = (item: any): void => {
@@ -2135,10 +2185,25 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if (this.state.currentTimePicker === 'sinceLast') {
       itemStartTime = new Date(this.state.lastEndTime.theTime).toLocaleString();
       itemEndTime = new Date().toLocaleString();
+
     } else if (this.state.currentTimePicker === 'slider') {
       itemStartTime = this.state.formEntry.startTime;
       itemEndTime = this.state.formEntry.endTime;
+
+    } else if (this.state.currentTimePicker === 'manual') {
+      console.log('saveMyTime start', this.state.formEntry.startTime);
+      console.log('saveMyTime end', this.state.formEntry.endTime);
+      itemStartTime = this.state.formEntry.startTime;
+      itemEndTime = this.state.formEntry.endTime;   
+
+    } else if (this.state.currentTimePicker === 'start') {
+
+      itemStartTime = new Date().toLocaleString();
+      itemEndTime = new Date().toLocaleString();   
+      console.log('startMyTime start', itemStartTime);
+      console.log('startMyTime end', itemEndTime);
     } else {
+      
       itemStartTime = new Date(this.state.lastEndTime.theTime).toLocaleString();
       itemEndTime = new Date().toLocaleString();
     }
