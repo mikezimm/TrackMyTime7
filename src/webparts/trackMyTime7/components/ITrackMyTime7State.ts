@@ -53,44 +53,44 @@ export interface IEntryInfo {
  * Eventually upon save, this will turn into a full ITimeEntry
  */
 export interface ISaveEntry {
-    //Values that would come from Project item
+    //Values that would come from Project item
 
-    titleProject: string;
-    comments?: ISmartText;
-    category1?: string[];
-    category2?: string[];
-    leader?: IUser;  //Likely single person column
-    team?: IUser[];  //Likely multi person column
-    leaderId?: number;
-    teamIds?: number[];
+    titleProject: string;
+    comments?: ISmartText;
+    category1?: string[];
+    category2?: string[];
+    leader?: IUser;  //Likely single person column
+    team?: IUser[];  //Likely multi person column
+    leaderId?: number;
+    teamIds?: number[];
   
-    //This block for use in the history list component
-    projectID1?: ISmartText;  //Example Project # - look for strings starting with * and ?
-    projectID2?: ISmartText;  //Example Cost Center # - look for strings starting with * and ?
+    //This block for use in the history list component
+    projectID1?: ISmartText;  //Example Project # - look for strings starting with * and ?
+    projectID2?: ISmartText;  //Example Cost Center # - look for strings starting with * and ?
   
-    //Values that relate to project list item
-    sourceProject?: ILink; //Link back to the source project list item.
-    activity?: ILink; //Link to the activity you worked on
-    ccList?: ILink; //Link to CC List to copy item
-    ccEmail?: string; //Email to CC List to copy item 
+    //Values that relate to project list item
+    sourceProject?: ILink; //Link back to the source project list item.
+    activity?: ILink; //Link to the activity you worked on
+    ccList?: ILink; //Link to CC List to copy item
+    ccEmail?: string; //Email to CC List to copy item 
   
-    //Values specific to Time Entry
+    //Values specific to Time Entry
   
-    userId?: number;
-    startTime?: any; //Time stamp
-    endTime?: any; // Time stamp
+    userId?: number;
+    startTime?: any; //Time stamp
+    endTime?: any; // Time stamp
 
-    //Saves what entry option was used... Since Last, Slider, Manual
-    entryType?: string;
+    //Saves what entry option was used... Since Last, Slider, Manual
+    entryType?: string;
 
-    timeEntryTBD1?: string;
-    timeEntryTBD2?: string;
-    timeEntryTBD3?: string;  
+    timeEntryTBD1?: string;
+    timeEntryTBD2?: string;
+    timeEntryTBD3?: string;  
 
 
-    //Other settings and information
-    location?: string; // Location
-    settings?: string;
+    //Other settings and information
+    location?: string; // Location
+    settings?: string;
 
   
 }
@@ -101,38 +101,38 @@ export interface ISaveEntry {
 export interface ITimeEntry extends ISaveEntry {
 
 
-    //Values that would come from Project item
-    id?: any; //Item ID on list
-    editLink? : ILink; //Link to view/edit item link
+    //Values that would come from Project item
+    id?: any; //Item ID on list
+    editLink? : ILink; //Link to view/edit item link
 
-    //This block for use in the history list component
-    userInitials?: string;
-    listCategory?: string; 
-    listTimeSpan?: string;
-    listProjects?: string;
-    listTracking?: string; 
+    //This block for use in the history list component
+    userInitials?: string;
+    listCategory?: string; 
+    listTimeSpan?: string;
+    listProjects?: string;
+    listTracking?: string; 
     listComments?: string;
   
-    filterFlags?: string[]; // what flags does this match?  yourRecent, allRecent etc...
-    timeGroup?: string; //Used for grouping the list of entries
+    filterFlags?: string[]; // what flags does this match?  yourRecent, allRecent etc...
+    timeGroup?: string; //Used for grouping the list of entries
 
-    //Values that relate to project list item
+    //Values that relate to project list item
 
-    //Values specific to Time Entry
-    user: IUser;  //Single person column
-    duration?: string; //Number  -- May not be needed based on current testing with start and end dates.
-    age?: number; //Days since End Time
+    //Values specific to Time Entry
+    user: IUser;  //Single person column
+    duration?: string; //Number  -- May not be needed based on current testing with start and end dates.
+    age?: number; //Days since End Time
   
-    //Saves what entry option was used... Since Last, Slider, Manual
+    //Saves what entry option was used... Since Last, Slider, Manual
   
-    deltaT?: any; //Could be used to indicate how many hours entry was made (like now, or 10 2 days in the past)
+    deltaT?: any; //Could be used to indicate how many hours entry was made (like now, or 10 2 days in the past)
 
-    //Other settings and information
+    //Other settings and information
 
-    created?: Date;
-    modified?: Date;
-    createdBy?: Number;
-    modifiedBy?: Number;
+    created?: Date;
+    modified?: Date;
+    createdBy?: Number;
+    modifiedBy?: Number;
 
 }
 

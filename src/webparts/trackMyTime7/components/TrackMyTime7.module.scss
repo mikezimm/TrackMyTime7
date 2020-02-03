@@ -25,6 +25,10 @@
     color: red;
   }
 
+  //  to apply to subclass of this... like date fields... .dateInlineflex .ms-ChoiceField{
+  .dateInlineflex{
+      display: inline-flex;
+  }
 
   .textField {
     display: table-cell;
