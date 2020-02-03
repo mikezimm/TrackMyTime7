@@ -14,15 +14,17 @@ import styles from '../TrackMyTime7.module.scss';
 
 export function createSlider(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, _onChange){
 
+
   if ( parentState.currentTimePicker !== 'slider') { return ""; }
+  let maxTime = parentProps.timeSliderMax;
   return (
     <div style={{minWidth: 400, }}>
       <Slider 
       label={ ((parentState.timeSliderValue < 0)  ? "Start time is in the past" : "End time is Back to the future" ) }
-      min={-120} 
-      max={120} 
-      step={5} 
-      defaultValue={0} 
+      min={ -1 * maxTime } 
+      max={ maxTime } 
+      step={ parentProps.timeSliderInc } 
+      defaultValue={ 0 } 
       valueFormat={value => `${value} mins`}
       showValue 
       originFromZero

@@ -67,7 +67,7 @@
       // 7 - Slider Options
       "showTimeSlider": false, //true allows you to define end time and slider for how long you spent
       "timeSliderInc": 5, //incriment of time slider
-      "timeSliderMax": 480, //max of time slider
+      "timeSliderMax": 4, //max of time slider
 
       // 9 - Other web part options
       "webPartScenario": "Team", //Choice used to create mutiple versions of the webpart.
