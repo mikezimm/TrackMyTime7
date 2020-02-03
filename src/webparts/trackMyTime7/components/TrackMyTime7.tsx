@@ -462,7 +462,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       // Also need to add if the slider would put the start time before the last end time.
     } else if ( this.state.currentTimePicker === 'sinceLast' ) {
-      if ( hoursSinceLastTime > 2 ) { isSaveDisabled = true; }
+      if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabled = true; }
 
     } // else if  -- Need to add logic when Manual and days not filled out
 
