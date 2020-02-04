@@ -3,9 +3,11 @@ import * as ReactDom from 'react-dom';
 import { Version } from '@microsoft/sp-core-library';
 import {
   BaseClientSideWebPart,
-  IPropertyPaneConfiguration,
-  PropertyPaneTextField
 } from '@microsoft/sp-webpart-base';
+
+import {
+  IPropertyPaneConfiguration,
+} from '@microsoft/sp-property-pane';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 import TrackMyTime7 from './components/TrackMyTime7';
@@ -283,6 +285,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
     let isProject = ProjectOrTime.toLowerCase() === 'project' ? true : false;
     let isTime = ProjectOrTime.toLowerCase() === 'trackmytime' ? true : false;
+
+    alert('Hey!  Press OK to Build/Verify your ' + ProjectOrTime + ' list... Then please wait 5-30 seconds for another popup to confirm the result before moving on.');
 
     try {
       const ensureResult = await sp.web.lists.ensure(myListName,

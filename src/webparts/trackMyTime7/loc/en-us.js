@@ -1,8 +1,8 @@
 define([], function() {
   return {
 
-    "PropertyPaneAbout": "Enter PropertyPaneAbout in strings",
-    "PropertyPaneDescription": "Description",
+    "PropertyPaneAbout": "Minimal Webpart Settings",
+    "PropertyPaneDescription": "Advanced Settings",
     "BasicGroupName": "Group Name",
     "DescriptionFieldLabel": "Description Field",
 

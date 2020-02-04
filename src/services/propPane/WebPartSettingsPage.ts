@@ -9,7 +9,7 @@ import {
     IPropertyPaneDropdownOption,
     PropertyPaneSlider,
     PropertyPaneToggle
-  } from '@microsoft/sp-webpart-base';
+  } from '@microsoft/sp-property-pane';
   import { PropertyFieldMultiSelect } from '@pnp/spfx-property-controls/lib/PropertyFieldMultiSelect';
   
   import * as strings from 'TrackMyTime7WebPartStrings';
@@ -74,9 +74,10 @@ import {
     public getPropertyPanePage(webPartProps): IPropertyPanePage {
       return <IPropertyPanePage>        { // <page2>
         header: {
-          displayGroupsAsAccordion: true,
+
           description: strings.PropertyPaneDescription,
         },
+        displayGroupsAsAccordion: true,
         groups: [
 
           /** 3 - General how accurate do you want this to be
@@ -85,6 +86,7 @@ import {
             confirmPrompt: boolean;  //Make user press confirm
           */
           { groupName: strings.PropPaneGroupLabel_Accuracy,
+            isCollapsed: true ,
           groupFields: [
             
             PropertyPaneSlider('stressMultiplier', {
@@ -98,18 +100,21 @@ import {
             PropertyPaneDropdown('roundTime', <IPropertyPaneDropdownProps>{
               label: strings.FieldLabel_RoundTime,
               options: trackTimeOptionsGroup.roundTimeChoices,
+              disabled: true,
             }),
 
             PropertyPaneToggle('forceCurrentUser', {
               label: strings.FieldLabel_ForceCurrentUser,
               offText: strings.FieldLabel_ToggleTextOff,
               onText: strings.FieldLabel_ToggleTextOn,
+              disabled: true,
             }),
 
             PropertyPaneToggle('confirmPrompt', {
               label: strings.FieldLabel_ConfirmPrompt,
               offText: strings.FieldLabel_ToggleTextOff,
-              onText: strings.FieldLabel_ToggleTextOn
+              onText: strings.FieldLabel_ToggleTextOn,
+              disabled: true,
             }),
 
           ]}, // this group
@@ -121,13 +126,14 @@ import {
           */
 
           { groupName: strings.PropPaneGroupLabel_ProjectOptions,
-            isCollapsed: webPartProps.setSize === "This does nothing yet" ? true : false ,
+            isCollapsed: true ,
 
             groupFields: [
               PropertyPaneToggle('onlyActiveProjects', {
                 label: strings.FieldLabel_OnlyActiveProjects,
                 offText: strings.FieldLabel_ToggleTextOff,
-                onText: strings.FieldLabel_ToggleTextOn
+                onText: strings.FieldLabel_ToggleTextOn,
+                disabled: true,
               }),
 
               PropertyPaneToggle('allowUserProjects', {
@@ -140,7 +146,8 @@ import {
               PropertyPaneToggle('projectType', {
                 label: strings.FieldLabel_DefaultProjectsOrHistory,
                 offText: strings.ToggleLabel_Projects,
-                onText: strings.ToggleLabel_History
+                onText: strings.ToggleLabel_History,
+                disabled: true,
               }),
 
               PropertyPaneToggle('syncProjectPivotsOnToggle', {
@@ -152,11 +159,13 @@ import {
               PropertyPaneDropdown('projectMasterPriority', <IPropertyPaneDropdownProps>{
                 label: strings.FieldLabel_ProjectMasterPriority,
                 options: trackTimeOptionsGroup.projectMasterPriorityChoices,
+                disabled: true,
               }),
 
               PropertyPaneDropdown('projectUserPriority', <IPropertyPaneDropdownProps>{
                 label: strings.FieldLabel_ProjectUserPriority,
                 options: trackTimeOptionsGroup.projectUserPriorityChoices,
+                disabled: true,
               }),   
               
               
@@ -169,7 +178,7 @@ import {
           */
 
           { groupName: strings.PropPaneGroupLabel_UIDefaults,
-           isCollapsed: webPartProps.setSize === "This does nothing yet" ? true : false ,
+            isCollapsed: true ,
           groupFields: [
 
             PropertyPaneDropdown('defaultProjectPicker', <IPropertyPaneDropdownProps>{
@@ -204,19 +213,21 @@ import {
           */
 
          { groupName: strings.PropPaneGroupLabel_UserFeedback,
-          isCollapsed: webPartProps.setSize === "This does nothing yet" ? true : false ,
+          isCollapsed: true ,
          groupFields: [
 
             PropertyPaneToggle('showElapsedTimeSinceLast', {
               label: strings.FieldLabel_ShowElapsedTimeSinceLast,
               offText: strings.FieldLabel_ToggleTextOff,
-              onText: strings.FieldLabel_ToggleTextOn
+              onText: strings.FieldLabel_ToggleTextOn,
+              disabled: true,
             }),
                         
             PropertyPaneToggle('showTargetToggle', {
               label: strings.FieldLabel_ShowTargetToggle,
               offText: strings.FieldLabel_ToggleTextOff,
-              onText: strings.FieldLabel_ToggleTextOn
+              onText: strings.FieldLabel_ToggleTextOn,
+              disabled: true,
             }),
 
             PropertyPaneToggle('showTargetBar', {
@@ -252,7 +263,7 @@ import {
           */
 
          { groupName: strings.PropPaneGroupLabel_SliderOptions,
-          isCollapsed: webPartProps.setSize === "This does nothing yet" ? true : false ,
+          isCollapsed: true ,
          groupFields: [
 
           PropertyPaneToggle('showTimeSlider', {

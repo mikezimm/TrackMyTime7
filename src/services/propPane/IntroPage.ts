@@ -76,16 +76,18 @@ export class IntroPage {
       header: {
         description: strings.PropertyPaneAbout
       },
+      displayGroupsAsAccordion: true,
       groups: [
-        {
+        { groupName: 'Web Part Info',
+          isCollapsed: true ,
           groupFields: [
             PropertyPaneLabel('About Text', {
               text: 'This webpart gets helps track your time using SharePoint :).'
             }),
 
             PropertyPaneLink('About Link' , {
-              text: 'Github Repo:  TrackMyTime',
-              href: 'https://github.com/mikezimm/TrackMyTime/wiki',
+              text: 'Github Repo:  TrackMyTime7',
+              href: 'https://github.com/mikezimm/TrackMyTime7/wiki',
             }),
           ]
         },
@@ -93,25 +95,16 @@ export class IntroPage {
 
                 
         // 2 - Source and destination list information
-        { 
-          groupFields: [
-            PropertyPaneToggle('createVerifyLists', {
-              label: 'Create/Verify Lists',
-              offText: strings.FieldLabel_ToggleTextOff,
-              onText: strings.FieldLabel_ToggleTextOn,
-            }),
-          ]}, // this group
-
-        { isCollapsed: !webPartProps.createVerifyLists,
-
-          groupFields: [
+        {  groupName: 'Create-Verify Lists',
+            isCollapsed: true ,
+            groupFields: [
 
             PropertyPaneLabel('Notice', {
               text: 'NOTE:  It may take 5-20 seconds to create/verify list.  Do NOT close browser or interupt while it is creating lists.'
             }),
 
             PropertyPaneLabel('Notice', {
-              text: 'NOTE:  It may take 5-20 seconds to create/verify list.  Do NOT close browser or interupt while it is creating lists.'
+              text: ''
             }),
 
             PropertyPaneButton('CreateTTIMProjectList',  
@@ -119,6 +112,10 @@ export class IntroPage {
              text: "Create/Verify Projects List",
              buttonType: PropertyPaneButtonType.Normal,
              onClick: _onClickCreateProject
+            }),
+
+            PropertyPaneLabel('Notice', {
+              text: ''
             }),
 
             PropertyPaneButton('CreateTTIMTimeList',
@@ -129,11 +126,11 @@ export class IntroPage {
             }),
             
             PropertyPaneLabel('Project List', {
-              text: webPartProps.projectListConfirmed ? webPartProps.projectListTitle + ' List is available' : 'Verify or Create your list!'
+              text: webPartProps.projectListConfirmed ? 'Checking for ' + webPartProps.projectListTitle : 'Verify or Create your PROJECT list!'
             }),
 
             PropertyPaneLabel('Time List', {
-              text: webPartProps.timeTrackListConfirmed ? webPartProps.timeTrackListTitle + ' List is available' : 'Verify or Create your list!'
+              text: webPartProps.timeTrackListConfirmed ? 'Checking for ' + webPartProps.timeTrackListTitle : 'Verify or Create your TIME list!'
             }),
 
           ]}, // this group
@@ -142,7 +139,8 @@ export class IntroPage {
 
 
         // 2 - Source and destination list information    
-        { groupName: 'Basic list info',
+        { groupName: 'Your list info',
+        isCollapsed: true ,
         groupFields: [
           PropertyPaneTextField('projectListWeb', {
               label: strings.FieldLabel_ProjectListWeb
@@ -160,16 +158,8 @@ export class IntroPage {
 /* */
         
         // 9 - Other web part options
-        { groupName: 'Pivot Styles',
-          groupFields: [
-            PropertyPaneToggle('advancedPivotStyles', {
-              label: '',
-              offText: strings.FieldLabel_ToggleTextOff,
-              onText: strings.FieldLabel_ToggleTextOn,
-            }),
-          ]}, // this group
-
-        { isCollapsed: !webPartProps.advancedPivotStyles,
+        { groupName: 'Pivot Styles (headings)',
+          isCollapsed: true ,
           groupFields: [
             PropertyPaneDropdown('pivotSize', <IPropertyPaneDropdownProps>{
               label: strings.FieldLabel_PivSize,
