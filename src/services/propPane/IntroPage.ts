@@ -6,12 +6,17 @@ import {
   PropertyPaneTextField, IPropertyPaneTextFieldProps,
   PropertyPaneLink, IPropertyPaneLinkProps,
   PropertyPaneDropdown, IPropertyPaneDropdownProps,
-  IPropertyPaneDropdownOption,PropertyPaneToggle
+  IPropertyPaneDropdownOption,PropertyPaneToggle,
+  BaseClientSideWebPart,
+  IPropertyPaneConfiguration,
+  PropertyPaneButton,
+  PropertyPaneButtonType,
 } from '@microsoft/sp-webpart-base';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 import { pivotOptionsGroup} from './index';
 
+import { ITrackMyTimeWebPartProps } from '../../webparts/trackMyTime7/TrackMyTime7WebPart';
 
 /*
 
@@ -62,11 +67,10 @@ import { pivotOptionsGroup} from './index';
   pivotFormat: string;
   pivotOptions: string;
 
-
     */
 
 export class IntroPage {
-  public getPropertyPanePage(webPartProps): IPropertyPanePage {
+  public getPropertyPanePage(webPartProps: ITrackMyTimeWebPartProps, _onClickCreateTime, _onClickCreateProject ): IPropertyPanePage {
     return <IPropertyPanePage>
     { // <page1>
       header: {
@@ -85,6 +89,57 @@ export class IntroPage {
             }),
           ]
         },
+
+
+                
+        // 2 - Source and destination list information
+        { 
+          groupFields: [
+            PropertyPaneToggle('createVerifyLists', {
+              label: 'Create/Verify Lists',
+              offText: strings.FieldLabel_ToggleTextOff,
+              onText: strings.FieldLabel_ToggleTextOn,
+            }),
+          ]}, // this group
+
+        { isCollapsed: !webPartProps.createVerifyLists,
+
+          groupFields: [
+
+            PropertyPaneLabel('Notice', {
+              text: 'NOTE:  It may take 5-20 seconds to create/verify list.  Do NOT close browser or interupt while it is creating lists.'
+            }),
+
+            PropertyPaneLabel('Notice', {
+              text: 'NOTE:  It may take 5-20 seconds to create/verify list.  Do NOT close browser or interupt while it is creating lists.'
+            }),
+
+            PropertyPaneButton('CreateTTIMProjectList',  
+            {  
+             text: "Create/Verify Projects List",
+             buttonType: PropertyPaneButtonType.Normal,
+             onClick: _onClickCreateProject
+            }),
+
+            PropertyPaneButton('CreateTTIMTimeList',
+            {  
+             text: "Create/Verify TrackMyTime List",  
+             buttonType: PropertyPaneButtonType.Normal,
+             onClick: _onClickCreateTime
+            }),
+            
+            PropertyPaneLabel('Project List', {
+              text: webPartProps.projectListConfirmed ? webPartProps.projectListTitle + ' List is available' : 'Verify or Create your list!'
+            }),
+
+            PropertyPaneLabel('Time List', {
+              text: webPartProps.timeTrackListConfirmed ? webPartProps.timeTrackListTitle + ' List is available' : 'Verify or Create your list!'
+            }),
+
+          ]}, // this group
+
+
+
 
         // 2 - Source and destination list information    
         { groupName: 'Basic list info',

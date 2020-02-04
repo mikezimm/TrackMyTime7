@@ -29,6 +29,7 @@
       "analyticsList": "",
 
       // 2 - Source and destination list information
+      "createVerifyLists": false,
       "projectListTitle": "Projects",
       "projectListWeb": "https://mcclickster.sharepoint.com/sites/Templates/Tmt/",
 
