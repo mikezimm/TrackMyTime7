@@ -7,8 +7,8 @@ import { ITheTime } from '../../../services/dateServices';
 import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
 
 export interface ILink {
-  description: string;
-  url: string;
+  Description: string;
+  Url: string;
 }
 
 export interface IUser {
@@ -70,6 +70,7 @@ export interface ISaveEntry {
   
     //Values that relate to project list item
     sourceProject?: ILink; //Link back to the source project list item.
+    sourceProjectRef?: string;
     activity?: ILink; //Link to the activity you worked on
     ccList?: ILink; //Link to CC List to copy item
     ccEmail?: string; //Email to CC List to copy item 
@@ -187,6 +188,7 @@ export interface IProject {
 
   //Values that relate to project list item
   sourceProject?: ILink; //Link back to the source project list item.
+  sourceProjectRef?: string; //Link back to the source project list item.
   ccList?: ILink; //Link to CC List to copy item
   ccEmail?: string; //Email to CC List to copy item 
 
@@ -248,6 +250,9 @@ export interface ITrackMyTime7State {
   // 2 - Source and destination list information
   projectListURL?: string; //Get from list item
   timeTrackerListURL?: string; //Get from list item
+
+  projectListWeb?: string; //Get from list item
+  timeTrackerListWeb?: string; //Get from list item
 
   projectListName: string;  // Static Name of list (for URL) - used for links and determined by first returned item
   timeTrackListName: string;  // Static Name of list (for URL) - used for links and determined by first returned item
