@@ -69,8 +69,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   private createLink(){
     let link : ILink = {
-      description: '',
-      url: '',
+      Description: '',
+      Url: '',
     };
 
     return link;
@@ -88,8 +88,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       mask: '',  //Required for building text fields
     };
     return smart;
-
   }
+
   private createUser() {
     let user : IUser = {
       title: "",
@@ -180,6 +180,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     projectID1:this.createSmartText('Project ID1','projectID1'),
     projectID2:this.createSmartText('Project ID2','projectID2'),
     sourceProject:this.createLink(),
+    sourceProjectRef: '',
     activity:this.createLink(),
     ccList:this.createLink(),
     ccEmail:'',
@@ -199,9 +200,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   }
 
-  
-    
-    
   private errTitles() {
     let options = [
       'Oh Snap! We have a slight problem!',
@@ -239,18 +237,45 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   }
 
+  private cleanURL(originalURL: String) {
+
+    let newURL = originalURL.toLowerCase();
+    if ( newURL.indexOf('/sitepages/') > 0 ) { return newURL.substring(0, newURL.indexOf('/sitepages/') + 1) ; }
+    if ( newURL.indexOf('/lists/') > 0 ) { return newURL.substring(0, newURL.indexOf('/lists/') + 1) ; }
+    if ( newURL.indexOf('/siteassets/') > 0 ) { return newURL.substring(0, newURL.indexOf('/siteassets/') + 1) ; }
+    if ( newURL.indexOf('/_layouts/') > 0 ) { return newURL.substring(0, newURL.indexOf('/_layouts/') + 1) ; }
+    if ( newURL.indexOf('/documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/documents/') + 1) ; }
+    if ( newURL.indexOf('/shared documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/shared documents/') + 1) ; }
+    if ( newURL.indexOf('/shared%20documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/shared%20documents/') + 1) ; }
+    if ( newURL.indexOf('/forms/') > 0 ) { 
+      newURL = newURL.substring(0, newURL.indexOf('/forms/'));
+      newURL = newURL.substring(0, newURL.indexOf('/') + 1);
+      return newURL;
+    }
+    if ( newURL.indexOf('/pages/') > 0 ) { return newURL.substring(0, newURL.indexOf('/pages/') + 1) ; }
+    if ( newURL.substring(newURL.length) !== '/' ) { return newURL + '/'; }
+
+    return newURL;
+
+  }
+
   public constructor(props:ITrackMyTime7Props){
     super(props);
+    let projWeb = this.cleanURL(this.props.projectListWeb ? this.props.projectListWeb : props.pageContext.web.absoluteUrl);
+    let timeWeb = this.cleanURL(this.props.timeTrackListWeb ? this.props.timeTrackListWeb : props.pageContext.web.absoluteUrl);
     this.state = { 
 
       // 1 - Analytics options
 
       // 2 - Source and destination list information
-      projectListURL: this.props.projectListWeb ? this.props.projectListWeb : props.pageContext.web.absoluteUrl, //Get from list item
-      timeTrackerListURL: this.props.timeTrackListWeb ? this.props.timeTrackListWeb : props.pageContext.web.absoluteUrl, //Get from list item
+      projectListURL: projWeb + 'lists/' + this.props.projectListTitle, //Get from list item
+      timeTrackerListURL: timeWeb + 'lists/' + this.props.timeTrackListTitle, //Get from list item
 
-      projectListName: '',  // Static Name of list (for URL) - used for links and determined by first returned item
-      timeTrackListName: '',  // Static Name of list (for URL) - used for links and determined by first returned item
+      projectListWeb: projWeb, //Get from list item
+      timeTrackerListWeb: timeWeb, //Get from list item
+
+      projectListName: this.props.projectListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
+      timeTrackListName: this.props.timeTrackListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
       // 3 - General how accurate do you want this to be
 
@@ -454,6 +479,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     const stackButtonTokens: IStackTokens = { childrenGap: 40 };
     const stackFormRowTokens: IStackTokens = { childrenGap: 20 };
     const stackFormRowsTokens: IStackTokens = { childrenGap: 10 };
+    const stackManualDateTokens: IStackTokens = { childrenGap: 20 };
 
     let hoursSinceLastTime = 0;
     if ( this.state.timeTrackerLoadStatus === "Complete" ) {
@@ -520,10 +546,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     const projectsListError = this.state.projects.master.length !== 0 ? '' :
       <div>
         <ul>
-          <li>Is this the right Projects List URL? <b>{ this.state.projectListURL }</b></li>
+          <li>Is this the right Projects List URL? <b>{ this.props.projectListWeb }</b></li>
           <li>Is this the right Projects List Title? <b>{ this.props.projectListTitle }</b></li>
           <li>
-            <a href={this.state.projectListURL + '/lists/' + this.props.projectListTitle} target='_blank'>
+            <a href={this.state.projectListURL} target='_blank'>
               <span>Check your Project list here</span>
             </a>
           </li>
@@ -536,7 +562,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         <li>Is this the right TrackYourTime List URL? <b>{ this.props.timeTrackListWeb }</b></li>
         <li>Is this the right TrackYourTime List Title? <b>{ this.props.timeTrackListTitle }</b></li>
         <li>
-          <a href={this.state.timeTrackerListURL + '/lists/' + this.props.timeTrackListTitle} target='_blank'>
+          <a href={this.state.timeTrackerListURL} target='_blank'>
             <span>Check your TrackTime list here</span>
           </a>
         </li>
@@ -573,7 +599,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       <h3>Can't find any? Create a new one!</h3>
       <ol>
         <li>
-          <a href={this.props.projectListWeb + '/lists/' + this.props.projectListTitle} >
+          <a href={this.state.projectListURL} >
             <span>Go to your list: { this.props.projectListTitle }</span>
           </a>
         </li>
@@ -672,7 +698,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
               <Stack horizontal={false} horizontalAlign={"end"} tokens={stackFormRowsTokens}>{/* Stack for Buttons and Fields */}
                 { entryOptions }
                 { (timeSlider) }
-                <Stack horizontal={true} wrap={true} horizontalAlign={"end"} tokens={stackFormRowsTokens}>{/* Stack for Buttons and Fields */}
+                <Stack horizontal={true} wrap={true} horizontalAlign={"end"} tokens={stackManualDateTokens}>{/* Stack for Buttons and Fields */}
                 { startDate }
                 { endDate }
                 </Stack>  {/* Stack for Buttons and Fields */}
@@ -735,7 +761,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if (selectedProjectIndex === this.state.selectedProjectIndex) { return ;}
 
     let formEntry = this.state.formEntry;
-
+    formEntry.sourceProjectRef = [this.state.projectListURL, this.state.projectListName, item.id,].join(' || ');
+    formEntry.sourceProject = {
+      Description: '( ' + item.id + ' ) ' + item.titleProject ,
+      Url: this.state.projectListURL + '/DispForm.aspx?ID=' + item.id ,
+    };
     formEntry.titleProject = item.titleProject;
     formEntry.projectID1  = item.projectID1;
     formEntry.projectID2  = item.projectID2;
@@ -797,8 +827,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     if ( result ) {
       formEntry.comments.value = result.commentText ? result.commentText : null;
-      formEntry.activity.description = result.activityDesc ? result.activityDesc : null;
-      formEntry.activity.url = newValue ? newValue : null ;
+      formEntry.activity.Description = result.activityDesc ? result.activityDesc : null;
+      formEntry.activity.Url = newValue ? newValue : null ;
       formEntry.category1 = [ result.category1 ] ? [ result.category1 ] : null;
       formEntry.category2 = [ result.category2 ] ? [ result.category2 ] : null;
       formEntry.projectID1.value = result.projectID1 ? result.projectID1 : null;
@@ -1300,20 +1330,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       useProjectList = this.props.projectListTitle;
     }
 
-    let useProjectWeb: string = this.props.pageContext.web.absoluteUrl;
-    if ( this.props.projectListWeb ) {
-      useProjectWeb = this.props.projectListWeb;
-    }
+    let useProjectWeb: string = this.state.projectListWeb;
 
     let useTrackMyTimeList: string = strings.DefaultTrackMyTimeListTitle;
     if ( this.props.timeTrackListTitle ) {
       useTrackMyTimeList = this.props.timeTrackListTitle;
     }
 
-    let useTrackMyTimeWeb: string = this.props.pageContext.web.absoluteUrl;
-    if ( this.props.timeTrackListWeb ) {
-      useTrackMyTimeWeb = this.props.timeTrackListWeb;
-    }
+    let useTrackMyTimeWeb: string = this.state.timeTrackerListWeb;
    
     //const fixedURL = Utils.fixURLs(this.props.listWebURL, this.props.pageContext);
 
@@ -1419,6 +1443,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     projectWeb.lists.getByTitle(useProjectList).items
     .select(selectCols).expand(expandThese).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
     .then((response) => {
+      console.log('useProjectList', response);
       //console.log('fetched Project Info:', response);
       trackMyProjectsInfo.projectData = response.map((p) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
@@ -1535,6 +1560,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(400).get()
     .then((response) => {
 
+      console.log('useTrackMyTimeList', response);
+
+
       /**
        * This loop loosely increases performance by compounding number of entries.
         * End test performance loop
@@ -1593,6 +1621,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
           //Values that relate to project list item
           sourceProject : item.SourceProject , //Link back to the source project list item.
+          sourceProjectRef : item.SourceProjectRef , //Link back to the source project list item.
           activity: item.Activity ,  //Link to the activity you worked on
 
           //Values specific to Time Entry
@@ -2153,6 +2182,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       //Values that relate to project list item
       sourceProject: timeTrackData.sourceProject, //Link back to the source project list item.
+      sourceProjectRef: timeTrackData.sourceProjectRef, //Link back to the source project list item.
       ccList: timeTrackData.ccList, //Link to CC List to copy item
       ccEmail: timeTrackData.ccEmail, //Email to CC List to copy item 
 
@@ -2218,8 +2248,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
 
     let Activity = {
-      Description: trackTimeItem.activity.description ?  trackTimeItem.activity.description : null,
-      Url: trackTimeItem.activity.url ? trackTimeItem.activity.url : null,
+      Description: trackTimeItem.activity.Description ?  trackTimeItem.activity.Description : null,
+      Url: trackTimeItem.activity.Url ? trackTimeItem.activity.Url : null,
     };
 
     let saveThisItem = {
@@ -2236,7 +2266,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         ProjectID2: projectID2,  //Example Cost Center # - look for strings starting with * and ?
 
         //Values that relate to project list item
-        //SourceProject: trackTimeItem.sourceProject, //Link back to the source project list item.
+        SourceProject: trackTimeItem.sourceProject, //Link back to the source project list item.
+        SourceProjectRef: trackTimeItem.sourceProjectRef, //Link back to the source project list item.
         Activity: Activity, //Link to the activity you worked on
         //CCList: trackTimeItem.ccList, //Link to CC List to copy item
         //CCEmail: trackTimeItem.ccEmail, //Email to CC List to copy item 
@@ -2273,10 +2304,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       useTrackMyTimeList = this.props.timeTrackListTitle;
     }
   
-    let useTrackMyTimeWeb: string = this.props.pageContext.web.absoluteUrl;
-    if ( this.props.timeTrackListWeb ) {
-      useTrackMyTimeWeb = this.props.timeTrackListWeb;
-    }
+    let useTrackMyTimeWeb: string = this.state.timeTrackerListWeb;
+
     //console.log('this.props',this.props);
     //console.log('this.state',this.state);
     console.log('trackTimeItem',trackTimeItem);
