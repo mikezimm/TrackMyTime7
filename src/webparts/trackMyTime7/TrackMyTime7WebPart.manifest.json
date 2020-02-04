@@ -29,11 +29,15 @@
       "analyticsList": "",
 
       // 2 - Source and destination list information
+      "createVerifyLists": false,
       "projectListTitle": "Projects",
-      "projectListWeb": "https://mcclickster.sharepoint.com/sites/Templates/Tmt/",
+      "projectListWeb": "",
+      "projectListConfirmed": false,
+
 
       "timeTrackListTitle": "TrackMyTime",
-      "timeTrackListWeb": "https://mcclickster.sharepoint.com/sites/Templates/Tmt/",
+      "timeTrackListWeb": "",
+      "timeTrackListConfirmed": false,
 
       // 3 - General how accurate do you want this to be
       "roundTime": "none", //Up 5 minutes, Down 5 minutes, No Rounding,
