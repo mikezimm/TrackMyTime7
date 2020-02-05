@@ -124,6 +124,11 @@ gulp package-solution --ship (No errors at this point)
 Error when
 ```bash
 
+Additional Installs
+```bash
+npm install webpack-bundle-analyzer --save-dev  (2020-02-04:  To analyze web pack size)
+```
+
 Move web part
 Something went wrong
 If the problem persists, contact the site administrator and give them the information in Technical Details.
