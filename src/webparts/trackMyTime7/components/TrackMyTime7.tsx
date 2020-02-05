@@ -30,6 +30,8 @@ import { getHelpfullError, } from '../../../services/ErrorHandler';
 
 
 import { buildFormFields } from './fields/fieldDefinitions';
+import { creatCharts } from './Charts/charts';
+
 
 import ButtonCompound from './createButtons/ICreateButtons';
 import { IButtonProps,ISingleButtonProps,IButtonState } from "./createButtons/ICreateButtons";
@@ -360,6 +362,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       errTitle: this.errTitles(),
       showTips: "none",
       loadError: "",
+      allLoaded: false,
 
       listError: false,
       itemsError: false,
@@ -740,6 +743,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
       : "";
 
+    let chartX = this.state.allLoaded ? creatCharts(this.props,this.state) : '';
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -764,7 +768,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             { /*this.createPivotObject(setPivot, "block") */ }
             <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>
             { this.createProjectTypeToggle(this.state) }
-            
+           
         </div>
 
           <div>
@@ -791,7 +795,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
                 <Stack horizontal={true} tokens={stackFormRowTokens}>{ projectID1 }{ projectID2 }</Stack>
 
                 { saveButtons }
-                <div>More stuff below buttons</div>
+                { chartX }
               </Stack>  {/* Stack for Buttons and Fields */}
 
             </Stack> {/* Stack for Projects and body */}
@@ -2004,6 +2008,18 @@ public toggleTips = (item: any): void => {
           listComments: listComments,
 
           //Other settings and information
+          created: new Date(item.Created),
+          modified: new Date(item.Modified),
+          createdBy: item.Author.Title,
+          modifiedBy: item.Editor.Title,
+
+          createdByID: item.Author.ID,
+          modifiedByID: item.Editor.ID,
+
+          wasModified: item.Created === item.Modified ? false : true ,
+          modifiedByUser: item.UserId === item.Editor.ID ? true : false,
+          createdByUser: item.UserId === item.Author.ID ? true : false,
+
           location : item.Location,
           settings : item.Settings,
 
@@ -2162,6 +2178,7 @@ public toggleTips = (item: any): void => {
       projectsLoadError: "",
       projectsListError: false,
       projectsItemsError: false,
+      allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.timeTrackerLoadStatus === 'Complete') ? true : false,
     });
   }
 
@@ -2262,6 +2279,7 @@ public toggleTips = (item: any): void => {
       let fromProject = this.convertToProject(thisEntry);
       let yours, team, today, week, month, quarter, recent :boolean = false;
       let thisEndTime = makeTheTimeObject(thisEntry.endTime); 
+      thisEntry.thisTimeObj = makeTheTimeObject(thisEntry.startTime); 
       //alert(thisEndTime);
       //Check if timeTrackData is tagged to you
       if (thisEntry.userId === userId ) { yours = true; } 
@@ -2369,7 +2387,7 @@ public toggleTips = (item: any): void => {
     
 
 
-    console.log('nowEndTime', JSON.stringify(nowEndTime));
+    //console.log('nowEndTime', JSON.stringify(nowEndTime));
     if ( lastEndTime.milliseconds > nowEndTime.milliseconds  ) {
       lastEndTime = nowEndTime;
     }
@@ -2423,6 +2441,7 @@ public toggleTips = (item: any): void => {
     timeTrackerListError: false,
     timeTrackerItemsError: false,
     formEntry: formEntry,
+    allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.projectsLoadStatus === 'Complete') ? true : false,
    });
 
 

@@ -56,6 +56,7 @@ export interface ISaveEntry {
     //Values that would come from Project item
 
     titleProject: string;
+    thisTimeObj?: ITheTime;
     comments?: ISmartText;
     category1?: string[];
     category2?: string[];
@@ -124,6 +125,7 @@ export interface ITimeEntry extends ISaveEntry {
     duration?: string; //Number  -- May not be needed based on current testing with start and end dates.
     age?: number; //Days since End Time
   
+  
     //Saves what entry option was used... Since Last, Slider, Manual
   
     deltaT?: any; //Could be used to indicate how many hours entry was made (like now, or 10 2 days in the past)
@@ -132,8 +134,14 @@ export interface ITimeEntry extends ISaveEntry {
 
     created?: Date;
     modified?: Date;
-    createdBy?: Number;
-    modifiedBy?: Number;
+    createdBy?: String;
+    modifiedBy?: String;
+    createdByID?: String;
+    modifiedByID?: String;
+
+    wasModified?: boolean;
+    modifiedByUser?: boolean;
+    createdByUser?: boolean;
 
 }
 
@@ -304,6 +312,7 @@ export interface ITrackMyTime7State {
   selectedProjectIndex?: number;  //Index of selected project
   lastSelectedProjectIndex?: number;  //Index of selected project
   loadStatus?: string;
+  allLoaded?: boolean;
 
   loadOrder?: string; //This just tells us what order the rest calls came back
 
