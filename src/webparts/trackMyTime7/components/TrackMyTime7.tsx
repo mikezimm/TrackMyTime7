@@ -314,6 +314,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         entries: [],
       },
 
+      chartData: null,
+
       fields: buildFormFields(this.props, this.state),
 
       pivtTitles:['Yours', 'Your Team','Everyone','Others'],
@@ -2444,6 +2446,7 @@ public toggleTips = (item: any): void => {
     allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.projectsLoadStatus === 'Complete') ? true : false,
    });
 
+   this.processChartData('user',['what??'],10,'string');
 
   }
 
@@ -2725,6 +2728,56 @@ public toggleTips = (item: any): void => {
 
     return foundProps;
   }
+
+/***
+ *          .o88b. db   db  .d8b.  d8888b. d888888b      d8888b.  .d8b.  d888888b  .d8b.  
+ *         d8P  Y8 88   88 d8' `8b 88  `8D `~~88~~'      88  `8D d8' `8b `~~88~~' d8' `8b 
+ *         8P      88ooo88 88ooo88 88oobY'    88         88   88 88ooo88    88    88ooo88 
+ *         8b      88~~~88 88~~~88 88`8b      88         88   88 88~~~88    88    88~~~88 
+ *         Y8b  d8 88   88 88   88 88 `88.    88         88  .8D 88   88    88    88   88 
+ *          `Y88P' YP   YP YP   YP 88   YD    YP         Y8888D' YP   YP    YP    YP   YP 
+ *                                                                                        
+ *                                                                                        
+ */
+
+  //processChartData('all',['catA','catB'])
+  public processChartData(who: string, what: string[], when: number, scale: string ){
+
+    let sourceData: ITimeEntry[] = this.state.entries[who];
+
+    let chartData: number [] = [];
+    let chartDataVal: number [] = [];   
+    let chartDataLabel: any [] = []; 
+
+    for ( let item of sourceData) {
+      //
+      let timeBucket = item.thisTimeObj.month;
+      let dur = Number(item.duration);
+      if ( chartData[timeBucket] == null ) { chartData[timeBucket] = 0; }
+      chartData[timeBucket] += dur;
+    }
+    chartDataLabel = Object.keys(chartData);
+    for ( let item of chartData) {
+      if ( item != null ) { chartDataVal.push(item) };
+    }
+
+     console.log('chartDataLabel',chartDataLabel);
+     console.log('chartDataVal',chartDataVal);
+
+    this.setState({ 
+      loadOrder: this.state.loadOrder + ' > Charts',
+      chartData: chartData,
+     });  
+
+    console.log('chartData', chartData);
+
+    return;
+
+  }
+
+
+
+
 
 
   /***

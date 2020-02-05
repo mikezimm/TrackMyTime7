@@ -299,6 +299,9 @@ export interface ITrackMyTime7State {
   allEntries?: ITimeEntry[]; //List of all entries
   filteredEntries?: ITimeEntry[]; //List of recent entries
 
+  chartData?: any;
+
+
   formEntry: ISaveEntry;
   // 7 - Slider Options
   timeSliderValue: number; //incriment of time slider

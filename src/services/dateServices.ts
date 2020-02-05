@@ -21,21 +21,34 @@ export const monthStr = {
   'ko': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   'thai': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   'swe': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-
+  'ro': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
 };
 
 
+export const monthStr3 = {
+  'en-us':["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'de-de': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'fr-fr': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'es': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'ja': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'ch': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'ko': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'thai': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'swe': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'ro-ro': ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+};
+
 export const weekday = {
-  'en-us':["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  'de': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  'fr': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  'es': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  'en-us': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  'de-de': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
+  'fr-fr': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
+  'es': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
   'ja': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   'ch': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   'ko': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   'thai': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  'swe': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-
+  'swe': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
+  'ro-ro': ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sam"], //Should start on Monday
 };
 
 export interface ITheTime {
