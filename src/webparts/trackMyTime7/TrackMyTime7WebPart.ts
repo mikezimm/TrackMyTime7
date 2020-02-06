@@ -18,6 +18,8 @@ import { sp } from '@pnp/sp';
 
 import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../services/createAnalytics';
+import { makeTheTimeObject } from '../../services/dateServices';
+
 import { getHelpfullError, } from '../../services/ErrorHandler';
 
 import { PageContext } from '@microsoft/sp-page-context';
@@ -181,6 +183,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
         pageContext: this.context.pageContext,
         tenant: this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,""),
         urlVars: this.getUrlVars(),
+        today: makeTheTimeObject(''),
 
         // 1 - Analytics options  
         useListAnalytics: this.properties.useListAnalytics,

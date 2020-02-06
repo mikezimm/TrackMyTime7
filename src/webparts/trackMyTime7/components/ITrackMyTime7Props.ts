@@ -1,5 +1,5 @@
 import { string } from "prop-types";
-
+import { ITheTime } from '../../../services/dateServices';
 import { PageContext } from '@microsoft/sp-page-context';
 
 export interface ITrackMyTime7Props {
@@ -9,6 +9,7 @@ export interface ITrackMyTime7Props {
   pageContext: PageContext;
   tenant: string;
   urlVars: {};
+  today: ITheTime;
 
   // 1 - Analytics options
   useListAnalytics: boolean;

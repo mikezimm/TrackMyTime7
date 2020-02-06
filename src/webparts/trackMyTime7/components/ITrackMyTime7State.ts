@@ -239,6 +239,23 @@ export interface IMyPivots {
   history: IPivot[];
 }
 
+export interface IChartSeries {
+  title: string;
+  labels: any[];
+  values: any[];
+  total: number;
+}
+
+export interface IChartData {
+  contemp?: IChartSeries[];  
+  location?: IChartSeries[];
+  categories?: IChartSeries[];
+  today?: IChartSeries[];
+  thisWeek?: IChartSeries[];
+  thisMonth?: IChartSeries[];
+  thisYear?: IChartSeries[];  
+}
+
 export interface ITrackMyTime7State {
 
   pivots?: IMyPivots;

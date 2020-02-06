@@ -38,7 +38,7 @@ export const monthStr3 = {
   'ro-ro': ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 };
 
-export const weekday = {
+export const weekday3 = {
   'en-us': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   'de-de': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
   'fr-fr': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
@@ -108,7 +108,7 @@ export function makeTheTimeObject(timeString) {
 
   let giveTime = new Date();
 
-  if (timeString ) { giveTime = new Date(timeString);}
+  if (timeString != null && timeString.length > 0 ) { giveTime = new Date(timeString);}
 
   let givenYear = giveTime.getFullYear();
   let givenMonth = giveTime.getMonth() ; //Zero Index
