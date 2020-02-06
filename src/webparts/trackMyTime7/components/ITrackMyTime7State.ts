@@ -331,6 +331,7 @@ export interface ITrackMyTime7State {
 
   selectedProjectIndex?: number;  //Index of selected project
   lastSelectedProjectIndex?: number;  //Index of selected project
+  lastTrackedClick?: string;
   loadStatus?: string;
   allLoaded?: boolean;
 

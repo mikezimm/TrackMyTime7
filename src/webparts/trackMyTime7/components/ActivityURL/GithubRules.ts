@@ -18,9 +18,9 @@ export const github : ISmartLinkDef = {
             commentTextMapping: 'The Cat raised issue: childFolderTitle on parentFolderTitle and parent2FolderTitle resolved it with PR 46!', // "ruleTitle, parentFolderTitle, keyFolder, childFolderTitle" - properties from this interface to build up
             activityDescMapping: 'childFolderTitle, parentFolderTitle', // "ruleTitle, parentFolderTitle, keyFolder, childFolderTitle" - properties from this interface to build up
             category1Mapping: 'parentFolderTitle',
-            category2Mapping: 'ruleTitle, parentFolderTitle',
-            projectID1Mapping: 'parentFolderTitle, ruleTitle',
-            projectID2Mapping: 'childFolderTitle, parent2FolderTitle',
+            category2Mapping: 'ruleTitle',
+            projectID1Mapping: 'parentFolderTitle',
+            projectID2Mapping: 'childFolderTitle',
 
         },        {
             order: 100,
