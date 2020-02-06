@@ -18,6 +18,8 @@ import { sp } from '@pnp/sp';
 
 import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../services/createAnalytics';
+import { makeTheTimeObject } from '../../services/dateServices';
+
 import { getHelpfullError, } from '../../services/ErrorHandler';
 
 import { PageContext } from '@microsoft/sp-page-context';
@@ -181,6 +183,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
         pageContext: this.context.pageContext,
         tenant: this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,""),
         urlVars: this.getUrlVars(),
+        today: makeTheTimeObject(''),
 
         // 1 - Analytics options  
         useListAnalytics: this.properties.useListAnalytics,
@@ -310,7 +313,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           let fieldSchema = '<Field DisplayName="Active" Format="Dropdown" Name="Active" Title="Active" Type="Boolean" ID="{d738a4f4-b23d-409d-a72e-8a09a6cd78a8}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Active" ColName="bit1" RowOrdinal="0"><Default>1</Default></Field>';
           const active: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldSchema = '<Field Type="Number" DisplayName="SortOrder" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Min="1" Max="24" Decimals="1" ID="{a65f6333-dd5d-49af-acf9-68f1606052f2}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="SortOrder" Name="SortOrder" ColName="float1" RowOrdinal="0" />';
+          fieldSchema = '<Field Type="Number" DisplayName="SortOrder" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Min="0" Max="1000" Decimals="1" ID="{a65f6333-dd5d-49af-acf9-68f1606052f2}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="SortOrder" Name="SortOrder" ColName="float1" RowOrdinal="0" />';
           if (isProject) { const sortOrder: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema); }
 
           fieldSchema = '<Field Type="Boolean" DisplayName="Everyone" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{67fa37c2-2ccf-4c30-b586-ce876955cb12}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Everyone" Name="Everyone" ColName="bit2" RowOrdinal="0"><Default>0</Default></Field>';

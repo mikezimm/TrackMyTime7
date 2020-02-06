@@ -127,6 +127,7 @@ Error when
 Additional Installs
 ```bash
 npm install webpack-bundle-analyzer --save-dev  (2020-02-04:  To analyze web pack size)
+
 ```
 
 Move web part

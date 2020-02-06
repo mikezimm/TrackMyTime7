@@ -2,28 +2,158 @@
 
 import { IUser} from '../webparts/trackMyTime7/components/ITrackMyTime7State';
 
+
+export const msPerMin = 60000;
+export const msPerHr = 3600000;
+export const msPerDay = 86400000;
+export const msPerWk = 604800000;
+export const msPerMo = 2678400000;
+export const msPerQ = 7776000000;
+export const msPerYr = 31536000000;
+
+export const monthStr = {
+  'en-us':["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'de': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'fr': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'es': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'ja': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'ch': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'ko': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'thai': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'swe': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'ro': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+};
+
+
+export const monthStr3 = {
+  'en-us':["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'de-de': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'fr-fr': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'es': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'ja': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'ch': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'ko': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'thai': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'swe': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'ro-ro': ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+};
+
+export const weekday3 = {
+  'en-us': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  'de-de': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
+  'fr-fr': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
+  'es': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
+  'ja': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  'ch': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  'ko': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  'thai': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  'swe': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
+  'ro-ro': ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sam"], //Should start on Monday
+};
+
 export interface ITheTime {
   now: Date;
   theTime : string;
   milliseconds : number;
+  year?: number;
+  month?: number; //Zero Index
+  monthStr?: string;
+  week?: number;
+  day?: number;
+  date?: number;
+  dayStr?: string;
+  hour?: number;
+  isToday?: boolean;
+  isYesterday?: boolean;
+  isThisWeek?: boolean;
+  isThisMonth?: boolean;
+  isThisYear?: boolean;
+  daysAgo?: number;
+  isoWeek?: number;
+
 }
 
 
+//https://www.w3resource.com/javascript-exercises/javascript-date-exercise-24.php
+export function ISO8601_week_no(dt) 
+  {
+    var tdt = new Date(dt.valueOf());
+    var dayn = (dt.getDay() + 6) % 7;
+    tdt.setDate(tdt.getDate() - dayn + 3);
+    var firstThursday = tdt.valueOf();
+    tdt.setMonth(0, 1);
+    if (tdt.getDay() !== 4) 
+      {
+      tdt.setMonth(0, 1 + ((4 - tdt.getDay()) + 7) % 7);
+        }
+    return 1 + Math.ceil((firstThursday - tdt.valueOf()) / 604800000);
+  }
+
+
+  //This is a more detailed version of the time object for charting purposes
 export function makeTheTimeObject(timeString) {
 
-  let now = new Date();
+  //console.log('makeTimeObject: ', timeString);
+  let rightNow = new Date();
 
-  if (timeString ) { now = new Date(timeString);}
+  let todayYear = rightNow.getFullYear();
+  let todayMonth = rightNow.getMonth() ; //Zero Index
+  let todayWeek = ISO8601_week_no(rightNow);
+  let todayDate = rightNow.getDate();
+  let todayDay = rightNow.getDay();
+
+  let todayTime = rightNow.getTime() ;
+  let todayHour = rightNow.getHours() ;
+
+
+  let giveTime = new Date();
+
+  if (timeString != null && timeString.length > 0 ) { giveTime = new Date(timeString);}
+
+  let givenYear = giveTime.getFullYear();
+  let givenMonth = giveTime.getMonth() ; //Zero Index
+  let givenWeek = ISO8601_week_no(giveTime);
+  let givenDate = giveTime.getDate();
+  let givenDay = giveTime.getDay();
+
+  let givenTime = giveTime.getTime() ;
+  let givenHour = giveTime.getHours() ;
+
+  let isThisYear = todayYear === givenYear ? true : false;
+  let isThisMonth = isThisYear && todayMonth === givenMonth ? true : false;
+  let isThisWeek = isThisYear && givenWeek === todayWeek ? true : false;
+  let isToday = isThisMonth && todayDate === givenDate ? true : false;
+
+
+  let daysAgo = Math.round(Math.abs((rightNow.getTime() - giveTime.getTime()) / msPerDay));
 
   let theTime : ITheTime = {
-    now: now,
-    theTime: now.toUTCString(),
-    milliseconds: now.getTime(),
+    now: giveTime,
+    theTime: giveTime.toUTCString(),
+    milliseconds: giveTime.getTime(),
+    year: givenYear,
+    month: givenMonth,
+    week: givenWeek,
+    date: givenDate,
+    day: givenDay,
+    hour: givenHour,
+
+    isThisYear: isThisYear,
+    isThisMonth: isThisMonth,
+    isThisWeek: isThisWeek,
+    isToday: isToday,
+    isYesterday: daysAgo === 1 ? true : false ,
+
+    daysAgo: daysAgo,
+
   };
 
   return theTime;
 
 }
+
+
+
 export function getLocalMonths(local,format){
 
     let months = [];
@@ -45,27 +175,6 @@ export function getLocalMonths(local,format){
       return months;
 }
 
-export function msPerMin(){
-  return 60000;
-}
-export function msPerHr(){
-  return 3600000;
-}
-export function msPerDay(){
-  return 86400000;
-}
-export function msPerWk(){
-  return 604800000;
-}
-export function msPerMo(){
-  return 2678400000;
-}
-export function msPerQ(){
-  return 7776000000;
-}
-export function msPerYr(){
-  return 31536000000;
-}
 
 export function getDayTimeToMinutes (startTime){
 
@@ -101,28 +210,29 @@ export function getBestTimeDelta(startTime: string,endTime: string){
   if (delta/(1000) < 60 ) {
     return delta/(1000) + ' seconds';
 
-  } else if (delta/(msPerMin()) < 60 ) {
-    return ((delta/msPerMin())).toFixed(0) + ' minutes';
+  } else if (delta/(msPerMin) < 60 ) {
+    return ((delta/msPerMin)).toFixed(0) + ' minutes';
 
-  } else if (delta/(msPerHr()) < 24 ) {
-    return (delta/(msPerHr())).toFixed(0) + ' hours';
+  } else if (delta/(msPerHr) < 24 ) {
+    return (delta/(msPerHr)).toFixed(0) + ' hours';
 
-  } else if (delta/(msPerDay()) < 7 ) {
-    return (delta/(msPerDay())).toFixed(0) + ' days';
+  } else if (delta/(msPerDay) < 7 ) {
+    return (delta/(msPerDay)).toFixed(0) + ' days';
 
-  } else if (delta/(msPerDay()) < 30 ) {
-    return (delta/(msPerWk())).toFixed(0) + ' weeks';
+  } else if (delta/(msPerDay) < 30 ) {
+    return (delta/(msPerWk)).toFixed(0) + ' weeks';
 
-  } else if (delta/(msPerMo()) < 24 ) {
-    return (delta/(msPerMo())).toFixed(0) + ' months';
+  } else if (delta/(msPerMo) < 24 ) {
+    return (delta/(msPerMo)).toFixed(0) + ' months';
 
-  } else if (delta/(msPerYr()) < 4 ) {
-    return (delta/(msPerYr())).toFixed(0) + ' years';
+  } else if (delta/(msPerYr) < 4 ) {
+    return (delta/(msPerYr)).toFixed(0) + ' years';
 
   } else {
     return 'Infinity and Beyond!';
   }
 }
+
 
 export function getTimeDelta(time1, time2, inWhat : string){
   let date = new Date(time1).getTime();

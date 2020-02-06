@@ -22,14 +22,20 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 import Utils from './utils';
 
 import { saveTheTime, saveAnalytics } from '../../../services/createAnalytics';
-import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting, getNicks, makeTheTimeObject, getTimeDelta} from '../../../services/dateServices';
+import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
+          getNicks, makeTheTimeObject, getTimeDelta, monthStr3, weekday3} from '../../../services/dateServices';
 
-import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry} from './ITrackMyTime7State';
+import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
+        IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
+        IChartData, IChartSeries } from './ITrackMyTime7State';
+
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
 
 
 import { buildFormFields } from './fields/fieldDefinitions';
+import { creatCharts } from './Charts/charts';
+
 
 import ButtonCompound from './createButtons/ICreateButtons';
 import { IButtonProps,ISingleButtonProps,IButtonState } from "./createButtons/ICreateButtons";
@@ -312,6 +318,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         entries: [],
       },
 
+      chartData: null,
+
       fields: buildFormFields(this.props, this.state),
 
       pivtTitles:['Yours', 'Your Team','Everyone','Others'],
@@ -360,6 +368,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       errTitle: this.errTitles(),
       showTips: "none",
       loadError: "",
+      allLoaded: false,
 
       listError: false,
       itemsError: false,
@@ -740,6 +749,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
       : "";
 
+    let chartX = this.state.allLoaded && this.state.chartData != null ? creatCharts(this.props,this.state, this.state.chartData.thisMonth[0]) : '';
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -764,7 +774,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             { /*this.createPivotObject(setPivot, "block") */ }
             <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>
             { this.createProjectTypeToggle(this.state) }
-            
+           
         </div>
 
           <div>
@@ -791,7 +801,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
                 <Stack horizontal={true} tokens={stackFormRowTokens}>{ projectID1 }{ projectID2 }</Stack>
 
                 { saveButtons }
-                <div>More stuff below buttons</div>
+                { chartX }
               </Stack>  {/* Stack for Buttons and Fields */}
 
             </Stack> {/* Stack for Projects and body */}
@@ -1664,7 +1674,7 @@ public toggleTips = (item: any): void => {
     //const fixedURL = Utils.fixURLs(this.props.listWebURL, this.props.pageContext);
 
     let projectSort: string = "SortOrder";
-    let trackTimeSort: string = "EndTime";
+    let trackTimeSort: string = "StartTime";
 
 //    let projectRestFilter: string = "Team eq '" + 20 + "'";
 //    let trackTimeRestFilter: string = "User eq '" + 20 + "'";
@@ -2004,6 +2014,18 @@ public toggleTips = (item: any): void => {
           listComments: listComments,
 
           //Other settings and information
+          created: new Date(item.Created),
+          modified: new Date(item.Modified),
+          createdBy: item.Author.Title,
+          modifiedBy: item.Editor.Title,
+
+          createdByID: item.Author.ID,
+          modifiedByID: item.Editor.ID,
+
+          wasModified: item.Created === item.Modified ? false : true ,
+          modifiedByUser: item.UserId === item.Editor.ID ? true : false,
+          createdByUser: item.UserId === item.Author.ID ? true : false,
+
           location : item.Location,
           settings : item.Settings,
 
@@ -2162,6 +2184,7 @@ public toggleTips = (item: any): void => {
       projectsLoadError: "",
       projectsListError: false,
       projectsItemsError: false,
+      allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.timeTrackerLoadStatus === 'Complete') ? true : false,
     });
   }
 
@@ -2262,6 +2285,7 @@ public toggleTips = (item: any): void => {
       let fromProject = this.convertToProject(thisEntry);
       let yours, team, today, week, month, quarter, recent :boolean = false;
       let thisEndTime = makeTheTimeObject(thisEntry.endTime); 
+      thisEntry.thisTimeObj = makeTheTimeObject(thisEntry.startTime); 
       //alert(thisEndTime);
       //Check if timeTrackData is tagged to you
       if (thisEntry.userId === userId ) { yours = true; } 
@@ -2369,7 +2393,7 @@ public toggleTips = (item: any): void => {
     
 
 
-    console.log('nowEndTime', JSON.stringify(nowEndTime));
+    //console.log('nowEndTime', JSON.stringify(nowEndTime));
     if ( lastEndTime.milliseconds > nowEndTime.milliseconds  ) {
       lastEndTime = nowEndTime;
     }
@@ -2423,8 +2447,10 @@ public toggleTips = (item: any): void => {
     timeTrackerListError: false,
     timeTrackerItemsError: false,
     formEntry: formEntry,
+    allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.projectsLoadStatus === 'Complete') ? true : false,
    });
 
+   this.processChartData('user',['what??'],10,'string',true);
 
   }
 
@@ -2706,6 +2732,157 @@ public toggleTips = (item: any): void => {
 
     return foundProps;
   }
+
+/***
+ *          .o88b. db   db  .d8b.  d8888b. d888888b      d8888b.  .d8b.  d888888b  .d8b.  
+ *         d8P  Y8 88   88 d8' `8b 88  `8D `~~88~~'      88  `8D d8' `8b `~~88~~' d8' `8b 
+ *         8P      88ooo88 88ooo88 88oobY'    88         88   88 88ooo88    88    88ooo88 
+ *         8b      88~~~88 88~~~88 88`8b      88         88   88 88~~~88    88    88~~~88 
+ *         Y8b  d8 88   88 88   88 88 `88.    88         88  .8D 88   88    88    88   88 
+ *          `Y88P' YP   YP YP   YP 88   YD    YP         Y8888D' YP   YP    YP    YP   YP 
+ *                                                                                        
+ *                                                                                        
+ */
+
+
+ /**
+  * 
+  * @param who  Filter for who's data to read in
+  * @param what TBD but goal would be like Categories of some sort
+  * @param when TBD but Time Period
+  * @param scale TBD but would be like maybe Days, Weeks, Months etc..
+  * @param isSum Default is to count.  If True, it sums values
+  */
+  //processChartData('all',['catA','catB'])
+  public processChartData(who: string, what: string[], when: number, scale: string, isSum: boolean | false ){
+
+    function createISeries(title): IChartSeries {
+      return {
+        title: title,
+        values: [],
+        labels: [],
+        total: 0,
+      };
+    }
+
+    let sourceData: ITimeEntry[] = this.state.entries[who];
+
+    let chartPreData: IChartData = {
+      thisYear: [createISeries(who + ' This Year (mo)'),createISeries('This Year (wk)')],
+      thisMonth: [createISeries(who + ' This Month')],
+      thisWeek: [createISeries(who + ' This Week')],
+    };
+    let chartPostData: IChartData = {};
+
+    let chartDataVal: number [] = [];   
+    let chartDataLabel: any [] = []; 
+    let runningTotal: number = 0;
+
+    for ( let item of sourceData) {
+      //
+      let dur = Number(item.duration); //Hours per entry
+      let theTime = item.thisTimeObj;
+      runningTotal += dur;
+      //console.log('theTime:',item.id,runningTotal, item.startTime,theTime.year,theTime.month,theTime.week,theTime.date,theTime.day,theTime.hour,theTime.isThisYear,theTime.isThisMonth,theTime.isThisWeek,theTime.isToday);
+
+
+      if (item.thisTimeObj.isThisYear) {
+        //Build up yearData Series 0
+        let yearDataM = chartPreData.thisYear[0];
+        //console.log('yearData',yearDataM);
+        if ( yearDataM.values[item.thisTimeObj.month] == null ) { yearDataM.values[item.thisTimeObj.month] = 0; }
+        yearDataM.values[item.thisTimeObj.month] += isSum ? dur : 1;
+        yearDataM.total += isSum ? dur : 1;
+
+        //Build up yearData Series 1
+        let yearDataW = chartPreData.thisYear[1];
+        //console.log('yearData',yearDataW);
+        if ( yearDataW.values[item.thisTimeObj.week] == null ) { yearDataW.values[item.thisTimeObj.week] = 0; }
+        yearDataW.values[item.thisTimeObj.week] += isSum ? dur : 1;
+        yearDataW.total += isSum ? dur : 1;
+      }
+ 
+      if (item.thisTimeObj.isThisMonth) {
+        //Build up monthData Series 0
+        let monthData = chartPreData.thisMonth[0];
+        //console.log('yearData',monthData);
+        if ( monthData.values[item.thisTimeObj.date] == null ) { monthData.values[item.thisTimeObj.date] = 0; }
+        monthData.values[item.thisTimeObj.date] += isSum ? dur : 1;
+        monthData.total += isSum ? dur : 1;
+      }
+
+      if (item.thisTimeObj.isThisWeek) {
+        //Build up weekData Series 0
+        let weekData = chartPreData.thisWeek[0];
+        //console.log('yearData',weekData);
+        if ( weekData.values[item.thisTimeObj.day] == null ) { weekData.values[item.thisTimeObj.day] = 0; }
+        weekData.values[item.thisTimeObj.day] += isSum ? dur : 1;
+        weekData.total += isSum ? dur : 1;
+      }
+
+      //console.log('chartPreData',chartPreData);
+
+    }
+
+
+
+
+/*
+*/
+
+    function addLabels(series: IChartSeries, labels: string, firstIndex: number) {
+      let labelArray = labels.split(';');
+      //console.log('labelArray:', labelArray);
+      chartDataLabel = Object.keys(series['values']);
+      console.log('chartDataLabel',chartDataLabel);
+      let newValues : number[] = [];
+      let newLabels : string[] = [];
+      for ( let item of chartDataLabel) {
+        let label = '';
+        if ( item != null ) {
+          if (firstIndex < 4 ) { //This is a relative index
+            label = labelArray[Number(item) + firstIndex];
+          } else if ( firstIndex === 52) { //Just conver to a number version of the index
+            label = ("0" + item).slice(-2) ;
+          } else { //Must be an error but put the label as itself
+            console.log('unknown label conversion error:', series, labels,firstIndex);
+            label = item;
+          }
+          newValues.push(series.values[item]);
+          newLabels.push(label);
+        }
+      }
+      series.labels = newLabels;
+      series.values = newValues;
+      return series;
+    }
+
+
+    chartPreData.thisYear[0] = addLabels(chartPreData.thisYear[0],monthStr3['en-us'].join(';'),0); //Months of year
+    chartPreData.thisYear[1] = addLabels(chartPreData.thisYear[1],weekday3['en-us'].join(';'),52); // Week Numbers of Year
+    chartPreData.thisMonth[0] = addLabels(chartPreData.thisMonth[0],weekday3['en-us'].join(';'),52);  // Days of Month
+    chartPreData.thisWeek[0] = addLabels(chartPreData.thisWeek[0],weekday3['en-us'].join(';'),0);  // Days of the week
+
+
+
+     console.log('chartPreData',chartPreData);
+  //   console.log('chartDataVal',chartDataVal);
+
+    this.setState({ 
+      loadOrder: this.state.loadOrder + ' > Charts',
+      chartData: chartPreData,
+    //  chartData: chartData,
+     });  
+
+  //  console.log('chartData', chartData);
+
+    return;
+
+  }
+
+
+
+
 
 
   /***
