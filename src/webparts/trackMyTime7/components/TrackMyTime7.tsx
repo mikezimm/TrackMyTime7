@@ -36,9 +36,9 @@ import { getHelpfullError, } from '../../../services/ErrorHandler';
 import { buildFormFields } from './fields/fieldDefinitions';
 import { creatCharts } from './Charts/charts';
 
-
 import ButtonCompound from './createButtons/ICreateButtons';
 import { IButtonProps,ISingleButtonProps,IButtonState } from "./createButtons/ICreateButtons";
+import { createIconButton } from "./createButtons/IconButton";
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 
 import * as listBuilders from './ListView/ListView';
@@ -318,6 +318,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         entries: [],
       },
 
+      showCharts: false,
       chartData: null,
 
       fields: buildFormFields(this.props, this.state),
@@ -394,7 +395,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this.showAll = this.showAll.bind(this);
     this.toggleLayout = this.toggleLayout.bind(this);
     this.onChangePivotClick = this.onChangePivotClick.bind(this);
-
+    this.toggleCharts = this.toggleCharts.bind(this);
 
     this.trackMyTime = this.trackMyTime.bind(this);
     this.clearMyInput = this.clearMyInput.bind(this);
@@ -512,6 +513,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       offText={strings.ToggleLabel_Projects} 
       onChange={this.toggleType.bind(this)} 
       checked={this.state.projectType}
+      styles={{ root: { width: 120, paddingTop: 13, } }}
+      />;
+    return togglePart;
+
+  }
+
+  public chartsToggle(thisState){
+
+    let togglePart = <Toggle label="" 
+      onText={ 'Charts' } 
+      offText={ 'Charts' } 
+      onChange={this.toggleCharts.bind(this)} 
+      checked={this.state.showCharts}
       styles={{ root: { width: 120, paddingTop: 13, } }}
       />;
     return togglePart;
@@ -752,7 +766,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
       : "";
 
-    let chartX = this.state.allLoaded && this.state.chartData != null ? creatCharts(this.props,this.state, this.state.chartData.thisWeek[0]) : '';
+    let chartX = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisWeek[0]) : '';
+
+   // let toggleChartsButton = createIconButton(this.props,this.state,this.toggleCharts.bind(this) );
+
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -777,6 +794,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             { /*this.createPivotObject(setPivot, "block") */ }
             <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>
             { this.createProjectTypeToggle(this.state) }
+            { this.chartsToggle(this.state) }
            
         </div>
 
@@ -1537,6 +1555,16 @@ public toggleTips = (item: any): void => {
  *                                                                                                                    
  *                                                                                                                    
  */
+
+
+  public toggleCharts = () : void => {
+    //alert('trackMyTime');
+    //alert('Hey dummy!');
+    this.setState({  
+      showCharts: !this.state.showCharts,
+    });
+
+  }
 
   /**
    * This should save an item

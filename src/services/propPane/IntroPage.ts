@@ -110,7 +110,7 @@ export class IntroPage {
             PropertyPaneButton('CreateTTIMProjectList',  
             {  
              text: "Create/Verify Projects List",
-             buttonType: PropertyPaneButtonType.Normal,
+             buttonType: PropertyPaneButtonType.Primary,
              onClick: _onClickCreateProject
             }),
 
@@ -121,7 +121,7 @@ export class IntroPage {
             PropertyPaneButton('CreateTTIMTimeList',
             {  
              text: "Create/Verify TrackMyTime List",  
-             buttonType: PropertyPaneButtonType.Normal,
+             buttonType: PropertyPaneButtonType.Primary,
              onClick: _onClickCreateTime
             }),
             
