@@ -353,6 +353,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       // 9 - Other web part options
 
+      //selectedProjectIndex: null,  Adding these 2 sets the default as the first project ever time, then the number of the selection stays between pivots.
+      //lastSelectedProjectIndex: null,
       loadOrder: "",
       projectsLoadStatus:"Loading",
       projectsLoadError: "",
@@ -368,6 +370,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       errTitle: this.errTitles(),
       showTips: "none",
       loadError: "",
+      lastTrackedClick: null,
       allLoaded: false,
 
       listError: false,
@@ -749,7 +752,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
       : "";
 
-    let chartX = this.state.allLoaded && this.state.chartData != null ? creatCharts(this.props,this.state, this.state.chartData.thisMonth[0]) : '';
+    let chartX = this.state.allLoaded && this.state.chartData != null ? creatCharts(this.props,this.state, this.state.chartData.thisWeek[0]) : '';
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -842,17 +845,26 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     }
   }
 
-  private _getSelectedProject(items: any[]){
+  private _getSelectedProject(items: any[], exitMe : boolean){
 
     if (this.state.userLoadStatus !== 'Complete') { return; }
     if (this.state.timeTrackerLoadStatus !== 'Complete') { return; }
     if (this.state.userLoadStatus !== 'Complete') { return; }
     if (event) { event.preventDefault(); }
-    if (items.length === 0 ) { return; }
+
+    if (items.length === 0 ) {
+      //Only return here if the lastTrackedClick was not a project.
+      //The reasoning logic is because if the last click was a project, and the length is 0, then it was "unselected"
+      //And instead of just returning on unselect, we need to handle it and update the state.
+      //This does not work yet... I have to see what's causing the other render.
+      //if (this.state.lastTrackedClick.indexOf('project') < 0 ) { return;  }
+
+      return;
+    }
 
     console.log('Selected items:', items);
     
-    let item : IProject;
+    let item : IProject; // = this.state.projects.newFiltered[0];
 
     for (let p of this.state.projects.newFiltered ) {
       if (p.id === items[0].id) {
@@ -860,31 +872,55 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       }
     }
 
-    let selectedProjectIndex = this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
+    /**
+     * This is the location of the mysterious web part disappearing trick.
+     * Cannot read property 'id' of undefined.
+     */
+
+    let isItemNull = item == null ? true : false;
+    if (isItemNull) {
+      console.log('_getSelectedProject error:');
+      console.log('_getSelectedProject items:', items);
+      console.log('_getSelectedProject item:', item);
+      console.log('_getSelectedProject this.state.projects:',this.state.projects);   
+      //item = this.createFormEntry();
+    }
+
+    let selectedProjectIndex = isItemNull ? this.state.selectedProjectIndex + 1 : this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
     if (selectedProjectIndex === this.state.selectedProjectIndex) { return ;}
 
-    let formEntry = this.state.formEntry;
-    formEntry.sourceProjectRef = [this.state.projectListURL, this.state.projectListName, item.id,].join(' || ');
-    formEntry.sourceProject = {
-      Description: '( ' + item.id + ' ) ' + item.titleProject ,
-      Url: this.state.projectListURL + '/DispForm.aspx?ID=' + item.id ,
-    };
-    formEntry.titleProject = item.titleProject;
-    formEntry.projectID1  = item.projectID1;
-    formEntry.projectID2  = item.projectID2;
-    formEntry.category1  = item.category1;
-    formEntry.category2  = item.category2;
-    formEntry.leaderId  = item.leaderId;
-    formEntry.leader  = item.leader;
-    formEntry.team  = item.team;
-    formEntry.teamIds  = item.teamIds;
-    formEntry.ccEmail  = item.ccEmail;
-    formEntry.ccList  = item.ccList;
 
-    this.setState({ formEntry:formEntry, 
+    let formEntry = this.state.formEntry;
+
+    if (isItemNull) {
+      formEntry = this.createFormEntry();
+    } else {
+      formEntry.sourceProjectRef = [this.state.projectListURL, this.state.projectListName, item.id,].join(' || ');
+      formEntry.sourceProject = {
+        Description: '( ' + item.id + ' ) ' + item.titleProject ,
+        Url: this.state.projectListURL + '/DispForm.aspx?ID=' + item.id ,
+      };
+  
+      formEntry.titleProject = item.titleProject;
+      formEntry.projectID1  =  item.projectID1;
+      formEntry.projectID2  =  item.projectID2;
+      formEntry.category1  =  item.category1;
+      formEntry.category2  =  item.category2;
+      formEntry.leaderId  =  item.leaderId;
+      formEntry.leader  =  item.leader;
+      formEntry.team  =  item.team;
+      formEntry.teamIds  =  item.teamIds;
+      formEntry.ccEmail  =  item.ccEmail;
+      formEntry.ccList  =  item.ccList;
+    }
+
+
+    this.setState({ 
+      formEntry:formEntry, 
       blinkOnProject: this.state.blinkOnProject === 1 ? 2 : 1,
       selectedProjectIndex : selectedProjectIndex,
       lastSelectedProjectIndex: this.state.selectedProjectIndex,
+      lastTrackedClick: 'project ' + formEntry.titleProject,
      });  
 
   }
@@ -1331,6 +1367,7 @@ public toggleTips = (item: any): void => {
         searchWhere: ' in ' + item.props.headerText,
         //pivotDefSelKey: defaultSelectedKey,
         blinkOnProject: 0,
+        lastTrackedClick: 'pivot ' + thisFilter[0],
 
       });
 
@@ -1522,6 +1559,7 @@ public toggleTips = (item: any): void => {
     //console.log('formEntry: currentUser', formEntry);
     this.setState({  
       formEntry: formEntry,
+      lastTrackedClick: 'clear',
     });
 
     //this.saveMyTime (this.state.entries.all[0] , 'master');

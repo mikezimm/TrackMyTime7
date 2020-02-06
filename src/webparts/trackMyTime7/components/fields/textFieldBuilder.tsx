@@ -172,10 +172,18 @@ import {
     //Return nothing if user has not been loaded because that is when formEntry gets created.
     if ( parentState.userLoadStatus !== "Complete" ) { return ""; }
 
+    console.log('createThisField field:', field);
     //console.log('Hey there!');
     field.disabled = isSaveDisabled;
     if (field.type === "Smart") {
-      return createSmartTextBox(parentProps, parentState, field, onChanged );
+      //2020-02-06:  Adding this check prevents total crash when changing pivots while no item is selected.
+      if ( parentState.formEntry[field.name] == null ) {
+        let blinkOnProjectClassName = getBlinkOnProjectClass(field, parentState.blinkOnProject);
+        return createBasicTextField(field, null, onChanged, blinkOnProjectClassName);
+      } else {
+        return createSmartTextBox(parentProps, parentState, field, onChanged );
+      }
+
 
     } else if ( field.type === "Text" ) {
       // 2019-12-22:  Removed this line when I created fieldDefs... but don't yet have state for that in the new object

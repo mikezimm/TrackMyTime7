@@ -13,23 +13,26 @@ export const msPerYr = 31536000000;
 
 export const monthStr = {
   'en-us':["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'es': ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+
   'de': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   'fr': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-  'es': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   'ja': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   'ch': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   'ko': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   'thai': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   'swe': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-  'ro': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  'ro-ro': ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"],
 };
 
 
 export const monthStr3 = {
   'en-us':["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  'es': ["Ene", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+
   'de-de': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
   'fr-fr': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  'es': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+
   'ja': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
   'ch': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
   'ko': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -40,9 +43,11 @@ export const monthStr3 = {
 
 export const weekday3 = {
   'en-us': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  'es': ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"], //Should start on Monday
+
   'de-de': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
   'fr-fr': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
-  'es': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], //Should start on Monday
+
   'ja': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   'ch': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   'ko': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
