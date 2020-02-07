@@ -13,7 +13,7 @@ import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
 
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
-import { DefaultButton, autobind, getLanguage, ZIndexes } from 'office-ui-fabric-react';
+import { DefaultButton, autobind, getLanguage, ZIndexes, IconButton, IIconProps } from 'office-ui-fabric-react';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import { Link } from 'office-ui-fabric-react/lib/Link';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
@@ -36,9 +36,9 @@ import { getHelpfullError, } from '../../../services/ErrorHandler';
 import { buildFormFields } from './fields/fieldDefinitions';
 import { creatCharts } from './Charts/charts';
 
-
 import ButtonCompound from './createButtons/ICreateButtons';
 import { IButtonProps,ISingleButtonProps,IButtonState } from "./createButtons/ICreateButtons";
+import { createIconButton } from "./createButtons/IconButton";
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 
 import * as listBuilders from './ListView/ListView';
@@ -318,6 +318,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         entries: [],
       },
 
+      showCharts: false,
       chartData: null,
 
       fields: buildFormFields(this.props, this.state),
@@ -368,7 +369,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       userLoadStatus:"Loading",
       errTitle: this.errTitles(),
-      showTips: "none",
+      showTips: false,
       loadError: "",
       lastTrackedClick: null,
       allLoaded: false,
@@ -394,7 +395,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this.showAll = this.showAll.bind(this);
     this.toggleLayout = this.toggleLayout.bind(this);
     this.onChangePivotClick = this.onChangePivotClick.bind(this);
-
+    this.toggleCharts = this.toggleCharts.bind(this);
 
     this.trackMyTime = this.trackMyTime.bind(this);
     this.clearMyInput = this.clearMyInput.bind(this);
@@ -560,6 +561,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     const stackFormRowTokens: IStackTokens = { childrenGap: 20 };
     const stackFormRowsTokens: IStackTokens = { childrenGap: 10 };
     const stackManualDateTokens: IStackTokens = { childrenGap: 20 };
+    const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
     let hoursSinceLastTime = 0;
     if ( this.state.timeTrackerLoadStatus === "Complete" ) {
@@ -752,7 +754,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
       : "";
 
-    let chartX = this.state.allLoaded && this.state.chartData != null ? creatCharts(this.props,this.state, this.state.chartData.thisWeek[0]) : '';
+    let chartThisWeek = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisWeek[0]) : '';
+    let chartThisMonth = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisMonth[0]) : '';
+    let chartThisYear0 = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisYear[0]) : '';
+    let chartThisYear1 = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisYear[1]) : '';
+
+    let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this) );
+    let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this) );
+
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -777,9 +786,27 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             { /*this.createPivotObject(setPivot, "block") */ }
             <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>
             { this.createProjectTypeToggle(this.state) }
+            { toggleChartsButton }
+            { toggleTipsButton }
            
         </div>
+        <div className={( this.state.showCharts ? '' : styles.hideMe )}>
+          <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartThisWeek }
+            </Stack.Item>
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartThisMonth }
+            </Stack.Item>
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartThisYear0 }
+            </Stack.Item>
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartThisYear1 }
+            </Stack.Item>
 
+          </Stack>
+        </div>
           <div>
 
             <Stack padding={20} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
@@ -804,7 +831,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
                 <Stack horizontal={true} tokens={stackFormRowTokens}>{ projectID1 }{ projectID2 }</Stack>
 
                 { saveButtons }
-                { chartX }
+
               </Stack>  {/* Stack for Buttons and Fields */}
 
             </Stack> {/* Stack for Projects and body */}
@@ -1111,17 +1138,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  */
 
 
- 
-public toggleTips = (item: any): void => {
-  //This sends back the correct pivot category which matches the category on the tile.
-
-  let newshowTips = this.state.showTips === 'none' ? 'yes' : 'none';
-
-  this.setState({
-    showTips: newshowTips,
-  });
-
-} //End toggleTips  
 
   private searchMe = (item: PivotItem): void => {
     //This sends back the correct pivot category which matches the category on the tile.
@@ -1537,6 +1553,30 @@ public toggleTips = (item: any): void => {
  *                                                                                                                    
  *                                                                                                                    
  */
+
+ 
+ 
+public toggleTips = (item: any): void => {
+  //This sends back the correct pivot category which matches the category on the tile.
+
+  this.setState({
+    showTips: !this.state.showTips,
+    showCharts: false,
+  });
+
+} //End toggleTips  
+
+
+  public toggleCharts = () : void => {
+    //alert('trackMyTime');
+    //alert('Hey dummy!');
+    if (this.state.allLoaded !== true ) { return ;}
+    this.setState({  
+      showCharts: !this.state.showCharts,
+      showTips: false,
+    });
+
+  }
 
   /**
    * This should save an item
@@ -2984,4 +3024,3 @@ public toggleTips = (item: any): void => {
   }
 
 }
-

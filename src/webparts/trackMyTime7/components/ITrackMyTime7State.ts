@@ -317,6 +317,7 @@ export interface ITrackMyTime7State {
   filteredEntries?: ITimeEntry[]; //List of recent entries
 
   chartData?: any;
+  showCharts?: boolean;
 
 
   formEntry: ISaveEntry;
@@ -331,7 +332,7 @@ export interface ITrackMyTime7State {
 
   selectedProjectIndex?: number;  //Index of selected project
   lastSelectedProjectIndex?: number;  //Index of selected project
-  lastTrackedClick?: string;
+  lastTrackedClick?: string;  //Added to trap the bug where you change pivots after you click and unclick a project.
   loadStatus?: string;
   allLoaded?: boolean;
 
@@ -350,7 +351,7 @@ export interface ITrackMyTime7State {
   userLoadStatus?: string;
 
   errTitle?: string;
-  showTips?: string;
+  showTips?: boolean;
   loadError?: string;
 
   listError?: boolean;

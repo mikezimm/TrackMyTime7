@@ -27,7 +27,7 @@ export function creatCharts(parentProps:ITrackMyTime7Props , parentState: ITrack
   //if ( parentState.currentTimePicker !== 'slider') { return ""; }
   let maxTime = parentProps.timeSliderMax;
   return (
-    <div style={{minWidth: 400, }}>
+    <div style={{ }}>
         <ChartControl 
         type={ChartType.Bar}
         data={{
