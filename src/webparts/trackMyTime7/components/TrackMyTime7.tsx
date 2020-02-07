@@ -194,6 +194,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     team:[],
     leaderId:null,
     teamIds:[],
+    story: '',
+    chapter: '',
     projectID1:this.createSmartText('Project ID1','projectID1'),
     projectID2:this.createSmartText('Project ID2','projectID2'),
     sourceProject:this.createLink(),
@@ -939,6 +941,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       formEntry.teamIds  =  item.teamIds;
       formEntry.ccEmail  =  item.ccEmail;
       formEntry.ccList  =  item.ccList;
+      formEntry.story  =  item.story;
+      formEntry.chapter  =  item.chapter;
     }
 
 
@@ -1943,6 +1947,9 @@ public toggleTips = (item: any): void => {
           leader: p.Leader ,
           team: p.Team,
 
+          story: p.Story,
+          chapter: p.Chapter,
+
           leaderId: p.LeaderId,
           teamIds: p.TeamId,
 
@@ -2054,6 +2061,8 @@ public toggleTips = (item: any): void => {
 
           leader : item.Leader ,  //Likely single person column
           team : item.Team ,  //Likely multi person column
+          story: item.Story,
+          chapter: item.Chapter,
 
           leaderId: item.LeaderId,
           teamIds: item.TeamId,
@@ -2607,6 +2616,9 @@ public toggleTips = (item: any): void => {
         Category2: category2,
         LeaderId: trackTimeItem.leaderId,  //Likely single person column
         TeamId: teamId,  //Likely multi person column
+
+        Story: trackTimeItem.story,
+        Chapter: trackTimeItem.chapter,
 
         ProjectID1: projectID1,  //Example Project # - look for strings starting with * and ?
         ProjectID2: projectID2,  //Example Cost Center # - look for strings starting with * and ?

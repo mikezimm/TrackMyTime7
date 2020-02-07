@@ -31,6 +31,8 @@ import { IFieldAddResult, FieldTypes,
     DateTimeFieldFormatType, CalendarType, DateTimeFieldFriendlyFormatType,
     FieldUserSelectionMode } from "@pnp/sp/fields/types";
 
+import { IItemAddResult } from "@pnp/sp/items";
+
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/fields";
@@ -295,7 +297,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
       const ensureResult = await sp.web.lists.ensure(myListName,
         myListDesc,
         100,
-        true);
+        true,
+        { EnableVersioning: true, MajorVersionLimit: 20});
 
       // if we've got the list
       if (ensureResult.list != null) {
@@ -307,77 +310,114 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
           //Add this after creating field to change title:  //await field1.field.update({ Title: "My Text"});
 
+
           let columnGroup = 'TrackTimeProject';
 
-
-          let fieldSchema = '<Field DisplayName="Active" Format="Dropdown" Name="Active" Title="Active" Type="Boolean" ID="{d738a4f4-b23d-409d-a72e-8a09a6cd78a8}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Active" ColName="bit1" RowOrdinal="0"><Default>1</Default></Field>';
+          let fieldDescription = "Used by webpart to put inactive projects into different category for convenience";
+          let fieldSchema = '<Field DisplayName="Active" Description="' +  fieldDescription + '" Format="Dropdown" Name="Active" Title="Active" Type="Boolean" ID="{d738a4f4-b23d-409d-a72e-8a09a6cd78a8}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Active" ColName="bit1" RowOrdinal="0"><Default>1</Default></Field>';
           const active: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldSchema = '<Field Type="Number" DisplayName="SortOrder" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Min="0" Max="1000" Decimals="1" ID="{a65f6333-dd5d-49af-acf9-68f1606052f2}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="SortOrder" Name="SortOrder" ColName="float1" RowOrdinal="0" />';
+          fieldDescription = "Used by webpart to sort list of projects";
+          fieldSchema = '<Field Type="Number" DisplayName="SortOrder" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Min="0" Max="1000" Decimals="1" ID="{a65f6333-dd5d-49af-acf9-68f1606052f2}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="SortOrder" Name="SortOrder" ColName="float1" RowOrdinal="0" />';
           if (isProject) { const sortOrder: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema); }
 
-          fieldSchema = '<Field Type="Boolean" DisplayName="Everyone" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{67fa37c2-2ccf-4c30-b586-ce876955cb12}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Everyone" Name="Everyone" ColName="bit2" RowOrdinal="0"><Default>0</Default></Field>';
+          fieldDescription = "Used by webpart to easily find common or standard Project Items";
+          fieldSchema = '<Field Type="Boolean" DisplayName="Everyone" Description="' +  fieldDescription + '" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{67fa37c2-2ccf-4c30-b586-ce876955cb12}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Everyone" Name="Everyone" ColName="bit2" RowOrdinal="0"><Default>0</Default></Field>';
           if (isProject) { const everyone: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema); } 
 
-          fieldSchema = '<Field DisplayName="Leader" Format="Dropdown" List="UserInfo" Name="Leader" Title="Leader" Type="User" UserSelectionMode="1" UserSelectionScope="0" ID="{10e58bd6-3722-47a9-a34c-87c2dcade2aa}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Leader" ColName="int1" RowOrdinal="0" />';
+          fieldDescription = "Leader of this Project Item.  Helps you find Projects you own";
+          fieldSchema = '<Field DisplayName="Leader" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Name="Leader" Title="Leader" Type="User" Indexed="TRUE" UserSelectionMode="1" UserSelectionScope="0" ID="{10e58bd6-3722-47a9-a34c-87c2dcade2aa}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Leader" ColName="int1" RowOrdinal="0" />';
           const leader: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldSchema = '<Field DisplayName="Team" Format="Dropdown" List="UserInfo" Mult="TRUE" Name="Team" Title="Team" Type="UserMulti" UserSelectionMode="0" UserSelectionScope="0" ID="{1614eec8-246a-4d63-9ce9-eb8c8a733af1}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Team" ColName="int2" RowOrdinal="0" />';
+          fieldDescription = "Other Team Members for this project. Helps you find projects you are working on.";
+          fieldSchema = '<Field DisplayName="Team" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Mult="TRUE" Name="Team" Title="Team" Type="UserMulti" UserSelectionMode="0" UserSelectionScope="0" ID="{1614eec8-246a-4d63-9ce9-eb8c8a733af1}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Team" ColName="int2" RowOrdinal="0" />';
           const team: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category1" FillInChoice="TRUE" Format="Dropdown" Name="Category1" Required="TRUE" Title="Category1" Type="MultiChoice" ID="{b04db900-ab45-415d-bb11-336704f82d31}" Version="4" StaticName="Category1" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext3" RowOrdinal="0" CustomFormatter="" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>Daily</CHOICE><CHOICE>SPFx</CHOICE><CHOICE>Assistance</CHOICE><CHOICE>Team Meetings</CHOICE><CHOICE>Training</CHOICE><CHOICE>------</CHOICE><CHOICE>Other</CHOICE></CHOICES></Field>';
+          fieldDescription = "Project level choice category in entry form.";
+          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category1" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category1" Required="TRUE" Title="Category1" Type="MultiChoice" ID="{b04db900-ab45-415d-bb11-336704f82d31}" Version="4" StaticName="Category1" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext3" RowOrdinal="0" CustomFormatter="" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>Daily</CHOICE><CHOICE>SPFx</CHOICE><CHOICE>Assistance</CHOICE><CHOICE>Team Meetings</CHOICE><CHOICE>Training</CHOICE><CHOICE>------</CHOICE><CHOICE>Other</CHOICE></CHOICES></Field>';
           const category1: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
-
-          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category2" FillInChoice="TRUE" Format="Dropdown" Name="Category2" Title="Category2" Type="MultiChoice" ID="{ee040745-8628-479a-b865-98e35c9b6617}" Version="3" StaticName="Category2" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext2" RowOrdinal="0" CustomFormatter="" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>EU</CHOICE><CHOICE>NA</CHOICE><CHOICE>SA</CHOICE><CHOICE>Asia</CHOICE></CHOICES></Field>';
+          
+          fieldDescription = "Project level choice category in entry form.";
+          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category2" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category2" Title="Category2" Type="MultiChoice" ID="{ee040745-8628-479a-b865-98e35c9b6617}" Version="3" StaticName="Category2" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext2" RowOrdinal="0" CustomFormatter="" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>EU</CHOICE><CHOICE>NA</CHOICE><CHOICE>SA</CHOICE><CHOICE>Asia</CHOICE></CHOICES></Field>';
           const category2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldSchema = '<Field Type="Text" DisplayName="ProjectID1" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{f844fefd-8fde-4227-9707-5facc835c7ed}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="ProjectID1" Name="ProjectID1" ColName="nvarchar4" RowOrdinal="0" />';
+          fieldDescription = "Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation";
+          fieldSchema = '<Field Type="Text" DisplayName="ProjectID1" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{f844fefd-8fde-4227-9707-5facc835c7ed}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="ProjectID1" Name="ProjectID1" ColName="nvarchar4" RowOrdinal="0" />';
           const projectID1: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
-
-          fieldSchema = '<Field Type="Text" DisplayName="ProjectID2" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{432aeccc-6f3a-4bf0-b451-6970c0eb292d}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="ProjectID2" Name="ProjectID2" ColName="nvarchar5" RowOrdinal="0" />';
+          
+          fieldSchema = '<Field Type="Text" DisplayName="ProjectID2" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{432aeccc-6f3a-4bf0-b451-6970c0eb292d}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="ProjectID2" Name="ProjectID2" ColName="nvarchar5" RowOrdinal="0" />';
           const projectID2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldSchema = '<Field Type="Text" DisplayName="TimeTarget" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{02c5c9a7-7690-4efe-8e75-404a90654946}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="TimeTarget" Name="TimeTarget" ColName="nvarchar6" RowOrdinal="0" />';
+          fieldDescription = "Used by webpart to define targets for charting.";
+          fieldSchema = '<Field Type="Text" DisplayName="TimeTarget" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{02c5c9a7-7690-4efe-8e75-404a90654946}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="TimeTarget" Name="TimeTarget" ColName="nvarchar6" RowOrdinal="0" />';
           if (isProject) { const timeTarget: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema); }
 
-          const ccList: IFieldAddResult = await ensureResult.list.fields.addUrl("CCList", UrlFieldFormatType.Hyperlink, { Group: columnGroup });
 
-          const ccEmail: IFieldAddResult = await ensureResult.list.fields.addText("CCEmail", 255, { Group: columnGroup });
+          fieldDescription = "Used by web part to create Time Entry on secondary list at the same time... aka like Cc in email.";
+          const ccList: IFieldAddResult = await ensureResult.list.fields.addUrl("CCList", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
 
-          const tbdInfo1: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo1", 255, { Group: columnGroup });
-          const tbdInfo2: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo2", 255, { Group: columnGroup });
+          fieldDescription = "To be used by webpart to email this address for every entry.  Not yet used.";
+          const ccEmail: IFieldAddResult = await ensureResult.list.fields.addText("CCEmail", 255, { Group: columnGroup, Description: fieldDescription });
+
+          fieldDescription = "Special field in Project list used create a Story in Charts. This is the primary filter for the Chart Story page.";
+          const story: IFieldAddResult = await ensureResult.list.fields.addText("Story", 255, { Group: columnGroup, Description: fieldDescription, Indexed: true });
+
+          fieldDescription = "Special field in Project list used create a Story in Charts. Consider this the primary category for the Story Chart.";
+          const chapter: IFieldAddResult = await ensureResult.list.fields.addText("Chapter", 255, { Group: columnGroup, Description: fieldDescription, Indexed: true });
+
+          const tbdInfo1: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo1", 255, { Group: columnGroup, Hidden: true });
+          const tbdInfo2: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo2", 255, { Group: columnGroup, Hidden: true  });
 
           if (isTime) { //Fields specific for Time
             let minInfinity: number = -1.7976931348623157e+308;
             let maxInfinity = -1 * minInfinity ;
-            const activity: IFieldAddResult = await ensureResult.list.fields.addUrl("Activity", UrlFieldFormatType.Hyperlink, { Group: columnGroup });
-            const deltaT: IFieldAddResult = await ensureResult.list.fields.addNumber("DeltaT", minInfinity, maxInfinity, { Group: columnGroup });
+
+            fieldDescription = "Link to the activity you are working on";
+            const activity: IFieldAddResult = await ensureResult.list.fields.addUrl("Activity", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
+            
+            fieldDescription = "May be used to indicate difference between when an entry is created and the actual time of the entry.";
+            const deltaT: IFieldAddResult = await ensureResult.list.fields.addNumber("DeltaT", minInfinity, maxInfinity, { Group: columnGroup, Description: fieldDescription });
             const comments: IFieldAddResult = await ensureResult.list.fields.addText("Comments", 255, { Group: columnGroup });
 
             const endTime: IFieldAddResult = await ensureResult.list.fields.addDateTime("EndTime", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Required: true });
-            const startTime: IFieldAddResult = await ensureResult.list.fields.addDateTime("StartTime", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Required: true });
-            const sourceProject: IFieldAddResult = await ensureResult.list.fields.addUrl("SourceProject", UrlFieldFormatType.Hyperlink, { Group: columnGroup });
-            const sourceProjectRef: IFieldAddResult = await ensureResult.list.fields.addText("SourceProjectRef", 255, { Group: columnGroup });
+            const startTime: IFieldAddResult = await ensureResult.list.fields.addDateTime("StartTime", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Required: true, Indexed: true });
 
-            const user: IFieldAddResult = await ensureResult.list.fields.addUser("User", FieldUserSelectionMode.PeopleOnly, { Group: "My Group" });
-            const settings: IFieldAddResult = await ensureResult.list.fields.addText("Settings", 255, { Group: columnGroup });
-            const location: IFieldAddResult = await ensureResult.list.fields.addText("Location", 255, { Group: columnGroup });
-            const entryType: IFieldAddResult = await ensureResult.list.fields.addText("EntryType", 255, { Group: columnGroup });
+            fieldDescription = "Link to the Project List item used to create this entry.";
+            const sourceProject: IFieldAddResult = await ensureResult.list.fields.addUrl("SourceProject", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
 
-            const days: IFieldAddResult = await ensureResult.list.fields.addCalculated("Days", '=IFERROR((EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup });
+            fieldDescription = "Used by webpart to get source project information.";
+            const sourceProjectRef: IFieldAddResult = await ensureResult.list.fields.addText("SourceProjectRef", 255, { Group: columnGroup, Hidden: true, Description: fieldDescription, Indexed: true });
+
+            fieldDescription = "The person this time entry applies to.";
+            const user: IFieldAddResult = await ensureResult.list.fields.addUser("User", FieldUserSelectionMode.PeopleOnly, { Group: "My Group", Description: fieldDescription, Indexed: true });
+
+            fieldDescription = "For internal use of webpart";
+            const settings: IFieldAddResult = await ensureResult.list.fields.addText("Settings", 255, { Group: columnGroup, Description: fieldDescription });
+
+            fieldDescription = "Optional category to indicate where time was spent.  Such as Office, Customer, Home, Traveling etc.";
+            const location: IFieldAddResult = await ensureResult.list.fields.addText("Location", 255, { Group: columnGroup, Description: fieldDescription });
+
+            fieldDescription = "Shows what entry type was used, used in Charting";
+            const entryType: IFieldAddResult = await ensureResult.list.fields.addText("EntryType", 255, { Group: columnGroup, Description: fieldDescription });
+
+            fieldDescription = "Calculates Start to End time in Days.";
+            const days: IFieldAddResult = await ensureResult.list.fields.addCalculated("Days", '=IFERROR((EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
             // let hoursWithFormatSchema = '<Field Type="Calculated" DisplayName="Hours" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateOnly" Decimals="1" LCID="1033" ResultType="Number" ReadOnly="TRUE" ID="{3aba8d94-68e5-4368-a322-1e513c660506}" SourceID="{148e3b00-e7d3-4c93-b584-6c0dd2f74015}" StaticName="Hours" Name="Hours" ColName="sql_variant2" RowOrdinal="0" CustomFormatter="{"elmType":"div","children":[{"elmType":"span","txtContent":"@currentField","style":{"position":"absolute","white-space":"nowrap","padding":"0 4px"}},{"elmType":"div","attributes":{"class":{"operator":"?","operands":[{"operator":"&&","operands":[{"operator":"<","operands":[-8304,0]},{"operator":">","operands":[549,0]},{"operator":">=","operands":["@currentField",0]}]},"sp-field-dashedBorderRight",""]}},"style":{"min-height":"inherit","box-sizing":"border-box","padding-left":{"operator":"?","operands":[{"operator":">","operands":[0,-8304]},{"operator":"+","operands":[{"operator":"*","operands":[{"operator":"/","operands":[{"operator":"-","operands":[{"operator":"abs","operands":[-8304]},{"operator":"?","operands":[{"operator":"<","operands":["@currentField",0]},{"operator":"abs","operands":[{"operator":"?","operands":[{"operator":"<=","operands":["@currentField",-8304]},-8304,"@currentField"]}]},0]}]},8853]},100]},"%"]},0]}}},{"elmType":"div","attributes":{"class":{"operator":"?","operands":[{"operator":"&&","operands":[{"operator":"<","operands":[-8304,0]},{"operator":"<","operands":["@currentField",0]}]},"sp-css-backgroundColor-errorBackground sp-css-borderTop-errorBorder","sp-css-backgroundColor-blueBackground07 sp-css-borderTop-blueBorder"]}},"style":{"min-height":"inherit","box-sizing":"border-box","width":{"operator":"?","operands":[{"operator":">","operands":[0,-8304]},{"operator":"+","operands":[{"operator":"*","operands":[{"operator":"/","operands":[{"operator":"?","operands":[{"operator":"<=","operands":["@currentField",-8304]},{"operator":"abs","operands":[-8304]},{"operator":"?","operands":[{"operator":">=","operands":["@currentField",549]},549,{"operator":"abs","operands":["@currentField"]}]}]},8853]},100]},"%"]},{"operator":"?","operands":[{"operator":">=","operands":["@currentField",549]},"100%",{"operator":"?","operands":[{"operator":"<=","operands":["@currentField",-8304]},"0%",{"operator":"+","operands":[{"operator":"*","operands":[{"operator":"/","operands":[{"operator":"-","operands":["@currentField",-8304]},8853]},100]},"%"]}]}]}]}}},{"elmType":"div","style":{"min-height":"inherit","box-sizing":"border-box"},"attributes":{"class":{"operator":"?","operands":[{"operator":"&&","operands":[{"operator":"<","operands":[-8304,0]},{"operator":">","operands":[549,0]},{"operator":"<","operands":["@currentField",0]}]},"sp-field-dashedBorderRight",""]}}}],"templateId":"DatabarNumber"}" Version="1"><Formula>=IFERROR(24*(EndTime-StartTime),"")</Formula><FieldRefs><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /></FieldRefs></Field>';
 
-            const hours: IFieldAddResult = await ensureResult.list.fields.addCalculated("Hours", '=IFERROR(24*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup });
-            const minutes: IFieldAddResult = await ensureResult.list.fields.addCalculated("Minutes", '=IFERROR(24*60*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup });
+            fieldDescription = "Calculates Start to End time in Hours.";
+            const hours: IFieldAddResult = await ensureResult.list.fields.addCalculated("Hours", '=IFERROR(24*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+
+            fieldDescription = "Calculates Start to End time in Minutes.";
+            const minutes: IFieldAddResult = await ensureResult.list.fields.addCalculated("Minutes", '=IFERROR(24*60*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
           }
 
           let viewXml = '';
           if (isTime) { //View schema specific for Time
-            viewXml = '<View Name="{C7E59C90-7F68-4A19-96C8-73BB66C1A7A8}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/TrackMyTime/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE" /></OrderBy></Query><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="Active" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="User" /><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /><FieldRef Name="Hours" /><FieldRef Name="Minutes" /><FieldRef Name="Days" /><FieldRef Name="Location" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="EntryType" /><FieldRef Name="DeltaT" /><FieldRef Name="Activity" /><FieldRef Name="Comments" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><CustomFormatter /><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+            viewXml = '<View Name="{C7E59C90-7F68-4A19-96C8-73BB66C1A7A8}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/TrackMyTime/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE" /></OrderBy></Query><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="Active" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="User" /><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /><FieldRef Name="Hours" /><FieldRef Name="Minutes" /><FieldRef Name="Days" /><FieldRef Name="Location" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="EntryType" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /><FieldRef Name="DeltaT" /><FieldRef Name="Activity" /><FieldRef Name="Comments" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><CustomFormatter /><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
           } else {
-            viewXml = '<View Name="{B02AD2F6-34B3-4AF9-BA56-4B29BF28C49E}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/Projects/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="Active" /><FieldRef Name="SortOrder" /><FieldRef Name="LinkTitle" /><FieldRef Name="Everyone" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="TimeTarget" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="Active" /><CustomFormatter /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+            viewXml = '<View Name="{B02AD2F6-34B3-4AF9-BA56-4B29BF28C49E}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/Projects/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="Active" /><FieldRef Name="SortOrder" /><FieldRef Name="LinkTitle" /><FieldRef Name="Everyone" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="TimeTarget" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="Active" /><CustomFormatter /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
           }
 
           await ensureResult.list.views.getByTitle('All Items').setViewXml(viewXml);
@@ -405,6 +445,37 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             await V3.view.setViewXml(viewXml);
             */
           }
+          alert(`Hey there!  Your ${myListName} list is all ready to go!`);
+
+          if (isProject) { //Create some sample items
+
+            let list = sp.web.lists.getByTitle(myListName);
+            const entityTypeFullName = await list.getListItemEntityTypeFullName();
+
+            let batch = sp.web.createBatch();
+          
+            //, Category1: { results: ['Training']}
+            list.items.inBatch(batch).add({ Title: "Training", Everyone: true, Story: 'Training', Chapter: 'Yet more training :)', Category1: { results: ['Training']}}, entityTypeFullName).then(b => {
+              console.log(b);
+            });
+            //, Category1: { results: ['Daily']}
+            list.items.inBatch(batch).add({ Title: "Email triage", Everyone: true, Story: 'Daily', Chapter: 'Email triage', Category1: { results: ['Daily']}}, entityTypeFullName).then(b => {
+              console.log(b);
+            });
+            //, Category1: { results: ['Daily']}
+            list.items.inBatch(batch).add({ Title: "Break", Everyone: true, Story: 'Daily', Chapter: 'Break', Category1: { results: ['Daily']}}, entityTypeFullName).then(b => {
+              console.log(b);
+            });
+            //, Category1: { results: ['Meetings']}
+            list.items.inBatch(batch).add({ Title: "Team Meeting", Everyone: true, Story: 'Meetings', Chapter: 'Team Meeting', Category1: { results: ['Meetings']}}, entityTypeFullName).then(b => {
+              console.log(b);
+            });
+            console.log('step6');         
+            await batch.execute();
+
+          }
+
+          alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
 
           /*
           const resultVx = await ensureResult.list.views.add("");
@@ -414,7 +485,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
           // the list is ready to be used
           result = true;
-          alert(`Hey there!  Your ${myListName} list is all ready to go!`);
+
         } else {
 
         /***
@@ -445,6 +516,13 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const field23 = await ensureResult.list.fields.getByInternalNameOrTitle("CCList").get();
             const field24 = await ensureResult.list.fields.getByInternalNameOrTitle("CCEmail").get();
 
+            const field30 = await ensureResult.list.fields.getByInternalNameOrTitle("Story").get();
+            const field31 = await ensureResult.list.fields.getByInternalNameOrTitle("Chapter").get();
+
+            const field32 = await ensureResult.list.fields.getByInternalNameOrTitle("zzzTBDInfo1").get();
+            const field33 = await ensureResult.list.fields.getByInternalNameOrTitle("zzzTBDInfo2").get();
+            
+
             if (isTime) { //Fields specific for Time
 
               const field10 = await ensureResult.list.fields.getByInternalNameOrTitle("Activity").get();
@@ -458,12 +536,13 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
               const field18 = await ensureResult.list.fields.getByInternalNameOrTitle("Settings").get();
               const field19 = await ensureResult.list.fields.getByInternalNameOrTitle("Location").get();
               const field25 = await ensureResult.list.fields.getByInternalNameOrTitle("EntryType").get();
+
               const field26 = await ensureResult.list.fields.getByInternalNameOrTitle("Days").get();
               const field27 = await ensureResult.list.fields.getByInternalNameOrTitle("Hours").get();
               const field28 = await ensureResult.list.fields.getByInternalNameOrTitle("Minutes").get();
   
             }
-  
+
             // if it is all good, then the list is ready to be used
             result = true;
             console.log(`Your ${myListName} list is already set up!`);
