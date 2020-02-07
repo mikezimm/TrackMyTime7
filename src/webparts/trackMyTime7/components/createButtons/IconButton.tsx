@@ -4,31 +4,31 @@ import { IconButton, IIconProps, IContextualMenuProps, Stack, Link } from 'offic
 import {ITrackMyTime7State} from '../ITrackMyTime7State';
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 
-export interface IButtonExampleProps {
-  // These are set based on the toggles shown above the examples (not needed in real code)
-  disabled?: boolean;
-  checked?: boolean;
-  onClick?: any;
-}
+const emojiIcon: IIconProps = { iconName: 'BarChartVerticalFill' };
 
-const emojiIcon: IIconProps = { iconName: 'Emoji2' };
+import styles from './CreateButtons.module.scss';
 
-
-export function createIconButton(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, _onToggle){
-
-  
+export function createIconButton(iconName, titleText, _onClick){
     return (
-      
-        <div>
-        <IconButton iconProps={emojiIcon} 
-        title="Emoji" 
-        ariaLabel="Emoji" 
-        disabled={false} 
-        checked={false}
-        onMenuClick={ _onToggle }
-        
-        />
-    </div>
+      <div className= {styles.buttons}>
+      <IconButton iconProps={{ iconName: iconName }} 
+      title= { titleText } 
+      ariaLabel= { titleText } 
+      disabled={false} 
+      checked={false}
+      onClick={ _onClick }
+
+      styles={{
+        root: {padding:'10px !important', height: 32},//color: 'green' works here
+        icon: { 
+          fontSize: 18,
+          fontWeight: iconName === 'Help' ? "900" : "normal",
+          margin: '0px 2px',
+          color: '#00457e', //This will set icon color
+       },
+      }}
+      />
+      </div>
     );
   }
 

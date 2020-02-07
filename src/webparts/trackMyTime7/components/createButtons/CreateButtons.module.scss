@@ -8,3 +8,15 @@
         align-items: center;
       }
 }
+
+.buttons{
+  padding-right: 10px;
+  -webkit-font-smoothing: antialiased;
+  transition:all 0.3s ease;
+  border-radius: 5px;
+  :hover{
+    background-color: lightgray;
+    transition:all 0.3s ease;
+    border-radius: 5px;
+  }
+}

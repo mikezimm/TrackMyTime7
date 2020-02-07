@@ -351,7 +351,7 @@ export interface ITrackMyTime7State {
   userLoadStatus?: string;
 
   errTitle?: string;
-  showTips?: string;
+  showTips?: boolean;
   loadError?: string;
 
   listError?: boolean;
