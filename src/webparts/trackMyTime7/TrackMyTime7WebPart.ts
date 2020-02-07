@@ -470,12 +470,11 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             list.items.inBatch(batch).add({ Title: "Team Meeting", Everyone: true, Story: 'Meetings', Chapter: 'Team Meeting', Category1: { results: ['Meetings']}}, entityTypeFullName).then(b => {
               console.log(b);
             });
-            console.log('step6');         
+      
             await batch.execute();
+            alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
 
           }
-
-          alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
 
           /*
           const resultVx = await ensureResult.list.views.add("");
