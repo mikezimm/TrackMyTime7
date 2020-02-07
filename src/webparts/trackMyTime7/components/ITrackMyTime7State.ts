@@ -64,6 +64,10 @@ export interface ISaveEntry {
     team?: IUser[];  //Likely multi person column
     leaderId?: number;
     teamIds?: number[];
+
+    //For new chart page:
+    story?: string;
+    chapter?: string;
   
     //This block for use in the history list component
     projectID1?: ISmartText;  //Example Project # - look for strings starting with * and ?
@@ -183,6 +187,8 @@ export interface IProject {
   team?: IUser[];  //Likely multi person column
   leaderId?: number;
   teamIds?: number[];
+  story?: string;
+  chapter?: string;
 
   filterFlags?: string[]; // what flags does this match?  yourRecent, allRecent etc...
 
