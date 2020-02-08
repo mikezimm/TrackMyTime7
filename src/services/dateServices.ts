@@ -247,6 +247,7 @@ export function getTimeDelta(time1, time2, inWhat : string){
   else if (inWhat === 'hours') { age =  age/(1000 * 60 * 60) ; }
   else if (inWhat === 'minutes') { age =  age/(1000 * 60) ; }
   else if (inWhat === 'seconds') { age =  age/(1000) ; }
+  else if (inWhat === 'ms') { age =  age ; }
   else if (inWhat === 'best'){
   }
 

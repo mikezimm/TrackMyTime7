@@ -2860,8 +2860,40 @@ public toggleTips = (item: any): void => {
     }
 
 
+    function addLabels(series: IChartSeries, labels: string, firstIndex: number) {
+      let labelArray = labels.split(';');
+      let chartDataLabel: any [] = []; 
+      //console.log('labelArray:', labelArray);
+      chartDataLabel = Object.keys(series['sums']);
+      console.log('chartDataLabel',chartDataLabel);
+      let newSums : number[] = [];
+      let newCounts : number[] = [];
+      let newLabels : string[] = [];
+      for ( let item of chartDataLabel) {
+        let label = '';
+        if ( item != null ) {
+          if (firstIndex < 4 ) { //This is a relative index
+            label = labelArray[Number(item) + firstIndex];
+          } else if ( firstIndex === 52) { //Just conver to a number version of the index
+            label = ("0" + item).slice(-2) ;
+          } else { //Must be an error but put the label as itself
+            console.log('unknown label conversion error:', series, labels,firstIndex);
+            label = item;
+          }
+          newSums.push(series.sums[item]);
+          newCounts.push(series.counts[item]);
+          newLabels.push(label);
+        }
+      }
+      series.labels = newLabels;
+      series.sums = newSums;
+      series.counts = newCounts;
+      return series;
+    }
+
+
     function updateThisSeries(seriesData : IChartSeries,  dur: number,  thisKey: number ) {
-      //let weekData = chartPreData.thisWeek[0];
+      let weekData = chartPreData.thisWeek[0];
       //console.log('yearData',weekData);
       if ( seriesData.sums[thisKey] == null ) { 
         seriesData.sums[thisKey] = 0; 
@@ -2875,22 +2907,19 @@ public toggleTips = (item: any): void => {
       return seriesData;
     }
 
+
     let sourceData: ITimeEntry[] = this.state.entries[who];
 
     let chartPreData: IChartData = {
       thisYear: [createISeries(who + ' This Year (mo)'),createISeries('This Year (wk)')],
       thisMonth: [createISeries(who + ' This Month')],
       thisWeek: [createISeries(who + ' This Week')],
-      thisTest: [createISeries(who + ' This Week')],
-      allDays: createISeries(who + ' All Days'),
-      allWeeks: createISeries(who + ' All Weeks'), 
-      allMonths: createISeries(who + ' All Months'), 
-      allYears: createISeries(who + ' All Years'), 
+      thisTest: [createISeries(who + ' This Week')],      
     };
     let chartPostData: IChartData = {};
 
     let chartDataVal: number [] = [];   
-    let chartDataLabel: any [] = []; 
+
     let runningTotal: number = 0;
 
     for ( let item of sourceData) {
@@ -2900,19 +2929,67 @@ public toggleTips = (item: any): void => {
       runningTotal += dur;
       //console.log('theTime:',item.id,runningTotal, item.startTime,theTime.year,theTime.month,theTime.week,theTime.date,theTime.day,theTime.hour,theTime.isThisYear,theTime.isThisMonth,theTime.isThisWeek,theTime.isToday);
 
-      chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
 
       if (item.thisTimeObj.isThisYear) {
-        chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
-        chartPreData.thisYear[1] = updateThisSeries(chartPreData.thisYear[1], dur, item.thisTimeObj.week);
+        //Build up yearData Series 0
+        let yearDataM = chartPreData.thisYear[0];
+        //console.log('yearData',yearDataM);
+        if ( yearDataM.sums[item.thisTimeObj.month] == null ) { 
+          yearDataM.sums[item.thisTimeObj.month] = 0;
+          yearDataM.counts[item.thisTimeObj.month] = 0;
+         }
+        yearDataM.sums[item.thisTimeObj.month] += dur;
+        yearDataM.totalS += dur;
+        yearDataM.counts[item.thisTimeObj.month] ++;
+        yearDataM.totalC ++;
 
+        //Build up yearData Series 1
+        let yearDataW = chartPreData.thisYear[1];
+        //console.log('yearData',yearDataW);
+        if ( yearDataW.sums[item.thisTimeObj.week] == null ) { 
+          yearDataW.sums[item.thisTimeObj.week] = 0;
+          yearDataW.counts[item.thisTimeObj.week] = 0;
+        }
+        yearDataW.sums[item.thisTimeObj.week] += dur;
+        yearDataW.totalS += dur;
+        yearDataW.counts[item.thisTimeObj.week] ++;
+        yearDataW.totalC ++;
       }
  
-      if (item.thisTimeObj.isThisMonth) { 
-        chartPreData.thisMonth[0] = updateThisSeries(chartPreData.thisMonth[0], dur, item.thisTimeObj.date);  }
+      if (item.thisTimeObj.isThisMonth) {
+        //Build up monthData Series 0
+        let monthData = chartPreData.thisMonth[0];
+        //console.log('yearData',monthData);
+        if ( monthData.sums[item.thisTimeObj.date] == null ) { 
+          monthData.sums[item.thisTimeObj.date] = 0; 
+          monthData.counts[item.thisTimeObj.date] = 0; 
+        }
+        monthData.sums[item.thisTimeObj.date] += dur;
+        monthData.totalS += dur;
+        monthData.counts[item.thisTimeObj.date] ++;
+        monthData.totalC ++;
+      }
 
-      if (item.thisTimeObj.isThisWeek) { 
-        chartPreData.thisWeek[0] = updateThisSeries(chartPreData.thisWeek[0], dur, item.thisTimeObj.day);  }
+
+      if (item.thisTimeObj.isThisWeek) { chartPreData.thisTest[0] = updateThisSeries(chartPreData.thisTest[0], dur, item.thisTimeObj.day);
+      
+
+
+      if (item.thisTimeObj.isThisWeek) {
+        //Build up weekData Series 0
+        let weekData = chartPreData.thisWeek[0];
+        //console.log('yearData',weekData);
+        if ( weekData.sums[item.thisTimeObj.day] == null ) { 
+          weekData.sums[item.thisTimeObj.day] = 0; 
+          weekData.counts[item.thisTimeObj.day] = 0; 
+        }
+        weekData.sums[item.thisTimeObj.day] += dur;
+        weekData.totalS += dur;
+        weekData.counts[item.thisTimeObj.day] ++;
+        weekData.totalC ++;
+      }
+
+      //console.log('chartPreData',chartPreData);
 
     }
 
@@ -2922,47 +2999,13 @@ public toggleTips = (item: any): void => {
 /*
 */
 
-    function addLabels(series: IChartSeries, labels: string, firstIndex: number) {
-      let labelArray = labels.split(';');
-      //console.log('labelArray:', labelArray);
-      chartDataLabel = Object.keys(series['sums']);
-      console.log('chartDataLabel',chartDataLabel);
-      let newSums : number[] = [];
-      let newCounts : number[] = [];
-      let newLabels : string[] = [];
-      for ( let itemL of chartDataLabel) {
-        let label = '';
-        if ( itemL != null ) {
-          if (firstIndex < 4 ) { //This is a relative index
-            label = labelArray[Number(itemL) + firstIndex];
-          } else if ( firstIndex === 12) { //Just conver to a number version of the index
-            label = ("0" + itemL).slice(-2) ;
-          } else if ( firstIndex === 52) { //Just conver to a number version of the index
-            label = "w" + ("0" + itemL).slice(-2) ;
-          } else if ( firstIndex === 365) { //Just conver to a number version of the index
-            label = ("0000" + itemL).slice(-4) ;
-          } else { //Must be an error but put the label as itself
-            console.log('unknown label conversion error:', series, labels,firstIndex);
-            label = itemL;
-          }
-          newSums.push(series.sums[itemL]);
-          newCounts.push(series.counts[itemL]);
-          newLabels.push(label);
-        }
-      }
-      series.labels = newLabels;
-      series.sums = newSums;
-      series.counts = newCounts;
-      return series;
-    }
-
-    
-    chartPreData.allDays = addLabels(chartPreData.allDays,monthStr3['en-us'].join(';'),365); //Days of year
 
     chartPreData.thisYear[0] = addLabels(chartPreData.thisYear[0],monthStr3['en-us'].join(';'),0); //Months of year
     chartPreData.thisYear[1] = addLabels(chartPreData.thisYear[1],weekday3['en-us'].join(';'),52); // Week Numbers of Year
-    chartPreData.thisMonth[0] = addLabels(chartPreData.thisMonth[0],weekday3['en-us'].join(';'),12);  // Days of Month
+    chartPreData.thisMonth[0] = addLabels(chartPreData.thisMonth[0],weekday3['en-us'].join(';'),52);  // Days of Month
     chartPreData.thisWeek[0] = addLabels(chartPreData.thisWeek[0],weekday3['en-us'].join(';'),0);  // Days of the week
+
+
 
      console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);

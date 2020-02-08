@@ -34,7 +34,7 @@ export function creatCharts(parentProps:ITrackMyTime7Props , parentState: ITrack
             labels: series.labels,
             datasets: [{
             label: series.title,
-            data: series.values
+            data: series.sums
             }]
         }}
         options={options} />

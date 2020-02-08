@@ -248,8 +248,10 @@ export interface IMyPivots {
 export interface IChartSeries {
   title: string;
   labels: any[];
-  values: any[];
-  total: number;
+  sums: any[];
+  counts: any[];
+  totalS: number;
+  totalC: number;
 }
 
 export interface IChartData {
@@ -260,6 +262,11 @@ export interface IChartData {
   thisWeek?: IChartSeries[];
   thisMonth?: IChartSeries[];
   thisYear?: IChartSeries[];  
+  thisTest?: IChartSeries[];  
+  allYears?: IChartSeries;
+  allMonths?: IChartSeries;
+  allWeeks?: IChartSeries;
+  allDays?: IChartSeries;
 }
 
 export interface ITrackMyTime7State {
