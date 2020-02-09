@@ -34,7 +34,7 @@ import { getHelpfullError, } from '../../../services/ErrorHandler';
 
 
 import { buildFormFields } from './fields/fieldDefinitions';
-import { creatCharts } from './Charts/charts';
+import { creatCharts, creatLineChart } from './Charts/charts';
 
 import ButtonCompound from './createButtons/ICreateButtons';
 import { IButtonProps,ISingleButtonProps,IButtonState } from "./createButtons/ICreateButtons";
@@ -761,6 +761,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let chartThisYear0 = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisYear[0]) : '';
     let chartThisYear1 = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisYear[1]) : '';
 
+    let chartDailyHistory = this.state.allLoaded && this.state.showCharts ? creatLineChart(this.props,this.state, this.state.chartData.allDays) : '';
+    let chartWeeklyHistory = this.state.allLoaded && this.state.showCharts ? creatLineChart(this.props,this.state, this.state.chartData.allWeeks) : '';
+    let chartMonthlyHistory = this.state.allLoaded && this.state.showCharts ? creatLineChart(this.props,this.state, this.state.chartData.allMonths) : '';
+    let chartYearlyHistory = this.state.allLoaded && this.state.showCharts ? creatLineChart(this.props,this.state, this.state.chartData.allYears) : '';    
+
+
+
+
     let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this) );
     let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this) );
 
@@ -807,7 +815,22 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
               { chartThisYear1 }
             </Stack.Item>
 
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartWeeklyHistory }
+            </Stack.Item>
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartMonthlyHistory }
+            </Stack.Item>            
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartYearlyHistory }
+            </Stack.Item>
+
           </Stack>
+          <div className={styles.chartHeight}>
+            { chartDailyHistory }
+          </div>
+              
+
         </div>
           <div>
 
@@ -2359,8 +2382,8 @@ public toggleTips = (item: any): void => {
     } else { //alert("NOT found: " );
     }
 
-    let lastEndTime = makeTheTimeObject("2007");
-    let nowEndTime = makeTheTimeObject(null);
+    let lastEndTime = makeTheTimeObject(new Date(2007,0,1).toUTCString());
+    let nowEndTime = makeTheTimeObject('');
     //console.log(JSON.stringify(lastEndTime));
     //alert(lastEndTime);
 
@@ -2846,19 +2869,34 @@ public toggleTips = (item: any): void => {
   //processChartData('all',['catA','catB'])
   public processChartData(who: string, what: string[], when: number, scale: string){
 
+    let hideEmpty = false;  //Will include data points with no data
+
     let startTimer = new Date().getTime();
 
-    function createISeries(title): IChartSeries {
+    function createEmptyArray(min: number, max: number, stepInc: number){
+      let arr = [];
+      let goUp = min < max ? true : false;
+      if (min !== max) {
+        for (let step = min; goUp ? step <= max : step >= max; step = step + stepInc) {
+          // Runs 5 times, with values of step 0 through 4.
+          arr[step] = null;
+          arr[step] = null;
+          arr[step] = null;
+        }
+      }
+      return arr;
+    }
+
+    function createISeries(title, min: number, max: number, stepInc: number): IChartSeries {
       return {
         title: title,
-        labels: [],
-        sums: [],
-        counts:[],
+        labels: createEmptyArray(min,max,stepInc),
+        sums: createEmptyArray(min,max,stepInc),
+        counts:createEmptyArray(min,max,stepInc),
         totalS: 0,
         totalC: 0,
       };
     }
-
 
     function updateThisSeries(seriesData : IChartSeries,  dur: number,  thisKey: number ) {
       //let weekData = chartPreData.thisWeek[0];
@@ -2877,19 +2915,22 @@ public toggleTips = (item: any): void => {
 
     let sourceData: ITimeEntry[] = this.state.entries[who];
 
-    let chartPreData: IChartData = {
-      thisYear: [createISeries(who + ' This Year (mo)'),createISeries('This Year (wk)')],
-      thisMonth: [createISeries(who + ' This Month')],
-      thisWeek: [createISeries(who + ' This Week')],
-      thisTest: [createISeries(who + ' This Week')],
-      allDays: createISeries(who + ' All Days'),
-      allWeeks: createISeries(who + ' All Weeks'), 
-      allMonths: createISeries(who + ' All Months'), 
-      allYears: createISeries(who + ' All Years'), 
-    };
-    let chartPostData: IChartData = {};
+    let daysSinceMonthStart =this.props.today.daysSinceMonthStart;
+    let daysSinceNewYear =this.props.today.daysSinceNewYear;
+    let daysSinceSOW =this.props.today.daysSinceMon;
 
-    let chartDataVal: number [] = [];   
+    let chartPreData: IChartData = {
+      thisYear: [
+        createISeries(who + ' This Year (mo)', hideEmpty ? 0 : 0 , hideEmpty ? 0 : this.props.today.month , 1),
+        createISeries('This Year (wk)' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
+      thisMonth: [createISeries(who + ' This Month' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.date , 1)],
+      thisWeek: [createISeries(who + ' This Week' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
+      allDays: createISeries(who + ' All Days' , hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
+      allWeeks: createISeries(who + ' All Weeks' , hideEmpty ? daysSinceSOW : daysSinceSOW , hideEmpty ? daysSinceSOW : 365 , 7),
+      allMonths: createISeries(who + ' All Months' , hideEmpty ? daysSinceMonthStart : daysSinceMonthStart , hideEmpty ? daysSinceMonthStart : 365 , 31), 
+      allYears: createISeries(who + ' All Years' , hideEmpty ? daysSinceNewYear : daysSinceNewYear , hideEmpty ? daysSinceNewYear : 365*4 , 365), 
+    };
+
     let chartDataLabel: any [] = []; 
     let runningTotal: number = 0;
 
@@ -2901,6 +2942,9 @@ public toggleTips = (item: any): void => {
       //console.log('theTime:',item.id,runningTotal, item.startTime,theTime.year,theTime.month,theTime.week,theTime.date,theTime.day,theTime.hour,theTime.isThisYear,theTime.isThisMonth,theTime.isThisWeek,theTime.isToday);
 
       chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
+      chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
+      chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
+      chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
 
       if (item.thisTimeObj.isThisYear) {
         chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
@@ -2916,8 +2960,36 @@ public toggleTips = (item: any): void => {
 
     }
 
+    function removeEmptyFromEnd(series: IChartSeries, base : number, step: number) {
 
+      let lastIndex = null;
+      for (let i = series.sums.length -1 + base; i > 0; i = i - step) {
+        if (series.sums[i] !== null) {
+          lastIndex = i;
+          break;
+        }
+      }
 
+      if ( lastIndex + 1 < series.sums.length) { lastIndex ++ ; }
+      let smallerSums = series.sums.splice(0,lastIndex );
+      let smallerCounts = series.counts.splice(0,lastIndex);
+      let smallerLabels = series.labels.splice(0,lastIndex);
+
+      series.sums= smallerSums;
+      series.counts= smallerCounts;
+      series.labels= smallerLabels;
+      console.log('lastIndex is: ',series, lastIndex);
+
+    }
+
+    removeEmptyFromEnd(chartPreData.allDays, 0, 1);
+    removeEmptyFromEnd(chartPreData.allWeeks, 0, 7);
+    removeEmptyFromEnd(chartPreData.allMonths, 0, 31);
+    removeEmptyFromEnd(chartPreData.allYears, 0, 365);
+    removeEmptyFromEnd(chartPreData.thisYear[0], 1, 1);
+    removeEmptyFromEnd(chartPreData.thisYear[1], 1, 1);
+    removeEmptyFromEnd(chartPreData.thisMonth[0], 1, 1);
+    removeEmptyFromEnd(chartPreData.thisWeek[0], 1, 1);
 
 /*
 */
@@ -2926,20 +2998,22 @@ public toggleTips = (item: any): void => {
       let labelArray = labels.split(';');
       //console.log('labelArray:', labelArray);
       chartDataLabel = Object.keys(series['sums']);
-      console.log('chartDataLabel',chartDataLabel);
+      //console.log('chartDataLabel',chartDataLabel);
       let newSums : number[] = [];
       let newCounts : number[] = [];
       let newLabels : string[] = [];
       for ( let itemL of chartDataLabel) {
         let label = '';
         if ( itemL != null ) {
-          if (firstIndex < 4 ) { //This is a relative index
+          if ( firstIndex === 0) { //Make like days since number
+            label = (Number(itemL) + firstIndex).toString() ;
+          } else if (firstIndex < 4 ) { //This is a relative index
             label = labelArray[Number(itemL) + firstIndex];
-          } else if ( firstIndex === 12) { //Just conver to a number version of the index
+          } else if ( firstIndex === 12) { //Make like month number
             label = ("0" + itemL).slice(-2) ;
-          } else if ( firstIndex === 52) { //Just conver to a number version of the index
+          } else if ( firstIndex === 52) { //Make like week number
             label = "w" + ("0" + itemL).slice(-2) ;
-          } else if ( firstIndex === 365) { //Just conver to a number version of the index
+          } else if ( firstIndex === 365) { //Make like days since number
             label = ("0000" + itemL).slice(-4) ;
           } else { //Must be an error but put the label as itself
             console.log('unknown label conversion error:', series, labels,firstIndex);
@@ -2956,8 +3030,12 @@ public toggleTips = (item: any): void => {
       return series;
     }
 
+    chartPreData.allYears = addLabels(chartPreData.allYears,monthStr3['en-us'].join(';'),0); //Days of year
+    chartPreData.allMonths = addLabels(chartPreData.allMonths,monthStr3['en-us'].join(';'),0); //Days of year
+    chartPreData.allWeeks = addLabels(chartPreData.allWeeks,monthStr3['en-us'].join(';'),0); //Days of year
+
     
-    chartPreData.allDays = addLabels(chartPreData.allDays,monthStr3['en-us'].join(';'),365); //Days of year
+    chartPreData.allDays = addLabels(chartPreData.allDays,monthStr3['en-us'].join(';'),0); //Days of year
 
     chartPreData.thisYear[0] = addLabels(chartPreData.thisYear[0],monthStr3['en-us'].join(';'),0); //Months of year
     chartPreData.thisYear[1] = addLabels(chartPreData.thisYear[1],weekday3['en-us'].join(';'),52); // Week Numbers of Year
@@ -2978,7 +3056,7 @@ public toggleTips = (item: any): void => {
     let endTimer = new Date().getTime();
 
     let delta = endTimer - startTimer;
-    alert('Time to process chart data: ' + delta );
+    console.log('Time to process chart data: ' + delta );
 
     return;
 

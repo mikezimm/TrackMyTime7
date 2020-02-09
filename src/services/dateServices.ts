@@ -75,9 +75,38 @@ export interface ITheTime {
   isThisYear?: boolean;
   daysAgo?: number;
   isoWeek?: number;
+  priorSunday?: Date;
+  priorMonday?: Date;
+  firstOfMonth?: Date;
+  daysSinceSun?: number;
+  daysSinceMon?: number;
+  daysSinceNewYear?: number;
+  daysSinceMonthStart?: number;
 
 }
 
+//https://stackoverflow.com/questions/4156434/javascript-get-the-first-day-of-the-week-from-current-date
+function getDayOfWeek(d,sunOrMon: string) {
+
+  let d1 = new Date(d);
+  let diff;
+  let day = d1.getDay();
+  if (sunOrMon === 'sun') {
+    diff = d1.getDate() - day;
+  } else {
+    diff = d1.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+  }
+
+  let newDate = new Date(d1.setDate(diff));
+
+  let returnDate = new Date(newDate.getFullYear(),newDate.getMonth(),newDate.getDate());
+//  console.log('getDayOfWeek:', d, sunOrMon,newDate );
+//  var day = d.getDay(),
+//      diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+
+
+  return returnDate;
+}
 
 //https://www.w3resource.com/javascript-exercises/javascript-date-exercise-24.php
 export function ISO8601_week_no(dt) 
@@ -106,6 +135,7 @@ export function makeTheTimeObject(timeString) {
   let todayWeek = ISO8601_week_no(rightNow);
   let todayDate = rightNow.getDate();
   let todayDay = rightNow.getDay();
+  let todaysDate = new Date(todayYear,todayMonth,todayDate);
 
   let todayTime = rightNow.getTime() ;
   let todayHour = rightNow.getHours() ;
@@ -113,13 +143,18 @@ export function makeTheTimeObject(timeString) {
 
   let giveTime = new Date();
 
-  if (timeString != null && timeString.length > 0 ) { giveTime = new Date(timeString);}
+  if (timeString != null && timeString.length > 0 ) { 
+    giveTime = new Date(timeString);
+  } else {
+    timeString = giveTime.toLocaleString();
+  }
 
   let givenYear = giveTime.getFullYear();
   let givenMonth = giveTime.getMonth() ; //Zero Index
   let givenWeek = ISO8601_week_no(giveTime);
   let givenDate = giveTime.getDate();
   let givenDay = giveTime.getDay();
+  let priorNewYears = new Date(givenYear,0,1);
 
   let givenTime = giveTime.getTime() ;
   let givenHour = giveTime.getHours() ;
@@ -128,6 +163,12 @@ export function makeTheTimeObject(timeString) {
   let isThisMonth = isThisYear && todayMonth === givenMonth ? true : false;
   let isThisWeek = isThisYear && givenWeek === todayWeek ? true : false;
   let isToday = isThisMonth && todayDate === givenDate ? true : false;
+
+  let givenDateMidnight = new Date(givenYear,givenMonth,givenDate);
+  let firstOfMonth = new Date(givenYear,givenMonth,1);
+    
+  let priorSunday = getDayOfWeek(timeString, 'sun');
+  let priorMonday = getDayOfWeek(timeString, 'mon');
 
 
   let daysAgo = Math.round(Math.abs((rightNow.getTime() - giveTime.getTime()) / msPerDay));
@@ -149,7 +190,16 @@ export function makeTheTimeObject(timeString) {
     isToday: isToday,
     isYesterday: daysAgo === 1 ? true : false ,
 
-    daysAgo: daysAgo,
+    daysAgo: getTimeDelta(givenDateMidnight, todaysDate, 'days'),
+    firstOfMonth: firstOfMonth,
+    
+    priorSunday: priorSunday,
+    priorMonday: priorMonday,
+
+    daysSinceSun: getTimeDelta(priorSunday, todaysDate, 'days'),
+    daysSinceMon: getTimeDelta(priorMonday, todaysDate, 'days'),
+    daysSinceNewYear: getTimeDelta(priorNewYears, todaysDate, 'days'),
+    daysSinceMonthStart: getTimeDelta(firstOfMonth, todaysDate, 'days'),
 
   };
 

@@ -2360,7 +2360,7 @@ public toggleTips = (item: any): void => {
     }
 
     let lastEndTime = makeTheTimeObject("2007");
-    let nowEndTime = makeTheTimeObject(null);
+    let nowEndTime = makeTheTimeObject('');
     //console.log(JSON.stringify(lastEndTime));
     //alert(lastEndTime);
 
