@@ -18,14 +18,10 @@ export function creatCharts(parentProps:ITrackMyTime7Props , parentState: ITrack
   // set the options
   const options: Chart.ChartOptions = {
     scales:
-    {
-      yAxes:[{ticks:{beginAtZero: true}}]
-    }
+    { yAxes:[{ticks:{beginAtZero: true}}] }
   };
 
   console.log('creatCharts', series);
-  //if ( parentState.currentTimePicker !== 'slider') { return ""; }
-  let maxTime = parentProps.timeSliderMax;
   return (
     <div style={{ }}>
         <ChartControl 
@@ -34,7 +30,7 @@ export function creatCharts(parentProps:ITrackMyTime7Props , parentState: ITrack
             labels: series.labels,
             datasets: [{
             label: series.title,
-            data: series.values
+            data: series.sums
             }]
         }}
         options={options} />
@@ -45,6 +41,33 @@ export function creatCharts(parentProps:ITrackMyTime7Props , parentState: ITrack
 
 }
 
+
+export function creatLineChart(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, series: IChartSeries){
+
+  // set the options
+  const options: Chart.ChartOptions = {
+    scales:
+    { yAxes:[{ticks:{beginAtZero: true}}] }
+  };
+
+  return (
+    <div style={{ }}>
+        <ChartControl 
+        type={ChartType.Line}
+        data={{
+            labels: series.labels,
+            datasets: [{
+            label: series.title,
+            data: series.sums
+            }]
+        }}
+        options={options} />
+
+    </div>
+
+  );
+
+}
 /*
 function _onChange(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption): void {
   console.dir(option);

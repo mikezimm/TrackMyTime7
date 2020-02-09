@@ -172,7 +172,7 @@ import {
     //Return nothing if user has not been loaded because that is when formEntry gets created.
     if ( parentState.userLoadStatus !== "Complete" ) { return ""; }
 
-    console.log('createThisField field:', field);
+    //console.log('createThisField field:', field);
     //console.log('Hey there!');
     field.disabled = isSaveDisabled;
     if (field.type === "Smart") {
