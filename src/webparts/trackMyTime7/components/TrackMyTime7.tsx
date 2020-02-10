@@ -34,12 +34,13 @@ import { getHelpfullError, } from '../../../services/ErrorHandler';
 
 
 import { buildFormFields } from './fields/fieldDefinitions';
-import { creatCharts, creatLineChart } from './Charts/charts';
+import { create1SeriesCharts, creatLineChart } from './Charts/charts';
 
 import ButtonCompound from './createButtons/ICreateButtons';
 import { IButtonProps,ISingleButtonProps,IButtonState } from "./createButtons/ICreateButtons";
 import { createIconButton } from "./createButtons/IconButton";
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
+import { ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
 
 import * as listBuilders from './ListView/ListView';
 import * as formBuilders from './fields/textFieldBuilder';
@@ -757,18 +758,20 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
       : "";
 
-    let chartThisWeek = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisWeek[0]) : '';
-    let chartThisMonth = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisMonth[0]) : '';
-    let chartThisYear0 = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisYear[0]) : '';
-    let chartThisYear1 = this.state.allLoaded && this.state.showCharts ? creatCharts(this.props,this.state, this.state.chartData.thisYear[1]) : '';
+    let chartThisWeek = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.thisWeek[0], ChartType.Bar) : '';
+    let chartThisMonth = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.thisMonth[0], ChartType.Bar) : '';
+    let chartThisYear0 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.thisYear[0], ChartType.Bar) : '';
+    let chartThisYear1 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.thisYear[1], ChartType.Bar) : '';
 
-    let chartDailyHistory = this.state.allLoaded && this.state.showCharts ? creatLineChart(this.props,this.state, this.state.chartData.allDays) : '';
-    let chartWeeklyHistory = this.state.allLoaded && this.state.showCharts ? creatLineChart(this.props,this.state, this.state.chartData.allWeeks) : '';
-    let chartMonthlyHistory = this.state.allLoaded && this.state.showCharts ? creatLineChart(this.props,this.state, this.state.chartData.allMonths) : '';
-    let chartYearlyHistory = this.state.allLoaded && this.state.showCharts ? creatLineChart(this.props,this.state, this.state.chartData.allYears) : '';    
+    let chartDailyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allDays, ChartType.Line) : '';
+    let chartWeeklyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allWeeks, ChartType.Line) : '';
+    let chartMonthlyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allMonths, ChartType.Line) : '';
+    let chartYearlyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allYears, ChartType.Line) : '';    
 
-
-
+    let chartCategory1 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.categories[0], ChartType.Doughnut) : '';    
+    let chartCategory2 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.categories[1], ChartType.Doughnut) : '';    
+    let chartLocation = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.location, ChartType.Doughnut) : '';    
+    let chartContemp = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.contemp, ChartType.Doughnut) : '';   
 
     let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this) );
     let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this) );
@@ -830,6 +833,21 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             <Stack.Item align="stretch" className={styles.chartPadding}>
               { chartYearlyHistory }
             </Stack.Item>
+
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartCategory1 }
+            </Stack.Item>
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartCategory2 }
+            </Stack.Item>
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartLocation }
+            </Stack.Item>
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartContemp }
+            </Stack.Item>
+
+            
 
           </Stack>
           <div className={styles.chartHeight}>
@@ -2904,7 +2922,14 @@ public toggleTips = (item: any): void => {
       };
     }
 
-    function updateThisSeries(seriesData : IChartSeries,  dur: number,  thisKey: number ) {
+    /**
+     * 
+     * @param seriesData 
+     * @param dur 
+     * @param thisKey was original type number before rebuilding for using categories instead of just numbers.
+     */
+//    function updateThisSeries(seriesData : IChartSeries,  dur: number,  thisKey: number ) {
+    function updateThisSeries(seriesData : IChartSeries,  dur: number,  thisKey ) {
       //let weekData = chartPreData.thisWeek[0];
       //console.log('yearData',weekData);
       if ( seriesData.sums[thisKey] == null ) { 
@@ -2919,6 +2944,7 @@ public toggleTips = (item: any): void => {
       return seriesData;
     }
 
+    let unknownCatLabel = 'Other';
     let sourceData: ITimeEntry[] = this.state.entries[who];
 
     let daysSinceMonthStart =this.props.today.daysSinceMonthStart;
@@ -2926,15 +2952,19 @@ public toggleTips = (item: any): void => {
     let daysSinceSOW =this.props.today.daysSinceMon;
 
     let chartPreData: IChartData = {
+      filter: 'Results for ' + who,
       thisYear: [
-        createISeries(who + ' This Year (mo)', hideEmpty ? 0 : 0 , hideEmpty ? 0 : this.props.today.month , 1),
+        createISeries(' This Year (mo)', hideEmpty ? 0 : 0 , hideEmpty ? 0 : this.props.today.month , 1),
         createISeries('This Year (wk)' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
-      thisMonth: [createISeries(who + ' This Month' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.date , 1)],
-      thisWeek: [createISeries(who + ' This Week' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
-      allDays: createISeries(who + ' All Days' , hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
-      allWeeks: createISeries(who + ' All Weeks' , hideEmpty ? daysSinceSOW : daysSinceSOW , hideEmpty ? daysSinceSOW : 365 , 7),
-      allMonths: createISeries(who + ' All Months' , hideEmpty ? daysSinceMonthStart : daysSinceMonthStart , hideEmpty ? daysSinceMonthStart : 365 , 31), 
-      allYears: createISeries(who + ' All Years' , hideEmpty ? daysSinceNewYear : daysSinceNewYear , hideEmpty ? daysSinceNewYear : 365*4 , 365), 
+      thisMonth: [createISeries('This Month' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.date , 1)],
+      thisWeek: [createISeries('This Week' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
+      allDays: createISeries('All Days' , hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
+      allWeeks: createISeries('All Weeks' , hideEmpty ? daysSinceSOW : daysSinceSOW , hideEmpty ? daysSinceSOW : 365 , 7),
+      allMonths: createISeries('All Months' , hideEmpty ? daysSinceMonthStart : daysSinceMonthStart , hideEmpty ? daysSinceMonthStart : 365 , 31), 
+      allYears: createISeries('All Years' , hideEmpty ? daysSinceNewYear : daysSinceNewYear , hideEmpty ? daysSinceNewYear : 365*4 , 365), 
+      categories: [createISeries('Category1' , 0,0,0), createISeries('Category2' , 0,0,0)], 
+      location: createISeries('Location' , 0,0,0), 
+      contemp: createISeries('Contemporanious' , 0,0,0),
     };
 
     let chartDataLabel: any [] = []; 
@@ -2963,11 +2993,22 @@ public toggleTips = (item: any): void => {
 
       if (item.thisTimeObj.isThisWeek) { 
         chartPreData.thisWeek[0] = updateThisSeries(chartPreData.thisWeek[0], dur, item.thisTimeObj.day);  }
+      
+      let cat1 = item.category1 == null || item.category1[0] == null || item.category1[0] == '' ? unknownCatLabel : item.category1[0];
+      let cat2 = item.category2 == null || item.category2[0] == null || item.category2[0] == '' ? unknownCatLabel : item.category2[0];
+      let local = item.location == null || item.location == '' ? unknownCatLabel : item.location;
+      let contemp = unknownCatLabel;
+
+      chartPreData.categories[0] = updateThisSeries(chartPreData.categories[0], dur, cat1);  
+      chartPreData.categories[1] = updateThisSeries(chartPreData.categories[1], dur, cat2);  
+      chartPreData.location = updateThisSeries(chartPreData.location, dur, local);  
+      chartPreData.contemp = updateThisSeries(chartPreData.contemp, dur, contemp);  
 
     }
 
     function removeEmptyFromEnd(series: IChartSeries, base : number, step: number) {
 
+    
       let lastIndex = null;
       for (let i = series.sums.length -1 + base; i > 0; i = i - step) {
         if (series.sums[i] !== null) {
@@ -3001,7 +3042,10 @@ public toggleTips = (item: any): void => {
 */
 
     function addLabels(series: IChartSeries, labels: string, firstIndex: number) {
-      let labelArray = labels.split(';');
+
+      let useLabelString = labels.indexOf(';') > -1 ? true : false;
+      let labelArray = useLabelString ? labels.split(';'): [''];
+
       //console.log('labelArray:', labelArray);
       chartDataLabel = Object.keys(series['sums']);
       //console.log('chartDataLabel',chartDataLabel);
@@ -3011,7 +3055,9 @@ public toggleTips = (item: any): void => {
       for ( let itemL of chartDataLabel) {
         let label = '';
         if ( itemL != null ) {
-          if ( firstIndex === 0) { //Make like days since number
+          if ( !useLabelString ) {
+            label = itemL.trim();
+          } else if ( firstIndex === 0) { //Make like days since number
             label = (Number(itemL) + firstIndex).toString() ;
           } else if (firstIndex < 4 ) { //This is a relative index
             label = labelArray[Number(itemL) + firstIndex];
@@ -3039,7 +3085,6 @@ public toggleTips = (item: any): void => {
     chartPreData.allYears = addLabels(chartPreData.allYears,monthStr3['en-us'].join(';'),0); //Days of year
     chartPreData.allMonths = addLabels(chartPreData.allMonths,monthStr3['en-us'].join(';'),0); //Days of year
     chartPreData.allWeeks = addLabels(chartPreData.allWeeks,monthStr3['en-us'].join(';'),0); //Days of year
-
     
     chartPreData.allDays = addLabels(chartPreData.allDays,monthStr3['en-us'].join(';'),0); //Days of year
 
@@ -3047,6 +3092,11 @@ public toggleTips = (item: any): void => {
     chartPreData.thisYear[1] = addLabels(chartPreData.thisYear[1],weekday3['en-us'].join(';'),52); // Week Numbers of Year
     chartPreData.thisMonth[0] = addLabels(chartPreData.thisMonth[0],weekday3['en-us'].join(';'),12);  // Days of Month
     chartPreData.thisWeek[0] = addLabels(chartPreData.thisWeek[0],weekday3['en-us'].join(';'),0);  // Days of the week
+
+    chartPreData.categories[0] = addLabels(chartPreData.categories[0],'',0);  // Days of the week
+    chartPreData.categories[1] = addLabels(chartPreData.categories[1],'',0);  // Days of the week
+    chartPreData.location = addLabels(chartPreData.location,'',0);  // Days of the week
+    chartPreData.contemp = addLabels(chartPreData.contemp,'',0);  // Days of the week
 
      console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);

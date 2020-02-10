@@ -13,29 +13,54 @@ import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartContr
 
 import styles from '../TrackMyTime7.module.scss';
 
-export function creatCharts(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, series: IChartSeries){
+export function create1SeriesCharts(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, series: IChartSeries, thisType: ChartType){
 
   // set the options
-  const options: Chart.ChartOptions = {
+  const lineOptions: Chart.ChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    scales:
-    { yAxes:[{ticks:{beginAtZero: true}}] }
+    scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
+    title: {
+      display: true,
+      text: series.title,
+    },
+    legend: {
+      display: false
+   },
   };
+
+    // set the options
+    const doughnutOptions: Chart.ChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      //scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
+      title: {
+        display: true,
+        text: series.title,
+      },
+      legend: {
+        display: false  //legend must be false until I can properly size the chart
+     },
+    };
+  
+    let chartOptions: Chart.ChartOptions = null;
+    if ( thisType === ChartType.Bar ) { chartOptions = lineOptions; }
+    else if ( thisType === ChartType.Doughnut ) { chartOptions = doughnutOptions; }
+    else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
 
   console.log('creatCharts', series);
   return (
     <div style={{ }}>
         <ChartControl 
-        type={ChartType.Bar}
+        type={ thisType }
         data={{
             labels: series.labels,
             datasets: [{
-            label: series.title,
+            //label: series.title,
             data: series.sums
             }]
         }}
-        options={options} />
+        options={ chartOptions } />
 
     </div>
 
