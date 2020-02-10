@@ -2,6 +2,32 @@
 
 .trackMyTime7 {
 
+  .iColNam{
+    font-weight: bolder;
+    padding-left: 10px;
+    padding-right: 20px;
+  }
+
+  .iColNamU {
+    @extend .iColNam;
+    color: red;
+  } 
+
+  .iColNamV {
+    @extend .iColNam;
+    color: green;
+  } 
+
+  .iColNamH {
+    @extend .iColNam;
+    color: blue;
+  } 
+
+  .infoPane {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
   .chartHeight{
     height: 300px;
     width: 100%;

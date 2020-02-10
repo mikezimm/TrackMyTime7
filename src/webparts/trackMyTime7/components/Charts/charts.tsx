@@ -17,6 +17,8 @@ export function creatCharts(parentProps:ITrackMyTime7Props , parentState: ITrack
 
   // set the options
   const options: Chart.ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
     scales:
     { yAxes:[{ticks:{beginAtZero: true}}] }
   };
@@ -83,6 +85,8 @@ export function creatLineChart(parentProps:ITrackMyTime7Props , parentState: ITr
 
   // set the options
   const options: Chart.ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
     scales:
     { yAxes:[{ticks:{beginAtZero: true}}] }
   };
