@@ -255,8 +255,9 @@ export interface IChartSeries {
 }
 
 export interface IChartData {
-  contemp?: IChartSeries[];  
-  location?: IChartSeries[];
+  filter?: string;
+  contemp?: IChartSeries;  
+  location?: IChartSeries;
   categories?: IChartSeries[];
   today?: IChartSeries[];
   thisWeek?: IChartSeries[];
