@@ -47,6 +47,7 @@ import * as choiceBuilders from './fields/choiceFieldBuilder';
 import * as sliderBuilders from './fields/sliderFieldBuilder';
 import * as smartLinks from './ActivityURL/ActivityURLMasks';
 import * as dateBuilders from './fields/dateFieldBuilder';
+import * as help from './InfoHelp';
   
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
@@ -772,6 +773,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this) );
     let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this) );
 
+    let tipsProjects = help.creatingProjectsGuide(this.props,this.state);
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -800,6 +802,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             { toggleTipsButton }
            
         </div>
+        <div className={( this.state.showTips ? '' : styles.hideMe )}>
+          { tipsProjects }
+        </div>
+
         <div className={( this.state.showCharts ? '' : styles.hideMe )}>
           <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
             <Stack.Item align="stretch" className={styles.chartPadding}>
