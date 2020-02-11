@@ -31,6 +31,7 @@ import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProject
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
+import { camelize, } from '../../../services/stringServices';
 
 
 import { buildFormFields } from './fields/fieldDefinitions';
@@ -2917,6 +2918,10 @@ public toggleTips = (item: any): void => {
         labels: createEmptyArray(min,max,stepInc),
         sums: createEmptyArray(min,max,stepInc),
         counts:createEmptyArray(min,max,stepInc),
+        changes: [],
+        changeNotes: [],
+        warnNotes: [],
+        errorNotes: [],
         totalS: 0,
         totalC: 0,
       };
@@ -2944,7 +2949,8 @@ public toggleTips = (item: any): void => {
       return seriesData;
     }
 
-    let unknownCatLabel = 'Other';
+    let unknownCatLabel = 'Others';
+    let removeTheseCats = 'removeEmpty';
     let sourceData: ITimeEntry[] = this.state.entries[who];
 
     let daysSinceMonthStart =this.props.today.daysSinceMonthStart;
@@ -2994,15 +3000,40 @@ public toggleTips = (item: any): void => {
       if (item.thisTimeObj.isThisWeek) { 
         chartPreData.thisWeek[0] = updateThisSeries(chartPreData.thisWeek[0], dur, item.thisTimeObj.day);  }
       
+      /**
+       * This section will allow removing uncategorized data from the chart results
+       * unknownCatLabel is the label you can bucket all empty category items into.
+       * removeTheseCats allows you to remove specific categories from the chart results.
+       * 
+       * set unknownCatLabel to be "Other" to see it included.
+       * set unknownCatLabel to be the same value as removeTheseCats to remove that item from the dataset
+       * 
+       * By default let removeTheseCats = 'removeEmpty'; unless you change it to something else.
+       * 
+       */
       let cat1 = item.category1 == null || item.category1[0] == null || item.category1[0] == '' ? unknownCatLabel : item.category1[0];
-      let cat2 = item.category2 == null || item.category2[0] == null || item.category2[0] == '' ? unknownCatLabel : item.category2[0];
-      let local = item.location == null || item.location == '' ? unknownCatLabel : item.location;
-      let contemp = unknownCatLabel;
+      if ( cat1 !== removeTheseCats ) { chartPreData.categories[0] = updateThisSeries(chartPreData.categories[0], dur, cat1); 
+      } else { 
+        if ( chartPreData.categories[0].title.lastIndexOf('^') !== chartPreData.categories[0].title.length -1 ) { chartPreData.categories[0].title += ' ^'; }
+      }
 
-      chartPreData.categories[0] = updateThisSeries(chartPreData.categories[0], dur, cat1);  
-      chartPreData.categories[1] = updateThisSeries(chartPreData.categories[1], dur, cat2);  
-      chartPreData.location = updateThisSeries(chartPreData.location, dur, local);  
-      chartPreData.contemp = updateThisSeries(chartPreData.contemp, dur, contemp);  
+      let cat2 = item.category2 == null || item.category2[0] == null || item.category2[0] == '' ? unknownCatLabel : item.category2[0];
+      if ( cat2 !== removeTheseCats ) { chartPreData.categories[1] = updateThisSeries(chartPreData.categories[1], dur, cat2); 
+      } else { 
+        if ( chartPreData.categories[1].title.lastIndexOf('^') !== chartPreData.categories[1].title.length -1 ) { chartPreData.categories[1].title += ' ^'; }
+      }
+
+      let local = item.location == null || item.location == '' ? unknownCatLabel : item.location;
+      if ( local !== removeTheseCats ) { chartPreData.location = updateThisSeries(chartPreData.location, dur, local); 
+      } else { 
+        if ( chartPreData.location.title.lastIndexOf('^') !== chartPreData.location.title.length -1 ) { chartPreData.location.title += ' ^'; }
+      }
+
+      let contemp = unknownCatLabel;
+      if ( contemp !== removeTheseCats ) { chartPreData.contemp = updateThisSeries(chartPreData.contemp, dur, contemp);
+      } else { 
+        if ( chartPreData.contemp.title.lastIndexOf('^') !== chartPreData.contemp.title.length -1 ) { chartPreData.contemp.title += ' ^'; }
+      }
 
     }
 
@@ -3097,6 +3128,104 @@ public toggleTips = (item: any): void => {
     chartPreData.categories[1] = addLabels(chartPreData.categories[1],'',0);  // Days of the week
     chartPreData.location = addLabels(chartPreData.location,'',0);  // Days of the week
     chartPreData.contemp = addLabels(chartPreData.contemp,'',0);  // Days of the week
+
+    function scrubCategories(series: IChartSeries) {
+      let changeMap = [];
+      let changeNotes = [];
+      let warnNotes = [];
+      let removeSpaces=true;
+      let removeDashes=true;
+      let camelCase=false;
+      let allCaps = false;
+
+      let newLabels : string[] = [];
+      //let newUCLabels : string[] = []; //To compare to similar ones...
+      let newCount = -1;
+      for (let i in series.labels) {
+        let newLabel = series.labels[i] + '';
+
+        //https://stackoverflow.com/a/7151225/4210807 - remove white spaces from string
+        if ( camelCase ) { newLabel = camelize(newLabel, true); }
+        if ( removeDashes ) { newLabel = newLabel.replace(/-/g, ''); }
+        if ( removeSpaces ) { newLabel = newLabel.replace(/\s/g, ''); }
+        if ( allCaps ) { newLabel = newLabel.toUpperCase(); }
+        
+        let labelChanged = newLabel != series.labels[i] ? true : false;
+        let newLabelIndex = newLabels.indexOf(newLabel);
+
+        let similarTo = '';
+        if ( newLabelIndex < 0 ) { //Label is not in the finished array, add.
+
+          let similarToIndex = newLabels.map(function(x){ return x.toUpperCase(); }).indexOf(newLabel.toUpperCase()); //Check if this is similar to another existing label
+          newLabels.push(newLabel);
+          //newLabels.map(function(x){ return x.toUpperCase() }).indexOf(newLabel.toUpperCase());
+
+          if ( similarToIndex > -1 ) {
+            //newUCLabels.push(newLabel.toUpperCase());
+            similarTo = series.labels[i] + ' is similar to ' + newLabels[similarToIndex] + ' at item ' + i;
+            warnNotes.push(similarTo);
+          } else {
+            //Is not similar to anything
+          }
+          newCount ++;
+          newLabelIndex = newCount;
+          
+        }
+
+        changeMap.push([ i, series.labels[i], newLabelIndex, newLabel, labelChanged, similarTo ]);
+        if ( labelChanged ) { changeNotes.push(series.labels[i] + ' was consolidated into ' + newLabel); }
+
+      }
+
+      console.log('newLabels',newLabels);
+      console.log('changeMap',changeMap);
+      console.log('changeNotes',changeNotes);
+      console.log('warnNotes',warnNotes);
+
+      //Now re-group similar categories
+
+      let newSums = [];
+      let newCounts = [];
+
+      for (let j in changeMap) {
+        let isRow = changeMap[j][2]; //Get new array index
+        newSums[isRow] = newSums[isRow] == null ? series.sums[j] : newSums[isRow] + series.sums[j] ;
+        newCounts[isRow] = newCounts[isRow] == null ? series.counts[j] : newCounts[isRow] + series.counts[j] ;
+      }
+
+      let checkSums = newSums.reduce(function(a, b){ return a + b; }, 0);
+      let checkCounts = newCounts.reduce(function(a, b){ return a + b; }, 0);
+
+      let err = '';
+      if (checkSums !== series.totalS ) { 
+        err = 'Err reducing Category SUMs: ' + series.totalS + ' <> ' + checkSums;
+        series.errorNotes.push(err);
+        console.log(err);
+      }
+      if (checkCounts !== series.totalC ) { 
+        err = 'Err reducing Category COUNTs: ' + series.totalC + ' <> ' + checkCounts;
+        series.errorNotes.push(err);
+        console.log(err);
+      }
+
+      //reduce decimal places of results for label purposes
+      newSums = newSums.map(thisSum => thisSum.toFixed(2));
+
+      series.labels = newLabels;
+      series.counts = newCounts;
+      series.sums = newSums;
+      series.changes = changeMap;
+      series.changeNotes = changeNotes;
+      series.warnNotes = warnNotes;
+
+      return series;
+    }
+
+    //Only scrub category series... NOT Dates or periods because those are not pure number indexes
+    chartPreData.categories[0] = scrubCategories(chartPreData.categories[0]);
+    chartPreData.categories[1] = scrubCategories(chartPreData.categories[1]);
+    chartPreData.location = scrubCategories(chartPreData.location);
+    chartPreData.contemp = scrubCategories(chartPreData.contemp);
 
      console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);
