@@ -259,7 +259,6 @@ export interface IChartSeries {
   origLabels?: any[];
   origSums?: any[];
   origCounts?: any[];
-
 }
 
 export interface IChartData {
@@ -338,7 +337,7 @@ export interface ITrackMyTime7State {
   allEntries?: ITimeEntry[]; //List of all entries
   filteredEntries?: ITimeEntry[]; //List of recent entries
 
-  chartData?: any;
+  chartData?: IChartData;
   showCharts?: boolean;
 
 

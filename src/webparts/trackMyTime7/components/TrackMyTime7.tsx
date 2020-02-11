@@ -3156,7 +3156,17 @@ public toggleTips = (item: any): void => {
         let similarTo = '';
         if ( newLabelIndex < 0 ) { //Label is not in the finished array, add.
 
-          let similarToIndex = newLabels.map(function(x){ return x.toUpperCase(); }).indexOf(newLabel.toUpperCase()); //Check if this is similar to another existing label
+          let similarToIndex = newLabels.map(
+
+            //Sample to convert to arrow function
+            //const sum1 = function(list, prop){ return list.reduce( function(a, b){ return a + b[prop];}, 0);}
+            //const sum2 = (list,prop) =>  { return list.reduce((a,b) => {return (a+ b[prop])}, 0);}
+            //prior to arrow function... was this:
+            //function(x){ return x.toUpperCase(); }
+
+            (x) => {return x.toUpperCase();} 
+            
+            ).indexOf(newLabel.toUpperCase()); //Check if this is similar to another existing label
           newLabels.push(newLabel);
           //newLabels.map(function(x){ return x.toUpperCase() }).indexOf(newLabel.toUpperCase());
 
@@ -3193,8 +3203,16 @@ public toggleTips = (item: any): void => {
         newCounts[isRow] = newCounts[isRow] == null ? series.counts[j] : newCounts[isRow] + series.counts[j] ;
       }
 
-      let checkSums = newSums.reduce(function(a, b){ return a + b; }, 0);
-      let checkCounts = newCounts.reduce(function(a, b){ return a + b; }, 0);
+      let checkSums = newSums.reduce(
+        //B4 Arrow Function
+        //function(a, b){ return a + b; }
+        (a, b) => { return a + b; }
+        , 0);
+      let checkCounts = newCounts.reduce(
+        //B4 Arrow Function
+        //function(a, b){ return a + b; }
+        (a, b) => { return a + b; }
+        , 0);
 
       let err = '';
       if (checkSums !== series.totalS ) { 
