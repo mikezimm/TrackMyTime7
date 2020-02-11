@@ -2949,8 +2949,6 @@ public toggleTips = (item: any): void => {
       return seriesData;
     }
 
-    let unknownCatLabel = 'Others';
-    let removeTheseCats = 'removeEmpty';
     let sourceData: ITimeEntry[] = this.state.entries[who];
 
     let daysSinceMonthStart =this.props.today.daysSinceMonthStart;
@@ -2972,6 +2970,17 @@ public toggleTips = (item: any): void => {
       location: createISeries('Location' , 0,0,0), 
       contemp: createISeries('Contemporanious' , 0,0,0),
     };
+
+    let unknownCatLabel = 'Others';
+    let removeTheseCats = 'removeEmpty';
+    let maxCats = 5;
+    let consolidatedCatLabel = 'Others';
+    let identifyOtherLabels = false; //May be used later to add change or warning notes to series.
+    if ( consolidatedCatLabel === unknownCatLabel ) {
+      identifyOtherLabels = true;
+      unknownCatLabel += '^';
+      consolidatedCatLabel += '*';
+    }
 
     let chartDataLabel: any [] = []; 
     let runningTotal: number = 0;
@@ -3227,7 +3236,8 @@ public toggleTips = (item: any): void => {
       }
 
       //reduce decimal places of results for label purposes
-      newSums = newSums.map(thisSum => thisSum.toFixed(2));
+      //NOTE This map will convert numbers to text
+      //newSums = newSums.map(thisSum => thisSum.toFixed(2));
 
       series.labels = newLabels;
       series.counts = newCounts;
@@ -3244,6 +3254,65 @@ public toggleTips = (item: any): void => {
     chartPreData.categories[1] = scrubCategories(chartPreData.categories[1]);
     chartPreData.location = scrubCategories(chartPreData.location);
     chartPreData.contemp = scrubCategories(chartPreData.contemp);
+
+    function consolidateCategories(series: IChartSeries, maxCatsX: number, otherLabel: string) {
+
+      /**
+       * Sort biggest to smallest
+       */
+      let tempValues = series.sums.map( e => e);
+      tempValues = tempValues.sort((a, b) => b - a);
+      /**
+       * Create new array consolidating all smaller ones into one label
+      */
+      let newLabels: string[] = [], newCounts: number[] = [], newSums: number[] = [];
+      let newIndex = -1;
+      let sumCheck = 0;
+      let consolidatedSum = 0;
+
+      for ( let thisSum of tempValues ) {
+        let origIndex = series.sums.indexOf(thisSum);
+        
+        if ( newIndex < maxCatsX ) { // Add to newArrays by itself
+          newLabels.push(series.labels[origIndex]);
+          newCounts.push(series.counts[origIndex]);
+          newSums.push(series.sums[origIndex]);
+          sumCheck += series.sums[origIndex];
+          newIndex ++;
+
+        } else { //Consolidate to other category
+          if (newIndex === maxCatsX ) { 
+            newLabels[newIndex] = otherLabel;
+            consolidatedSum  += newSums[newIndex];
+           }
+          
+          newCounts[newIndex] += series.counts[origIndex];
+          newSums[newIndex] += series.sums[origIndex];
+          consolidatedSum  += series.sums[origIndex];
+          sumCheck += series.sums[origIndex];
+        }
+
+      }
+      
+      /*
+      console.log('newLabels', newLabels);
+      console.log('newSums', newSums);
+      console.log('newCounts', newCounts);
+      console.log('sumCheck', sumCheck, series.totalS);
+      */
+
+      series.changeNotes.push('Recategorized ' + consolidatedSum + ' hours into ' + otherLabel );
+      series.sums = newSums;
+      series.labels = newLabels;
+      series.counts = newCounts;
+
+      return series;
+    }
+
+    chartPreData.categories[0] = consolidateCategories(chartPreData.categories[0], maxCats, consolidatedCatLabel);
+    chartPreData.categories[1] = consolidateCategories(chartPreData.categories[1], maxCats, consolidatedCatLabel);
+    chartPreData.location = consolidateCategories(chartPreData.location, maxCats, consolidatedCatLabel);
+    chartPreData.contemp = consolidateCategories(chartPreData.contemp, maxCats, consolidatedCatLabel);
 
      console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);
