@@ -79,16 +79,16 @@ export function creatingProjectsGuide(parentProps:ITrackMyTime7Props , parentSta
         <p>Projects can be created and used in any way you want.  This guide just explains some of the special features of different columns, and how the webpart uses them to your advantage.</p>
       <h3>SPECIAL Columns:  These have special uses and may overlap depending on how you use them.</h3>
         <p><b>Story and Chapter have special use for charts.</b>  These may look like a duplicate of Project and Category but there is a method to the madness.  
-        Category and Project ID are intended to be visible and editible when entering a time.  
-        In addition, The Activity column can auto-populate Category and ProjectID columns based on the URL which may make 
+        Category and ProjectID are intended to be visible and editable when entering a time.  
+        In addition, the Activity column can auto populate Category and ProjectID columns based on the URL which may make 
         those columns different TypE CaSe making inconsistant chart labels.  
-        Story and Chapter are only visible/editable on the list and therefore will provide more consistancy.  
+        Story and Chapter are only visible/editable on the list and therefore will provide more consistency.  
         So the moral of the story... Think of Story and Chapter columns as a way to tell a Story through built in charts.  Story is the book, Chapter can be the buckets you break your time into.  
         Again these may be duplicates of Category or Project depending on how you use them which is ok.  They just provide a way to keep the chart labels exactly as you want.</p>
         <ul>
           <li><span className={styles.iColNamV}>Category1/2:</span>Is designed for generic labels that can span multiple projects.  An example would be "Create Specification" which may be a phase in many projects.  This field will have some charts tailored to this use case.</li>
           <li><span className={styles.iColNamV}>ProjectID1/2:</span>Has multiple use cases.  You can use it for a Project Number like a category.  But it's special purpose is for specific "transaction" type detail.  For instance, the Drawing Number, Specification that you are working on for that time entry.</li>
-          <li><span className={styles.iColNamV}>Activity:</span>Has special functionality.  If you paste a link in this column, it can autopopulate Project, Category and Comments columns for you.</li>
+          <li><span className={styles.iColNamV}>Activity:</span>Has special functionality.  If you paste a link in this column, it can auto populate Project, Category and Comments columns for you.</li>
           <li><span className={styles.iColNamH}>Story:</span>Not required for all Projects, but can be used to tell a "Story" of how your time was spent on a specific project.</li>
           <li><span className={styles.iColNamH}>Chapter:</span>Not required for all Projects, but can be used to bucket your time on a "Story" in charts.</li>
         </ul>
