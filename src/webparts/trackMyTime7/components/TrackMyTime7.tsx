@@ -2655,6 +2655,9 @@ public toggleTips = (item: any): void => {
       Url: trackTimeItem.activity.Url ? trackTimeItem.activity.Url : null,
     };
 
+    let OriginalHours = getTimeDelta(itemStartTime, itemEndTime, 'hours');
+//    alert (OriginalHours);
+
     let saveThisItem = {
         //Values that would come from Project item
         //editLink : ILink, //Link to view/edit item link
@@ -2683,6 +2686,10 @@ public toggleTips = (item: any): void => {
         StartTime: itemStartTime, //Time stamp
         EndTime: itemEndTime, // Time stamp
         //Duration: trackTimeItem.duration, //Number  -- May not be needed based on current testing with start and end dates.
+        OriginalStart: itemStartTime,
+        OriginalEnd: itemEndTime,
+        OriginalHours: OriginalHours,
+
 
         //Saves what entry option was used... Since Last, Slider, Manual
         EntryType: trackTimeItem.entryType,
@@ -3305,6 +3312,9 @@ public toggleTips = (item: any): void => {
       console.log('sumCheck', sumCheck, series.totalS);
       */
 
+      /**
+       * Add condensed arrays back into object
+       */
       series.changeNotes.push('Recategorized ' + consolidatedSum + ' hours into ' + otherLabel );
       series.sums = newSums;
       series.labels = newLabels;
