@@ -47,6 +47,8 @@ export function create1SeriesCharts(parentProps:ITrackMyTime7Props , parentState
     if ( thisType === ChartType.Bar ) { chartOptions = lineOptions; }
     else if ( thisType === ChartType.Doughnut ) { chartOptions = doughnutOptions; }
     else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
+    else if ( thisType === ChartType.HorizontalBar ) { chartOptions = lineOptions; }
+    
 
   console.log('creatCharts', series);
   return (

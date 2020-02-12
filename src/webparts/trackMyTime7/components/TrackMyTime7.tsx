@@ -769,8 +769,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let chartMonthlyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allMonths, ChartType.Line) : '';
     let chartYearlyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allYears, ChartType.Line) : '';    
 
-    let chartCategory1 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.categories[0], ChartType.Doughnut) : '';    
-    let chartCategory2 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.categories[1], ChartType.Doughnut) : '';    
+    let chartCategory1 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.categories[0], ChartType.HorizontalBar) : '';    
+    let chartCategory2 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.categories[1], ChartType.HorizontalBar) : '';    
     let chartLocation = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.location, ChartType.Doughnut) : '';    
     let chartContemp = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.contemp, ChartType.Doughnut) : '';   
 
@@ -3265,7 +3265,7 @@ public toggleTips = (item: any): void => {
       /**
        * Create new array consolidating all smaller ones into one label
       */
-      let newLabels: string[] = [], newCounts: number[] = [], newSums: number[] = [];
+      let newLabels: string[] = [], newCounts: number[] = [], newSums = [];
       let newIndex = -1;
       let sumCheck = 0;
       let consolidatedSum = 0;
@@ -3273,6 +3273,9 @@ public toggleTips = (item: any): void => {
       for ( let thisSum of tempValues ) {
         let origIndex = series.sums.indexOf(thisSum);
         
+        //NOTE This map will convert numbers to text
+        //newSums = newSums.map(thisSum => thisSum.toFixed(2));
+
         if ( newIndex < maxCatsX ) { // Add to newArrays by itself
           newLabels.push(series.labels[origIndex]);
           newCounts.push(series.counts[origIndex]);
@@ -3293,7 +3296,8 @@ public toggleTips = (item: any): void => {
         }
 
       }
-      
+
+      newSums = newSums.map( v => v.toFixed(2) );
       /*
       console.log('newLabels', newLabels);
       console.log('newSums', newSums);
