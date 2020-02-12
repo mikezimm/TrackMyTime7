@@ -367,8 +367,43 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           fieldDescription = "Special field in Project list used create a Story in Charts. Consider this the primary category for the Story Chart.";
           const chapter: IFieldAddResult = await ensureResult.list.fields.addText("Chapter", 255, { Group: columnGroup, Description: fieldDescription, Indexed: true });
 
-          const tbdInfo1: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo1", 255, { Group: columnGroup, Hidden: true });
-          const tbdInfo2: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo2", 255, { Group: columnGroup, Hidden: true  });
+          /**
+           * Status related fields - Only on Projects list
+           * Choices from current smile list
+           * 0. Not Started;1. Under Review;2. In Process;3. Verify;4. Complete;5. Rejected;9. Cancelled;
+           */
+          const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `9. Rejected`, `9. Cancelled`];
+          
+          //NOTE that allow user fill in is determined by isProject
+          const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", choices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription });
+          const statusTMT2 = await ensureResult.list.fields.getByTitle("StatusTMT").update({Title: 'Status'})
+
+          fieldDescription = "Used in various places to track status.";
+          const statNumber: IFieldAddResult = await ensureResult.list.fields.addCalculated("StatusNumber", '=VALUE(LEFT(Status,1))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+          const statusText: IFieldAddResult = await ensureResult.list.fields.addCalculated("StatusText", '=TRIM(MID(Status,FIND(".",Status)+1,100))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+
+          /**
+           * Only have these on Project / Task list
+           */
+
+          //Create StepChecks
+          if (isProject){
+            fieldDescription = "Can be used to have checks at different status to impact Effective Status instead of just a number.";
+            for (let i = 0; i < 6; i++) {
+              let thisCheck = i === 0 ? '=IF(AND([StatusNumber]>' + i + ',[StatusNumber]>' + i + '),"Yes","No")'
+              : '=IF(AND(Step' + (i - 1) + 'Check="Yes",[StatusNumber]>' + i + '),"Yes","No")'
+              const stepCheck: IFieldAddResult = await ensureResult.list.fields.addCalculated('Step' + i + 'Check', thisCheck, DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+  
+            }
+  
+            const effectiveStatus: IFieldAddResult = await ensureResult.list.fields.addCalculated("EffectiveStatus", '=(IF([StatusNumber]=9,9,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0)))))))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+            const stepCheck: IFieldAddResult = await ensureResult.list.fields.addCalculated('IsOpen', '=IF(EffectiveStatus<4,"Yes","No") ', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });  
+
+          }
+  
+          /**
+           * Only have these on TIME list
+           */
 
           if (isTime) { //Fields specific for Time
             let minInfinity: number = -1.7976931348623157e+308;
@@ -381,8 +416,21 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const deltaT: IFieldAddResult = await ensureResult.list.fields.addNumber("DeltaT", minInfinity, maxInfinity, { Group: columnGroup, Description: fieldDescription });
             const comments: IFieldAddResult = await ensureResult.list.fields.addText("Comments", 255, { Group: columnGroup });
 
+            fieldDescription = "Saved at time of creation for comparison of changes.";
+            const originalHours: IFieldAddResult = await ensureResult.list.fields.addNumber("OriginalHours", minInfinity, maxInfinity, { Group: columnGroup, Description: fieldDescription });
+
             const endTime: IFieldAddResult = await ensureResult.list.fields.addDateTime("EndTime", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Required: true });
             const startTime: IFieldAddResult = await ensureResult.list.fields.addDateTime("StartTime", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Required: true, Indexed: true });
+
+            fieldDescription = "Saved at time of creation for comparison of changes.";
+            const originalStart: IFieldAddResult = await ensureResult.list.fields.addDateTime("OriginalStart", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup });
+            const originalEnd: IFieldAddResult = await ensureResult.list.fields.addDateTime("OriginalEnd", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup });
+
+            fieldDescription = "Calculates Start to End time in Hours.";
+            const hours: IFieldAddResult = await ensureResult.list.fields.addCalculated("Hours", '=IFERROR(24*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+
+            fieldDescription = "Calculates if significant changes were made after item was created.";
+            const keyChanges: IFieldAddResult = await ensureResult.list.fields.addCalculated("KeyChanges", '=IF(OriginalHours="","-NoOriginalHours",IF(ABS(Hours-OriginalHours)>0.05,"-HoursChanged",""))&IF(OriginalStart="","-NoOriginalStart",IF(StartTime<>OriginalStart,"-StartChanged",""))&IF(OriginalEnd="","-NoOriginalEnd",IF(EndTime<>OriginalEnd,"-EndChanged",""))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
             fieldDescription = "Link to the Project List item used to create this entry.";
             const sourceProject: IFieldAddResult = await ensureResult.list.fields.addUrl("SourceProject", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
@@ -407,13 +455,13 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
             // let hoursWithFormatSchema = '<Field Type="Calculated" DisplayName="Hours" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateOnly" Decimals="1" LCID="1033" ResultType="Number" ReadOnly="TRUE" ID="{3aba8d94-68e5-4368-a322-1e513c660506}" SourceID="{148e3b00-e7d3-4c93-b584-6c0dd2f74015}" StaticName="Hours" Name="Hours" ColName="sql_variant2" RowOrdinal="0" CustomFormatter="{"elmType":"div","children":[{"elmType":"span","txtContent":"@currentField","style":{"position":"absolute","white-space":"nowrap","padding":"0 4px"}},{"elmType":"div","attributes":{"class":{"operator":"?","operands":[{"operator":"&&","operands":[{"operator":"<","operands":[-8304,0]},{"operator":">","operands":[549,0]},{"operator":">=","operands":["@currentField",0]}]},"sp-field-dashedBorderRight",""]}},"style":{"min-height":"inherit","box-sizing":"border-box","padding-left":{"operator":"?","operands":[{"operator":">","operands":[0,-8304]},{"operator":"+","operands":[{"operator":"*","operands":[{"operator":"/","operands":[{"operator":"-","operands":[{"operator":"abs","operands":[-8304]},{"operator":"?","operands":[{"operator":"<","operands":["@currentField",0]},{"operator":"abs","operands":[{"operator":"?","operands":[{"operator":"<=","operands":["@currentField",-8304]},-8304,"@currentField"]}]},0]}]},8853]},100]},"%"]},0]}}},{"elmType":"div","attributes":{"class":{"operator":"?","operands":[{"operator":"&&","operands":[{"operator":"<","operands":[-8304,0]},{"operator":"<","operands":["@currentField",0]}]},"sp-css-backgroundColor-errorBackground sp-css-borderTop-errorBorder","sp-css-backgroundColor-blueBackground07 sp-css-borderTop-blueBorder"]}},"style":{"min-height":"inherit","box-sizing":"border-box","width":{"operator":"?","operands":[{"operator":">","operands":[0,-8304]},{"operator":"+","operands":[{"operator":"*","operands":[{"operator":"/","operands":[{"operator":"?","operands":[{"operator":"<=","operands":["@currentField",-8304]},{"operator":"abs","operands":[-8304]},{"operator":"?","operands":[{"operator":">=","operands":["@currentField",549]},549,{"operator":"abs","operands":["@currentField"]}]}]},8853]},100]},"%"]},{"operator":"?","operands":[{"operator":">=","operands":["@currentField",549]},"100%",{"operator":"?","operands":[{"operator":"<=","operands":["@currentField",-8304]},"0%",{"operator":"+","operands":[{"operator":"*","operands":[{"operator":"/","operands":[{"operator":"-","operands":["@currentField",-8304]},8853]},100]},"%"]}]}]}]}}},{"elmType":"div","style":{"min-height":"inherit","box-sizing":"border-box"},"attributes":{"class":{"operator":"?","operands":[{"operator":"&&","operands":[{"operator":"<","operands":[-8304,0]},{"operator":">","operands":[549,0]},{"operator":"<","operands":["@currentField",0]}]},"sp-field-dashedBorderRight",""]}}}],"templateId":"DatabarNumber"}" Version="1"><Formula>=IFERROR(24*(EndTime-StartTime),"")</Formula><FieldRefs><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /></FieldRefs></Field>';
 
-            fieldDescription = "Calculates Start to End time in Hours.";
-            const hours: IFieldAddResult = await ensureResult.list.fields.addCalculated("Hours", '=IFERROR(24*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
-
             fieldDescription = "Calculates Start to End time in Minutes.";
             const minutes: IFieldAddResult = await ensureResult.list.fields.addCalculated("Minutes", '=IFERROR(24*60*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
           }
+                    
+          const tbdInfo1: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo1", 255, { Group: columnGroup, Hidden: true });
+          const tbdInfo2: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo2", 255, { Group: columnGroup, Hidden: true  });
 
           let viewXml = '';
           if (isTime) { //View schema specific for Time
@@ -440,6 +488,10 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const V4 = await ensureResult.list.views.add("TrackTime");
             viewXml = '<View Name="{9AD04F4B-8160-4FDD-8632-56DB0F4B8397}" Type="HTML" DisplayName="TrackTime" Url="/sites/Templates/Tmt/Lists/TrackMyTime/TrackTime.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="User" /><FieldRef Name="LinkTitle" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /></ViewFields><Query /><RowLimit Paged="TRUE">30</RowLimit><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><Toolbar Type="Standard" /><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
             await V4.view.setViewXml(viewXml);
+
+            const V5 = await ensureResult.list.views.add("VerifyData");
+            viewXml = '<View Name="{650FC10D-35B7-4F76-BDF2-9D6DC976B6BE}" Type="HTML" DisplayName="VerifyData" Url="/sites/Templates/Tmt/Lists/TrackMyTime/VerifyData.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="User" /><FieldRef Name="LinkTitle" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="StartTime" /><FieldRef Name="Hours" /><FieldRef Name="OriginalHours" /><FieldRef Name="OriginalStart" /><FieldRef Name="OriginalEnd" /><FieldRef Name="KeyChanges" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="StartTime" Ascending="FALSE" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="User" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><Toolbar Type="Standard" /><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+            await V5.view.setViewXml(viewXml);
 
             /*
             const V3 = await ensureResult.list.views.add("ActivityURLTesting");
@@ -541,6 +593,11 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
               const field26 = await ensureResult.list.fields.getByInternalNameOrTitle("Days").get();
               const field27 = await ensureResult.list.fields.getByInternalNameOrTitle("Hours").get();
               const field28 = await ensureResult.list.fields.getByInternalNameOrTitle("Minutes").get();
+
+              const field30 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalStart").get();
+              const field31 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalEnd").get();
+              const field32 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalHours").get();
+              const field33 = await ensureResult.list.fields.getByInternalNameOrTitle("KeyChanges").get();
   
             }
 
@@ -703,7 +760,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
       'setSize','setTab','otherTab','setTab','otherTab','setTab','otherTab','setTab','otherTab',
       'projectListFieldTitles'
     ];
-    alert('props updated');
+    //alert('props updated');
     if (updateOnThese.indexOf(propertyPath) > -1 ) {
       this.properties[propertyPath] = newValue;   
       this.context.propertyPane.refresh();
