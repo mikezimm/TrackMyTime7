@@ -37,6 +37,7 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/fields";
 import "@pnp/sp/views";
+import "@pnp/sp/fields/list";
 
 /***
  *         d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b 
@@ -68,6 +69,7 @@ export interface ITrackMyTimeWebPartProps {
   timeTrackListTitle: string;
   timeTrackListWeb: string;
   timeTrackListConfirmed: boolean;
+  projectListFieldTitles: string;
 
   // 3 - General how accurate do you want this to be
   roundTime: string; //Up 5 minutes, Down 5 minutes, No Rounding;
@@ -605,6 +607,27 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
      return "Finished";  
   } 
 
+
+  private async UpdateTitles(): Promise<boolean> {
+
+    const list = sp.web.lists.getByTitle("Projects");
+    const r = await list.fields();
+
+    let getFields=["Title","Active","Everyone","ProjectID1","ProjectID2","Category1","Category2","Activity","Story","Chapter"]
+
+    let fieldTitles = r.filter(f => f.Hidden !== true && getFields.indexOf(f.StaticName) > -1).map( 
+      f => {return [f.StaticName,f.Title,f.Description,f.Required,f.FieldTypeKind]});
+    
+    //Update properties here:
+    this.properties.projectListFieldTitles = JSON.stringify(fieldTitles);
+
+    console.log('list fields: ', r);
+    console.log('fieldTitles: ', fieldTitles);
+    
+    return true;
+
+  } 
+
 /***
  *         d88888b d8b   db d8888b.      db      d888888b .d8888. d888888b .d8888. 
  *         88'     888o  88 88  `8D      88        `88'   88'  YP `~~88~~' 88'  YP 
@@ -640,6 +663,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
       this.properties,
       this.CreateTTIMTimeList.bind(this),
       this.CreateTTIMProjectList.bind(this),
+      this.UpdateTitles.bind(this),
+
       );
   }
 
@@ -675,9 +700,10 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
      * This section is used to determine when to refresh the pane options
      */
     let updateOnThese = [
-      'setSize','setTab','otherTab','setTab','otherTab','setTab','otherTab','setTab','otherTab'
+      'setSize','setTab','otherTab','setTab','otherTab','setTab','otherTab','setTab','otherTab',
+      'projectListFieldTitles'
     ];
-
+    alert('props updated');
     if (updateOnThese.indexOf(propertyPath) > -1 ) {
       this.properties[propertyPath] = newValue;   
       this.context.propertyPane.refresh();

@@ -70,7 +70,7 @@ import { ITrackMyTimeWebPartProps } from '../../webparts/trackMyTime7/TrackMyTim
     */
 
 export class IntroPage {
-  public getPropertyPanePage(webPartProps: ITrackMyTimeWebPartProps, _onClickCreateTime, _onClickCreateProject ): IPropertyPanePage {
+  public getPropertyPanePage(webPartProps: ITrackMyTimeWebPartProps, _onClickCreateTime, _onClickCreateProject, _onClickUpdateTitles ): IPropertyPanePage {
     return <IPropertyPanePage>
     { // <page1>
       header: {
@@ -132,6 +132,26 @@ export class IntroPage {
             PropertyPaneLabel('Time List', {
               text: webPartProps.timeTrackListConfirmed ? 'Checking for ' + webPartProps.timeTrackListTitle : 'Verify or Create your TIME list!'
             }),
+
+            
+            PropertyPaneButton('UpdateTitles',
+            {  
+             text: "Update Column Titles",  
+             description: "Copy list title to WebPart",
+             buttonType: PropertyPaneButtonType.Compound,
+             onClick: _onClickUpdateTitles
+            }),
+
+            PropertyPaneTextField('projectListFieldTitles', {
+              label: 'Advanced Field Settings',
+              description: 'For changing webpart field titles',
+              multiline: true,
+            }),
+/*
+            PropertyPaneLabel('FieldInfo', {
+              text: webPartProps.projectListFieldTitles
+            }),
+*/
 
           ]}, // this group
 
