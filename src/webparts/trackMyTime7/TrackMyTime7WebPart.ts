@@ -26,7 +26,7 @@ import { PageContext } from '@microsoft/sp-page-context';
 
 //  >>>> ADD import additional controls/components
 import { UrlFieldFormatType, Field } from "@pnp/sp/presets/all";
-import { IFieldAddResult, FieldTypes,
+import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
     ChoiceFieldFormatType,
     DateTimeFieldFormatType, CalendarType, DateTimeFieldFriendlyFormatType,
     FieldUserSelectionMode } from "@pnp/sp/fields/types";
@@ -339,7 +339,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           const team: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
           fieldDescription = "Project level choice category in entry form.";
-          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category1" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category1" Required="TRUE" Title="Category1" Type="MultiChoice" ID="{b04db900-ab45-415d-bb11-336704f82d31}" Version="4" Group="' + columnGroup + '" StaticName="Category1" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext3" RowOrdinal="0" CustomFormatter="" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>Daily</CHOICE><CHOICE>SPFx</CHOICE><CHOICE>Assistance</CHOICE><CHOICE>Team Meetings</CHOICE><CHOICE>Training</CHOICE><CHOICE>------</CHOICE><CHOICE>Other</CHOICE></CHOICES></Field>';
+          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category1" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category1" Title="Category1" Type="MultiChoice" ID="{b04db900-ab45-415d-bb11-336704f82d31}" Version="4" Group="' + columnGroup + '" StaticName="Category1" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext3" RowOrdinal="0" CustomFormatter="" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>Daily</CHOICE><CHOICE>SPFx</CHOICE><CHOICE>Assistance</CHOICE><CHOICE>Team Meetings</CHOICE><CHOICE>Training</CHOICE><CHOICE>------</CHOICE><CHOICE>Other</CHOICE></CHOICES></Field>';
           const category1: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
           
           fieldDescription = "Project level choice category in entry form.";
@@ -362,8 +362,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const choicesA = [`Build`, `Test`, `Deliver`, `Verify`, `Order`];
           
             //NOTE that allow user fill in is determined by isProject
-            const choicesA1 = await ensureResult.list.fields.addChoice("ActivityChoice", choicesA, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription });
-            const choicesA2 = await ensureResult.list.fields.getByTitle("ActivityChoice").update({Title: 'Activity'});
+            const choicesA1 = await ensureResult.list.fields.addChoice("ActivityType", choicesA, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription });
+            //const choicesA2 = await ensureResult.list.fields.getByTitle("ActivityType").update({Title: 'ActivityType'});
 
             fieldDescription = "Used to complete Activity URL based on the selected choice.  Auto Builds Activity Link in TrackMyTime form.";
             const Activity1: IFieldAddResult = await ensureResult.list.fields.addText("Activity", 255, { Group: columnGroup, Description: fieldDescription });
@@ -390,7 +390,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `9. Rejected`, `9. Cancelled`];
           
           //NOTE that allow user fill in is determined by isProject
-          const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", choices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription });
+          const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", choices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription, DefaultFormula:'="0. Review"' });
           const statusTMT2 = await ensureResult.list.fields.getByTitle("StatusTMT").update({Title: 'Status'});
 
           fieldDescription = "Used in various places to track status.";
@@ -413,6 +413,14 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
   
             const effectiveStatus: IFieldAddResult = await ensureResult.list.fields.addCalculated("EffectiveStatus", '=(IF([StatusNumber]=9,9,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0)))))))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
             const stepCheck2: IFieldAddResult = await ensureResult.list.fields.addCalculated('IsOpen', '=IF(EffectiveStatus<4,"Yes","No") ', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });  
+
+
+            // Need to add DueDate column at some point.          
+            //const dueDate: IField = await sp.web.fields.getByInternalNameOrTitle('TaskDueDate');
+            //const dueDateField = await ensureResult.list.fields.addDateTime("TaskDueDate", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Indexed: true });
+
+            fieldSchema = '<Field ID="{cd21b4c2-6841-4f9e-a23a-738a65f99889}" Name="TaskDueDate" Group="Core Task and Issue Columns" Type="DateTime" DisplayName="Due Date" SourceID="http://schemas.microsoft.com/sharepoint/v3/fields" StaticName="TaskDueDate" Format="DateOnly" DelayActivateTemplateBinding="GROUP,SPSPERS,SITEPAGEPUBLISHING" AllowDeletion="TRUE" ColName="datetime2" RowOrdinal="0" />';
+            const dueDateField: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
           }
   
@@ -482,12 +490,34 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           if (isTime) { //View schema specific for Time
             viewXml = '<View Name="{C7E59C90-7F68-4A19-96C8-73BB66C1A7A8}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/TrackMyTime/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE" /></OrderBy></Query><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="Active" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="User" /><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /><FieldRef Name="Hours" /><FieldRef Name="Minutes" /><FieldRef Name="Days" /><FieldRef Name="Location" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="EntryType" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /><FieldRef Name="DeltaT" /><FieldRef Name="Activity" /><FieldRef Name="Comments" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><CustomFormatter /><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
           } else {
-            viewXml = '<View Name="{B02AD2F6-34B3-4AF9-BA56-4B29BF28C49E}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/Projects/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="Active" /><FieldRef Name="SortOrder" /><FieldRef Name="LinkTitle" /><FieldRef Name="Everyone" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="TimeTarget" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="Active" /><CustomFormatter /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+            viewXml = '<View Name="{B02AD2F6-34B3-4AF9-BA56-4B29BF28C49E}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/Projects/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="Active" /><FieldRef Name="SortOrder" /><FieldRef Name="LinkTitle" /><FieldRef Name="Everyone" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /><FieldRef Name="TimeTarget" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="Active" /><CustomFormatter /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
           }
 
           await ensureResult.list.views.getByTitle('All Items').setViewXml(viewXml);
 
-          if (isTime) { //Add more views for this list
+          if (isProject) {
+
+            //Need to add Task Due Date when it's available:  <FieldRef Name="TaskDueDate" />
+            let orderBy = '<Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy>';
+
+
+            //let Step5 = '<View Name="{331C141E-B5C3-4786-A5C6-FD1749A4A386}" Type="HTML" DisplayName="Step5.All" Url="/sites/Templates/ScriptTesting/Lists/Projects/Step5All.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="Due_x0020_Date" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy><Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">5</Value></Eq></Where></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+            //let Step9 = '<View Name="{2029F528-8197-4596-8705-DC25F5D047ED}" Type="HTML" DisplayName="Step9.All" Url="/sites/Templates/ScriptTesting/Lists/Projects/Step9All.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy><Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">9</Value></Eq></Where></Query><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="TaskDueDate" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>'
+             
+
+
+
+            for (let i = 0; i < 10; i++) {
+              if (i < 6 || i === 9) {
+                let stepLabel = 'Step' + i + '.All';
+                //viewXml = '<View Name="{AC0C86EB-A3DA-4973-AFE1-BD9246F334' + i + i + '}" DefaultView="TRUE" MobileView="TRUE" Type="HTML" DisplayName="' + stepLabel + '" Url="/sites/Templates/ScriptTesting/Lists/Projects/' + stepLabel + '.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">' + orderBy + '<Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">' + i + '</Value></Eq></Where></Query><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="TaskDueDate" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+                viewXml = '<View Name="{331C141E-B5C3-4786-A5C6-FD1749A4A3' + i + i + '}" Type="HTML" DisplayName="' + stepLabel + '" Url="/sites/Templates/ScriptTesting/Lists/Projects/' + stepLabel + '.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="Due_x0020_Date" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy><Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">' + i + '</Value></Eq></Where></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+                const stepView = await ensureResult.list.views.add(stepLabel);
+                await stepView.view.setViewXml(viewXml);
+              }
+            }
+
+          } else if (isTime) { //Add more views for this list
             const V1 = await ensureResult.list.views.add("ActivityURLTesting");
             viewXml = '<View Name="{E76C719C-F90D-4F81-9306-5F83E2FB4AB4}" Type="HTML" DisplayName="ActivityURLTesting" Url="/sites/Templates/Tmt/Lists/TrackMyTime/ActivityURLTesting.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="Activity" /><FieldRef Name="Comments" /><FieldRef Name="User" /><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><Toolbar Type="Standard" /><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
             await V1.view.setViewXml(viewXml);
@@ -537,6 +567,10 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             });
             //, Category1: { results: ['Meetings']}
             list.items.inBatch(batch).add({ Title: "Team Meeting", Everyone: true, Story: 'Meetings', Chapter: 'Team Meeting', Category1: { results: ['Meetings']}}, entityTypeFullName).then(b => {
+              console.log(b);
+            });
+            //, Category1: { results: ['Meetings']}
+            list.items.inBatch(batch).add({ Title: "Example for Mask and Prefix in ProjectID columns", Everyone: true, Story: 'Webpart', Chapter: 'Example', ProjectID1: 'mask=B\\atch99999', ProjectID2: 'My prefix:...', Category1: { results: ['TestWebpart']}}, entityTypeFullName).then(b => {
               console.log(b);
             });
       

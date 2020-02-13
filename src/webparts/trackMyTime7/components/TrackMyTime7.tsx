@@ -1171,8 +1171,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if (formEntry.entryType === 'manual') {
       //Check if date is empty, if so, set to now.
       let now = new Date();
-      if ( formEntry.startTime === "" ) { formEntry.startTime = now.toLocaleString() }
-      if ( formEntry.endTime === "" ) { formEntry.endTime = now.toLocaleString() }
+      if ( formEntry.startTime === "" ) { formEntry.startTime = now.toLocaleString(); }
+      if ( formEntry.endTime === "" ) { formEntry.endTime = now.toLocaleString(); }
 
     }
     console.log('_updateEntryType: this.state', this.state);

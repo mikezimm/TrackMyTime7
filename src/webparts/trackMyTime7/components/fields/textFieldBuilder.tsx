@@ -36,12 +36,12 @@ import {
        className={ blinkOnProjectClassName }
        defaultValue={ currentValue ? currentValue : "" }
        prefix= { prefix }
-       label={field.title}
-       disabled={field.disabled}
+       label={ field.title }
+       disabled={ field.disabled }
        placeholder={ placeHolder }
        autoComplete='off'
        onChanged={ updateField }
-       required={field.required}
+       required={ field.required }
      />;
      
      return textField;
@@ -61,12 +61,12 @@ import {
       //className={ [styles.textField, styles.highlightBlink].join(' ') }
       className={ blinkOnProjectClassName }
       defaultValue={ defaultValue }
-      label={field.title}
-      disabled={field.disabled}
+      label={ field.title }
+      disabled={ field.disabled }
       placeholder={ placeHolder }
       autoComplete='off'
       onChanged={ updateField }
-      required={field.required}
+      required={ field.required }
     />;
     
     return textField;
@@ -87,12 +87,12 @@ import {
      //className={ [styles.textField, styles.highlightBlink].join(' ') }
      className={ blinkOnProjectClassName }
      defaultValue={ defaultValue }
-     label={field.title}
-     disabled={field.disabled}
+     label={ field.title }
+     disabled={ field.disabled }
      placeholder={ placeHolder }
      autoComplete='off'
      onChanged={ updateField }
-     required={field.required}
+     required={ field.required }
    />;
    
    return textField;
@@ -113,13 +113,15 @@ import {
     let textField = 
 
     <MaskedTextField 
-      defaultValue={ currentValue }
       className={ blinkOnProjectClassName }
+      defaultValue={ currentValue }
       label={ label }
+      disabled={ field.disabled }
       mask={ mask }
       maskChar="?"
-      onChanged={ onChanged }
       autoComplete='off'
+      onChanged={ onChanged }
+      required={ field.required }
      />;
     
     return textField;
