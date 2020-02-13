@@ -1102,7 +1102,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     console.log('_updateEnd:', typeof newValue, newValue);
     let formEntry = this.state.formEntry;
     formEntry.endTime = newValue.toLocaleString();
-    console.log('_updateStart:', formEntry.endTime);   
+    console.log('_updateEnd:', formEntry.endTime);   
     this.setState({ formEntry:formEntry, blinkOnProject: 0,});
   }
 
@@ -1167,6 +1167,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     let formEntry = this.state.formEntry;
     formEntry.entryType = option.key;
+
+    if (formEntry.entryType === 'manual') {
+      //Check if date is empty, if so, set to now.
+      let now = new Date();
+      if ( formEntry.startTime === "" ) { formEntry.startTime = now.toLocaleString() }
+      if ( formEntry.endTime === "" ) { formEntry.endTime = now.toLocaleString() }
+
+    }
     console.log('_updateEntryType: this.state', this.state);
     console.log('_updateEntryType: formEntry', formEntry);
     console.log('_updateEntryType: formEntry.entryType', formEntry.entryType);
@@ -2834,10 +2842,21 @@ public toggleTips = (item: any): void => {
       console.log( 'newEntry', newEntry);
       let lastEndTime = makeTheTimeObject(newEntry.endTime); 
 
+      /**
+       * 2020-02-13:  Added this to update formEntry time to "Now" if save was successful.
+       * Before this, if you used slider for instance, it would keep the times the same.
+       * This may lead a person to put in 2 entries for the same itme.
+       */
+      let formEntry = this.state.formEntry;
+      let now = new Date();
+      formEntry.startTime = now.toLocaleString();
+      formEntry.endTime = now.toLocaleString();
+
       this.setState({
         entries:entries,
         filteredEntries:filteredEntries,
         lastEndTime: lastEndTime,
+        formEntry: formEntry,
       });
     } else {
       //Currently do nothing
