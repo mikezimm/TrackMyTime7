@@ -316,44 +316,59 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           let columnGroup = 'TrackTimeProject';
 
           let fieldDescription = "Used by webpart to put inactive projects into different category for convenience";
-          let fieldSchema = '<Field DisplayName="Active" Description="' +  fieldDescription + '" Format="Dropdown" Name="Active" Title="Active" Type="Boolean" ID="{d738a4f4-b23d-409d-a72e-8a09a6cd78a8}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Active" ColName="bit1" RowOrdinal="0"><Default>1</Default></Field>';
+          let fieldSchema = '<Field DisplayName="Active" Description="' +  fieldDescription + '" Format="Dropdown" Name="Active" Title="Active" Type="Boolean" ID="{d738a4f4-b23d-409d-a72e-8a09a6cd78a8}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Active" ColName="bit1" RowOrdinal="0"><Default>1</Default></Field>';
           const active: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldDescription = "Used by webpart to sort list of projects";
-          fieldSchema = '<Field Type="Number" DisplayName="SortOrder" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Min="0" Max="1000" Decimals="1" ID="{a65f6333-dd5d-49af-acf9-68f1606052f2}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="SortOrder" Name="SortOrder" ColName="float1" RowOrdinal="0" />';
-          if (isProject) { const sortOrder: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema); }
+          if (isProject){
+            fieldDescription = "Used by webpart to sort list of projects";
+            fieldSchema = '<Field Type="Number" DisplayName="SortOrder" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Min="0" Max="1000" Decimals="1" ID="{a65f6333-dd5d-49af-acf9-68f1606052f2}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="SortOrder" Name="SortOrder" ColName="float1" RowOrdinal="0" />';
+            const sortOrder: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+  
+            fieldDescription = "Used by webpart to easily find common or standard Project Items";
+            fieldSchema = '<Field Type="Boolean" DisplayName="Everyone" Description="' +  fieldDescription + '" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{67fa37c2-2ccf-4c30-b586-ce876955cb12}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Everyone" Name="Everyone" ColName="bit2" RowOrdinal="0"><Default>0</Default></Field>';
+            const everyone: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);   
 
-          fieldDescription = "Used by webpart to easily find common or standard Project Items";
-          fieldSchema = '<Field Type="Boolean" DisplayName="Everyone" Description="' +  fieldDescription + '" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{67fa37c2-2ccf-4c30-b586-ce876955cb12}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Everyone" Name="Everyone" ColName="bit2" RowOrdinal="0"><Default>0</Default></Field>';
-          if (isProject) { const everyone: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema); } 
+          }
 
           fieldDescription = "Leader of this Project Item.  Helps you find Projects you own";
-          fieldSchema = '<Field DisplayName="Leader" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Name="Leader" Title="Leader" Type="User" Indexed="TRUE" UserSelectionMode="1" UserSelectionScope="0" ID="{10e58bd6-3722-47a9-a34c-87c2dcade2aa}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Leader" ColName="int1" RowOrdinal="0" />';
+          fieldSchema = '<Field DisplayName="Leader" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Name="Leader" Title="Leader" Type="User" Indexed="TRUE" UserSelectionMode="1" UserSelectionScope="0" ID="{10e58bd6-3722-47a9-a34c-87c2dcade2aa}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Leader" ColName="int1" RowOrdinal="0" />';
           const leader: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
           fieldDescription = "Other Team Members for this project. Helps you find projects you are working on.";
-          fieldSchema = '<Field DisplayName="Team" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Mult="TRUE" Name="Team" Title="Team" Type="UserMulti" UserSelectionMode="0" UserSelectionScope="0" ID="{1614eec8-246a-4d63-9ce9-eb8c8a733af1}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="Team" ColName="int2" RowOrdinal="0" />';
+          fieldSchema = '<Field DisplayName="Team" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Mult="TRUE" Name="Team" Title="Team" Type="UserMulti" UserSelectionMode="0" UserSelectionScope="0" ID="{1614eec8-246a-4d63-9ce9-eb8c8a733af1}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Team" ColName="int2" RowOrdinal="0" />';
           const team: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
           fieldDescription = "Project level choice category in entry form.";
-          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category1" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category1" Required="TRUE" Title="Category1" Type="MultiChoice" ID="{b04db900-ab45-415d-bb11-336704f82d31}" Version="4" StaticName="Category1" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext3" RowOrdinal="0" CustomFormatter="" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>Daily</CHOICE><CHOICE>SPFx</CHOICE><CHOICE>Assistance</CHOICE><CHOICE>Team Meetings</CHOICE><CHOICE>Training</CHOICE><CHOICE>------</CHOICE><CHOICE>Other</CHOICE></CHOICES></Field>';
+          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category1" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category1" Required="TRUE" Title="Category1" Type="MultiChoice" ID="{b04db900-ab45-415d-bb11-336704f82d31}" Version="4" Group="' + columnGroup + '" StaticName="Category1" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext3" RowOrdinal="0" CustomFormatter="" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>Daily</CHOICE><CHOICE>SPFx</CHOICE><CHOICE>Assistance</CHOICE><CHOICE>Team Meetings</CHOICE><CHOICE>Training</CHOICE><CHOICE>------</CHOICE><CHOICE>Other</CHOICE></CHOICES></Field>';
           const category1: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
           
           fieldDescription = "Project level choice category in entry form.";
-          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category2" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category2" Title="Category2" Type="MultiChoice" ID="{ee040745-8628-479a-b865-98e35c9b6617}" Version="3" StaticName="Category2" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext2" RowOrdinal="0" CustomFormatter="" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>EU</CHOICE><CHOICE>NA</CHOICE><CHOICE>SA</CHOICE><CHOICE>Asia</CHOICE></CHOICES></Field>';
+          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category2" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category2" Title="Category2" Type="MultiChoice" ID="{ee040745-8628-479a-b865-98e35c9b6617}" Version="3" Group="' + columnGroup + '" StaticName="Category2" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext2" RowOrdinal="0" CustomFormatter="" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>EU</CHOICE><CHOICE>NA</CHOICE><CHOICE>SA</CHOICE><CHOICE>Asia</CHOICE></CHOICES></Field>';
           const category2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
           fieldDescription = "Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation";
-          fieldSchema = '<Field Type="Text" DisplayName="ProjectID1" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{f844fefd-8fde-4227-9707-5facc835c7ed}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="ProjectID1" Name="ProjectID1" ColName="nvarchar4" RowOrdinal="0" />';
+          fieldSchema = '<Field Type="Text" DisplayName="ProjectID1" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{f844fefd-8fde-4227-9707-5facc835c7ed}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="ProjectID1" Name="ProjectID1" ColName="nvarchar4" RowOrdinal="0" />';
           const projectID1: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
           
-          fieldSchema = '<Field Type="Text" DisplayName="ProjectID2" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{432aeccc-6f3a-4bf0-b451-6970c0eb292d}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="ProjectID2" Name="ProjectID2" ColName="nvarchar5" RowOrdinal="0" />';
+          fieldSchema = '<Field Type="Text" DisplayName="ProjectID2" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{432aeccc-6f3a-4bf0-b451-6970c0eb292d}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="ProjectID2" Name="ProjectID2" ColName="nvarchar5" RowOrdinal="0" />';
           const projectID2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldDescription = "Used by webpart to define targets for charting.";
-          fieldSchema = '<Field Type="Text" DisplayName="TimeTarget" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{02c5c9a7-7690-4efe-8e75-404a90654946}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" StaticName="TimeTarget" Name="TimeTarget" ColName="nvarchar6" RowOrdinal="0" />';
-          if (isProject) { const timeTarget: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema); }
+          if (isProject){
+            fieldDescription = "Used by webpart to define targets for charting.";
+            fieldSchema = '<Field Type="Text" DisplayName="TimeTarget" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{02c5c9a7-7690-4efe-8e75-404a90654946}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="TimeTarget" Name="TimeTarget" ColName="nvarchar6" RowOrdinal="0" />';
+            const timeTarget: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
+            fieldDescription = "Used as rule to apply to Project Activy Text to build Activity URL";
+            const choicesA = [`Build`, `Test`, `Deliver`, `Verify`, `Order`];
+          
+            //NOTE that allow user fill in is determined by isProject
+            const choicesA1 = await ensureResult.list.fields.addChoice("ActivityChoice", choicesA, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription });
+            const choicesA2 = await ensureResult.list.fields.getByTitle("ActivityChoice").update({Title: 'Activity'});
+
+            fieldDescription = "Used to complete Activity URL based on the selected choice.  Auto Builds Activity Link in TrackMyTime form.";
+            const Activity1: IFieldAddResult = await ensureResult.list.fields.addText("Activity", 255, { Group: columnGroup, Description: fieldDescription });
+  
+          }
 
           fieldDescription = "Used by web part to create Time Entry on secondary list at the same time... aka like Cc in email.";
           const ccList: IFieldAddResult = await ensureResult.list.fields.addUrl("CCList", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
@@ -376,7 +391,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           
           //NOTE that allow user fill in is determined by isProject
           const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", choices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription });
-          const statusTMT2 = await ensureResult.list.fields.getByTitle("StatusTMT").update({Title: 'Status'})
+          const statusTMT2 = await ensureResult.list.fields.getByTitle("StatusTMT").update({Title: 'Status'});
 
           fieldDescription = "Used in various places to track status.";
           const statNumber: IFieldAddResult = await ensureResult.list.fields.addCalculated("StatusNumber", '=VALUE(LEFT(Status,1))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
@@ -391,13 +406,13 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             fieldDescription = "Can be used to have checks at different status to impact Effective Status instead of just a number.";
             for (let i = 0; i < 6; i++) {
               let thisCheck = i === 0 ? '=IF(AND([StatusNumber]>' + i + ',[StatusNumber]>' + i + '),"Yes","No")'
-              : '=IF(AND(Step' + (i - 1) + 'Check="Yes",[StatusNumber]>' + i + '),"Yes","No")'
+              : '=IF(AND(Step' + (i - 1) + 'Check="Yes",[StatusNumber]>' + i + '),"Yes","No")';
               const stepCheck: IFieldAddResult = await ensureResult.list.fields.addCalculated('Step' + i + 'Check', thisCheck, DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
   
             }
   
             const effectiveStatus: IFieldAddResult = await ensureResult.list.fields.addCalculated("EffectiveStatus", '=(IF([StatusNumber]=9,9,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0)))))))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
-            const stepCheck: IFieldAddResult = await ensureResult.list.fields.addCalculated('IsOpen', '=IF(EffectiveStatus<4,"Yes","No") ', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });  
+            const stepCheck2: IFieldAddResult = await ensureResult.list.fields.addCalculated('IsOpen', '=IF(EffectiveStatus<4,"Yes","No") ', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });  
 
           }
   
@@ -439,7 +454,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const sourceProjectRef: IFieldAddResult = await ensureResult.list.fields.addText("SourceProjectRef", 255, { Group: columnGroup, Hidden: true, Description: fieldDescription, Indexed: true });
 
             fieldDescription = "The person this time entry applies to.";
-            const user: IFieldAddResult = await ensureResult.list.fields.addUser("User", FieldUserSelectionMode.PeopleOnly, { Group: "My Group", Description: fieldDescription, Indexed: true });
+            const user: IFieldAddResult = await ensureResult.list.fields.addUser("User", FieldUserSelectionMode.PeopleOnly, { Group: columnGroup, Description: fieldDescription, Indexed: true });
 
             fieldDescription = "For internal use of webpart";
             const settings: IFieldAddResult = await ensureResult.list.fields.addText("Settings", 255, { Group: columnGroup, Description: fieldDescription });
@@ -594,10 +609,10 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
               const field27 = await ensureResult.list.fields.getByInternalNameOrTitle("Hours").get();
               const field28 = await ensureResult.list.fields.getByInternalNameOrTitle("Minutes").get();
 
-              const field30 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalStart").get();
-              const field31 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalEnd").get();
-              const field32 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalHours").get();
-              const field33 = await ensureResult.list.fields.getByInternalNameOrTitle("KeyChanges").get();
+              const field40 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalStart").get();
+              const field41 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalEnd").get();
+              const field42 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalHours").get();
+              const field43 = await ensureResult.list.fields.getByInternalNameOrTitle("KeyChanges").get();
   
             }
 
