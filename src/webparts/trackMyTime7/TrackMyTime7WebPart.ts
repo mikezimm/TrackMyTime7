@@ -455,6 +455,11 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             fieldDescription = "Calculates if significant changes were made after item was created.";
             const keyChanges: IFieldAddResult = await ensureResult.list.fields.addCalculated("KeyChanges", '=IF(OriginalHours="","-NoOriginalHours",IF(ABS(Hours-OriginalHours)>0.05,"-HoursChanged",""))&IF(OriginalStart="","-NoOriginalStart",IF(StartTime<>OriginalStart,"-StartChanged",""))&IF(OriginalEnd="","-NoOriginalEnd",IF(EndTime<>OriginalEnd,"-EndChanged",""))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
+            //Hide these fields so they can't be seen.
+            const originalHours2= await ensureResult.list.fields.getByTitle("OriginalHours").update({ Hidden: true });
+            const originalStart2= await ensureResult.list.fields.getByTitle("OriginalStart").update({ Hidden: true });
+            const originalEnd2= await ensureResult.list.fields.getByTitle("OriginalEnd").update({ Hidden: true });
+
             fieldDescription = "Link to the Project List item used to create this entry.";
             const sourceProject: IFieldAddResult = await ensureResult.list.fields.addUrl("SourceProject", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
 
