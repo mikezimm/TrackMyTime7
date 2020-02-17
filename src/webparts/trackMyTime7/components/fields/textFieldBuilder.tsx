@@ -30,7 +30,7 @@ import {
  
     placeHolder = '';
  
-     let textField = 
+     let textField =  field.hidden ? '' : 
      <TextField
        //className={ [styles.textField, styles.highlightBlink].join(' ') }
        className={ blinkOnProjectClassName }
@@ -56,7 +56,7 @@ import {
     if (currentValue && currentValue !== "*") { defaultValue = currentValue; }
    placeHolder = '';
 
-    let textField = 
+    let textField = field.hidden ? '' : 
     <TextField
       //className={ [styles.textField, styles.highlightBlink].join(' ') }
       className={ blinkOnProjectClassName }
@@ -82,7 +82,7 @@ import {
    if (currentValue && currentValue !== "*") { defaultValue = currentValue; }
   placeHolder = '';
 
-   let textField = 
+   let textField =  field.hidden ? '' : 
    <TextField
      //className={ [styles.textField, styles.highlightBlink].join(' ') }
      className={ blinkOnProjectClassName }
@@ -110,7 +110,7 @@ import {
   export function createMaskedTextField(field: IFieldDef, mask, currentValue, onChanged, blinkOnProjectClassName){
 
     let label = field.title + " (" + mask.replace('\\','') + ")";
-    let textField = 
+    let textField =  field.hidden ? '' : 
 
     <MaskedTextField 
       className={ blinkOnProjectClassName }
@@ -177,6 +177,8 @@ import {
     //console.log('createThisField field:', field);
     //console.log('Hey there!');
     field.disabled = isSaveDisabled;
+    field.hidden = parentState.formEntry[field.name]['hidden'];
+
     if (field.type === "Smart") {
       //2020-02-06:  Adding this check prevents total crash when changing pivots while no item is selected.
       if ( parentState.formEntry[field.name] == null ) {

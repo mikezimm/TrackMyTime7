@@ -100,6 +100,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let smart : ISmartText = {
       value: '',
       required: false,
+      hidden: false,
       default: '',
       defaultIsPrefix: false,
       prefix: '',
@@ -1758,16 +1759,22 @@ public toggleTips = (item: any): void => {
     let projectText : string = makeThisSmart ;
     let isRequired : boolean = ( projectText && projectText.indexOf("\*") === 0 ) ? true : false ;
     let projectString = isRequired ? makeThisSmart.substring(1) : makeThisSmart;
+
+    let isHidden : boolean = ( projectText && projectText.indexOf("hideme;") === 0 ) ? true : false ;
+    if ( isHidden ) { projectString = projectString.replace('hideme;',''); }
+
     let isDefault : boolean = (projectString && projectString.indexOf("\?") === 0 ) ? true : false ;
 
     projectString = isDefault ? projectString.substring(1) : projectString;
     let lastIndexOfDots : number = projectString ? projectString.lastIndexOf("...") : -1;
     let defaultIsPrefix = lastIndexOfDots > -1 ? true : false;
 
+
     let prefix : string = (projectString && lastIndexOfDots === projectString.length -3 ) ? projectString.substring(0,lastIndexOfDots) : null ;
     let mask : string = (makeThisSmart && makeThisSmart.indexOf('mask=')===0) ? makeThisSmart.replace('mask=','') : '';
     let thisProj : ISmartText = {
-      value: defaultIsPrefix ? "" : makeThisSmart,
+      value: defaultIsPrefix ? "" : isHidden ? projectString : makeThisSmart,
+      hidden: isHidden,
       required: isRequired,
       default: projectString ,
       defaultIsPrefix: defaultIsPrefix,

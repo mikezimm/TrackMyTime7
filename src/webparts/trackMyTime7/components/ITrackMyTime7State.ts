@@ -152,6 +152,7 @@ export interface ITimeEntry extends ISaveEntry {
 export interface ISmartText {
   value: string;
   required: boolean;
+  hidden: boolean;
   default: string;
   defaultIsPrefix: boolean;
   prefix?: string;

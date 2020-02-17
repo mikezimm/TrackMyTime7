@@ -10,6 +10,7 @@ import { ITrackMyTime7Props } from './ITrackMyTime7Props';
 import * as strings from 'TrackMyTime7WebPartStrings';
 
 import styles from './TrackMyTime7.module.scss';
+import { Link, ILinkProps } from 'office-ui-fabric-react';
 
 
 export interface IHelpInfoProps {
@@ -75,6 +76,12 @@ export function creatingProjectsGuide(parentProps:ITrackMyTime7Props , parentSta
   return (
     // Uncontrolled
     <div className={styles.infoPane}>
+
+    <h3>Please submit any issues or suggestions on github (requires free account)</h3>
+    <Link href='https://github.com/mikezimm/TrackMyTime7/issues' target='_blank'>
+      https://github.com/mikezimm/TrackMyTime7/issues
+    </Link>
+
     <h2>Creating Projects in TrackMyTime, how they work</h2>
       <p>Projects can be created and used in any way you want.  This guide just explains some of the special features of different columns, and how the webpart uses them to your advantage.</p>
     <h3>SPECIAL Columns:  These have special uses and may overlap depending on how you use them.</h3>
@@ -115,7 +122,9 @@ export function creatingProjectsGuide(parentProps:ITrackMyTime7Props , parentSta
     <h3>FUTURE Use columns (Projects as Tasks):  These may be used in the future for advanced functionality.</h3>
       <ul>
         <li><span className={styles.iColNamU}>Status:</span>Project column to be used as alternative to 'Active' column.</li>
-        <li><span className={styles.iColNamU}>Due Date:</span>Project column to be used if using Project list as a task list.</li>
+        <li><span className={styles.iColNamU}>Due Date:</span>Date Project/Task is due.</li>
+        <li><span className={styles.iColNamU}>Completed:</span>Date Project/Task was completed.</li>
+        <li><span className={styles.iColNamU}>Completed By:</span>Person who completed Project/Task.</li>
       </ul>
 
     <h3>FUTURE Use columns:  These may be used in the future for advanced functionality.</h3>

@@ -88,6 +88,7 @@ export class IntroPage {
             PropertyPaneLink('About Link' , {
               text: 'Github Repo:  TrackMyTime7',
               href: 'https://github.com/mikezimm/TrackMyTime7/wiki',
+              target: '_blank',
             }),
           ]
         },

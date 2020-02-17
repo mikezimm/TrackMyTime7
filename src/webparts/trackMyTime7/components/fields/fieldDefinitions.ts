@@ -11,6 +11,7 @@ export interface IFieldDef {
     type: string; //Smart, Text, Number, etc...
     required: boolean;
     disabled: boolean;
+    hidden: boolean;
     blinkOnProject: boolean;
 
 }
@@ -38,6 +39,7 @@ export function createEntryField(name: string, title: string, column: string, ty
         type: type, //Smart, Text, Number, etc...
         required: false,
         disabled: false,
+        hidden: false,
         blinkOnProject: blinkOnProject,
     };
     //console.log('createEntryField: ' + name, field)
