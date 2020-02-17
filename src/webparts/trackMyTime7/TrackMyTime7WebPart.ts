@@ -501,16 +501,10 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           await ensureResult.list.views.getByTitle('All Items').setViewXml(viewXml);
 
           if (isProject) {
-
-            //Need to add Task Due Date when it's available:  <FieldRef Name="TaskDueDate" />
-            let orderBy = '<Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy>';
-
-
-            //let Step5 = '<View Name="{331C141E-B5C3-4786-A5C6-FD1749A4A386}" Type="HTML" DisplayName="Step5.All" Url="/sites/Templates/ScriptTesting/Lists/Projects/Step5All.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="Due_x0020_Date" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy><Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">5</Value></Eq></Where></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
-            //let Step9 = '<View Name="{2029F528-8197-4596-8705-DC25F5D047ED}" Type="HTML" DisplayName="Step9.All" Url="/sites/Templates/ScriptTesting/Lists/Projects/Step9All.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy><Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">9</Value></Eq></Where></Query><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="TaskDueDate" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>'
-             
-
-
+            /**
+             * These are Task related columns
+             */
+            let orderBy = '<Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy>';     
 
             for (let i = 0; i < 10; i++) {
               if (i < 6 || i === 9) {
@@ -619,7 +613,32 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const field8 = await ensureResult.list.fields.getByInternalNameOrTitle("Category2").get();
             const field20 = await ensureResult.list.fields.getByInternalNameOrTitle("ProjectID1").get();
             const field21 = await ensureResult.list.fields.getByInternalNameOrTitle("ProjectID2").get();
-            if (isProject) { const field22 = await ensureResult.list.fields.getByInternalNameOrTitle("TimeTarget").get(); }
+
+            if (isProject) { 
+              const field22 = await ensureResult.list.fields.getByInternalNameOrTitle("TimeTarget").get();
+
+              const field55 = await ensureResult.list.fields.getByInternalNameOrTitle("ActivityType").get();
+              const field56 = await ensureResult.list.fields.getByInternalNameOrTitle("Activity").get();
+              
+              
+              /**
+               * These are all Task related
+               */
+              const field57 = await ensureResult.list.fields.getByInternalNameOrTitle("StatusTMT").get();
+              const field58 = await ensureResult.list.fields.getByInternalNameOrTitle("Due Date").get();
+
+              const field61 = await ensureResult.list.fields.getByInternalNameOrTitle("EffectiveStatus").get();
+              const field62 = await ensureResult.list.fields.getByInternalNameOrTitle("IsOpen").get();
+              const field63 = await ensureResult.list.fields.getByInternalNameOrTitle("StatusNumber").get();
+              const field64 = await ensureResult.list.fields.getByInternalNameOrTitle("StatusText").get();
+              const field65 = await ensureResult.list.fields.getByInternalNameOrTitle("Step0Check").get();
+              const field66 = await ensureResult.list.fields.getByInternalNameOrTitle("Step1Check").get();
+              const field67 = await ensureResult.list.fields.getByInternalNameOrTitle("Step2Check").get();
+              const field68 = await ensureResult.list.fields.getByInternalNameOrTitle("Step3Check").get();
+              const field69 = await ensureResult.list.fields.getByInternalNameOrTitle("Step4Check").get();
+              const field70 = await ensureResult.list.fields.getByInternalNameOrTitle("Step5Check").get();
+              
+            }
             const field23 = await ensureResult.list.fields.getByInternalNameOrTitle("CCList").get();
             const field24 = await ensureResult.list.fields.getByInternalNameOrTitle("CCEmail").get();
 
@@ -653,6 +672,13 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
               const field42 = await ensureResult.list.fields.getByInternalNameOrTitle("OriginalHours").get();
               const field43 = await ensureResult.list.fields.getByInternalNameOrTitle("KeyChanges").get();
   
+              /**
+               * These are for when Project list is run like a task list
+              */
+              const field80 = await ensureResult.list.fields.getByInternalNameOrTitle("StatusTMT").get();
+              const field81 = await ensureResult.list.fields.getByInternalNameOrTitle("StatusNumber").get();
+              const field82 = await ensureResult.list.fields.getByInternalNameOrTitle("StatusText").get();
+
             }
 
             // if it is all good, then the list is ready to be used

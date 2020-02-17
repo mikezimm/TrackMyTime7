@@ -774,6 +774,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let chartLocation = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.location, ChartType.Doughnut) : '';    
     let chartContemp = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.contemp, ChartType.Doughnut) : '';   
 
+    let chartEntryType =  this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.entryType, ChartType.Doughnut) : '';   
+
     let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this) );
     let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this) );
 
@@ -842,13 +844,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
               { chartCategory2 }
             </Stack.Item>
             <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartLocation }
+              { chartEntryType }
             </Stack.Item>
             <Stack.Item align="stretch" className={styles.chartPadding}>
               { chartContemp }
             </Stack.Item>
-
-            
+            <Stack.Item align="stretch" className={styles.chartPadding}>
+              { chartLocation }
+            </Stack.Item>
 
           </Stack>
           <div className={styles.chartHeight}>
@@ -2938,9 +2941,10 @@ public toggleTips = (item: any): void => {
       return arr;
     }
 
-    function createISeries(title, min: number, max: number, stepInc: number): IChartSeries {
+    function createISeries(title, axisTitle: string, min: number, max: number, stepInc: number): IChartSeries {
       return {
         title: title,
+        axisTitle: axisTitle,
         labels: createEmptyArray(min,max,stepInc),
         sums: createEmptyArray(min,max,stepInc),
         counts:createEmptyArray(min,max,stepInc),
@@ -2984,17 +2988,18 @@ public toggleTips = (item: any): void => {
     let chartPreData: IChartData = {
       filter: 'Results for ' + who,
       thisYear: [
-        createISeries(' This Year (mo)', hideEmpty ? 0 : 0 , hideEmpty ? 0 : this.props.today.month , 1),
-        createISeries('This Year (wk)' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
-      thisMonth: [createISeries('This Month' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.date , 1)],
-      thisWeek: [createISeries('This Week' , hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
-      allDays: createISeries('All Days' , hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
-      allWeeks: createISeries('All Weeks' , hideEmpty ? daysSinceSOW : daysSinceSOW , hideEmpty ? daysSinceSOW : 365 , 7),
-      allMonths: createISeries('All Months' , hideEmpty ? daysSinceMonthStart : daysSinceMonthStart , hideEmpty ? daysSinceMonthStart : 365 , 31), 
-      allYears: createISeries('All Years' , hideEmpty ? daysSinceNewYear : daysSinceNewYear , hideEmpty ? daysSinceNewYear : 365*4 , 365), 
-      categories: [createISeries('Category1' , 0,0,0), createISeries('Category2' , 0,0,0)], 
-      location: createISeries('Location' , 0,0,0), 
-      contemp: createISeries('Contemporanious' , 0,0,0),
+        createISeries(' This Year (mo)' , '', hideEmpty ? 0 : 0 , hideEmpty ? 0 : this.props.today.month , 1),
+        createISeries('This Year (wk)' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
+      thisMonth: [createISeries('This Month' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.date , 1)],
+      thisWeek: [createISeries('This Week' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
+      allDays: createISeries('All Days' , 'Days ago', hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
+      allWeeks: createISeries('All Weeks' , 'Weeks ago', hideEmpty ? daysSinceSOW : daysSinceSOW , hideEmpty ? daysSinceSOW : 365 , 7),
+      allMonths: createISeries('All Months' , 'Months ago', hideEmpty ? daysSinceMonthStart : daysSinceMonthStart , hideEmpty ? daysSinceMonthStart : 365 , 31), 
+      allYears: createISeries('All Years' , 'Years ago', hideEmpty ? daysSinceNewYear : daysSinceNewYear , hideEmpty ? daysSinceNewYear : 365*4 , 365), 
+      categories: [createISeries('Category1' , '', 0,0,0), createISeries('Category2' , '' , 0,0,0)], 
+      location: createISeries('Location' , '', 0,0,0), 
+      contemp: createISeries('Contemporanious' , '', 0,0,0),
+      entryType: createISeries('Entry Mode' , '', 0,0,0),      
     };
 
     let unknownCatLabel = 'Others';
@@ -3069,6 +3074,10 @@ public toggleTips = (item: any): void => {
       } else { 
         if ( chartPreData.contemp.title.lastIndexOf('^') !== chartPreData.contemp.title.length -1 ) { chartPreData.contemp.title += ' ^'; }
       }
+
+      let entryType = camelize(item.entryType, true);
+      chartPreData.entryType = updateThisSeries(chartPreData.entryType, dur, entryType);
+
 
     }
 
@@ -3159,10 +3168,13 @@ public toggleTips = (item: any): void => {
     chartPreData.thisMonth[0] = addLabels(chartPreData.thisMonth[0],weekday3['en-us'].join(';'),12);  // Days of Month
     chartPreData.thisWeek[0] = addLabels(chartPreData.thisWeek[0],weekday3['en-us'].join(';'),0);  // Days of the week
 
-    chartPreData.categories[0] = addLabels(chartPreData.categories[0],'',0);  // Days of the week
-    chartPreData.categories[1] = addLabels(chartPreData.categories[1],'',0);  // Days of the week
-    chartPreData.location = addLabels(chartPreData.location,'',0);  // Days of the week
-    chartPreData.contemp = addLabels(chartPreData.contemp,'',0);  // Days of the week
+    chartPreData.categories[0] = addLabels(chartPreData.categories[0],'',0);  // Category 1
+    chartPreData.categories[1] = addLabels(chartPreData.categories[1],'',0);  // Category 2
+    chartPreData.location = addLabels(chartPreData.location,'',0);  // Location
+    chartPreData.contemp = addLabels(chartPreData.contemp,'',0);  // Contemmporanious
+    chartPreData.entryType = addLabels(chartPreData.entryType,'',0);  // Entry Type
+
+    
 
     function scrubCategories(series: IChartSeries) {
       let changeMap = [];
@@ -3280,6 +3292,7 @@ public toggleTips = (item: any): void => {
     chartPreData.categories[1] = scrubCategories(chartPreData.categories[1]);
     chartPreData.location = scrubCategories(chartPreData.location);
     chartPreData.contemp = scrubCategories(chartPreData.contemp);
+    chartPreData.entryType = scrubCategories(chartPreData.entryType);
 
     function consolidateCategories(series: IChartSeries, maxCatsX: number, otherLabel: string) {
 
@@ -3346,6 +3359,8 @@ public toggleTips = (item: any): void => {
     chartPreData.categories[1] = consolidateCategories(chartPreData.categories[1], maxCats, consolidatedCatLabel);
     chartPreData.location = consolidateCategories(chartPreData.location, maxCats, consolidatedCatLabel);
     chartPreData.contemp = consolidateCategories(chartPreData.contemp, maxCats, consolidatedCatLabel);
+    chartPreData.entryType = consolidateCategories(chartPreData.entryType, maxCats, consolidatedCatLabel);
+
 
      console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);
