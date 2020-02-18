@@ -11,17 +11,19 @@ import styles from '../TrackMyTime7.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
 
-export interface IChartAccuracyProps {
+export interface IChartLongTermProps {
     chartData: IChartData;
     showCharts: boolean;
     allLoaded: boolean;
 }
 
-export interface IChartAccuracyState {
-    chartGroup: string;
+export interface IChartLongTermState {
+    choice: string;
+    showIntro: boolean;
+    showDetails: boolean;
 }
 
-export default class ChartAccuracy extends React.Component<IChartAccuracyProps, IChartAccuracyState> {
+export default class ChartLongTerm extends React.Component<IChartLongTermProps, IChartLongTermState> {
 
 
 /***
@@ -35,10 +37,12 @@ export default class ChartAccuracy extends React.Component<IChartAccuracyProps, 
  *                                                                                                       
  */
 
-public constructor(props:IChartAccuracyProps){
+public constructor(props:IChartLongTermProps){
     super(props);
     this.state = { 
-        chartGroup: 'string',
+        choice: 'string',
+        showIntro: true,
+        showDetails: false,
 
     };
 
@@ -89,7 +93,7 @@ public constructor(props:IChartAccuracyProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IChartAccuracyProps> {
+    public render(): React.ReactElement<IChartLongTermProps> {
 
         if ( this.props.allLoaded && this.props.showCharts ) {
             console.log('chartsClass.tsx', this.props, this.state);

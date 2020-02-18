@@ -6,10 +6,13 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
+import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import styles from '../TrackMyTime7.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
+
+import * as choiceBuilders from '../fields/choiceFieldBuilder';
 
 export interface IChartPageProps {
     chartData: IChartData;
@@ -18,7 +21,8 @@ export interface IChartPageProps {
 }
 
 export interface IChartPageState {
-    chartGroup: string;
+    selectedChoice: string;
+    lastChoice: string;
 }
 
 export default class ChartsPage extends React.Component<IChartPageProps, IChartPageState> {
@@ -38,7 +42,8 @@ export default class ChartsPage extends React.Component<IChartPageProps, IChartP
 public constructor(props:IChartPageProps){
     super(props);
     this.state = { 
-        chartGroup: 'string',
+        selectedChoice: 'string',
+        lastChoice: '',
 
     };
 
@@ -94,6 +99,8 @@ public constructor(props:IChartPageProps){
         if ( this.props.allLoaded && this.props.showCharts ) {
             console.log('chartsClass.tsx', this.props, this.state);
 
+            let pageChoices = choiceBuilders.creatChartChoices(this.state.selectedChoice, this._updateChoice.bind(this));
+
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
             let chartThisWeek = create1SeriesCharts( this.props.chartData.thisWeek[0], ChartType.Bar ) ;
@@ -114,7 +121,10 @@ public constructor(props:IChartPageProps){
             let chartEntryType =  create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut ) ;   
 
             return (
-                <div>
+
+                <div className={ styles.infoPane }>
+                    { pageChoices }
+
                     <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
                         <Stack.Item align="stretch" className={styles.chartPadding}>
                             { chartThisWeek }
@@ -169,5 +179,29 @@ public constructor(props:IChartPageProps){
         }
 
     }   //End Public Render
+
+
+/***
+ *         db    db d8888b.       .o88b. db   db  .d88b.  d888888b  .o88b. d88888b 
+ *         88    88 88  `8D      d8P  Y8 88   88 .8P  Y8.   `88'   d8P  Y8 88'     
+ *         88    88 88oodD'      8P      88ooo88 88    88    88    8P      88ooooo 
+ *         88    88 88~~~        8b      88~~~88 88    88    88    8b      88~~~~~ 
+ *         88b  d88 88           Y8b  d8 88   88 `8b  d8'   .88.   Y8b  d8 88.     
+ *         ~Y8888P' 88            `Y88P' YP   YP  `Y88P'  Y888888P  `Y88P' Y88888P 
+ *                                                                                 
+ *                                                                                 
+ */
+
+private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption){
+
+    let currentChoice = this.state.selectedChoice;
+    let newChoice = option.key;
+
+    this.setState({ 
+        lastChoice: currentChoice,
+        selectedChoice: newChoice,
+
+     });
+  }
 
 }

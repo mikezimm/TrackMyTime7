@@ -18,7 +18,9 @@ export interface IChartSampleProps {
 }
 
 export interface IChartSampleState {
-    chartGroup: string;
+    choice: string;
+    showIntro: boolean;
+    showDetails: boolean;
 }
 
 export default class ChartSample extends React.Component<IChartSampleProps, IChartSampleState> {
@@ -38,7 +40,9 @@ export default class ChartSample extends React.Component<IChartSampleProps, ICha
 public constructor(props:IChartSampleProps){
     super(props);
     this.state = { 
-        chartGroup: 'string',
+        choice: 'string',
+        showIntro: true,
+        showDetails: false,
 
     };
 

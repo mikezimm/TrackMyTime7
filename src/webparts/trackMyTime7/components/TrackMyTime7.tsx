@@ -586,7 +586,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     } // else if  -- Need to add logic when Manual and days not filled out
 
-    let entryOptions = choiceBuilders.creatEntryTypeChoices(this.props,this.state, this._updateEntryType.bind(this));
+    let entryOptions = choiceBuilders.creatEntryTypeChoices(this.state.currentTimePicker, this._updateEntryType.bind(this));
     let theTime;
     if (this.state.timeTrackerLoadStatus === "Complete") {
       if (this.state.currentTimePicker === 'sinceLast') {

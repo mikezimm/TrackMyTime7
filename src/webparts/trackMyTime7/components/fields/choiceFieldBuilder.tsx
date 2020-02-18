@@ -24,7 +24,7 @@ Entry Type Choices need to match these:  \src\services\propPane\WebPartSettingsP
 
 */
 
-export function creatEntryTypeChoices(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, _onChange){
+export function creatEntryTypeChoices(selectedKey: string, _onChange){
 
   let options : IChoiceGroupOption[] = [];
   let choiceSpacer = '\u00A0\u00A0';
@@ -41,7 +41,7 @@ export function creatEntryTypeChoices(parentProps:ITrackMyTime7Props , parentSta
       //className="defaultChoiceGroup" //This came with the example but does not seem to do anything
       //https://github.com/OfficeDev/office-ui-fabric-react/issues/8079#issuecomment-479136073
       styles={{ flexContainer: { display: "flex" , paddingLeft: 30} }}
-      selectedKey={ parentState.currentTimePicker }
+      selectedKey={ selectedKey }
       options={options}
       onChange={_onChange}
       label="Time entry mode"
@@ -49,6 +49,33 @@ export function creatEntryTypeChoices(parentProps:ITrackMyTime7Props , parentSta
     />
   );
 }
+
+export function creatChartChoices( selectedKey: string, _onChange){
+
+  let options : IChoiceGroupOption[] = [];
+  let choiceSpacer = '\u00A0\u00A0';
+  let spacer4x = choiceSpacer + choiceSpacer + choiceSpacer + choiceSpacer;
+  options.push(  {key: 'snapShot', text: 'Snapshot' + spacer4x });
+  options.push(  {key: 'longTerm', text: 'Long Term' + spacer4x });
+  options.push(  {key: 'story', text: 'Story' + spacer4x });
+  options.push(  {key: 'usage', text: 'Usage' + choiceSpacer });
+
+  return (
+    
+    <ChoiceGroup
+      // className = "inlineflex" //This didn't do anything
+      //className="defaultChoiceGroup" //This came with the example but does not seem to do anything
+      //https://github.com/OfficeDev/office-ui-fabric-react/issues/8079#issuecomment-479136073
+      styles={{ flexContainer: { display: "flex" , paddingLeft: 30} }}
+      selectedKey={ selectedKey }
+      options={options}
+      onChange={_onChange}
+      label="Dashboards"
+      required={true}
+    />
+  );
+}
+
 
 /*
 function _onChange(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption): void {
