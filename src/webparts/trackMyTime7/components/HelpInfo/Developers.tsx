@@ -1,24 +1,26 @@
 import * as React from 'react';
 
-import { IChartData, IChartSeries} from '../ITrackMyTime7State';
-
 import * as strings from 'TrackMyTime7WebPartStrings';
 
-import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
+import { Link, ILinkProps } from 'office-ui-fabric-react';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
+import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
+import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
+import { ITrackMyTime7State } from '../ITrackMyTime7State';
 import styles from '../TrackMyTime7.module.scss';
 
 export interface IInfoDevelopersProps {
-    chartData: IChartData;
     showInfo: boolean;
     allLoaded: boolean;
+    parentProps: ITrackMyTime7Props;
+    parentState: ITrackMyTime7State;
+
 }
 
 export interface IInfoDevelopersState {
-    choice: string;
-    showIntro: boolean;
-    showDetails: boolean;
+    selectedChoice: string;
+    lastChoice: string;
 }
 
 export default class InfoDevelopers extends React.Component<IInfoDevelopersProps, IInfoDevelopersState> {
@@ -38,9 +40,8 @@ export default class InfoDevelopers extends React.Component<IInfoDevelopersProps
 public constructor(props:IInfoDevelopersProps){
     super(props);
     this.state = { 
-        choice: 'string',
-        showIntro: true,
-        showDetails: false,
+        selectedChoice: 'snapShot',
+        lastChoice: '',
 
     };
 
@@ -94,22 +95,91 @@ public constructor(props:IInfoDevelopersProps){
     public render(): React.ReactElement<IInfoDevelopersProps> {
 
         if ( this.props.allLoaded && this.props.showInfo ) {
-            console.log('chartsClass.tsx', this.props, this.state);
+            console.log('infoPages.tsx', this.props, this.state);
 
-            const stackChartTokens: IStackTokens = { childrenGap: 30 };
+/***
+ *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
+ *              `~~88~~' 88   88   `88'   88'  YP      88  `8D d8' `8b 88' Y8b 88'     
+ *                 88    88ooo88    88    `8bo.        88oodD' 88ooo88 88      88ooooo 
+ *                 88    88~~~88    88      `Y8b.      88~~~   88~~~88 88  ooo 88~~~~~ 
+ *                 88    88   88   .88.   db   8D      88      88   88 88. ~8~ 88.     
+ *                 YP    YP   YP Y888888P `8888Y'      88      YP   YP  Y888P  Y88888P 
+ *                                                                                     
+ *                                                                                     
+ */
+
+            let baseDevDocs = 'https://developer.microsoft.com/en-us/fabric#/controls/web/';
+
+            let devDocsWeb = createLink( baseDevDocs,'_blank', 'Fabric UI' );
+            let devDocsButton = createLink( baseDevDocs + 'button','_blank', 'Button' );
+            let devDocsStack = createLink( baseDevDocs + 'stack','_blank', 'Stack' );
+            let devDocsSlider = createLink( baseDevDocs + 'slider','_blank', 'Slider' );
+            let devDocsToggle = createLink( baseDevDocs + 'toggle','_blank', 'Toggle' );
+            let devDocsChoice = createLink( baseDevDocs + 'choicegroup','_blank', 'Choice' );
+            let devDocsList = createLink( baseDevDocs + 'detailslist','_blank', 'List' );
+            let devDocsDate = createLink( baseDevDocs + 'datepicker','_blank', 'DatePicker' );
+            let devDocsPivo = createLink( baseDevDocs + 'pivot','_blank', 'Pivot' );
+
+            baseDevDocs = 'https://github.com/SharePoint/sp-dev-fx-controls-react/';
+            let gitHubWeb = createLink( baseDevDocs,'_blank', 'controls-react' );
+
+            baseDevDocs = 'https://github.com/SharePoint/sp-dev-fx-controls-react/tree/master/src/controls/';
+            //let gitHubButton = createLink( baseDevDocs + 'stack','_blank', 'Stack' );
+            //let gitHubSlider = createLink( baseDevDocs + 'slider','_blank', 'Slider' );
+            //let gitHubToggle = createLink( baseDevDocs + 'toggle','_blank', 'Toggle' );
+            //let gitHubChoice = createLink( baseDevDocs + 'choicegroup','_blank', 'Choice' );
+            let gitHubList = createLink( baseDevDocs + 'listView','_blank', 'List View' );
+            let gitHubDate = createLink( baseDevDocs + 'dateTimePicker','_blank', 'Date-Time' );
+
+
+            let thisPage = null;
+
+            thisPage = <div>
+                <h2></h2>
+                <table className={styles.infoTable}>
+                    <tr><th>MS Dev Docs</th><th>Github</th><th>Description</th></tr>
+                    <tr><td>{devDocsWeb}</td><td>{gitHubWeb}</td><td>MSFT Dev Docs for Fabric React UI Components</td></tr>
+                    <tr><td>{devDocsButton}</td><td></td><td>This is used for Save Entry, Clear Form buttons</td></tr>
+                    <tr><td>{devDocsStack}</td><td></td><td>Used in general for layout of components</td></tr>
+                    <tr><td>{devDocsSlider}</td><td></td><td>Used for Time Slider</td></tr>
+                    <tr><td>{devDocsToggle}</td><td></td><td>Used for Toggle function</td></tr>
+                    <tr><td>{devDocsChoice}</td><td></td><td>Used for Choice selection</td></tr>
+                    <tr><td>{devDocsList}</td><td>{gitHubList}</td><td>Used for Projects and History List</td></tr>
+                    <tr><td>{devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>     
+                    <tr><td>{devDocsDate}</td><td>{gitHubDate}</td><td>Used for Manual Time Entry</td></tr>                                
+                </table>
+            </div>;
+
+/***
+ *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
+ *              88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
+ *              88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
+ *              88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
+ *              88 `88. 88.        88    88b  d88 88 `88. 88  V888 
+ *              88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
+ *                                                                 
+ *                                                                 
+ */
 
             return (
-                <div>
-
+                <div className={ styles.infoPane }>
+                    { thisPage }
                 </div>
-
             );
             
         } else {
-            console.log('chartsClass.tsx return null');
+            console.log('infoPages.tsx return null');
             return ( null );
         }
 
     }   //End Public Render
 
+    
+
+}
+
+function createLink(href: string, target: string, linkDesc: string){
+    return (
+        <Link href={href} target={ target }>{ linkDesc }</Link>
+    );
 }

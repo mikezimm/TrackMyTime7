@@ -18,6 +18,8 @@ import * as choiceBuilders from '../fields/choiceFieldBuilder';
 //import Errors from './Errors';
 import ProjectList from './ProjectList';
 //import TimeList from './TimeList';
+
+import InfoDevelopers from './Developers';
 import GettingStarted from './GettingStarted';
 import FuturePlans from './FuturePlans';
 
@@ -132,6 +134,13 @@ public constructor(props:IInfoPageProps){
                     allLoaded={ this.props.allLoaded }
                     showInfo={ this.props.showInfo }
                 ></FuturePlans>;
+            } else if ( this.state.selectedChoice === 'dev' ) {
+                thisPage = <InfoDevelopers 
+                    parentProps={  this.props.parentProps }
+                    parentState={  this.props.parentState }
+                    allLoaded={ this.props.allLoaded }
+                    showInfo={ this.props.showInfo }
+                ></InfoDevelopers>;
             }
             /*
             else if ( this.state.selectedChoice === 'timeList' ) {
@@ -148,13 +157,7 @@ public constructor(props:IInfoPageProps){
                     allLoaded={ this.props.allLoaded }
                     showInfo={ this.props.showInfo }
                 ></FuturePlans>;
-            } else if ( this.state.selectedChoice === 'dev' ) {
-                thisPage = <FuturePlans 
-                    parentProps={  this.props.parentProps }
-                    parentState={  this.props.parentState }
-                    allLoaded={ this.props.allLoaded }
-                    showInfo={ this.props.showInfo }
-                ></FuturePlans>;
+
             }
             */
 

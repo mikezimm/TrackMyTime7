@@ -39,13 +39,12 @@ import { camelize, } from '../../../services/stringServices';
 
 
 import { buildFormFields } from './fields/fieldDefinitions';
-import { create1SeriesCharts, creatLineChart } from './Charts/charts';
 
 import ButtonCompound from './createButtons/ICreateButtons';
 import { IButtonProps,ISingleButtonProps,IButtonState } from "./createButtons/ICreateButtons";
 import { createIconButton } from "./createButtons/IconButton";
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
-import { ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
+
 
 import * as listBuilders from './ListView/ListView';
 import * as formBuilders from './fields/textFieldBuilder';
@@ -53,7 +52,7 @@ import * as choiceBuilders from './fields/choiceFieldBuilder';
 import * as sliderBuilders from './fields/sliderFieldBuilder';
 import * as smartLinks from './ActivityURL/ActivityURLMasks';
 import * as dateBuilders from './fields/dateFieldBuilder';
-import * as help from './InfoHelp';
+
   
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }

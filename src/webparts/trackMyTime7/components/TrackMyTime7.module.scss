@@ -2,6 +2,21 @@
 
 .trackMyTime7 {
 
+  .infoTable {
+
+    tr {
+      padding-top: 10px;
+    }
+    th {
+      color: red;
+    }
+    td {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+  }
+
   .iColNam{
     font-weight: bolder;
     padding-left: 10px;

@@ -130,8 +130,7 @@ public constructor(props:IGettingStartedProps){
             <h2>Second:  Create some Projects in the Projects list</h2>
                 <ol>
                     <li>Go to <b>Project List</b> section in this guide and review what the columns do.</li>
-                    <li>Go to your 
-                        <Link href={this.props.parentState.projectListURL} target='_blank'>{ this.props.parentProps.projectListTitle }
+                    <li>Go to your <Link href={this.props.parentState.projectListURL} target='_blank'>{ this.props.parentProps.projectListTitle }
                         </Link> and create some new Projects.
                     </li>
                 </ol>
