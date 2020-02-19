@@ -12,6 +12,14 @@ import styles from '../TrackMyTime7.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
 
+import LongTerm from './LongTerm';
+import Snapshot from './Snapshot';
+import Story from './Story';
+import Usage from './Usage';
+
+
+
+
 import * as choiceBuilders from '../fields/choiceFieldBuilder';
 
 export interface IChartPageProps {
@@ -42,7 +50,7 @@ export default class ChartsPage extends React.Component<IChartPageProps, IChartP
 public constructor(props:IChartPageProps){
     super(props);
     this.state = { 
-        selectedChoice: 'string',
+        selectedChoice: 'snapShot',
         lastChoice: '',
 
     };
@@ -101,76 +109,39 @@ public constructor(props:IChartPageProps){
 
             let pageChoices = choiceBuilders.creatChartChoices(this.state.selectedChoice, this._updateChoice.bind(this));
 
-            const stackChartTokens: IStackTokens = { childrenGap: 30 };
-
-            let chartThisWeek = create1SeriesCharts( this.props.chartData.thisWeek[0], ChartType.Bar ) ;
-            let chartThisMonth = create1SeriesCharts( this.props.chartData.thisMonth[0], ChartType.Bar ) ;
-            let chartThisYear0 = create1SeriesCharts( this.props.chartData.thisYear[0], ChartType.Bar ) ;
-            let chartThisYear1 = create1SeriesCharts( this.props.chartData.thisYear[1], ChartType.Bar ) ;
-    
-            let chartDailyHistory = create1SeriesCharts( this.props.chartData.allDays, ChartType.Line ) ;
-            let chartWeeklyHistory = create1SeriesCharts( this.props.chartData.allWeeks, ChartType.Line ) ;
-            let chartMonthlyHistory = create1SeriesCharts( this.props.chartData.allMonths, ChartType.Line ) ;
-            let chartYearlyHistory = create1SeriesCharts( this.props.chartData.allYears, ChartType.Line ) ;    
-    
-            let chartCategory1 = create1SeriesCharts( this.props.chartData.categories[0], ChartType.HorizontalBar ) ;    
-            let chartCategory2 = create1SeriesCharts( this.props.chartData.categories[1], ChartType.HorizontalBar ) ;    
-            let chartLocation = create1SeriesCharts( this.props.chartData.location, ChartType.Doughnut ) ;    
-            let chartContemp = create1SeriesCharts( this.props.chartData.contemp, ChartType.Doughnut ) ;   
-    
-            let chartEntryType =  create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut ) ;   
+            let thisPage = null;
+            
+            if ( this.state.selectedChoice === 'longTerm' ) {
+                thisPage = <div><LongTerm 
+                    allLoaded={ this.props.allLoaded }
+                    showCharts={ this.props.showCharts }
+                    chartData={ this.props.chartData }
+                ></LongTerm></div>;
+            } else if ( this.state.selectedChoice === 'snapShot' ) {
+                thisPage = <div><Snapshot 
+                    allLoaded={ this.props.allLoaded }
+                    showCharts={ this.props.showCharts }
+                    chartData={ this.props.chartData }
+                ></Snapshot></div>;
+            } else if ( this.state.selectedChoice === 'story' ) {
+                thisPage = <div><Story 
+                    allLoaded={ this.props.allLoaded }
+                    showCharts={ this.props.showCharts }
+                    chartData={ this.props.chartData }
+                ></Story></div>;
+            } else if ( this.state.selectedChoice === 'usage' ) {
+                thisPage = <div><Usage 
+                    allLoaded={ this.props.allLoaded }
+                    showCharts={ this.props.showCharts }
+                    chartData={ this.props.chartData }
+                ></Usage></div>;
+            }
 
             return (
-
                 <div className={ styles.infoPane }>
                     { pageChoices }
-
-                    <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisWeek }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisMonth }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisYear0 }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisYear1 }
-                        </Stack.Item>
-
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartWeeklyHistory }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartMonthlyHistory }
-                        </Stack.Item>            
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartYearlyHistory }
-                        </Stack.Item>
-
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartCategory1 }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartCategory2 }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartEntryType }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartContemp }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartLocation }
-                        </Stack.Item>
-                    </Stack>
-
-                    <div className={styles.chartHeight}>
-                    { chartDailyHistory }
-                    </div>
+                    { thisPage }
                 </div>
-
             );
             
         } else {

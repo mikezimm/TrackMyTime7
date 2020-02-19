@@ -23,7 +23,7 @@ export interface IChartSnapshotState {
     showDetails: boolean;
 }
 
-export default class ChartsThis extends React.Component<IChartSnapshotProps, IChartSnapshotState> {
+export default class ChartSnapshot extends React.Component<IChartSnapshotProps, IChartSnapshotState> {
 
 
 /***
@@ -104,18 +104,6 @@ public constructor(props:IChartSnapshotProps){
             let chartThisMonth = create1SeriesCharts( this.props.chartData.thisMonth[0], ChartType.Bar ) ;
             let chartThisYear0 = create1SeriesCharts( this.props.chartData.thisYear[0], ChartType.Bar ) ;
             let chartThisYear1 = create1SeriesCharts( this.props.chartData.thisYear[1], ChartType.Bar ) ;
-    
-            let chartDailyHistory = create1SeriesCharts( this.props.chartData.allDays, ChartType.Line ) ;
-            let chartWeeklyHistory = create1SeriesCharts( this.props.chartData.allWeeks, ChartType.Line ) ;
-            let chartMonthlyHistory = create1SeriesCharts( this.props.chartData.allMonths, ChartType.Line ) ;
-            let chartYearlyHistory = create1SeriesCharts( this.props.chartData.allYears, ChartType.Line ) ;    
-    
-            let chartCategory1 = create1SeriesCharts( this.props.chartData.categories[0], ChartType.HorizontalBar ) ;    
-            let chartCategory2 = create1SeriesCharts( this.props.chartData.categories[1], ChartType.HorizontalBar ) ;    
-            let chartLocation = create1SeriesCharts( this.props.chartData.location, ChartType.Doughnut ) ;    
-            let chartContemp = create1SeriesCharts( this.props.chartData.contemp, ChartType.Doughnut ) ;   
-    
-            let chartEntryType =  create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut ) ;   
 
             return (
                 <div>
@@ -133,36 +121,8 @@ public constructor(props:IChartSnapshotProps){
                             { chartThisYear1 }
                         </Stack.Item>
 
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartWeeklyHistory }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartMonthlyHistory }
-                        </Stack.Item>            
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartYearlyHistory }
-                        </Stack.Item>
-
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartCategory1 }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartCategory2 }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartEntryType }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartContemp }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartLocation }
-                        </Stack.Item>
                     </Stack>
 
-                    <div className={styles.chartHeight}>
-                    { chartDailyHistory }
-                    </div>
                 </div>
 
             );

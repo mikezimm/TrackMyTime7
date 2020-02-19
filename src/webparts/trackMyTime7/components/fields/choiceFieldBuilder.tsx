@@ -70,7 +70,7 @@ export function creatChartChoices( selectedKey: string, _onChange){
       selectedKey={ selectedKey }
       options={options}
       onChange={_onChange}
-      label="Dashboards"
+      label='' 
       required={true}
     />
   );

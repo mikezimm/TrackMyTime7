@@ -767,7 +767,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         allLoaded={ this.state.allLoaded }
         showCharts={ this.state.showCharts }
         chartData={ this.state.chartData }
-       
       ></ChartsPage>
     </div>;
 
