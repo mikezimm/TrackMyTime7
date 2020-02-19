@@ -13,7 +13,7 @@ import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartContr
 
 import styles from '../TrackMyTime7.module.scss';
 
-export function create1SeriesCharts(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, series: IChartSeries, thisType: ChartType){
+export function create1SeriesCharts(series: IChartSeries, thisType: ChartType){
 
   // set the options
   const lineOptions: Chart.ChartOptions = {
@@ -50,7 +50,7 @@ export function create1SeriesCharts(parentProps:ITrackMyTime7Props , parentState
     else if ( thisType === ChartType.HorizontalBar ) { chartOptions = lineOptions; }
     
 
-  console.log('creatCharts', series);
+  //console.log('creatCharts', series);
   return (
     <div style={{ }}>
         <ChartControl 

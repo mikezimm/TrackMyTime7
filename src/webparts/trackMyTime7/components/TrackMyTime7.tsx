@@ -18,6 +18,10 @@ import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import { Link } from 'office-ui-fabric-react/lib/Link';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
+import ChartsPage from './Charts/chartsPage';
+import InfoPage from './HelpInfo/infoPages';
+
+
 import * as strings from 'TrackMyTime7WebPartStrings';
 import Utils from './utils';
 
@@ -584,7 +588,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     } // else if  -- Need to add logic when Manual and days not filled out
 
-    let entryOptions = choiceBuilders.creatEntryTypeChoices(this.props,this.state, this._updateEntryType.bind(this));
+    let entryOptions = choiceBuilders.creatEntryTypeChoices(this.state.currentTimePicker, this._updateEntryType.bind(this));
     let theTime;
     if (this.state.timeTrackerLoadStatus === "Complete") {
       if (this.state.currentTimePicker === 'sinceLast') {
@@ -760,27 +764,26 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
       : "";
 
-    let chartThisWeek = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.thisWeek[0], ChartType.Bar) : '';
-    let chartThisMonth = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.thisMonth[0], ChartType.Bar) : '';
-    let chartThisYear0 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.thisYear[0], ChartType.Bar) : '';
-    let chartThisYear1 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.thisYear[1], ChartType.Bar) : '';
 
-    let chartDailyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allDays, ChartType.Line) : '';
-    let chartWeeklyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allWeeks, ChartType.Line) : '';
-    let chartMonthlyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allMonths, ChartType.Line) : '';
-    let chartYearlyHistory = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.allYears, ChartType.Line) : '';    
+    const infoPage = <div>
+      <InfoPage 
+          allLoaded={ this.state.allLoaded }
+          showInfo={ this.state.showTips }
+          parentProps= { this.props }
+          parentState= { this.state }
+      ></InfoPage>
+    </div>;
 
-    let chartCategory1 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.categories[0], ChartType.HorizontalBar) : '';    
-    let chartCategory2 = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.categories[1], ChartType.HorizontalBar) : '';    
-    let chartLocation = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.location, ChartType.Doughnut) : '';    
-    let chartContemp = this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.contemp, ChartType.Doughnut) : '';   
-
-    let chartEntryType =  this.state.allLoaded && this.state.showCharts ? create1SeriesCharts(this.props,this.state, this.state.chartData.entryType, ChartType.Doughnut) : '';   
+    const chartPage = <div>
+      <ChartsPage 
+        allLoaded={ this.state.allLoaded }
+        showCharts={ this.state.showCharts }
+        chartData={ this.state.chartData }
+      ></ChartsPage>
+    </div>;
 
     let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this) );
     let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this) );
-
-    let tipsProjects = help.creatingProjectsGuide(this.props,this.state);
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -810,55 +813,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
            
         </div>
         <div className={( this.state.showTips ? '' : styles.hideMe )}>
-          { tipsProjects }
+          { infoPage }
         </div>
 
         <div className={( this.state.showCharts ? '' : styles.hideMe )}>
-          <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartThisWeek }
-            </Stack.Item>
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartThisMonth }
-            </Stack.Item>
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartThisYear0 }
-            </Stack.Item>
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartThisYear1 }
-            </Stack.Item>
 
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartWeeklyHistory }
-            </Stack.Item>
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartMonthlyHistory }
-            </Stack.Item>            
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartYearlyHistory }
-            </Stack.Item>
+          { chartPage }
 
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartCategory1 }
-            </Stack.Item>
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartCategory2 }
-            </Stack.Item>
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartEntryType }
-            </Stack.Item>
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartContemp }
-            </Stack.Item>
-            <Stack.Item align="stretch" className={styles.chartPadding}>
-              { chartLocation }
-            </Stack.Item>
-
-          </Stack>
-          <div className={styles.chartHeight}>
-            { chartDailyHistory }
-          </div>
-              
 
         </div>
           <div>
@@ -3107,7 +3068,7 @@ public toggleTips = (item: any): void => {
       series.sums= smallerSums;
       series.counts= smallerCounts;
       series.labels= smallerLabels;
-      console.log('lastIndex is: ',series, lastIndex);
+      //console.log('lastIndex is: ',series, lastIndex);
 
     }
 
@@ -3241,11 +3202,12 @@ public toggleTips = (item: any): void => {
 
       }
 
+      /*
       console.log('newLabels',newLabels);
       console.log('changeMap',changeMap);
       console.log('changeNotes',changeNotes);
       console.log('warnNotes',warnNotes);
-
+*/
       //Now re-group similar categories
 
       let newSums = [];
