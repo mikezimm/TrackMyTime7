@@ -1,28 +1,29 @@
 import * as React from 'react';
 
-import { IChartData, IChartSeries} from '../ITrackMyTime7State';
-
 import * as strings from 'TrackMyTime7WebPartStrings';
 
-import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
+import { Link, ILinkProps } from 'office-ui-fabric-react';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
+import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
+import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
+import { ITrackMyTime7State } from '../ITrackMyTime7State';
 import styles from '../TrackMyTime7.module.scss';
 
-import { create1SeriesCharts, creatLineChart } from './charts';
-
-export interface IChartSnapshotProps {
-    chartData: IChartData;
-    showCharts: boolean;
+export interface IProjectListProps {
+    showInfo: boolean;
     allLoaded: boolean;
+    parentProps: ITrackMyTime7Props;
+    parentState: ITrackMyTime7State;
+
 }
 
-export interface IChartSnapshotState {
-    showIntro: boolean;
-    showDetails: boolean;
+export interface IProjectListState {
+    selectedChoice: string;
+    lastChoice: string;
 }
 
-export default class ChartSnapshot extends React.Component<IChartSnapshotProps, IChartSnapshotState> {
+export default class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
 
 
 /***
@@ -36,11 +37,11 @@ export default class ChartSnapshot extends React.Component<IChartSnapshotProps, 
  *                                                                                                       
  */
 
-public constructor(props:IChartSnapshotProps){
+public constructor(props:IProjectListProps){
     super(props);
     this.state = { 
-        showIntro: true,
-        showDetails: false,
+        selectedChoice: 'snapShot',
+        lastChoice: '',
 
     };
 
@@ -91,45 +92,52 @@ public constructor(props:IChartSnapshotProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IChartSnapshotProps> {
+    public render(): React.ReactElement<IProjectListProps> {
 
-        if ( this.props.allLoaded && this.props.showCharts ) {
-            console.log('chartsClass.tsx', this.props, this.state);
+        if ( this.props.allLoaded && this.props.showInfo ) {
+            console.log('infoPages.tsx', this.props, this.state);
 
-            const stackChartTokens: IStackTokens = { childrenGap: 30 };
+/***
+ *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
+ *              `~~88~~' 88   88   `88'   88'  YP      88  `8D d8' `8b 88' Y8b 88'     
+ *                 88    88ooo88    88    `8bo.        88oodD' 88ooo88 88      88ooooo 
+ *                 88    88~~~88    88      `Y8b.      88~~~   88~~~88 88  ooo 88~~~~~ 
+ *                 88    88   88   .88.   db   8D      88      88   88 88. ~8~ 88.     
+ *                 YP    YP   YP Y888888P `8888Y'      88      YP   YP  Y888P  Y88888P 
+ *                                                                                     
+ *                                                                                     
+ */
 
-            let chartThisWeek = create1SeriesCharts( this.props.chartData.thisWeek[0], ChartType.Bar ) ;
-            let chartThisMonth = create1SeriesCharts( this.props.chartData.thisMonth[0], ChartType.Bar ) ;
-            let chartThisYear0 = create1SeriesCharts( this.props.chartData.thisYear[0], ChartType.Bar ) ;
-            let chartThisYear1 = create1SeriesCharts( this.props.chartData.thisYear[1], ChartType.Bar ) ;
+            let thisPage = null;
+
+            thisPage = <div>
+                
+            </div>
+
+/***
+ *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
+ *              88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
+ *              88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
+ *              88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
+ *              88 `88. 88.        88    88b  d88 88 `88. 88  V888 
+ *              88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
+ *                                                                 
+ *                                                                 
+ */
 
             return (
-                <div>
-                    <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisWeek }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisMonth }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisYear0 }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisYear1 }
-                        </Stack.Item>
-
-                    </Stack>
-
+                <div className={ styles.infoPane }>
+                    { thisPage }
                 </div>
-
             );
             
         } else {
-            console.log('chartsClass.tsx return null');
+            console.log('infoPages.tsx return null');
             return ( null );
         }
 
     }   //End Public Render
+
+
 
 }

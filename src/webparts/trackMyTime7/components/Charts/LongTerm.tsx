@@ -18,7 +18,6 @@ export interface IChartLongTermProps {
 }
 
 export interface IChartLongTermState {
-    choice: string;
     showIntro: boolean;
     showDetails: boolean;
 }
@@ -40,7 +39,6 @@ export default class ChartLongTerm extends React.Component<IChartLongTermProps, 
 public constructor(props:IChartLongTermProps){
     super(props);
     this.state = { 
-        choice: 'string',
         showIntro: true,
         showDetails: false,
 

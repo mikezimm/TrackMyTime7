@@ -2,8 +2,6 @@
 
 import * as React from 'react';
 
-import { DateTimePicker, DateConvention, TimeConvention, TimeDisplayControlType } from '@pnp/spfx-controls-react/lib/dateTimePicker';
-
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, IEntryInfo, IEntries, ITrackMyTime7State, ISaveEntry} from './ITrackMyTime7State';
 
 import { ITrackMyTime7Props } from './ITrackMyTime7Props';

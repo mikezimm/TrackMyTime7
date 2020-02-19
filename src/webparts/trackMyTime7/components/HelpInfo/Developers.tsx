@@ -9,20 +9,19 @@ import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-
 
 import styles from '../TrackMyTime7.module.scss';
 
-import { create1SeriesCharts, creatLineChart } from './charts';
-
-export interface IChartSnapshotProps {
+export interface IInfoDevelopersProps {
     chartData: IChartData;
-    showCharts: boolean;
+    showInfo: boolean;
     allLoaded: boolean;
 }
 
-export interface IChartSnapshotState {
+export interface IInfoDevelopersState {
+    choice: string;
     showIntro: boolean;
     showDetails: boolean;
 }
 
-export default class ChartSnapshot extends React.Component<IChartSnapshotProps, IChartSnapshotState> {
+export default class InfoDevelopers extends React.Component<IInfoDevelopersProps, IInfoDevelopersState> {
 
 
 /***
@@ -36,9 +35,10 @@ export default class ChartSnapshot extends React.Component<IChartSnapshotProps, 
  *                                                                                                       
  */
 
-public constructor(props:IChartSnapshotProps){
+public constructor(props:IInfoDevelopersProps){
     super(props);
     this.state = { 
+        choice: 'string',
         showIntro: true,
         showDetails: false,
 
@@ -91,35 +91,15 @@ public constructor(props:IChartSnapshotProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IChartSnapshotProps> {
+    public render(): React.ReactElement<IInfoDevelopersProps> {
 
-        if ( this.props.allLoaded && this.props.showCharts ) {
+        if ( this.props.allLoaded && this.props.showInfo ) {
             console.log('chartsClass.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
-            let chartThisWeek = create1SeriesCharts( this.props.chartData.thisWeek[0], ChartType.Bar ) ;
-            let chartThisMonth = create1SeriesCharts( this.props.chartData.thisMonth[0], ChartType.Bar ) ;
-            let chartThisYear0 = create1SeriesCharts( this.props.chartData.thisYear[0], ChartType.Bar ) ;
-            let chartThisYear1 = create1SeriesCharts( this.props.chartData.thisYear[1], ChartType.Bar ) ;
-
             return (
                 <div>
-                    <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisWeek }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisMonth }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisYear0 }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartThisYear1 }
-                        </Stack.Item>
-
-                    </Stack>
 
                 </div>
 

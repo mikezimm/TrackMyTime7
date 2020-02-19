@@ -18,7 +18,6 @@ export interface IChartUsageProps {
 }
 
 export interface IChartUsageState {
-    choice: string;
     showIntro: boolean;
     showDetails: boolean;
 }
@@ -40,7 +39,6 @@ export default class ChartUsage extends React.Component<IChartUsageProps, IChart
 public constructor(props:IChartUsageProps){
     super(props);
     this.state = { 
-        choice: 'string',
         showIntro: true,
         showDetails: false,
 

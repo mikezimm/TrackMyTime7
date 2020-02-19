@@ -77,6 +77,35 @@ export function creatChartChoices( selectedKey: string, _onChange){
 }
 
 
+
+export function creatInfoChoices( selectedKey: string, _onChange){
+
+  let options : IChoiceGroupOption[] = [];
+  let choiceSpacer = '\u00A0\u00A0';
+  let spacer4x = choiceSpacer + choiceSpacer + choiceSpacer + choiceSpacer;
+  options.push(  {key: 'gettingStarted', text: 'Getting started' + spacer4x });
+  options.push(  {key: 'projectList', text: 'Project List' + spacer4x });
+  options.push(  {key: 'timeList', text: 'Time List' + spacer4x });
+  options.push(  {key: 'errors', text: 'Errors' + spacer4x });
+  options.push(  {key: 'futurePlans', text: 'Future Plans' + spacer4x });
+  options.push(  {key: 'dev', text: 'Developers' + choiceSpacer });
+
+  return (
+    
+    <ChoiceGroup
+      // className = "inlineflex" //This didn't do anything
+      //className="defaultChoiceGroup" //This came with the example but does not seem to do anything
+      //https://github.com/OfficeDev/office-ui-fabric-react/issues/8079#issuecomment-479136073
+      styles={{ flexContainer: { display: "flex" , paddingLeft: 30} }}
+      selectedKey={ selectedKey }
+      options={options}
+      onChange={_onChange}
+      label='' 
+      required={true}
+    />
+  );
+}
+
 /*
 function _onChange(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption): void {
   console.dir(option);

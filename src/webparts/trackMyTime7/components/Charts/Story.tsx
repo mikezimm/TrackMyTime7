@@ -18,7 +18,6 @@ export interface IChartStoryProps {
 }
 
 export interface IChartStoryState {
-    choice: string;
     showIntro: boolean;
     showDetails: boolean;
 }
@@ -40,7 +39,6 @@ export default class ChartStory extends React.Component<IChartStoryProps, IChart
 public constructor(props:IChartStoryProps){
     super(props);
     this.state = { 
-        choice: 'string',
         showIntro: true,
         showDetails: false,
 

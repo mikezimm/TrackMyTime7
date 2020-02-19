@@ -19,6 +19,8 @@ import { Link } from 'office-ui-fabric-react/lib/Link';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
+import InfoPage from './HelpInfo/infoPages';
+
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 import Utils from './utils';
@@ -762,6 +764,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
       : "";
 
+
+    const infoPage = <div>
+      <InfoPage 
+          allLoaded={ this.state.allLoaded }
+          showInfo={ this.state.showTips }
+          parentProps= { this.props }
+          parentState= { this.state }
+      ></InfoPage>
+    </div>;
+
     const chartPage = <div>
       <ChartsPage 
         allLoaded={ this.state.allLoaded }
@@ -772,8 +784,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this) );
     let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this) );
-
-    let tipsProjects = help.creatingProjectsGuide(this.props,this.state);
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -803,7 +813,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
            
         </div>
         <div className={( this.state.showTips ? '' : styles.hideMe )}>
-          { tipsProjects }
+          { infoPage }
         </div>
 
         <div className={( this.state.showCharts ? '' : styles.hideMe )}>
