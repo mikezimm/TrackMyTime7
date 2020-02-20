@@ -589,6 +589,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     let entryOptions = choiceBuilders.creatEntryTypeChoices(this.state.currentTimePicker, this._updateEntryType.bind(this));
     let theTime;
+
+    //How to set personal time settings
+    //https://sharepointmaven.com/sharepoint-time-zone/
+
     if (this.state.timeTrackerLoadStatus === "Complete") {
       if (this.state.currentTimePicker === 'sinceLast') {
 

@@ -115,7 +115,14 @@ public constructor(props:IGettingStartedProps){
             <Link href='https://github.com/mikezimm/TrackMyTime7/issues' target='_blank'>
               https://github.com/mikezimm/TrackMyTime7/issues
             </Link>
-        
+            <h2><mark>Before you start:</mark>  Set your time zone in Office 365 Personal settings</h2>
+            
+            <Link href='https://sharepointmaven.com/sharepoint-time-zone/' target='_blank'>
+              Click here,  and scroll down to Personal Setting Option 2, set your personal regional time zone:
+            </Link><br/>
+            If you do not do this first, your times will be saved in the site's local time zone and will cause the webpart not to work properly.<br/>
+            NOTE:  This will also insure that wherever you go in SharePoint, things will be converted to your local time :).
+
             <h2>First:  Create a Project List and TrackMyTime List in your site</h2>
                 <ol>
                     <li>Go to <b>WebPart Properties</b> - Edit Page, Edit Webpart.</li>
