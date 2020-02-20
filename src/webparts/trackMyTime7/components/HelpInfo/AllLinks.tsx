@@ -60,8 +60,8 @@ export const blogSPTimeZone = createLink( 'https://sharepointmaven.com/sharepoin
 export function createRepoLinks(href: string, target: string, linkDesc: string){
     return {
         repo: createLink( href, target, linkDesc ),
-        issues: createLink( href + '/Issues/', target, linkDesc + " Issues" ),
-        wiki: createLink( href + '/Wiki/', target, linkDesc + " Wiki" ),
+        issues: createLink( href + '/issues', target, linkDesc + " Issues" ),
+        wiki: createLink( href + '/wiki', target, linkDesc + " Wiki" ),
         href: href,
         target: target,
         desc: linkDesc,

@@ -7,9 +7,11 @@ import { sp } from '@pnp/sp';
 //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
 import { Web } from "@pnp/sp/presets/all";
 
-import { Pivot, PivotItem, PivotLinkSize, PivotLinkFormat } from 'office-ui-fabric-react/lib/Pivot';
+import { Pivot, PivotItem, PivotLinkSize, PivotLinkFormat, IPivotStyles, IPivotStyleProps } from 'office-ui-fabric-react/lib/Pivot';
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
 import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
+
+import * as cStyles from './DebugStyles';
 
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
@@ -479,9 +481,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
 
   public createPivotObject(setPivot, display){
+
+    let theseStyles = cStyles.mainPivot(true, display);
+
     let pivotPart = 
     <Pivot 
       style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
+      styles={ theseStyles }
       linkSize= { pivotOptionsGroup.getPivSize(this.props.pivotSize) }
       linkFormat= { pivotOptionsGroup.getPivFormat(this.props.pivotFormat) }
       onLinkClick= { this.onLinkClick.bind(this) }  //{this.specialClick.bind(this)}
