@@ -3,12 +3,15 @@ import * as React from 'react';
 import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { Link, ILinkProps } from 'office-ui-fabric-react';
+
+import * as links from './AllLinks';
+
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
-import styles from '../TrackMyTime7.module.scss';
+import styles from './InfoPane.module.scss';
 
 export interface IFuturePlansProps {
     showInfo: boolean;
@@ -112,9 +115,7 @@ public constructor(props:IFuturePlansProps){
             thisPage =     <div className={styles.infoPane}>
 
             <h3>Please submit any issues or suggestions on github (requires free account)</h3>
-            <Link href='https://github.com/mikezimm/TrackMyTime7/issues' target='_blank'>
-              https://github.com/mikezimm/TrackMyTime7/issues
-            </Link>
+              { links.gitRepoTrackMyTime.issues }
                 
             <h3>FUTURE USE Project List Activity Columns:  Must be used with Property Pane Rule(s)</h3>
               <p>Activity links on Time entry form can be created using these 2 fields on the Project list.  Set up Choices in Activity Type.  Then create URL rules in Property Pane.  To use, select the Activity Type, then type in an activity.</p>

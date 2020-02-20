@@ -2,13 +2,15 @@ import * as React from 'react';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 
+import * as links from './AllLinks';
+
 import { Link, ILinkProps } from 'office-ui-fabric-react';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
-import styles from '../TrackMyTime7.module.scss';
+import styles from './InfoPane.module.scss';
 
 export interface IInfoDevelopersProps {
     showInfo: boolean;
@@ -108,45 +110,21 @@ public constructor(props:IInfoDevelopersProps){
  *                                                                                     
  */
 
-            let baseDevDocs = 'https://developer.microsoft.com/en-us/fabric#/controls/web/';
-
-            let devDocsWeb = createLink( baseDevDocs,'_blank', 'Fabric UI' );
-            let devDocsButton = createLink( baseDevDocs + 'button','_blank', 'Button' );
-            let devDocsStack = createLink( baseDevDocs + 'stack','_blank', 'Stack' );
-            let devDocsSlider = createLink( baseDevDocs + 'slider','_blank', 'Slider' );
-            let devDocsToggle = createLink( baseDevDocs + 'toggle','_blank', 'Toggle' );
-            let devDocsChoice = createLink( baseDevDocs + 'choicegroup','_blank', 'Choice' );
-            let devDocsList = createLink( baseDevDocs + 'detailslist','_blank', 'List' );
-            let devDocsDate = createLink( baseDevDocs + 'datepicker','_blank', 'DatePicker' );
-            let devDocsPivo = createLink( baseDevDocs + 'pivot','_blank', 'Pivot' );
-
-            baseDevDocs = 'https://github.com/SharePoint/sp-dev-fx-controls-react/';
-            let gitHubWeb = createLink( baseDevDocs,'_blank', 'controls-react' );
-
-            baseDevDocs = 'https://github.com/SharePoint/sp-dev-fx-controls-react/tree/master/src/controls/';
-            //let gitHubButton = createLink( baseDevDocs + 'stack','_blank', 'Stack' );
-            //let gitHubSlider = createLink( baseDevDocs + 'slider','_blank', 'Slider' );
-            //let gitHubToggle = createLink( baseDevDocs + 'toggle','_blank', 'Toggle' );
-            //let gitHubChoice = createLink( baseDevDocs + 'choicegroup','_blank', 'Choice' );
-            let gitHubList = createLink( baseDevDocs + 'listView','_blank', 'List View' );
-            let gitHubDate = createLink( baseDevDocs + 'dateTimePicker','_blank', 'Date-Time' );
-
-
             let thisPage = null;
 
             thisPage = <div>
                 <h2></h2>
                 <table className={styles.infoTable}>
                     <tr><th>MS Dev Docs</th><th>Github</th><th>Description</th></tr>
-                    <tr><td>{devDocsWeb}</td><td>{gitHubWeb}</td><td>MSFT Dev Docs for Fabric React UI Components</td></tr>
-                    <tr><td>{devDocsButton}</td><td></td><td>This is used for Save Entry, Clear Form buttons</td></tr>
-                    <tr><td>{devDocsStack}</td><td></td><td>Used in general for layout of components</td></tr>
-                    <tr><td>{devDocsSlider}</td><td></td><td>Used for Time Slider</td></tr>
-                    <tr><td>{devDocsToggle}</td><td></td><td>Used for Toggle function</td></tr>
-                    <tr><td>{devDocsChoice}</td><td></td><td>Used for Choice selection</td></tr>
-                    <tr><td>{devDocsList}</td><td>{gitHubList}</td><td>Used for Projects and History List</td></tr>
-                    <tr><td>{devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>     
-                    <tr><td>{devDocsDate}</td><td>{gitHubDate}</td><td>Used for Manual Time Entry</td></tr>                                
+                    <tr><td>{links.devDocsWeb}</td><td>{links.gitRepoSPFxContReact}</td><td>MSFT Dev Docs for Fabric React UI Components</td></tr>
+                    <tr><td>{links.devDocsButton}</td><td></td><td>This is used for Save Entry, Clear Form buttons</td></tr>
+                    <tr><td>{links.devDocsStack}</td><td></td><td>Used in general for layout of components</td></tr>
+                    <tr><td>{links.devDocsSlider}</td><td></td><td>Used for Time Slider</td></tr>
+                    <tr><td>{links.devDocsToggle}</td><td></td><td>Used for Toggle function</td></tr>
+                    <tr><td>{links.devDocsChoice}</td><td></td><td>Used for Choice selection</td></tr>
+                    <tr><td>{links.devDocsList}</td><td>{links.gitSampleReactList}</td><td>Used for Projects and History List</td></tr>
+                    <tr><td>{links.devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>     
+                    <tr><td>{links.devDocsDate}</td><td>{links.gitSampleReactDate}</td><td>Used for Manual Time Entry</td></tr>                                
                 </table>
             </div>;
 
@@ -165,21 +143,10 @@ public constructor(props:IInfoDevelopersProps){
                 <div className={ styles.infoPane }>
                     { thisPage }
                 </div>
-            );
-            
+            ); 
         } else {
             console.log('infoPages.tsx return null');
             return ( null );
         }
-
     }   //End Public Render
-
-    
-
-}
-
-function createLink(href: string, target: string, linkDesc: string){
-    return (
-        <Link href={href} target={ target }>{ linkDesc }</Link>
-    );
 }

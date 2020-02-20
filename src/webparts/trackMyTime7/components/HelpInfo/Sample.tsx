@@ -3,12 +3,15 @@ import * as React from 'react';
 import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { Link, ILinkProps } from 'office-ui-fabric-react';
+
+import * as links from './AllLinks';   //              { links.gitRepoTrackMyTime.issues }
+
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
-import styles from '../TrackMyTime7.module.scss';
+import styles from './InfoPane.module.scss';
 
 export interface IProjectListProps {
     showInfo: boolean;

@@ -16,6 +16,8 @@ import {
 import * as strings from 'TrackMyTime7WebPartStrings';
 import { pivotOptionsGroup} from './index';
 
+import * as links from '../../webparts/trackMyTime7/components/HelpInfo/AllLinks';   //              { links.gitRepoTrackMyTime.issues }
+
 import { ITrackMyTimeWebPartProps } from '../../webparts/trackMyTime7/TrackMyTime7WebPart';
 
 /*
@@ -86,9 +88,9 @@ export class IntroPage {
             }),
 
             PropertyPaneLink('About Link' , {
-              text: 'Github Repo:  TrackMyTime7',
-              href: 'https://github.com/mikezimm/TrackMyTime7/wiki',
-              target: '_blank',
+              text: 'Github Repo:  ' + links.gitRepoTrackMyTime.desc ,
+              href: links.gitRepoTrackMyTime.href,
+              target: links.gitRepoTrackMyTime.target,
             }),
           ]
         },

@@ -7,12 +7,25 @@
     tr {
       padding-top: 10px;
     }
+
     th {
-      color: red;
+      color: black;
+      background-color: gray;
+      margin: 20px;
     }
+
     td {
       padding-left: 10px;
       padding-right: 10px;
+      margin: 20px;
+    }
+
+  }
+
+  .infoTableTHRed {
+    @extend .infoTable;
+    th {
+      color: red;
     }
 
   }

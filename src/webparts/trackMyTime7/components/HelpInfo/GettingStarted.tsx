@@ -3,12 +3,15 @@ import * as React from 'react';
 import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { Link, ILinkProps } from 'office-ui-fabric-react';
+
+import * as links from './AllLinks';
+
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
-import styles from '../TrackMyTime7.module.scss';
+import styles from './InfoPane.module.scss';
 
 export interface IGettingStartedProps {
     showInfo: boolean;
@@ -112,14 +115,12 @@ public constructor(props:IGettingStartedProps){
             thisPage =     <div className={styles.infoPane}>
 
             <h3>Please submit any issues or suggestions on github (requires free account)</h3>
-            <Link href='https://github.com/mikezimm/TrackMyTime7/issues' target='_blank'>
-              https://github.com/mikezimm/TrackMyTime7/issues
-            </Link>
+                { links.gitRepoTrackMyTime.issues }
+
             <h2><mark>Before you start:</mark>  Set your time zone in Office 365 Personal settings</h2>
             
-            <Link href='https://sharepointmaven.com/sharepoint-time-zone/' target='_blank'>
-              Click here,  and scroll down to Personal Setting Option 2, set your personal regional time zone:
-            </Link><br/>
+            Go to { links.blogSPTimeZone } and scroll down to Personal Setting Option 2, set your personal regional time zone:<br/>
+
             If you do not do this first, your times will be saved in the site's local time zone and will cause the webpart not to work properly.<br/>
             NOTE:  This will also insure that wherever you go in SharePoint, things will be converted to your local time :).
 

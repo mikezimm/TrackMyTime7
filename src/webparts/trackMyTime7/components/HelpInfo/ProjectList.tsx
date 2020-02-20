@@ -3,12 +3,15 @@ import * as React from 'react';
 import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { Link, ILinkProps } from 'office-ui-fabric-react';
+
+import * as links from './AllLinks';
+
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
-import styles from '../TrackMyTime7.module.scss';
+import styles from './InfoPane.module.scss';
 
 export interface IProjectListProps {
     showInfo: boolean;
@@ -112,9 +115,7 @@ public constructor(props:IProjectListProps){
             thisPage =     <div className={styles.infoPane}>
 
             <h3>Please submit any issues or suggestions on github (requires free account)</h3>
-            <Link href='https://github.com/mikezimm/TrackMyTime7/issues' target='_blank'>
-              https://github.com/mikezimm/TrackMyTime7/issues
-            </Link>
+            { links.gitRepoTrackMyTime.issues }
         
             <h2>Creating Projects in TrackMyTime, how they work</h2>
               <p>Projects can be created and used in any way you want.  This guide just explains some of the special features of different columns, and how the webpart uses them to your advantage.</p>

@@ -4,18 +4,20 @@ import { IChartData, IChartSeries} from '../ITrackMyTime7State';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 
+import * as links from './AllLinks';
+
 import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
-import styles from '../TrackMyTime7.module.scss';
+import styles from './InfoPane.module.scss';
 
 import * as choiceBuilders from '../fields/choiceFieldBuilder';
 
 
-//import Errors from './Errors';
+import Errors from './Errors';
 import ProjectList from './ProjectList';
 //import TimeList from './TimeList';
 
@@ -141,6 +143,13 @@ public constructor(props:IInfoPageProps){
                     allLoaded={ this.props.allLoaded }
                     showInfo={ this.props.showInfo }
                 ></InfoDevelopers>;
+            } else if ( this.state.selectedChoice === 'errors' ) {
+                thisPage = <Errors 
+                    parentProps={  this.props.parentProps }
+                    parentState={  this.props.parentState }
+                    allLoaded={ this.props.allLoaded }
+                    showInfo={ this.props.showInfo }
+                ></Errors>;
             }
             /*
             else if ( this.state.selectedChoice === 'timeList' ) {
