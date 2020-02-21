@@ -9,6 +9,9 @@ import { ListView, IViewField, SelectionMode, GroupOrder, IGrouping } from "@pnp
 import {ITimeEntry, IProject} from '../ITrackMyTime7State';
 import * as fields from './ViewFields';
 
+import * as cStyles from '../DebugStyles';
+import styles from '../TrackMyTime7.module.scss';
+
 /**
  * 
  * @param parentProps 
@@ -47,19 +50,27 @@ export function projectBuilder(parentProps,parentState, theseAreItems: IProject[
   if ( theseAreItems.length === 0 ) { return "";}
 
   let listView = 
-    <ListView
-      items={theseAreItems}
-      viewFields={viewFields}
-      compact={true}
-      selectionMode={SelectionMode.single}
-      selection={_getSelectedProject}
-      showFilter={true}
-      defaultSelection={[parentState.selectedProjectIndex]}
-      //defaultFilter="John"
-      filterPlaceHolder="Search..."
-      //groupByFields={groupByFields}
+    <div 
+      className={ styles.listViewTransparent }
+    >
+      <ListView
       
-    />;
+        items={theseAreItems}
+        viewFields={viewFields}
+        compact={true}
+        selectionMode={SelectionMode.single}
+        selection={_getSelectedProject}
+        showFilter={true}
+        defaultSelection={[parentState.selectedProjectIndex]}
+        //defaultFilter="John"
+        filterPlaceHolder="Search..."
+        //groupByFields={groupByFields}
+
+        //render={this._onRenderRow}
+        
+      />
+    </div>
+;
 
   return listView;
 

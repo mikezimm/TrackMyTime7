@@ -8,49 +8,35 @@ export const myYellow = "#FFFAB0";
 export const myBlue = "#B0DEFF";
 export const myOrange = "#FFDCB0";
 export const myRed = "#FFC1B0";
+export const defBorder = '#2566CA';
+export const transp = 'transparent';
+
+type PaneType = 'piv' | 'proj' | 'list' | 'entry' | 'command' | 'charts' | 'time' | 'category' | 'projectID' | 'activity';
+
+export const colorMap = {
+    piv: myLilac,
+    proj: myGreen,
+    list: myYellow,
+    entry: myBlue,
+    command: myOrange,
+    charts: myRed,
+};
+
+let piv = myLilac;
+let proj = myOrange;
 
 
-
-export function mainPivot(debugMode, display) {
-    let ret = {
-        root: {
-            backgroundColor: debugMode ? myBlue : 'transparent',
-            borderColor: debugMode ? '#2566CA' : 'transparent',
-            //...(cardSectionOrItemStyles.root as object)
-          }
-    };
-    return ret;
+export function styleRootBGColor(debugMode, part: PaneType ) {
+    return { root: {
+                backgroundColor: debugMode ? colorMap[part] : transp,
+                borderColor: debugMode ? defBorder : transp,
+                //...(cardSectionOrItemStyles.root as object)
+            }};
 }
 
-export function projectList(debugMode, display) {
-    let ret = {
-        root: {
-            backgroundColor: debugMode ? myYellow : 'transparent',
-            borderColor: debugMode ? '#2566CA' : 'transparent',
-            //...(cardSectionOrItemStyles.root as object)
-          }
+export function styleBGColor(debugMode, part: PaneType ) {
+    return { 
+        backgroundColor: debugMode ? colorMap[part] : transp,
+        borderColor: debugMode ? defBorder : transp,
     };
-    return ret;
-}
-
-export function itemList(debugMode, display) {
-    let ret = {
-        root: {
-            backgroundColor: debugMode ? myGreen : 'transparent',
-            borderColor: debugMode ? '#2566CA' : 'transparent',
-            //...(cardSectionOrItemStyles.root as object)
-          }
-    };
-    return ret;
-}
-
-export function entryChoice(debugMode, display) {
-    let ret = {
-        root: {
-            backgroundColor: debugMode ? myLilac : 'transparent',
-            borderColor: debugMode ? '#2566CA' : 'transparent',
-            //...(cardSectionOrItemStyles.root as object)
-          }
-    };
-    return ret;
 }

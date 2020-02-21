@@ -482,7 +482,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   public createPivotObject(setPivot, display){
 
-    let theseStyles = cStyles.mainPivot(true, display);
+    let theseStyles = cStyles.styleRootBGColor(true, 'piv');
 
     let pivotPart = 
     <Pivot 

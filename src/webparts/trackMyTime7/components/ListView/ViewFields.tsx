@@ -44,6 +44,7 @@ export const  projectWide : IViewField = {
   sorting: true,
   minWidth: 250,
   maxWidth: 400,
+  //render: null,
 };
 
 export const  description : IViewField = {
