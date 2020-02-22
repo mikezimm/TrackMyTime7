@@ -2,9 +2,10 @@ import * as React from 'react';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 
+import { Link, ILinkProps } from 'office-ui-fabric-react';
+
 import * as links from './AllLinks';
 
-import { Link, ILinkProps } from 'office-ui-fabric-react';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
@@ -12,7 +13,7 @@ import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
 import styles from './InfoPane.module.scss';
 
-export interface IInfoDevelopersProps {
+export interface IBasicsProps {
     showInfo: boolean;
     allLoaded: boolean;
     parentProps: ITrackMyTime7Props;
@@ -20,12 +21,12 @@ export interface IInfoDevelopersProps {
 
 }
 
-export interface IInfoDevelopersState {
+export interface IBasicsState {
     selectedChoice: string;
     lastChoice: string;
 }
 
-export default class InfoDevelopers extends React.Component<IInfoDevelopersProps, IInfoDevelopersState> {
+export default class Basics extends React.Component<IBasicsProps, IBasicsState> {
 
 
 /***
@@ -39,10 +40,10 @@ export default class InfoDevelopers extends React.Component<IInfoDevelopersProps
  *                                                                                                       
  */
 
-public constructor(props:IInfoDevelopersProps){
+public constructor(props:IBasicsProps){
     super(props);
     this.state = { 
-        selectedChoice: 'snapShot',
+        selectedChoice: 'projectList',
         lastChoice: '',
 
     };
@@ -94,7 +95,7 @@ public constructor(props:IInfoDevelopersProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IInfoDevelopersProps> {
+    public render(): React.ReactElement<IBasicsProps> {
 
         if ( this.props.allLoaded && this.props.showInfo ) {
             console.log('infoPages.tsx', this.props, this.state);
@@ -111,30 +112,49 @@ public constructor(props:IInfoDevelopersProps){
  */
 
             let thisPage = null;
+            thisPage =     <div className={styles.infoPane}>
 
-            thisPage = <div>
-                <h2></h2>
-                <table className={styles.infoTable}>
-                    <tr><th>MS Dev Docs</th><th>Github</th><th>Description</th></tr>
-                    <tr><td>{links.devDocsWeb}</td><td>{links.gitRepoSPFxContReact}</td><td>MSFT Dev Docs for Fabric React UI Components</td></tr>
-                    <tr><td>{links.devDocsText}</td><td></td><td>Used for text input on entry form</td></tr>
+            <h3>Please submit any issues or suggestions on github (requires free account)</h3>
+            { links.gitRepoTrackMyTime.issues }
+        
+            <h2>Creating Projects in TrackMyTime, how they work</h2>
+              <p>Projects can be created and used in any way you want.  This guide just explains some of the special features of different columns, and how the webpart uses them to your advantage.</p>
+            <h3>SPECIAL Columns:  These have special uses and may overlap depending on how you use them.</h3>
+              <p><b>Story and Chapter have special use for charts.</b>  These may look like a duplicate of Project and Category but there is a method to the madness.  
+              Category and Project ID are intended to be visible and editible when entering a time.  
+              In addition, The Activity column can auto-populate Category and ProjectID columns based on the URL which may make 
+              those columns different TypE CaSe making inconsistant chart labels.  
+              Story and Chapter are only visible/editable on the Project list and therefore will provide more consistancy.  
+              So the moral of the story... Think of Story and Chapter columns as a way to tell a Story through built in charts.  Story is the book, Chapter can be the buckets you break your time into.  
+              Again these may be duplicates of Category or Project depending on how you use them which is ok.  They just provide a way to keep the chart labels exactly as you want.</p>
+              <ul>
+                <li><span className={styles.iColNamV}>Category1/2:</span>Are designed for generic labels that can span multiple projects.  An example would be "Create Specification" which may be a phase in many projects.  This field will have some charts tailored to this use case.</li>
+                <li><span className={styles.iColNamV}>ProjectID1/2:</span>Has multiple use cases.  You can use it for a Project Number like a category.  But it's special purpose is for specific "transaction" type detail.  For instance, the Drawing Number, Specification that you are working on for that time entry.</li>
+                <li><span className={styles.iColNamV}>Activity (Time list):</span>Has special functionality.  If you paste a link in this column, it can autopopulate Project, Category and Comments columns for you.</li>
+                <li><span className={styles.iColNamH}>Story:</span>Not required for all Projects, but can be used to tell a "Story" of how your time was spent on a specific project.</li>
+                <li><span className={styles.iColNamH}>Chapter:</span>Not required for all Projects, but can be used to bucket your time on a "Story" in charts.</li>
+              </ul>
+              
+            <h3>GENERAL Columns:  These help identify/filter projects in the webpart.</h3>
+              <ul>
+                <li><span className={styles.iColNam}>Title:</span>This is the text visible in the webpart.  Must be unique per item in Project List.</li>
+                <li><span className={styles.iColNam}>Active:</span>If Active=No, project will automatically be moved to "InActive" heading.</li>
+                <li><span className={styles.iColNam}>Everyone:</span>If Everyone=Yes, project will only be found in Everyone heading. Use this for generic tasks like "Training", "Emails", "Break".</li>
+                <li><span className={styles.iColNam}>Leader:</span>Only one leader is allowed per project item.  These projects can be found in "Yours" heading.</li>
+                <li><span className={styles.iColNam}>Team:</span>Multiple people are allowed in this column.  If your name is in this column, the project will under "Your Team" heading.</li>
+                <li><span className={styles.iColNam}>Comments:</span>The world is your canvas, just use it.</li>
+              </ul>
+        
+            <h3>FUTURE Plans - See that page for more details</h3>
+              <ul>
+                <li><span className={styles.iColNam}>Using Project list like a Task list:</span>See Future Plans for more details</li>
+                <li><span className={styles.iColNam}>Defining Activity Link on Project List:</span>See Future Plans for more details</li>
+                <li><span className={styles.iColNam}>CC (Carbon Copy) Time Entries</span>See Future Plans for more details</li>
+              </ul>
 
+        
+          </div>;
 
-                    
-                    <tr><td>{links.devDocsButton}</td><td></td><td>This is used for Save Entry, Clear Form buttons</td></tr>
-                    <tr><td>{links.devDocsStack}</td><td></td><td>Used in general for layout of components</td></tr>
-                    <tr><td>{links.devDocsSlider}</td><td></td><td>Used for Time Slider</td></tr>
-                    <tr><td>{links.devDocsToggle}</td><td></td><td>Used for Toggle function</td></tr>
-                    <tr><td>{links.devDocsChoice}</td><td></td><td>Used for Choice selection</td></tr>
-                    <tr><td>{links.devDocsList}</td><td>{links.gitSampleReactList}</td><td>Used for Projects and History List</td></tr>
-                    <tr><td>{links.devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>     
-                    <tr><td>{links.devDocsDate}</td><td>{links.gitSampleReactDate}</td><td>Used for Manual Time Entry</td></tr>                                
-                    <tr><td>{links.devDocsIcon}</td><td></td><td>Icons used webpart and also available for Project Options</td></tr>                                
-
-                    
-
-                </table>
-            </div>;
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -151,10 +171,15 @@ public constructor(props:IInfoDevelopersProps){
                 <div className={ styles.infoPane }>
                     { thisPage }
                 </div>
-            ); 
+            );
+            
         } else {
             console.log('infoPages.tsx return null');
             return ( null );
         }
+
     }   //End Public Render
+
+
+
 }

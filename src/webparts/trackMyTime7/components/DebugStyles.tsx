@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Pivot, PivotItem, PivotLinkSize, PivotLinkFormat, IPivotStyles, IPivotStyleProps } from 'office-ui-fabric-react/lib/Pivot';
 
+
 export const myLilac = "#EBD0FF";
 export const myGreen = "#BBFFB0";
 export const myYellow = "#FFFAB0";

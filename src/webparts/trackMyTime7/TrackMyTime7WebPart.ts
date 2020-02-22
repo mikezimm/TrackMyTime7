@@ -368,6 +368,10 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             fieldDescription = "Used to complete Activity URL based on the selected choice.  Auto Builds Activity Link in TrackMyTime form.";
             const Activity1: IFieldAddResult = await ensureResult.list.fields.addText("Activity", 255, { Group: columnGroup, Description: fieldDescription });
   
+            fieldDescription = "Special field for enabling special project level options in the webpart.";
+            const OptionsTMT: IFieldAddResult = await ensureResult.list.fields.addText("OptionsTMT", 255, { Group: columnGroup, Description: fieldDescription });
+            const OptionsTMT2 = await ensureResult.list.fields.getByTitle("OptionsTMT").update({Title: 'Options'});
+
           }
 
           fieldDescription = "Used by web part to create Time Entry on secondary list at the same time... aka like Cc in email.";

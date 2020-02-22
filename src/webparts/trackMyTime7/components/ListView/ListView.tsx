@@ -26,6 +26,7 @@ export function listViewBuilder(parentProps,parentState, theseAreItems: ITimeEnt
   let viewFields = fields.viewFieldsFull();
 
   let listView = 
+  <div className={ parentState.debugColors ? styles.timeListView : '' } >
     <ListView
       items={theseAreItems}
       viewFields={viewFields}
@@ -36,13 +37,13 @@ export function listViewBuilder(parentProps,parentState, theseAreItems: ITimeEnt
       //defaultFilter="John"
       filterPlaceHolder="Search..."
       groupByFields={groupByFields}
-    />;
+    /></div>;
 
   return listView;
 
 }
 
-export function projectBuilder(parentProps,parentState, theseAreItems: IProject[], _getSelectedProject){
+export function projectBuilder(parentProps, parentState, theseAreItems: IProject[], _getSelectedProject){
 
   //console.log('projectBuilder',parentState.selectedProjectIndex)
   let viewFields = fields.viewFieldsProject();
@@ -50,9 +51,7 @@ export function projectBuilder(parentProps,parentState, theseAreItems: IProject[
   if ( theseAreItems.length === 0 ) { return "";}
 
   let listView = 
-    <div 
-      className={ styles.listViewTransparent }
-    >
+    <div className={ parentState.debugColors ? styles.projectListView : '' } >
       <ListView
       
         items={theseAreItems}

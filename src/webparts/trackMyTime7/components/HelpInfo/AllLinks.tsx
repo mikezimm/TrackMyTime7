@@ -20,6 +20,10 @@ export const devDocsChoice = createLink( baseDevDocs + 'choicegroup','_blank', '
 export const devDocsList = createLink( baseDevDocs + 'detailslist','_blank', 'List' );
 export const devDocsDate = createLink( baseDevDocs + 'datepicker','_blank', 'DatePicker' );
 export const devDocsPivo = createLink( baseDevDocs + 'pivot','_blank', 'Pivot' );
+export const devDocsText = createLink( baseDevDocs + 'textfield','_blank', 'TextField' );
+export const devDocsIcon = createLink( 'https://developer.microsoft.com/en-us/fabric#/styles/web/icons#available-icons','_blank', 'Icon' );
+
+
 
 
 /**

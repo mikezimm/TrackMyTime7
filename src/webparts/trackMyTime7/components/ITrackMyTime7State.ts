@@ -5,6 +5,7 @@ import { IFormFields } from './fields/fieldDefinitions';
 import { ITheTime } from '../../../services/dateServices';
 
 import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
+import { string } from 'prop-types';
 
 export interface ILink {
   Description: string;
@@ -129,7 +130,7 @@ export interface ITimeEntry extends ISaveEntry {
     duration?: string; //Number  -- May not be needed based on current testing with start and end dates.
     age?: number; //Days since End Time
   
-  
+    options?: string;
     //Saves what entry option was used... Since Last, Slider, Manual
   
     deltaT?: any; //Could be used to indicate how many hours entry was made (like now, or 10 2 days in the past)
@@ -171,6 +172,36 @@ export interface IProjectTarget {
   totalStatus?: boolean;
 }
 
+export interface IMyFonts{
+
+  size?: string;
+  weight?: string;
+  style?: string;
+  color?: string;
+
+}
+
+export interface IMyIcons{
+  hasIcon: boolean;
+  name: string;
+  size?: string;
+  height?: string;
+  width?: string;
+  margin?: string;
+
+}
+
+
+export interface IProjectOptions{
+
+  optionString?: string;
+  optionArray?: string[];
+  bgColor?: string;
+  font?: IMyFonts;
+  icon?: IMyIcons;
+
+}
+
 export interface IProject {
   //Values that would come from Project item
   projectType?: string; //master or user
@@ -197,6 +228,7 @@ export interface IProject {
   projectID2?: ISmartText;  //Example Cost Center # - look for strings starting with * and ?
 
   timeTarget?: IProjectTarget;
+  projOptions?: IProjectOptions;
 
   //This might be computed at the time page loads
   lastEntry?: any;  //Should be a time entry
@@ -377,6 +409,7 @@ export interface ITrackMyTime7State {
   errTitle?: string;
   showTips?: boolean;
   loadError?: string;
+  debugColors?: boolean;
 
   listError?: boolean;
   itemsError?: boolean;

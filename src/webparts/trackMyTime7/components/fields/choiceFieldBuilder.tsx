@@ -84,8 +84,8 @@ export function creatInfoChoices( selectedKey: string, _onChange){
   let choiceSpacer = '\u00A0\u00A0';
   let spacer4x = choiceSpacer + choiceSpacer + choiceSpacer + choiceSpacer;
   options.push(  {key: 'gettingStarted', text: 'Getting started' + spacer4x });
-  options.push(  {key: 'projectList', text: 'Project List' + spacer4x });
-  options.push(  {key: 'timeList', text: 'Time List' + spacer4x });
+  options.push(  {key: 'basics', text: 'Basics' + spacer4x });
+  options.push(  {key: 'advanced', text: 'Advanced' + spacer4x });
   options.push(  {key: 'errors', text: 'Errors' + spacer4x });
   options.push(  {key: 'futurePlans', text: 'Future Plans' + spacer4x });
   options.push(  {key: 'dev', text: 'Developers' + choiceSpacer });

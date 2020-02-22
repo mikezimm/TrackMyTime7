@@ -4,7 +4,7 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { Link, ILinkProps } from 'office-ui-fabric-react';
 
-import * as links from './AllLinks';
+import * as links from './AllLinks';   //              { links.gitRepoTrackMyTime.issues }
 
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
@@ -13,7 +13,7 @@ import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
 import styles from './InfoPane.module.scss';
 
-export interface IProjectListProps {
+export interface IAdvancedProps {
     showInfo: boolean;
     allLoaded: boolean;
     parentProps: ITrackMyTime7Props;
@@ -21,12 +21,12 @@ export interface IProjectListProps {
 
 }
 
-export interface IProjectListState {
+export interface IAdvancedState {
     selectedChoice: string;
     lastChoice: string;
 }
 
-export default class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
+export default class Advanced extends React.Component<IAdvancedProps, IAdvancedState> {
 
 
 /***
@@ -40,10 +40,10 @@ export default class ProjectList extends React.Component<IProjectListProps, IPro
  *                                                                                                       
  */
 
-public constructor(props:IProjectListProps){
+public constructor(props:IAdvancedProps){
     super(props);
     this.state = { 
-        selectedChoice: 'projectList',
+        selectedChoice: 'snapShot',
         lastChoice: '',
 
     };
@@ -95,7 +95,7 @@ public constructor(props:IProjectListProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IProjectListProps> {
+    public render(): React.ReactElement<IAdvancedProps> {
 
         if ( this.props.allLoaded && this.props.showInfo ) {
             console.log('infoPages.tsx', this.props, this.state);
@@ -112,49 +112,44 @@ public constructor(props:IProjectListProps){
  */
 
             let thisPage = null;
-            thisPage =     <div className={styles.infoPane}>
+            let projectID0 = <tr><td>ProjectID1/2</td><td>{links.devDocsText}</td><td>See documentation link for additional syntax options.</td></tr>;
+            let projectID1 = <tr><td></td><td>PrefixText...</td><td>Text followed by 3 dots will always include the PrefixText and then let you type whatever you want after that.</td></tr>;
+            let projectID2 = <tr><td></td><td>mask=aa99</td><td>Start column with 'mask=', followed by text.  Use 'a' to require a letter and '9' for any number.  Any other characters become part of the result value.</td></tr>;
+            let projectID3 = <tr><td></td><td>mask=aa99</td><td>This example will force the user to enter 2 letters followed by 2 numbers.</td></tr>;
+            let projectID4 = <tr><td></td><td>mask=(999) 999-9999</td><td>This example will force user to enter a phone number in US Format</td></tr>;
+            let projectID5 = <tr><td>ProjectID1/2<br/>Category1/2</td><td>hideme;ThisProject</td><td>Begin ProjectID Value with 'hideme;' and it will hide that column from the entry form and auto-paste the remaining text in the saved item.  In this case, you will not see the field in the entry form and the text 'ThisProject' will be pasted into the save entry for this field.</td></tr>;
 
-            <h3>Please submit any issues or suggestions on github (requires free account)</h3>
-            { links.gitRepoTrackMyTime.issues }
-        
-            <h2>Creating Projects in TrackMyTime, how they work</h2>
-              <p>Projects can be created and used in any way you want.  This guide just explains some of the special features of different columns, and how the webpart uses them to your advantage.</p>
-            <h3>SPECIAL Columns:  These have special uses and may overlap depending on how you use them.</h3>
-              <p><b>Story and Chapter have special use for charts.</b>  These may look like a duplicate of Project and Category but there is a method to the madness.  
-              Category and Project ID are intended to be visible and editible when entering a time.  
-              In addition, The Activity column can auto-populate Category and ProjectID columns based on the URL which may make 
-              those columns different TypE CaSe making inconsistant chart labels.  
-              Story and Chapter are only visible/editable on the Project list and therefore will provide more consistancy.  
-              So the moral of the story... Think of Story and Chapter columns as a way to tell a Story through built in charts.  Story is the book, Chapter can be the buckets you break your time into.  
-              Again these may be duplicates of Category or Project depending on how you use them which is ok.  They just provide a way to keep the chart labels exactly as you want.</p>
-              <ul>
-                <li><span className={styles.iColNamV}>Category1/2:</span>Are designed for generic labels that can span multiple projects.  An example would be "Create Specification" which may be a phase in many projects.  This field will have some charts tailored to this use case.</li>
-                <li><span className={styles.iColNamV}>ProjectID1/2:</span>Has multiple use cases.  You can use it for a Project Number like a category.  But it's special purpose is for specific "transaction" type detail.  For instance, the Drawing Number, Specification that you are working on for that time entry.</li>
-                <li><span className={styles.iColNamV}>Activity (Time list):</span>Has special functionality.  If you paste a link in this column, it can autopopulate Project, Category and Comments columns for you.</li>
-                <li><span className={styles.iColNamH}>Story:</span>Not required for all Projects, but can be used to tell a "Story" of how your time was spent on a specific project.</li>
-                <li><span className={styles.iColNamH}>Chapter:</span>Not required for all Projects, but can be used to bucket your time on a "Story" in charts.</li>
-              </ul>
-              
-            <h3>GENERAL Columns:  These help identify/filter projects in the webpart.</h3>
-              <ul>
-                <li><span className={styles.iColNam}>Title:</span>This is the text visible in the webpart.  Must be unique per item in Project List.</li>
-                <li><span className={styles.iColNam}>Active:</span>If Active=No, project will automatically be moved to "InActive" heading.</li>
-                <li><span className={styles.iColNam}>Everyone:</span>If Everyone=Yes, project will only be found in Everyone heading. Use this for generic tasks like "Training", "Emails", "Break".</li>
-                <li><span className={styles.iColNam}>Leader:</span>Only one leader is allowed per project item.  These projects can be found in "Yours" heading.</li>
-                <li><span className={styles.iColNam}>Team:</span>Multiple people are allowed in this column.  If your name is in this column, the project will under "Your Team" heading.</li>
-                <li><span className={styles.iColNam}>Comments:</span>The world is your canvas, just use it.</li>
-              </ul>
-        
-            <h3>FUTURE Plans - See that page for more details</h3>
-              <ul>
-                <li><span className={styles.iColNam}>Using Project list like a Task list:</span>See Future Plans for more details</li>
-                <li><span className={styles.iColNam}>Defining Activity Link on Project List:</span>See Future Plans for more details</li>
-                <li><span className={styles.iColNam}>CC (Carbon Copy) Time Entries</span>See Future Plans for more details</li>
-              </ul>
 
-        
-          </div>;
+            
 
+            let Category0 = <tr><td>Category1/2</td><td></td><td></td></tr>;
+
+            let options0 = <tr><td>Options</td><td>prop1=val1;prop2=val2</td><td>Sets Project list formatting.  Properties should be <b>separated by ; with = between property and setting</b>.  Use standard css syntax for colors and sizes... examples:  32px, x-large, green, #33333</td></tr>;
+            let options1 = <tr><td></td><td>size=20px;icon=Mail</td><td>size sets the font-size.  icon adds an {links.devDocsIcon} to left of Project Title</td></tr>;
+            let options2 = <tr><td></td><td>fWeight=bold;fStyle=italic</td><td>size sets font-weight and font-style</td></tr>;
+            let options3 = <tr><td></td><td>fcolor=red;bgColor=yellow</td><td>sets font-color to red, icon-color to green, background to yellow</td></tr>;
+
+            thisPage = <div>
+                <h2></h2>
+                <table className={styles.infoTable}>
+                    <tr><th>Column</th><th>Example</th><th>What it does</th></tr>
+
+                    { projectID0 }
+                    { projectID1 }
+                    { projectID2 }
+                    { projectID3 }
+                    { projectID4 }
+                    { projectID5 }
+
+                    { Category0 }
+
+                    { options0 }
+                    { options1 }
+                    { options2 }
+                    { options3 }
+                          
+                </table>
+            </div>;
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
