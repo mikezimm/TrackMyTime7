@@ -9,6 +9,9 @@ import { ListView, IViewField, SelectionMode, GroupOrder, IGrouping } from "@pnp
 import {ITimeEntry, IProject} from '../ITrackMyTime7State';
 import * as fields from './ViewFields';
 
+import * as cStyles from '../DebugStyles';
+import styles from '../TrackMyTime7.module.scss';
+
 /**
  * 
  * @param parentProps 
@@ -23,6 +26,7 @@ export function listViewBuilder(parentProps,parentState, theseAreItems: ITimeEnt
   let viewFields = fields.viewFieldsFull();
 
   let listView = 
+  <div className={ parentState.debugColors ? styles.timeListView : '' } >
     <ListView
       items={theseAreItems}
       viewFields={viewFields}
@@ -33,13 +37,13 @@ export function listViewBuilder(parentProps,parentState, theseAreItems: ITimeEnt
       //defaultFilter="John"
       filterPlaceHolder="Search..."
       groupByFields={groupByFields}
-    />;
+    /></div>;
 
   return listView;
 
 }
 
-export function projectBuilder(parentProps,parentState, theseAreItems: IProject[], _getSelectedProject){
+export function projectBuilder(parentProps, parentState, theseAreItems: IProject[], _getSelectedProject){
 
   //console.log('projectBuilder',parentState.selectedProjectIndex)
   let viewFields = fields.viewFieldsProject();
@@ -47,19 +51,25 @@ export function projectBuilder(parentProps,parentState, theseAreItems: IProject[
   if ( theseAreItems.length === 0 ) { return "";}
 
   let listView = 
-    <ListView
-      items={theseAreItems}
-      viewFields={viewFields}
-      compact={true}
-      selectionMode={SelectionMode.single}
-      selection={_getSelectedProject}
-      showFilter={true}
-      defaultSelection={[parentState.selectedProjectIndex]}
-      //defaultFilter="John"
-      filterPlaceHolder="Search..."
-      //groupByFields={groupByFields}
+    <div className={ parentState.debugColors ? styles.projectListView : '' } >
+      <ListView
       
-    />;
+        items={theseAreItems}
+        viewFields={viewFields}
+        compact={true}
+        selectionMode={SelectionMode.single}
+        selection={_getSelectedProject}
+        showFilter={true}
+        defaultSelection={[parentState.selectedProjectIndex]}
+        //defaultFilter="John"
+        filterPlaceHolder="Search..."
+        //groupByFields={groupByFields}
+
+        //render={this._onRenderRow}
+        
+      />
+    </div>
+;
 
   return listView;
 

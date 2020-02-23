@@ -16,10 +16,11 @@ import styles from './InfoPane.module.scss';
 
 import * as choiceBuilders from '../fields/choiceFieldBuilder';
 
+import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import Errors from './Errors';
-import ProjectList from './ProjectList';
-//import TimeList from './TimeList';
+import Basics from './Basics';
+import Advanced from './Advanced';
 
 import InfoDevelopers from './Developers';
 import GettingStarted from './GettingStarted';
@@ -30,12 +31,14 @@ export interface IInfoPageProps {
     allLoaded: boolean;
     parentProps: ITrackMyTime7Props;
     parentState: ITrackMyTime7State;
+    toggleDebug: any;
 
 }
 
 export interface IInfoPageState {
     selectedChoice: string;
     lastChoice: string;
+
 }
 
 export default class InfoPage extends React.Component<IInfoPageProps, IInfoPageState> {
@@ -122,13 +125,20 @@ public constructor(props:IInfoPageProps){
                     allLoaded={ this.props.allLoaded }
                     showInfo={ this.props.showInfo }
                 ></GettingStarted>;
-            } else if ( this.state.selectedChoice === 'projectList' ) {
-                thisPage = <ProjectList 
+            } else if ( this.state.selectedChoice === 'basics' ) {
+                thisPage = <Basics 
                     parentProps={  this.props.parentProps }
                     parentState={  this.props.parentState }
                     allLoaded={ this.props.allLoaded }
                     showInfo={ this.props.showInfo }
-                ></ProjectList>;
+                ></Basics>;
+            } else if ( this.state.selectedChoice === 'advanced' ) {
+                thisPage = <Advanced 
+                    parentProps={  this.props.parentProps }
+                    parentState={  this.props.parentState }
+                    allLoaded={ this.props.allLoaded }
+                    showInfo={ this.props.showInfo }
+                ></Advanced>;
             } else if ( this.state.selectedChoice === 'futurePlans' ) {
                 thisPage = <FuturePlans 
                     parentProps={  this.props.parentProps }
@@ -151,8 +161,19 @@ public constructor(props:IInfoPageProps){
                     showInfo={ this.props.showInfo }
                 ></Errors>;
             }
+
+/*
+            https://www.freecodecamp.org/news/a-complete-beginners-guide-to-react-router-include-router-hooks/
+            const Contact = () => (
+                <Fragment>
+                <h1>Contact</h1>
+                <FakeText />
+                </Fragment>
+                );
+*/
+
             /*
-            else if ( this.state.selectedChoice === 'timeList' ) {
+            else if ( this.state.selectedChoice === 'advanced' ) {
                 thisPage = <FuturePlans 
                     parentProps={  this.props.parentProps }
                     parentState={  this.props.parentState }
@@ -170,9 +191,24 @@ public constructor(props:IInfoPageProps){
             }
             */
 
+            //toggleDebug
+
+            const stackButtonTokensBody: IStackTokens = { childrenGap: 40 };
+
+            let toggleDebug = <Toggle label="" 
+            onText={ 'Debug colors' } 
+            offText={ 'Default colors' } 
+            onChange={this.props.toggleDebug.bind(this)} 
+            checked={this.props.parentState.debugColors}
+            styles={{ root: { width: 160, paddingTop: 13, paddingLeft: 20, } }}
+            />;
+
             return (
                 <div className={ styles.infoPane }>
-                    { pageChoices }
+                    <Stack padding={20} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+                        { pageChoices }
+                        { toggleDebug }
+                    </Stack>
                     { thisPage }
                 </div>
             );

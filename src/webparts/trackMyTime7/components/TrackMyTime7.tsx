@@ -7,9 +7,11 @@ import { sp } from '@pnp/sp';
 //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
 import { Web } from "@pnp/sp/presets/all";
 
-import { Pivot, PivotItem, PivotLinkSize, PivotLinkFormat } from 'office-ui-fabric-react/lib/Pivot';
+import { Pivot, PivotItem, PivotLinkSize, PivotLinkFormat, IPivotStyles, IPivotStyleProps } from 'office-ui-fabric-react/lib/Pivot';
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
 import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
+
+import * as cStyles from './DebugStyles';
 
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
@@ -31,7 +33,8 @@ import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeS
 
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
         IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
-        IChartData, IChartSeries } from './ITrackMyTime7State';
+        IChartData, IChartSeries,
+        IMyIcons, IMyFonts, IProjectOptions } from './ITrackMyTime7State';
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
@@ -380,6 +383,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       errTitle: this.errTitles(),
       showTips: false,
       loadError: "",
+      debugColors: false,
+
       lastTrackedClick: null,
       allLoaded: false,
 
@@ -405,6 +410,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this.toggleLayout = this.toggleLayout.bind(this);
     this.onChangePivotClick = this.onChangePivotClick.bind(this);
     this.toggleCharts = this.toggleCharts.bind(this);
+    this.toggleDebug = this.toggleDebug.bind(this);
 
     this.trackMyTime = this.trackMyTime.bind(this);
     this.clearMyInput = this.clearMyInput.bind(this);
@@ -479,9 +485,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
 
   public createPivotObject(setPivot, display){
+
+    let theseStyles = this.state.debugColors ? cStyles.styleRootBGColor(true, 'piv') : null;
+
     let pivotPart = 
     <Pivot 
       style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
+      styles={ theseStyles }
       linkSize= { pivotOptionsGroup.getPivSize(this.props.pivotSize) }
       linkFormat= { pivotOptionsGroup.getPivFormat(this.props.pivotFormat) }
       onLinkClick= { this.onLinkClick.bind(this) }  //{this.specialClick.bind(this)}
@@ -527,6 +537,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     return togglePart;
 
   }
+
 
 /***
  *         d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
@@ -774,6 +785,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           showInfo={ this.state.showTips }
           parentProps= { this.props }
           parentState= { this.state }
+          toggleDebug = { this.toggleDebug.bind(this) }
       ></InfoPage>
     </div>;
 
@@ -822,7 +834,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         <div className={( this.state.showCharts ? '' : styles.hideMe )}>
 
           { chartPage }
-
 
         </div>
           <div>
@@ -1606,6 +1617,18 @@ public toggleTips = (item: any): void => {
 
   }
 
+  public toggleDebug = () : void => {
+    //alert('trackMyTime');
+    //alert('Hey dummy!');
+    if (this.state.allLoaded !== true ) { return ;}
+    this.setState({  
+      debugColors: !this.state.debugColors,
+
+    });
+
+  }
+  
+
   /**
    * This should save an item
    */
@@ -1919,8 +1942,8 @@ public toggleTips = (item: any): void => {
         let total: any = false;
 
         if (p.TimeTarget) {
-          let options = p.TimeTarget.split(';');
-          for (let opt of options) {
+          let ttOptions = p.TimeTarget.split(';');
+          for (let opt of ttOptions) {
             let thisOption = opt.split('=');
             if (thisOption[1] && thisOption[0].toLowerCase() === 'daily') {
               daily = parseInt(thisOption[1]);
@@ -1942,6 +1965,65 @@ public toggleTips = (item: any): void => {
           totalStatus: total ? true : false,
         };
 
+        let pOptions = [];
+        if (p.OptionsTMT != null ) { pOptions = p.OptionsTMT.split(';'); }
+        else if ( p.OptionsTMTCalc != null && p.OptionsTMTCalc.length>0 ) { pOptions = p.OptionsTMTCalc.split(';'); }
+
+        console.log('p.Options', p.OptionsTMT, pOptions);
+
+        function getThisOption(arr: string[], splitter: string, prop: string ) {
+          let theResult = null;
+          for ( let m of arr ) {
+            let theProp = m.length > 0 ? m.split(splitter) : null;
+            if ( theProp != null && theProp[1] != null && prop.toLowerCase() === theProp[0].toLowerCase()) {  
+              //console.log('getThisOption', m, theProp);
+              return theProp[1];
+              
+            }
+          }
+
+        }
+
+        function getFontOptions(arr: string[], splitter: string ) {
+
+          let size =getThisOption(arr, splitter, 'fSize');
+          size = size == null ? getThisOption(arr, splitter, 'size') : size;
+
+          let fontOptions: IMyFonts = {
+            size: size,
+            weight: getThisOption(arr, splitter, 'fWeight'),
+            style: getThisOption(arr, splitter, 'fStyle'),
+            color: getThisOption(arr, splitter, 'fColor'),
+          };
+          return fontOptions;
+        }
+
+        function getIconOptions(arr: string[], splitter: string ) {
+          let iconName = getThisOption(arr, splitter, 'icon');
+          iconName = iconName == null ? getThisOption(arr, splitter, 'iconName') : iconName;
+
+          let size =getThisOption(arr, splitter, 'iSize');
+          size = size == null ? getThisOption(arr, splitter, 'size') : size;
+
+          let iconOptions: IMyIcons = {
+            hasIcon: iconName == null ? false : true,
+            name: iconName,
+            size: iconName == null ? '' : size,
+            height: iconName == null ? '' : getThisOption(arr, splitter, 'iHeight'),
+            width: iconName == null ? '' : getThisOption(arr, splitter, 'iHeight'),
+            margin: iconName == null ? '' : getThisOption(arr, splitter, 'iMargin'),
+          };
+          return iconOptions;
+        }
+
+        let projOptions : IProjectOptions = {
+          optionString: p.OptionsTMT,
+          optionArray: pOptions,
+          bgColor: getThisOption(pOptions,'=', 'bgColor'),
+          font: getFontOptions(pOptions,'='),
+          icon: getIconOptions(pOptions,'='),
+
+        };
 
         let leader : IUser = {
           title: 'p.' , //
@@ -1989,6 +2071,7 @@ public toggleTips = (item: any): void => {
           projectID2: this.buildSmartText(p.ProjectID2),
 
           timeTarget: targetInfo,
+          projOptions: projOptions,
           ccEmail: p.CCEmail,
           ccList: p.CCList,
         

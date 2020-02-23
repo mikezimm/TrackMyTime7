@@ -2,6 +2,57 @@
 
 .trackMyTime7 {
 
+  /*
+  .listView * {
+    background: greenyellow;
+    background-color:  rgb(255, 182, 47);
+  }
+
+  //this works
+    .listViewTransparent *[class|="ms-Details"] {
+      background-color:  lightgray ;
+      transition: all 0.3s ease;
+  }
+
+
+//This works  
+  .listViewTransparent * :hover {
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+*/
+//https://www.w3.org/TR/CSS21/selector.html%23id-selectors#type-selectors
+
+//#eaeaea is the default color for selected list items
+  .timeListView *[data-automationid="DetailsRowFields"] {
+      background-color:  #FFFAB0 ;
+      transition: all 0.3s ease;
+  }
+
+  .timeListView *[data-automationid="DetailsRowFields"] :hover  {
+      background-color:  #c2c2c2 ;
+      color: #212121;
+      transition: all 0.3s ease;
+  }
+
+  .projectListView *[data-automationid="DetailsRowFields"] {
+      background-color:  #BBFFB0 ;
+      transition: all 0.3s ease;
+  }
+
+  .projectListView *[data-automationid="DetailsRowFields"] :hover  {
+      background-color:  #c2c2c2 ;
+      color: #212121;
+      transition: all 0.3s ease;
+  }
+
+  .listViewX * {
+
+    background: greenyellow;
+    background-color:  rgb(255, 182, 47);
+  }
+
   .infoTable {
 
     tr {

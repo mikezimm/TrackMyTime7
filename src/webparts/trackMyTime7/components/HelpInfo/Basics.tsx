@@ -13,7 +13,7 @@ import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
 import styles from './InfoPane.module.scss';
 
-export interface IProjectListProps {
+export interface IBasicsProps {
     showInfo: boolean;
     allLoaded: boolean;
     parentProps: ITrackMyTime7Props;
@@ -21,12 +21,12 @@ export interface IProjectListProps {
 
 }
 
-export interface IProjectListState {
+export interface IBasicsState {
     selectedChoice: string;
     lastChoice: string;
 }
 
-export default class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
+export default class Basics extends React.Component<IBasicsProps, IBasicsState> {
 
 
 /***
@@ -40,7 +40,7 @@ export default class ProjectList extends React.Component<IProjectListProps, IPro
  *                                                                                                       
  */
 
-public constructor(props:IProjectListProps){
+public constructor(props:IBasicsProps){
     super(props);
     this.state = { 
         selectedChoice: 'projectList',
@@ -95,7 +95,7 @@ public constructor(props:IProjectListProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IProjectListProps> {
+    public render(): React.ReactElement<IBasicsProps> {
 
         if ( this.props.allLoaded && this.props.showInfo ) {
             console.log('infoPages.tsx', this.props, this.state);
