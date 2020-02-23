@@ -117,19 +117,19 @@ public constructor(props:IInfoDevelopersProps){
                 <table className={styles.infoTable}>
                     <tr><th>MS Dev Docs</th><th>Github</th><th>Description</th></tr>
                     <tr><td>{links.devDocsWeb}</td><td>{links.gitRepoSPFxContReact}</td><td>MSFT Dev Docs for Fabric React UI Components</td></tr>
+                    <tr><td>{links.devDocsIcon}</td><td></td><td>Icons used webpart and also available for Project Options</td></tr>                                
                     <tr><td>{links.devDocsText}</td><td></td><td>Used for text input on entry form</td></tr>
+                    <tr><td>{links.devDocsDate}</td><td>{links.gitSampleReactDate}</td><td>Used for Manual Time Entry</td></tr>                                
+                    <tr><td>{links.devDocsSlider}</td><td></td><td>Used for Time Slider</td></tr>
+                    <tr><td>{links.devDocsToggle}</td><td></td><td>Used for Toggle function</td></tr>
+                    <tr><td>{links.devDocsChoice}</td><td></td><td>Used for Choice selection</td></tr>
 
 
                     
                     <tr><td>{links.devDocsButton}</td><td></td><td>This is used for Save Entry, Clear Form buttons</td></tr>
                     <tr><td>{links.devDocsStack}</td><td></td><td>Used in general for layout of components</td></tr>
-                    <tr><td>{links.devDocsSlider}</td><td></td><td>Used for Time Slider</td></tr>
-                    <tr><td>{links.devDocsToggle}</td><td></td><td>Used for Toggle function</td></tr>
-                    <tr><td>{links.devDocsChoice}</td><td></td><td>Used for Choice selection</td></tr>
                     <tr><td>{links.devDocsList}</td><td>{links.gitSampleReactList}</td><td>Used for Projects and History List</td></tr>
                     <tr><td>{links.devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>     
-                    <tr><td>{links.devDocsDate}</td><td>{links.gitSampleReactDate}</td><td>Used for Manual Time Entry</td></tr>                                
-                    <tr><td>{links.devDocsIcon}</td><td></td><td>Icons used webpart and also available for Project Options</td></tr>                                
 
                     
 

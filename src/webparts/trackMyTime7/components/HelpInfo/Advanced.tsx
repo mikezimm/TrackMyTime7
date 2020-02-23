@@ -129,6 +129,8 @@ public constructor(props:IAdvancedProps){
             let options2 = <tr><td></td><td>fWeight=bold;fStyle=italic</td><td>size sets font-weight and font-style</td></tr>;
             let options3 = <tr><td></td><td>fcolor=red;bgColor=yellow</td><td>sets font-color to red, icon-color to green, background to yellow</td></tr>;
 
+            let options4 = <tr><td>Options^</td><td>See calculated column formula as an example</td><td>You can create a formula here to automatically build option text on all your projects.  <br/>If you have anything in the normal Options column, it will over-ride this calculated value.</td></tr>;
+
             thisPage = <div>
                 <h2></h2>
                 <table className={styles.infoTable}>
@@ -147,7 +149,8 @@ public constructor(props:IAdvancedProps){
                     { options1 }
                     { options2 }
                     { options3 }
-                          
+
+                    { options4 }                         
                 </table>
             </div>;
 

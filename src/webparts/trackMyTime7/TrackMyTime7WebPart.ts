@@ -300,7 +300,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
         myListDesc,
         100,
         true,
-        { EnableVersioning: true, MajorVersionLimit: 20});
+        { EnableVersioning: true, MajorVersionLimit: 20, });
 
       // if we've got the list
       if (ensureResult.list != null) {
@@ -371,6 +371,10 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             fieldDescription = "Special field for enabling special project level options in the webpart.";
             const OptionsTMT: IFieldAddResult = await ensureResult.list.fields.addText("OptionsTMT", 255, { Group: columnGroup, Description: fieldDescription });
             const OptionsTMT2 = await ensureResult.list.fields.getByTitle("OptionsTMT").update({Title: 'Options'});
+
+            let thisFormula = '=IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")';
+            const OptionsTMTCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated('OptionsTMTCalc', thisFormula, DateTimeFieldFormatType.DateOnly, FieldTypes.Text, { Group: columnGroup, Description: fieldDescription });
+            const OptionsTMTCalc2 = await ensureResult.list.fields.getByTitle("OptionsTMTCalc").update({Title: 'Options^'});
 
           }
 
@@ -513,6 +517,14 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           await ensureResult.list.views.getByTitle('All Items').setViewXml(viewXml);
 
           if (isProject) {
+
+            /**
+             * This is for Options column view
+             */
+
+             viewXml = '<View Name="{E5C88B9A-E4EB-4AD0-A57F-D864B101C03E}" Type="HTML" DisplayName="Options" Url="/sites/Templates/Tmt/Lists/Projects/Options.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="OptionsTMT" /><FieldRef Name="OptionsTMTCalc" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><Toolbar Type="Standard" /><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+             const optionsView = await ensureResult.list.views.add('Options');
+             await optionsView.view.setViewXml(viewXml);
             /**
              * These are Task related columns
              */
@@ -643,6 +655,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
               const field57 = await ensureResult.list.fields.getByInternalNameOrTitle("StatusTMT").get();
               const field58 = await ensureResult.list.fields.getByInternalNameOrTitle("Due Date").get();
 
+              const field71 = await ensureResult.list.fields.getByInternalNameOrTitle("OptionsTMT").get();
+              const field72 = await ensureResult.list.fields.getByInternalNameOrTitle("OptionsTMTCalc").get();
               const field61 = await ensureResult.list.fields.getByInternalNameOrTitle("EffectiveStatus").get();
               const field62 = await ensureResult.list.fields.getByInternalNameOrTitle("IsOpen").get();
               const field63 = await ensureResult.list.fields.getByInternalNameOrTitle("StatusNumber").get();

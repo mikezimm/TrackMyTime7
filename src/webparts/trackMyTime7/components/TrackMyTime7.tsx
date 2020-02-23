@@ -1967,6 +1967,7 @@ public toggleTips = (item: any): void => {
 
         let pOptions = [];
         if (p.OptionsTMT != null ) { pOptions = p.OptionsTMT.split(';'); }
+        else if ( p.OptionsTMTCalc != null && p.OptionsTMTCalc.length>0 ) { pOptions = p.OptionsTMTCalc.split(';'); }
 
         console.log('p.Options', p.OptionsTMT, pOptions);
 
