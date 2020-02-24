@@ -1820,7 +1820,7 @@ public toggleTips = (item: any): void => {
     let selectCols: string = "*";
     let expandThese = "";
     let peopleColumns = ["Author","Editor","Team","Leader"];
-    let peopleProps = ["Title","ID","Name","EMail","UserName"];
+    let peopleProps = ["Title","ID","Name"];
     let allColumns = [];
 
     for (let peep of peopleColumns){
@@ -1836,7 +1836,7 @@ public toggleTips = (item: any): void => {
     if (expColumns.length > 0) { expandThese = expColumns.join(","); }
 
     let expandTheseTrack = expandThese + ',User';
-    let selectColsTrack = selectCols + ',User/Title,User/ID,User/Name,User/EMail,User/UserName';   
+    let selectColsTrack = selectCols + ',User/Title,User/ID,User/Name';   
 
     //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
     const projectWeb = Web(useProjectWeb);

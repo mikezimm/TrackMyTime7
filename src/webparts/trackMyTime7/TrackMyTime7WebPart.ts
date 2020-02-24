@@ -139,7 +139,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
   
         //https://stackoverflow.com/questions/52010321/sharepoint-online-full-width-page
         if ( window.location.href &&  
-          window.location.href.indexOf("layouts/15/workbench.aspx") > 0 ) {
+          window.location.href.toLowerCase().indexOf("layouts/15/workbench.aspx") > 0 ) {
             
           if (document.getElementById("workbenchPageContent")) {
             document.getElementById("workbenchPageContent").style.maxWidth = "none";
