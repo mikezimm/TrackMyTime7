@@ -372,7 +372,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const OptionsTMT: IFieldAddResult = await ensureResult.list.fields.addText("OptionsTMT", 255, { Group: columnGroup, Description: fieldDescription });
             const OptionsTMT2 = await ensureResult.list.fields.getByTitle("OptionsTMT").update({Title: 'Options'});
 
-            let thisFormula = '=IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")';
+            let thisFormula = '=IF(ISNUMBER(FIND("Test",Title)),"icon=TestAutoSolid;","")&IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")';
             const OptionsTMTCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated('OptionsTMTCalc', thisFormula, DateTimeFieldFormatType.DateOnly, FieldTypes.Text, { Group: columnGroup, Description: fieldDescription });
             const OptionsTMTCalc2 = await ensureResult.list.fields.getByTitle("OptionsTMTCalc").update({Title: 'Options^'});
 
