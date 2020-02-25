@@ -145,7 +145,7 @@ public constructor(props:IChartPageProps){
             );
             
         } else {
-            console.log('chartsClass.tsx return null');
+            //console.log('chartsClass.tsx return null');
             return ( null );
         }
 

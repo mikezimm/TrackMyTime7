@@ -214,7 +214,7 @@ public constructor(props:IInfoPageProps){
             );
             
         } else {
-            console.log('infoPages.tsx return null');
+            //console.log('infoPages.tsx return null');
             return ( null );
         }
 

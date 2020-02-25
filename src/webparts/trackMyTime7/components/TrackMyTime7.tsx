@@ -222,7 +222,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     timeEntryTBD3:'',
     location:this.props.defaultLocation,
     settings:'',
-
     };
 
     return form;
@@ -588,15 +587,42 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       hoursSinceLastTime = getTimeDelta( this.state.lastEndTime.theTime, new Date() , 'hours');
     }
 
-    let isSaveDisabled = false;
+    let isSaveDisabledTime = false;
+    let isSaveDisabledFields = false;
+    let isSaveButtonDisabled = false;
+    
     if ( this.state.currentTimePicker === 'slider' ) {
-      if ( this.state.timeSliderValue == 0 ) { isSaveDisabled = true; }
+      if ( this.state.timeSliderValue == 0 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
 
       // Also need to add if the slider would put the start time before the last end time.
     } else if ( this.state.currentTimePicker === 'sinceLast' ) {
-      if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabled = true; }
+      if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
 
     } // else if  -- Need to add logic when Manual and days not filled out
+
+    if ( isSaveButtonDisabled === false ) {
+      if ( this.state.fields.ProjectID1.required ) {
+        if ( this.state.formEntry.projectID1.value === "*" || this.state.formEntry.projectID1.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == '' ) {
+          isSaveButtonDisabled = true;
+        }
+      }
+      if ( this.state.fields.ProjectID2.required ) {
+        if ( this.state.formEntry.projectID2.value === "*" || this.state.formEntry.projectID2.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == ''  ) {
+          isSaveButtonDisabled = true;
+        }
+      }
+      if ( this.state.fields.Category1.required ) {
+        if ( this.state.formEntry.category1 === ["*"] || this.state.formEntry.category1 == null  || this.state.formEntry.category1[0].replace(' ','') == ''  ) {
+          isSaveButtonDisabled = true;
+        }
+      }
+      if ( this.state.fields.Category2.required ) {
+        if ( this.state.formEntry.category2=== ["*"] || this.state.formEntry.projectID2 == null  || this.state.formEntry.category2[0].replace(' ','') == ''  ) {
+          isSaveButtonDisabled = true;
+        }
+      }
+    }
+
 
     let entryOptions = choiceBuilders.creatEntryTypeChoices(this.state.currentTimePicker, this._updateEntryType.bind(this));
     let theTime;
@@ -607,10 +633,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if (this.state.timeTrackerLoadStatus === "Complete") {
       if (this.state.currentTimePicker === 'sinceLast') {
 
-        theTime = <div className={( isSaveDisabled ? styles.timeError : styles.timeInPast )}>
+        theTime = <div className={( isSaveDisabledTime ? styles.timeError : styles.timeInPast )}>
           From: { getDayTimeToMinutes(this.state.lastEndTime.theTime) } until NOW<br/>
-          {( isSaveDisabled ? <div>Is to far in the past.</div> : "" )}
-          {( isSaveDisabled ? <div>Use Slider or Manual Mode to save time.</div> : "" )}
+          {( isSaveDisabledTime ? <div>Is to far in the past.</div> : "" )}
+          {( isSaveDisabledTime ? <div>Use Slider or Manual Mode to save time.</div> : "" )}
           </div>; 
 
       } else if  (this.state.currentTimePicker === 'slider' ) 
@@ -734,7 +760,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         secondary: "Press to clear form",
         buttonOnClick: this.clearMyInput.bind(this),
       },      {
-        disabled: isSaveDisabled,  
+        disabled: isSaveButtonDisabled,  
         checked: true, 
         primary: true,
         label: "Save item",
@@ -752,12 +778,12 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     </div>;
      
     let timeSlider = isSliderEntry ? sliderBuilders.createSlider(this.props,this.state, this._updateTimeSlider.bind(this)) : '';
-    let comments = formBuilders.createThisField(this.props,this.state, this.state.fields.Comments, isSaveDisabled, this._updateComments.bind(this));
-    let projectTitle = formBuilders.createThisField(this.props,this.state,this.state.fields.Title, isSaveDisabled,  this._updateProjectTitle.bind(this));
-    let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabled,  this._updateProjectID1.bind(this));
-    let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabled,  this._updateProjectID2.bind(this));
+    let comments = formBuilders.createThisField(this.props,this.state, this.state.fields.Comments, isSaveDisabledFields, this._updateComments.bind(this));
+    let projectTitle = formBuilders.createThisField(this.props,this.state,this.state.fields.Title, isSaveDisabledFields,  this._updateProjectTitle.bind(this));
+    let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabledFields,  this._updateProjectID1.bind(this));
+    let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabledFields,  this._updateProjectID2.bind(this));
 
-    let activity = formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabled,  this._updateActivity.bind(this));
+    let activity = formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
 
     let startDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.Start, false, this._updateStart.bind(this)) : '';
     let endDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.End, false, this._updateEnd.bind(this)) : '';
@@ -909,15 +935,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if (event) { event.preventDefault(); }
 
     if (items.length === 0 ) {
+
       //Only return here if the lastTrackedClick was not a project.
       //The reasoning logic is because if the last click was a project, and the length is 0, then it was "unselected"
       //And instead of just returning on unselect, we need to handle it and update the state.
       //This does not work yet... I have to see what's causing the other render.
       //if (this.state.lastTrackedClick.indexOf('project') < 0 ) { return;  }
-
+      console.log('_getSelectedProject:  ITEMS.LENGTH===0');
       return;
     }
-
+    console.log('_getSelectedProject:  ITEMS.LENGTH <> 0');
     console.log('Selected items:', items);
     
     let item : IProject; // = this.state.projects.newFiltered[0];
@@ -979,7 +1006,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       selectedProjectIndex : selectedProjectIndex,
       lastSelectedProjectIndex: this.state.selectedProjectIndex,
       lastTrackedClick: 'project ' + formEntry.titleProject,
-     });  
+     });
 
   }
 
@@ -1122,7 +1149,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private _updateProjectID1(newValue: string){
     let formEntry = this.state.formEntry;
     formEntry.projectID1.value = newValue;
-    this.setState({ formEntry:formEntry, blinkOnProject: 0, });
+    this.setState({ formEntry:formEntry, blinkOnProject: 0 });
   }
 
   private _updateProjectID2(newValue: string){
@@ -1933,7 +1960,7 @@ public toggleTips = (item: any): void => {
     projectWeb.lists.getByTitle(useProjectList).items
     .select(selectCols).expand(expandThese).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
     .then((response) => {
-      console.log('useProjectList', response);
+      //console.log('useProjectList', response);
       //console.log('fetched Project Info:', response);
       trackMyProjectsInfo.projectData = response.map((p) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
@@ -1969,7 +1996,7 @@ public toggleTips = (item: any): void => {
         if (p.OptionsTMT != null ) { pOptions = p.OptionsTMT.split(';'); }
         else if ( p.OptionsTMTCalc != null && p.OptionsTMTCalc.length>0 ) { pOptions = p.OptionsTMTCalc.split(';'); }
 
-        console.log('p.Options', p.OptionsTMT, pOptions);
+        //console.log('p.Options', p.OptionsTMT, pOptions);
 
         function getThisOption(arr: string[], splitter: string, prop: string ) {
           let theResult = null;
@@ -2124,7 +2151,7 @@ public toggleTips = (item: any): void => {
     .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(400).get()
     .then((response) => {
 
-      console.log('useTrackMyTimeList', response);
+      //console.log('useTrackMyTimeList', response);
 
 
       /**
@@ -3446,7 +3473,7 @@ public toggleTips = (item: any): void => {
     chartPreData.entryType = consolidateCategories(chartPreData.entryType, maxCats, consolidatedCatLabel);
     chartPreData.keyChanges = consolidateCategories(chartPreData.keyChanges, maxCats, consolidatedCatLabel);
 
-     console.log('chartPreData',chartPreData);
+     //console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);
 
     this.setState({ 

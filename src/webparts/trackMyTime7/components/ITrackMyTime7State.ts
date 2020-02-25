@@ -98,7 +98,6 @@ export interface ISaveEntry {
     //Other settings and information
     location?: string; // Location
     settings?: string;
-
   
 }
 
