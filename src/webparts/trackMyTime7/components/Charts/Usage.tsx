@@ -100,8 +100,9 @@ public constructor(props:IChartUsageProps){
     
             let chartLocation = create1SeriesCharts( this.props.chartData.location, ChartType.Doughnut ) ;    
             let chartContemp = create1SeriesCharts( this.props.chartData.contemp, ChartType.Doughnut ) ;   
-            let chartEntryType =  create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut ) ;   
-
+            let chartEntryType =  create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut ) ; 
+            let chartKeyChanges =  create1SeriesCharts( this.props.chartData.keyChanges, ChartType.HorizontalBar ) ;             
+            
             return (
                 <div>
                     <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
@@ -115,6 +116,10 @@ public constructor(props:IChartUsageProps){
                         <Stack.Item align="stretch" className={styles.chartPadding}>
                             { chartLocation }
                         </Stack.Item>
+                        <Stack.Item align="stretch" className={styles.chartPadding}>
+                            { chartKeyChanges }
+                        </Stack.Item>
+
                     </Stack>
 
                 </div>

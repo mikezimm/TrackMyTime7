@@ -2159,7 +2159,24 @@ public toggleTips = (item: any): void => {
           listProjects += item.ProjectID2 + ' ';
         }   
 
+        let keyChanges = [];
+        let keyChange = 'No change';
         
+        if ( item.KeyChanges == null || item.KeyChanges == '' ) {} else {
+          keyChanges = item.KeyChanges.split('-');
+          let keyChangesLC = item.KeyChanges.toLowerCase();
+          if (keyChangesLC.indexOf('hourschanged') > -1 ){
+            keyChange = "Hours changed";
+          } else if (keyChangesLC.indexOf('nooriginal') > -1 ){
+            keyChange = "No data";
+          } else if (keyChangesLC.indexOf('startchanged') > -1 ){
+            keyChange = "Start changed";
+          } else if (keyChangesLC.indexOf('endchanged') > -1 ){
+            keyChange = "End changed";
+          }
+        }
+
+
         let listComments = item.Comments ? item.Comments : "";
 
         let timeEntry : ITimeEntry = {
@@ -2197,6 +2214,9 @@ public toggleTips = (item: any): void => {
           endTime : item.EndTime , // Time stamp
           duration : item.Hours , //Number  -- May not be needed based on current testing with start and end dates.
           age: getAge(item.EndTime,"days"),
+          keyChange: keyChange,
+          keyChanges: keyChanges,
+
           //Saves what entry option was used... Since Last, Slider, Manual
           entryType : item.EntryType ,
           deltaT : item.DeltaT , //Could be used to indicate how many hours entry was made (like now, or 10 2 days in the past)
@@ -2871,6 +2891,8 @@ public toggleTips = (item: any): void => {
         modified: created,
         createdBy: this.state.currentUser.Id,
         modifiedBy: this.state.currentUser.Id,
+        keyChange: '',
+        keyChanges: [],
         listCategory: listCategory,
         listComments: listComments,
         listTimeSpan: listTimeSpan,
@@ -3053,7 +3075,9 @@ public toggleTips = (item: any): void => {
       categories: [createISeries('Category1' , '', 0,0,0), createISeries('Category2' , '' , 0,0,0)], 
       location: createISeries('Location' , '', 0,0,0), 
       contemp: createISeries('Contemporanious' , '', 0,0,0),
-      entryType: createISeries('Entry Mode' , '', 0,0,0),      
+      entryType: createISeries('Entry Mode' , '', 0,0,0),     
+      keyChanges: createISeries('Key changes' , '', 0,0,0),      
+
     };
 
     let unknownCatLabel = 'Others';
@@ -3132,6 +3156,8 @@ public toggleTips = (item: any): void => {
       let entryType = camelize(item.entryType, true);
       chartPreData.entryType = updateThisSeries(chartPreData.entryType, dur, entryType);
 
+      let keyChange = camelize(item.keyChange, true);
+      chartPreData.keyChanges = updateThisSeries(chartPreData.keyChanges, dur, keyChange);
 
     }
 
@@ -3228,6 +3254,7 @@ public toggleTips = (item: any): void => {
     chartPreData.contemp = addLabels(chartPreData.contemp,'',0);  // Contemmporanious
     chartPreData.entryType = addLabels(chartPreData.entryType,'',0);  // Entry Type
 
+    chartPreData.keyChanges = addLabels(chartPreData.keyChanges,'',0);  // keyChanges
     
 
     function scrubCategories(series: IChartSeries) {
@@ -3348,6 +3375,8 @@ public toggleTips = (item: any): void => {
     chartPreData.location = scrubCategories(chartPreData.location);
     chartPreData.contemp = scrubCategories(chartPreData.contemp);
     chartPreData.entryType = scrubCategories(chartPreData.entryType);
+    chartPreData.keyChanges = scrubCategories(chartPreData.keyChanges);
+    
 
     function consolidateCategories(series: IChartSeries, maxCatsX: number, otherLabel: string) {
 
@@ -3415,7 +3444,7 @@ public toggleTips = (item: any): void => {
     chartPreData.location = consolidateCategories(chartPreData.location, maxCats, consolidatedCatLabel);
     chartPreData.contemp = consolidateCategories(chartPreData.contemp, maxCats, consolidatedCatLabel);
     chartPreData.entryType = consolidateCategories(chartPreData.entryType, maxCats, consolidatedCatLabel);
-
+    chartPreData.keyChanges = consolidateCategories(chartPreData.keyChanges, maxCats, consolidatedCatLabel);
 
      console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);

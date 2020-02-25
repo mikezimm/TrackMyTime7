@@ -129,7 +129,9 @@ export interface ITimeEntry extends ISaveEntry {
     user: IUser;  //Single person column
     duration?: string; //Number  -- May not be needed based on current testing with start and end dates.
     age?: number; //Days since End Time
-  
+    keyChange: string;
+    keyChanges?: string[];
+
     options?: string;
     //Saves what entry option was used... Since Last, Slider, Manual
   
@@ -147,6 +149,7 @@ export interface ITimeEntry extends ISaveEntry {
     wasModified?: boolean;
     modifiedByUser?: boolean;
     createdByUser?: boolean;
+
 
 }
 
@@ -299,6 +302,7 @@ export interface IChartData {
   filter?: string;
   contemp?: IChartSeries;  
   location?: IChartSeries;
+  keyChanges?: IChartSeries;
   categories?: IChartSeries[];
   today?: IChartSeries[];
   thisWeek?: IChartSeries[];
