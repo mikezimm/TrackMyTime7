@@ -313,6 +313,17 @@ export interface IChartData {
   allWeeks?: IChartSeries;
   allDays?: IChartSeries;
   entryType?: IChartSeries;
+  
+  stories?: IStories;
+}
+
+
+export interface IStories {
+  stories?: IStory[];
+  titles?: string[];
+}
+export interface IStory extends IChartSeries {
+
 }
 
 export interface ITrackMyTime7State {

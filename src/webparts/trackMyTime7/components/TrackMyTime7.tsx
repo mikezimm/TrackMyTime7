@@ -34,7 +34,7 @@ import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeS
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
         IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
         IChartData, IChartSeries,
-        IMyIcons, IMyFonts, IProjectOptions } from './ITrackMyTime7State';
+        IMyIcons, IMyFonts, IProjectOptions, IStory, IStories } from './ITrackMyTime7State';
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
@@ -1661,7 +1661,36 @@ public toggleTips = (item: any): void => {
    */
   public trackMyTime = () : void => {
     //alert('trackMyTime');
-    this.saveMyTime (this.state.formEntry , 'master');
+
+      let saveError = '';
+
+      if ( this.state.fields.ProjectID1.required ) {
+        if ( this.state.formEntry.projectID1.value === "*" || this.state.formEntry.projectID1.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == '' ) {
+          saveError += 'Project ID1 ';
+        }
+      }
+      if ( this.state.fields.ProjectID2.required ) {
+        if ( this.state.formEntry.projectID2.value === "*" || this.state.formEntry.projectID2.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == ''  ) {
+          saveError += 'Project ID2 ';
+        }
+      }
+      if ( this.state.fields.Category1.required ) {
+        if ( this.state.formEntry.category1 === ["*"] || this.state.formEntry.category1 == null  || this.state.formEntry.category1[0].replace(' ','') == ''  ) {
+          saveError += 'Category1 ';
+        }
+      }
+      if ( this.state.fields.Category2.required ) {
+        if ( this.state.formEntry.category2=== ["*"] || this.state.formEntry.projectID2 == null  || this.state.formEntry.category2[0].replace(' ','') == ''  ) {
+          saveError += 'Category2 ';
+        }
+      }
+
+      if (saveError.length > 0 ) {
+        alert('Please enter value in these fields before saving: ' +  saveError);
+        return;
+      } else {
+        this.saveMyTime (this.state.formEntry , 'master');
+      }
 
   }
 
@@ -2489,6 +2518,7 @@ public toggleTips = (item: any): void => {
       *    userPriority: IProject[]; //Projects visible based on settings
       *   Put them into state.projects
     */
+
     let counts = this.createNewProjectCounts();
     let userKeys : string[] = [];
     let allEntries: ITimeEntry[] = timeTrackData;
@@ -2496,6 +2526,7 @@ public toggleTips = (item: any): void => {
     let teamEntries: ITimeEntry[] = [];
     let everyoneEntries: ITimeEntry[] = [];
     let otherEntries: ITimeEntry[] = [];
+
 
     let sessionEntries: ITimeEntry[] = [];
     let todayEntries: ITimeEntry[] = [];
@@ -2637,8 +2668,6 @@ public toggleTips = (item: any): void => {
       } 
 
     }
-    
-
 
     //console.log('nowEndTime', JSON.stringify(nowEndTime));
     if ( lastEndTime.milliseconds > nowEndTime.milliseconds  ) {
@@ -2697,7 +2726,7 @@ public toggleTips = (item: any): void => {
     allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.projectsLoadStatus === 'Complete') ? true : false,
    });
 
-   this.processChartData('user',['what??'],10,'string');
+   this.processChartData('all',['what??'],10,'string');
 
   }
 
@@ -2714,6 +2743,13 @@ public toggleTips = (item: any): void => {
 
   private saveMyTime (trackTimeItem: ISaveEntry , masterOrRemote : string) {
     //trackTimeItem = current this.state.formEntry
+
+
+
+
+
+
+
 
     let teamId = { results: [] };
     if (trackTimeItem.teamIds) { teamId = { results: trackTimeItem.teamIds } ; }
@@ -3082,6 +3118,14 @@ public toggleTips = (item: any): void => {
       return seriesData;
     }
 
+    function createStories(){
+      let emptyStories: IStories = {
+        stories: [],
+        titles: [],
+      };
+      return emptyStories;
+    }
+
     let sourceData: ITimeEntry[] = this.state.entries[who];
 
     let daysSinceMonthStart =this.props.today.daysSinceMonthStart;
@@ -3103,12 +3147,14 @@ public toggleTips = (item: any): void => {
       location: createISeries('Location' , '', 0,0,0), 
       contemp: createISeries('Contemporanious' , '', 0,0,0),
       entryType: createISeries('Entry Mode' , '', 0,0,0),     
-      keyChanges: createISeries('Key changes' , '', 0,0,0),      
+      keyChanges: createISeries('Key changes' , '', 0,0,0),     
+      stories: createStories(), 
 
     };
 
     let unknownCatLabel = 'Others';
     let removeTheseCats = 'removeEmpty';
+    let defaultChapter = 'Unclassified';
     let maxCats = 5;
     let consolidatedCatLabel = 'Others';
     let identifyOtherLabels = false; //May be used later to add change or warning notes to series.
@@ -3185,6 +3231,41 @@ public toggleTips = (item: any): void => {
 
       let keyChange = camelize(item.keyChange, true);
       chartPreData.keyChanges = updateThisSeries(chartPreData.keyChanges, dur, keyChange);
+
+      /**
+       * Add Story data 
+       */
+
+      if (item.story != null && item.story.length > 0 ) {
+        if ( chartPreData.stories.titles.indexOf(item.story) < 0) { 
+          chartPreData.stories.titles.push(item.story);
+          chartPreData.stories.stories.push(
+            createISeries(item.story , '', 0,0,0),
+          );
+        }
+
+        let storyIndex = chartPreData.stories.titles.indexOf(item.story);
+        let thisStory = chartPreData.stories.stories[storyIndex];
+
+        thisStory.totalC ++;
+        thisStory.totalS += Number(item.duration);
+
+        //Automatically assign generic chapter if no is given
+        if (item.chapter == null || item.chapter.length == 0 ) { item.chapter = defaultChapter; }
+
+        if (item.chapter != null && item.chapter.length > 0 ) {
+          if ( thisStory.labels.indexOf(item.chapter) < 0) { 
+            thisStory.labels.push(item.chapter);
+            thisStory.counts.push(0);
+            thisStory.sums.push(0);
+           }
+          let chapterIndex = thisStory.labels.indexOf(item.chapter);
+          let thisChapter = thisStory.labels[chapterIndex];
+          thisStory.counts[chapterIndex] ++;
+          thisStory.sums[chapterIndex] += Number(item.duration);
+
+        }
+      }
 
     }
 
@@ -3464,6 +3545,10 @@ public toggleTips = (item: any): void => {
       series.counts = newCounts;
 
       return series;
+    }
+
+    for (let s of chartPreData.stories.stories) {
+      s = consolidateCategories(s, 100, defaultChapter + '^');
     }
 
     chartPreData.categories[0] = consolidateCategories(chartPreData.categories[0], maxCats, consolidatedCatLabel);
