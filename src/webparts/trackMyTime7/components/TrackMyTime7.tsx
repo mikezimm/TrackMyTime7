@@ -2745,12 +2745,6 @@ public toggleTips = (item: any): void => {
     //trackTimeItem = current this.state.formEntry
 
 
-
-
-
-
-
-
     let teamId = { results: [] };
     if (trackTimeItem.teamIds) { teamId = { results: trackTimeItem.teamIds } ; }
 
@@ -3174,6 +3168,76 @@ public toggleTips = (item: any): void => {
       runningTotal += dur;
       //console.log('theTime:',item.id,runningTotal, item.startTime,theTime.year,theTime.month,theTime.week,theTime.date,theTime.day,theTime.hour,theTime.isThisYear,theTime.isThisMonth,theTime.isThisWeek,theTime.isToday);
 
+
+      /**
+       * Add Story data 
+       */
+
+      if (item.story != null && item.story.length > 0 ) {
+        if ( chartPreData.stories.titles.indexOf(item.story) < 0) { 
+          chartPreData.stories.titles.push(item.story);
+          chartPreData.stories.stories.push(
+            createISeries(item.story , '', 0,0,0),
+          );
+        }
+
+        let storyIndex = chartPreData.stories.titles.indexOf(item.story);
+        let thisStory = chartPreData.stories.stories[storyIndex];
+
+        //thisStory.totalC ++;
+        //thisStory.totalS += Number(item.duration);
+
+        //Automatically assign generic chapter if no is given
+        if (item.chapter == null || item.chapter.length == 0 ) { item.chapter = defaultChapter; }
+
+        if (item.chapter != null && item.chapter.length > 0 ) {
+          if ( thisStory.labels.indexOf(item.chapter) < 0) { 
+            thisStory.labels.push(item.chapter);
+            thisStory.counts.push(0);
+            thisStory.sums.push(0);
+           }
+          //let chapterIndex = thisStory.labels.indexOf(item.chapter);
+          //let thisChapter = thisStory.labels[chapterIndex];
+          //thisStory.counts[chapterIndex] ++;
+          //thisStory.sums[chapterIndex] += Number(item.duration);
+
+        }
+      }
+
+      /**
+       * Start filtering the "What data here"
+       */
+
+
+      if (item.story != null && item.story.length > 0 ) {
+
+        let storyIndex = chartPreData.stories.titles.indexOf(item.story);
+        let thisStory = chartPreData.stories.stories[storyIndex];
+        let chapterIndex = thisStory.labels.indexOf(item.chapter);
+        let thisChapter = thisStory.labels[chapterIndex];
+
+        thisStory = updateThisSeries(thisStory, dur, chapterIndex);
+        /*
+        thisStory.totalC ++;
+        thisStory.totalS += Number(item.duration);
+
+        if (item.chapter != null && item.chapter.length > 0 ) {
+
+          let chapterIndex = thisStory.labels.indexOf(item.chapter);
+          let thisChapter = thisStory.labels[chapterIndex];
+          thisStory.counts[chapterIndex] ++;
+          thisStory.sums[chapterIndex] += Number(item.duration);
+
+        }
+        */
+      }
+
+
+      /**
+       * Update Story series
+       */
+
+
       chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
       chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
       chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
@@ -3232,40 +3296,6 @@ public toggleTips = (item: any): void => {
       let keyChange = camelize(item.keyChange, true);
       chartPreData.keyChanges = updateThisSeries(chartPreData.keyChanges, dur, keyChange);
 
-      /**
-       * Add Story data 
-       */
-
-      if (item.story != null && item.story.length > 0 ) {
-        if ( chartPreData.stories.titles.indexOf(item.story) < 0) { 
-          chartPreData.stories.titles.push(item.story);
-          chartPreData.stories.stories.push(
-            createISeries(item.story , '', 0,0,0),
-          );
-        }
-
-        let storyIndex = chartPreData.stories.titles.indexOf(item.story);
-        let thisStory = chartPreData.stories.stories[storyIndex];
-
-        thisStory.totalC ++;
-        thisStory.totalS += Number(item.duration);
-
-        //Automatically assign generic chapter if no is given
-        if (item.chapter == null || item.chapter.length == 0 ) { item.chapter = defaultChapter; }
-
-        if (item.chapter != null && item.chapter.length > 0 ) {
-          if ( thisStory.labels.indexOf(item.chapter) < 0) { 
-            thisStory.labels.push(item.chapter);
-            thisStory.counts.push(0);
-            thisStory.sums.push(0);
-           }
-          let chapterIndex = thisStory.labels.indexOf(item.chapter);
-          let thisChapter = thisStory.labels[chapterIndex];
-          thisStory.counts[chapterIndex] ++;
-          thisStory.sums[chapterIndex] += Number(item.duration);
-
-        }
-      }
 
     }
 
