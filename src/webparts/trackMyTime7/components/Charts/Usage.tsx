@@ -94,7 +94,7 @@ public constructor(props:IChartUsageProps){
     public render(): React.ReactElement<IChartUsageProps> {
 
         if ( this.props.allLoaded && this.props.showCharts ) {
-            console.log('chartsClass.tsx', this.props, this.state);
+            console.log('Usage.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
     

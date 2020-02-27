@@ -70,13 +70,13 @@ public constructor(props:IChartSnapshotProps){
  */
 
   public componentDidUpdate(prevProps){
-
-    let rebuildTiles = false;
-    /*
-    if (rebuildTiles === true) {
-      this._updateStateOnPropsChange({});
+/*
+    if( this.props.chartData !== prevProps.chartData ) // Check if it's a new user, you can also use some unique property, like the ID  (this.props.user.id !== prevProps.user.id)
+    {
+        console.log('Snapshot prevProps:', prevProps);
+        console.log('Snapshot newProps:', this.props);
     }
-    */
+*/
 
   }
 
@@ -93,8 +93,8 @@ public constructor(props:IChartSnapshotProps){
 
     public render(): React.ReactElement<IChartSnapshotProps> {
 
-        if ( this.props.allLoaded && this.props.showCharts ) {
-            console.log('chartsClass.tsx', this.props, this.state);
+        if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
+            console.log('Snapshot.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 

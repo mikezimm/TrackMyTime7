@@ -94,7 +94,7 @@ public constructor(props:IChartLongTermProps){
     public render(): React.ReactElement<IChartLongTermProps> {
 
         if ( this.props.allLoaded && this.props.showCharts ) {
-            console.log('chartsClass.tsx', this.props, this.state);
+            console.log('Longterm.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 

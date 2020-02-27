@@ -819,7 +819,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       <ChartsPage 
         allLoaded={ this.state.allLoaded }
         showCharts={ this.state.showCharts }
-        chartData={ this.state.chartData }
+        entries= {this.state.entries}
+        defaultStory="None"
+        today={this.props.today}
+
       ></ChartsPage>
     </div>;
 

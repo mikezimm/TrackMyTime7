@@ -94,7 +94,7 @@ public constructor(props:IChartStoryProps){
     public render(): React.ReactElement<IChartStoryProps> {
 
         if ( this.props.allLoaded && this.props.showCharts ) {
-            console.log('chartsClass.tsx', this.props, this.state);
+            console.log('Story.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 

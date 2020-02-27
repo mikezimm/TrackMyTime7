@@ -1,12 +1,20 @@
 import * as React from 'react';
 
-import { IChartData, IChartSeries} from '../ITrackMyTime7State';
+import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo } from '../ITrackMyTime7State';
+
+import { ITheTime } from '../../../../services/dateServices';
+
+import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
+    getNicks, makeTheTimeObject, getTimeDelta, monthStr3, weekday3} from '../../../../services/dateServices';
+
+import { camelize, } from '../../../../services/stringServices';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
+import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 
 import styles from '../TrackMyTime7.module.scss';
 
@@ -17,23 +25,33 @@ import Snapshot from './Snapshot';
 import Story from './Story';
 import Usage from './Usage';
 
-
-
-
 import * as choiceBuilders from '../fields/choiceFieldBuilder';
 
+export interface ISelectedDropDown { key: string | number | undefined; text: string; }
+
 export interface IChartPageProps {
-    chartData: IChartData;
     showCharts: boolean;
     allLoaded: boolean;
+    entries: IEntryInfo;
+    defaultStory?: string;
+    today: ITheTime;
 }
 
 export interface IChartPageState {
     selectedChoice: string;
     lastChoice: string;
+    selectedStory: ISelectedDropDown;
+    chartData?: IChartData;
+    processedChartData: boolean;
 }
 
+const defStory: ISelectedDropDown = {
+    key: "None",
+    text: "None",
+};
+
 export default class ChartsPage extends React.Component<IChartPageProps, IChartPageState> {
+
 
 
 /***
@@ -52,7 +70,9 @@ public constructor(props:IChartPageProps){
     this.state = { 
         selectedChoice: 'snapShot',
         lastChoice: '',
-
+        selectedStory: this.props.defaultStory != null ? {key: this.props.defaultStory, text: this.props.defaultStory}  : defStory ,
+        chartData: null,
+        processedChartData: false,
     };
 
     // because our event handler needs access to the component, bind 
@@ -60,12 +80,18 @@ public constructor(props:IChartPageProps){
     //  components properties (this.props)... otherwise "this" is undefined
     // this.onLinkClick = this.onLinkClick.bind(this);
 
-    
+    console.log('chartsPage Props:', this.props);
   }
 
 
   public componentDidMount() {
-    
+      /*
+    if (this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
+        console.log('chartsPage Props:', this.props);
+        this.processChartData('all',['what??'],10,'string');
+    }
+      */
+
   }
 
 
@@ -82,7 +108,11 @@ public constructor(props:IChartPageProps){
 
   public componentDidUpdate(prevProps){
 
-    let rebuildTiles = false;
+    //let rebuildTiles = false;
+    if ( this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
+        console.log('chartsPage Props:', this.props);
+        this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
+    }
     /*
     if (rebuildTiles === true) {
       this._updateStateOnPropsChange({});
@@ -104,45 +134,90 @@ public constructor(props:IChartPageProps){
 
     public render(): React.ReactElement<IChartPageProps> {
 
-        if ( this.props.allLoaded && this.props.showCharts ) {
+        if ( this.props.allLoaded && this.props.showCharts && this.state.processedChartData === true ) {
             console.log('chartsClass.tsx', this.props, this.state);
+
+            const dropdownStyles: Partial<IDropdownStyles> = {
+                dropdown: { width: 300 }
+              };
+
+            /*
+                const options: IDropdownOption[] = [
+                { key: 'fruitsHeader', text: 'Fruits', itemType: DropdownMenuItemType.Header },
+                { key: 'apple', text: 'Apple' },
+                { key: 'banana', text: 'Banana' },
+                { key: 'orange', text: 'Orange', disabled: true },
+                { key: 'grape', text: 'Grape' },
+                { key: 'divider_1', text: '-', itemType: DropdownMenuItemType.Divider },
+                { key: 'vegetablesHeader', text: 'Vegetables', itemType: DropdownMenuItemType.Header },
+                { key: 'broccoli', text: 'Broccoli' },
+                { key: 'carrot', text: 'Carrot' },
+                { key: 'lettuce', text: 'Lettuce' }
+                ];
+            */
+
+            let options: IDropdownOption[] = this.state.chartData == null ? null : 
+                this.state.chartData.stories.titles.map(val => {
+                    return {
+                        key: val,
+                        text: val,
+                    };
+                });
+            
+
+            options.unshift(defStory);
+
+            let storyDropdown = options == null ? null : <Dropdown 
+                placeholder="Select a Story" 
+                label="" 
+                selectedKey={this.state.selectedStory ? this.state.selectedStory.key : undefined}
+                onChange={this._onStoryChange}
+                options={options} 
+                styles={dropdownStyles}
+             />;
 
             let pageChoices = choiceBuilders.creatChartChoices(this.state.selectedChoice, this._updateChoice.bind(this));
 
             let thisPage = null;
             
-            if ( this.state.selectedChoice === 'longTerm' ) {
-                thisPage = <div><LongTerm 
-                    allLoaded={ this.props.allLoaded }
-                    showCharts={ this.props.showCharts }
-                    chartData={ this.props.chartData }
-                ></LongTerm></div>;
-            } else if ( this.state.selectedChoice === 'snapShot' ) {
-                thisPage = <div><Snapshot 
-                    allLoaded={ this.props.allLoaded }
-                    showCharts={ this.props.showCharts }
-                    chartData={ this.props.chartData }
-                ></Snapshot></div>;
-            } else if ( this.state.selectedChoice === 'story' ) {
-                thisPage = <div><Story 
-                    allLoaded={ this.props.allLoaded }
-                    showCharts={ this.props.showCharts }
-                    chartData={ this.props.chartData }
-                ></Story></div>;
-            } else if ( this.state.selectedChoice === 'usage' ) {
-                thisPage = <div><Usage 
-                    allLoaded={ this.props.allLoaded }
-                    showCharts={ this.props.showCharts }
-                    chartData={ this.props.chartData }
-                ></Usage></div>;
+            if ( this.state.chartData != null ){
+                if ( this.state.selectedChoice === 'longTerm' ) {
+                    thisPage = <div><LongTerm 
+                        allLoaded={ this.props.allLoaded }
+                        showCharts={ this.props.showCharts }
+                        chartData={ this.state.chartData }
+                    ></LongTerm></div>;
+                } else if ( this.state.selectedChoice === 'snapShot' ) {
+                    thisPage = <div><Snapshot 
+                        allLoaded={ this.props.allLoaded }
+                        showCharts={ this.props.showCharts }
+                        chartData={ this.state.chartData }
+                    ></Snapshot></div>;
+                } else if ( this.state.selectedChoice === 'story' ) {
+                    thisPage = <div><Story 
+                        allLoaded={ this.props.allLoaded }
+                        showCharts={ this.props.showCharts }
+                        chartData={ this.state.chartData }
+                    ></Story></div>;
+                } else if ( this.state.selectedChoice === 'usage' ) {
+                    thisPage = <div><Usage 
+                        allLoaded={ this.props.allLoaded }
+                        showCharts={ this.props.showCharts }
+                        chartData={ this.state.chartData }
+                    ></Usage></div>;
+                }
             }
+
 
             return (
                 <div className={ styles.infoPane }>
                     { pageChoices }
+                    { storyDropdown }
                     { thisPage }
                 </div>
             );
+
+
             
         } else {
             //console.log('chartsClass.tsx return null');
@@ -151,6 +226,12 @@ public constructor(props:IChartPageProps){
 
     }   //End Public Render
 
+    private _onStoryChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+        console.log(`Selection change: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
+
+        this.processChartData('all',['what??'],10,'string',item, null);
+
+      }
 
 /***
  *         db    db d8888b.       .o88b. db   db  .d88b.  d888888b  .o88b. d88888b 
@@ -175,4 +256,586 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
      });
   }
 
+
+
+/***
+ *          .o88b. db   db  .d8b.  d8888b. d888888b      d8888b.  .d8b.  d888888b  .d8b.  
+ *         d8P  Y8 88   88 d8' `8b 88  `8D `~~88~~'      88  `8D d8' `8b `~~88~~' d8' `8b 
+ *         8P      88ooo88 88ooo88 88oobY'    88         88   88 88ooo88    88    88ooo88 
+ *         8b      88~~~88 88~~~88 88`8b      88         88   88 88~~~88    88    88~~~88 
+ *         Y8b  d8 88   88 88   88 88 `88.    88         88  .8D 88   88    88    88   88 
+ *          `Y88P' YP   YP YP   YP 88   YD    YP         Y8888D' YP   YP    YP    YP   YP 
+ *                                                                                        
+ *                                                                                        
+ */
+
+
+ /**
+  * 
+  * @param who  Filter for who's data to read in
+  * @param what TBD but goal would be like Categories of some sort
+  * @param when TBD but Time Period
+  * @param scale TBD but would be like maybe Days, Weeks, Months etc..
+  * @param isSum Default is to count.  If True, it sums values
+  */
+  //processChartData('all',['catA','catB'])
+  private processChartData(who: string, what: string[], when: number, scale: string, story: ISelectedDropDown, chapter: ISelectedDropDown){
+
+    let hideEmpty = false;  //Will include data points with no data
+
+    let startTimer = new Date().getTime();
+
+    function createEmptyArray(min: number, max: number, stepInc: number){
+      let arr = [];
+      let goUp = min < max ? true : false;
+      if (min !== max) {
+        for (let step = min; goUp ? step <= max : step >= max; step = step + stepInc) {
+          // Runs 5 times, with values of step 0 through 4.
+          arr[step] = null;
+          arr[step] = null;
+          arr[step] = null;
+        }
+      }
+      return arr;
+    }
+
+    function createISeries(title, axisTitle: string, min: number, max: number, stepInc: number): IChartSeries {
+      return {
+        title: title,
+        axisTitle: axisTitle,
+        labels: createEmptyArray(min,max,stepInc),
+        sums: createEmptyArray(min,max,stepInc),
+        counts:createEmptyArray(min,max,stepInc),
+        changes: [],
+        changeNotes: [],
+        warnNotes: [],
+        errorNotes: [],
+        totalS: 0,
+        totalC: 0,
+      };
+    }
+
+    /**
+     * 
+     * @param seriesData 
+     * @param dur 
+     * @param thisKey was original type number before rebuilding for using categories instead of just numbers.
+     */
+//    function updateThisSeries(seriesData : IChartSeries,  dur: number,  thisKey: number ) {
+    function updateThisSeries(seriesData : IChartSeries,  dur: number,  thisKey ) {
+      //let weekData = chartPreData.thisWeek[0];
+      //console.log('yearData',weekData);
+      if ( seriesData.sums[thisKey] == null ) { 
+        seriesData.sums[thisKey] = 0; 
+        seriesData.counts[thisKey] = 0; 
+      }
+      seriesData.sums[thisKey] += dur;
+      seriesData.totalS += dur;
+      seriesData.counts[thisKey] ++;
+      seriesData.totalC ++;
+
+      return seriesData;
+    }
+
+    function createStories(){
+      let emptyStories: IStories = {
+        stories: [],
+        titles: [],
+      };
+      return emptyStories;
+    }
+
+    let sourceData: ITimeEntry[] = this.props.entries[who];
+
+    let daysSinceMonthStart =this.props.today.daysSinceMonthStart;
+    let daysSinceNewYear =this.props.today.daysSinceNewYear;
+    let daysSinceSOW =this.props.today.daysSinceMon;
+
+    let chartPreData: IChartData = {
+      filter: 'Results for ' + who,
+      thisYear: [
+        createISeries(' This Year (mo)' , '', hideEmpty ? 0 : 0 , hideEmpty ? 0 : this.props.today.month , 1),
+        createISeries('This Year (wk)' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
+      thisMonth: [createISeries('This Month' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.date , 1)],
+      thisWeek: [createISeries('This Week' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
+      allDays: createISeries('All Days' , 'Days ago', hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
+      allWeeks: createISeries('All Weeks' , 'Weeks ago', hideEmpty ? daysSinceSOW : daysSinceSOW , hideEmpty ? daysSinceSOW : 365 , 7),
+      allMonths: createISeries('All Months' , 'Months ago', hideEmpty ? daysSinceMonthStart : daysSinceMonthStart , hideEmpty ? daysSinceMonthStart : 365 , 31), 
+      allYears: createISeries('All Years' , 'Years ago', hideEmpty ? daysSinceNewYear : daysSinceNewYear , hideEmpty ? daysSinceNewYear : 365*4 , 365), 
+      categories: [createISeries('Category1' , '', 0,0,0), createISeries('Category2' , '' , 0,0,0)], 
+      location: createISeries('Location' , '', 0,0,0), 
+      contemp: createISeries('Contemporanious' , '', 0,0,0),
+      entryType: createISeries('Entry Mode' , '', 0,0,0),     
+      keyChanges: createISeries('Key changes' , '', 0,0,0),     
+      stories: createStories(), 
+
+    };
+
+    let unknownCatLabel = 'Others';
+    let removeTheseCats = 'removeEmpty';
+    let defaultChapter = 'Unclassified';
+    let maxCats = 5;
+    let consolidatedCatLabel = 'Others';
+    let identifyOtherLabels = false; //May be used later to add change or warning notes to series.
+    if ( consolidatedCatLabel === unknownCatLabel ) {
+      identifyOtherLabels = true;
+      unknownCatLabel += '^';
+      consolidatedCatLabel += '*';
+    }
+
+    let chartDataLabel: any [] = []; 
+    let runningTotal: number = 0;
+
+    for ( let item of sourceData) {
+      //
+      let dur = Number(item.duration); //Hours per entry
+      let theTime = item.thisTimeObj;
+      runningTotal += dur;
+      //console.log('theTime:',item.id,runningTotal, item.startTime,theTime.year,theTime.month,theTime.week,theTime.date,theTime.day,theTime.hour,theTime.isThisYear,theTime.isThisMonth,theTime.isThisWeek,theTime.isToday);
+
+
+      /**
+       * Add Story data 
+       */
+
+      if (item.story != null && item.story.length > 0 ) {
+        if ( chartPreData.stories.titles.indexOf(item.story) < 0) { 
+          chartPreData.stories.titles.push(item.story);
+          chartPreData.stories.stories.push(
+            createISeries(item.story , '', 0,0,0),
+          );
+        }
+
+        let storyIndex = chartPreData.stories.titles.indexOf(item.story);
+        let thisStory = chartPreData.stories.stories[storyIndex];
+
+        //thisStory.totalC ++;
+        //thisStory.totalS += Number(item.duration);
+
+        //Automatically assign generic chapter if no is given
+        if (item.chapter == null || item.chapter.length == 0 ) { item.chapter = defaultChapter; }
+
+        if (item.chapter != null && item.chapter.length > 0 ) {
+          if ( thisStory.labels.indexOf(item.chapter) < 0) { 
+            thisStory.labels.push(item.chapter);
+            thisStory.counts.push(0);
+            thisStory.sums.push(0);
+           }
+          //let chapterIndex = thisStory.labels.indexOf(item.chapter);
+          //let thisChapter = thisStory.labels[chapterIndex];
+          //thisStory.counts[chapterIndex] ++;
+          //thisStory.sums[chapterIndex] += Number(item.duration);
+
+        }
+      }
+
+      /**
+       * Start filtering the "What data here"
+       */
+
+
+      if (item.story != null && item.story.length > 0 ) {
+
+        let storyIndex = chartPreData.stories.titles.indexOf(item.story);
+        let thisStory = chartPreData.stories.stories[storyIndex];
+        let chapterIndex = thisStory.labels.indexOf(item.chapter);
+        let thisChapter = thisStory.labels[chapterIndex];
+
+        thisStory = updateThisSeries(thisStory, dur, chapterIndex);
+        /*
+        thisStory.totalC ++;
+        thisStory.totalS += Number(item.duration);
+
+        if (item.chapter != null && item.chapter.length > 0 ) {
+
+          let chapterIndex = thisStory.labels.indexOf(item.chapter);
+          let thisChapter = thisStory.labels[chapterIndex];
+          thisStory.counts[chapterIndex] ++;
+          thisStory.sums[chapterIndex] += Number(item.duration);
+
+        }
+        */
+      }
+
+
+      /**
+       * Update Story series
+       */
+
+       if ( story == null || defStory.text === story.text || item.story === story.text ) {
+
+            chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
+            chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
+            chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
+            chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
+    
+            if (item.thisTimeObj.isThisYear) {
+            chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
+            chartPreData.thisYear[1] = updateThisSeries(chartPreData.thisYear[1], dur, item.thisTimeObj.week);
+    
+            }
+    
+            if (item.thisTimeObj.isThisMonth) { 
+            chartPreData.thisMonth[0] = updateThisSeries(chartPreData.thisMonth[0], dur, item.thisTimeObj.date);  }
+    
+            if (item.thisTimeObj.isThisWeek) { 
+            chartPreData.thisWeek[0] = updateThisSeries(chartPreData.thisWeek[0], dur, item.thisTimeObj.day);  }
+            
+            /**
+             * This section will allow removing uncategorized data from the chart results
+             * unknownCatLabel is the label you can bucket all empty category items into.
+             * removeTheseCats allows you to remove specific categories from the chart results.
+             * 
+             * set unknownCatLabel to be "Other" to see it included.
+             * set unknownCatLabel to be the same value as removeTheseCats to remove that item from the dataset
+             * 
+             * By default let removeTheseCats = 'removeEmpty'; unless you change it to something else.
+             * 
+             */
+            let cat1 = item.category1 == null || item.category1[0] == null || item.category1[0] == '' ? unknownCatLabel : item.category1[0];
+            if ( cat1 !== removeTheseCats ) { chartPreData.categories[0] = updateThisSeries(chartPreData.categories[0], dur, cat1); 
+            } else { 
+            if ( chartPreData.categories[0].title.lastIndexOf('^') !== chartPreData.categories[0].title.length -1 ) { chartPreData.categories[0].title += ' ^'; }
+            }
+    
+            let cat2 = item.category2 == null || item.category2[0] == null || item.category2[0] == '' ? unknownCatLabel : item.category2[0];
+            if ( cat2 !== removeTheseCats ) { chartPreData.categories[1] = updateThisSeries(chartPreData.categories[1], dur, cat2); 
+            } else { 
+            if ( chartPreData.categories[1].title.lastIndexOf('^') !== chartPreData.categories[1].title.length -1 ) { chartPreData.categories[1].title += ' ^'; }
+            }
+    
+            let local = item.location == null || item.location == '' ? unknownCatLabel : item.location;
+            if ( local !== removeTheseCats ) { chartPreData.location = updateThisSeries(chartPreData.location, dur, local); 
+            } else { 
+            if ( chartPreData.location.title.lastIndexOf('^') !== chartPreData.location.title.length -1 ) { chartPreData.location.title += ' ^'; }
+            }
+    
+            let contemp = unknownCatLabel;
+            if ( contemp !== removeTheseCats ) { chartPreData.contemp = updateThisSeries(chartPreData.contemp, dur, contemp);
+            } else { 
+            if ( chartPreData.contemp.title.lastIndexOf('^') !== chartPreData.contemp.title.length -1 ) { chartPreData.contemp.title += ' ^'; }
+            }
+    
+            let entryType = camelize(item.entryType, true);
+            chartPreData.entryType = updateThisSeries(chartPreData.entryType, dur, entryType);
+    
+            let keyChange = camelize(item.keyChange, true);
+            chartPreData.keyChanges = updateThisSeries(chartPreData.keyChanges, dur, keyChange);
+       }
+
+
+    }
+
+    function removeEmptyFromEnd(series: IChartSeries, base : number, step: number) {
+
+    
+      let lastIndex = null;
+      for (let i = series.sums.length -1 + base; i > 0; i = i - step) {
+        if (series.sums[i] !== null) {
+          lastIndex = i;
+          break;
+        }
+      }
+
+      if ( lastIndex + 1 < series.sums.length) { lastIndex ++ ; }
+      let smallerSums = series.sums.splice(0,lastIndex );
+      let smallerCounts = series.counts.splice(0,lastIndex);
+      let smallerLabels = series.labels.splice(0,lastIndex);
+
+      series.sums= smallerSums;
+      series.counts= smallerCounts;
+      series.labels= smallerLabels;
+      //console.log('lastIndex is: ',series, lastIndex);
+
+    }
+
+    removeEmptyFromEnd(chartPreData.allDays, 0, 1);
+    removeEmptyFromEnd(chartPreData.allWeeks, 0, 7);
+    removeEmptyFromEnd(chartPreData.allMonths, 0, 31);
+    removeEmptyFromEnd(chartPreData.allYears, 0, 365);
+    removeEmptyFromEnd(chartPreData.thisYear[0], 1, 1);
+    removeEmptyFromEnd(chartPreData.thisYear[1], 1, 1);
+    removeEmptyFromEnd(chartPreData.thisMonth[0], 1, 1);
+    removeEmptyFromEnd(chartPreData.thisWeek[0], 1, 1);
+
+/*
+*/
+
+    function addLabels(series: IChartSeries, labels: string, firstIndex: number) {
+
+      let useLabelString = labels.indexOf(';') > -1 ? true : false;
+      let labelArray = useLabelString ? labels.split(';'): [''];
+
+      //console.log('labelArray:', labelArray);
+      chartDataLabel = Object.keys(series['sums']);
+      //console.log('chartDataLabel',chartDataLabel);
+      let newSums : number[] = [];
+      let newCounts : number[] = [];
+      let newLabels : string[] = [];
+      for ( let itemL of chartDataLabel) {
+        let label = '';
+        if ( itemL != null ) {
+          if ( !useLabelString ) {
+            label = itemL.trim();
+          } else if ( firstIndex === 0) { //Make like days since number
+            label = (Number(itemL) + firstIndex).toString() ;
+          } else if (firstIndex < 4 ) { //This is a relative index
+            label = labelArray[Number(itemL) + firstIndex];
+          } else if ( firstIndex === 12) { //Make like month number
+            label = ("0" + itemL).slice(-2) ;
+          } else if ( firstIndex === 52) { //Make like week number
+            label = "w" + ("0" + itemL).slice(-2) ;
+          } else if ( firstIndex === 365) { //Make like days since number
+            label = ("0000" + itemL).slice(-4) ;
+          } else { //Must be an error but put the label as itself
+            console.log('unknown label conversion error:', series, labels,firstIndex);
+            label = itemL;
+          }
+          newSums.push(series.sums[itemL]);
+          newCounts.push(series.counts[itemL]);
+          newLabels.push(label);
+        }
+      }
+      series.labels = newLabels;
+      series.sums = newSums;
+      series.counts = newCounts;
+      return series;
+    }
+
+    chartPreData.allYears = addLabels(chartPreData.allYears,monthStr3['en-us'].join(';'),0); //Days of year
+    chartPreData.allMonths = addLabels(chartPreData.allMonths,monthStr3['en-us'].join(';'),0); //Days of year
+    chartPreData.allWeeks = addLabels(chartPreData.allWeeks,monthStr3['en-us'].join(';'),0); //Days of year
+    
+    chartPreData.allDays = addLabels(chartPreData.allDays,monthStr3['en-us'].join(';'),0); //Days of year
+
+    chartPreData.thisYear[0] = addLabels(chartPreData.thisYear[0],monthStr3['en-us'].join(';'),0); //Months of year
+    chartPreData.thisYear[1] = addLabels(chartPreData.thisYear[1],weekday3['en-us'].join(';'),52); // Week Numbers of Year
+    chartPreData.thisMonth[0] = addLabels(chartPreData.thisMonth[0],weekday3['en-us'].join(';'),12);  // Days of Month
+    chartPreData.thisWeek[0] = addLabels(chartPreData.thisWeek[0],weekday3['en-us'].join(';'),0);  // Days of the week
+
+    chartPreData.categories[0] = addLabels(chartPreData.categories[0],'',0);  // Category 1
+    chartPreData.categories[1] = addLabels(chartPreData.categories[1],'',0);  // Category 2
+    chartPreData.location = addLabels(chartPreData.location,'',0);  // Location
+    chartPreData.contemp = addLabels(chartPreData.contemp,'',0);  // Contemmporanious
+    chartPreData.entryType = addLabels(chartPreData.entryType,'',0);  // Entry Type
+
+    chartPreData.keyChanges = addLabels(chartPreData.keyChanges,'',0);  // keyChanges
+    
+
+    function scrubCategories(series: IChartSeries) {
+      let changeMap = [];
+      let changeNotes = [];
+      let warnNotes = [];
+      let removeSpaces=true;
+      let removeDashes=true;
+      let camelCase=false;
+      let allCaps = false;
+
+      let newLabels : string[] = [];
+      //let newUCLabels : string[] = []; //To compare to similar ones...
+      let newCount = -1;
+      for (let i in series.labels) {
+        let newLabel = series.labels[i] + '';
+
+        //https://stackoverflow.com/a/7151225/4210807 - remove white spaces from string
+        if ( camelCase ) { newLabel = camelize(newLabel, true); }
+        if ( removeDashes ) { newLabel = newLabel.replace(/-/g, ''); }
+        if ( removeSpaces ) { newLabel = newLabel.replace(/\s/g, ''); }
+        if ( allCaps ) { newLabel = newLabel.toUpperCase(); }
+        
+        let labelChanged = newLabel != series.labels[i] ? true : false;
+        let newLabelIndex = newLabels.indexOf(newLabel);
+
+        let similarTo = '';
+        if ( newLabelIndex < 0 ) { //Label is not in the finished array, add.
+
+          let similarToIndex = newLabels.map(
+
+            //Sample to convert to arrow function
+            //const sum1 = function(list, prop){ return list.reduce( function(a, b){ return a + b[prop];}, 0);}
+            //const sum2 = (list,prop) =>  { return list.reduce((a,b) => {return (a+ b[prop])}, 0);}
+            //prior to arrow function... was this:
+            //function(x){ return x.toUpperCase(); }
+
+            (x) => {return x.toUpperCase();} 
+            
+            ).indexOf(newLabel.toUpperCase()); //Check if this is similar to another existing label
+          newLabels.push(newLabel);
+          //newLabels.map(function(x){ return x.toUpperCase() }).indexOf(newLabel.toUpperCase());
+
+          if ( similarToIndex > -1 ) {
+            //newUCLabels.push(newLabel.toUpperCase());
+            similarTo = series.labels[i] + ' is similar to ' + newLabels[similarToIndex] + ' at item ' + i;
+            warnNotes.push(similarTo);
+          } else {
+            //Is not similar to anything
+          }
+          newCount ++;
+          newLabelIndex = newCount;
+          
+        }
+
+        changeMap.push([ i, series.labels[i], newLabelIndex, newLabel, labelChanged, similarTo ]);
+        if ( labelChanged ) { changeNotes.push(series.labels[i] + ' was consolidated into ' + newLabel); }
+
+      }
+
+      /*
+      console.log('newLabels',newLabels);
+      console.log('changeMap',changeMap);
+      console.log('changeNotes',changeNotes);
+      console.log('warnNotes',warnNotes);
+*/
+      //Now re-group similar categories
+
+      let newSums = [];
+      let newCounts = [];
+
+      for (let j in changeMap) {
+        let isRow = changeMap[j][2]; //Get new array index
+        newSums[isRow] = newSums[isRow] == null ? series.sums[j] : newSums[isRow] + series.sums[j] ;
+        newCounts[isRow] = newCounts[isRow] == null ? series.counts[j] : newCounts[isRow] + series.counts[j] ;
+      }
+
+      let checkSums = newSums.reduce(
+        //B4 Arrow Function
+        //function(a, b){ return a + b; }
+        (a, b) => { return a + b; }
+        , 0);
+      let checkCounts = newCounts.reduce(
+        //B4 Arrow Function
+        //function(a, b){ return a + b; }
+        (a, b) => { return a + b; }
+        , 0);
+
+      let err = '';
+      if (checkSums !== series.totalS ) { 
+        err = 'Err reducing Category SUMs: ' + series.totalS + ' <> ' + checkSums;
+        series.errorNotes.push(err);
+        console.log(err);
+      }
+      if (checkCounts !== series.totalC ) { 
+        err = 'Err reducing Category COUNTs: ' + series.totalC + ' <> ' + checkCounts;
+        series.errorNotes.push(err);
+        console.log(err);
+      }
+
+      //reduce decimal places of results for label purposes
+      //NOTE This map will convert numbers to text
+      //newSums = newSums.map(thisSum => thisSum.toFixed(2));
+
+      series.labels = newLabels;
+      series.counts = newCounts;
+      series.sums = newSums;
+      series.changes = changeMap;
+      series.changeNotes = changeNotes;
+      series.warnNotes = warnNotes;
+
+      return series;
+    }
+
+    //Only scrub category series... NOT Dates or periods because those are not pure number indexes
+    chartPreData.categories[0] = scrubCategories(chartPreData.categories[0]);
+    chartPreData.categories[1] = scrubCategories(chartPreData.categories[1]);
+    chartPreData.location = scrubCategories(chartPreData.location);
+    chartPreData.contemp = scrubCategories(chartPreData.contemp);
+    chartPreData.entryType = scrubCategories(chartPreData.entryType);
+    chartPreData.keyChanges = scrubCategories(chartPreData.keyChanges);
+    
+
+    function consolidateCategories(series: IChartSeries, maxCatsX: number, otherLabel: string) {
+
+      /**
+       * Sort biggest to smallest
+       */
+      let tempValues = series.sums.map( e => e);
+      tempValues = tempValues.sort((a, b) => b - a);
+      /**
+       * Create new array consolidating all smaller ones into one label
+      */
+      let newLabels: string[] = [], newCounts: number[] = [], newSums = [];
+      let newIndex = -1;
+      let sumCheck = 0;
+      let consolidatedSum = 0;
+
+      for ( let thisSum of tempValues ) {
+        let origIndex = series.sums.indexOf(thisSum);
+        
+        //NOTE This map will convert numbers to text
+        //newSums = newSums.map(thisSum => thisSum.toFixed(2));
+
+        if ( newIndex < maxCatsX ) { // Add to newArrays by itself
+          newLabels.push(series.labels[origIndex]);
+          newCounts.push(series.counts[origIndex]);
+          newSums.push(series.sums[origIndex]);
+          sumCheck += series.sums[origIndex];
+          newIndex ++;
+
+        } else { //Consolidate to other category
+          if (newIndex === maxCatsX ) { 
+            newLabels[newIndex] = otherLabel;
+            consolidatedSum  += newSums[newIndex];
+           }
+          
+          newCounts[newIndex] += series.counts[origIndex];
+          newSums[newIndex] += series.sums[origIndex];
+          consolidatedSum  += series.sums[origIndex];
+          sumCheck += series.sums[origIndex];
+        }
+
+      }
+
+      newSums = newSums.map( v => v.toFixed(2) );
+      /*
+      console.log('newLabels', newLabels);
+      console.log('newSums', newSums);
+      console.log('newCounts', newCounts);
+      console.log('sumCheck', sumCheck, series.totalS);
+      */
+
+      /**
+       * Add condensed arrays back into object
+       */
+      series.changeNotes.push('Recategorized ' + consolidatedSum + ' hours into ' + otherLabel );
+      series.sums = newSums;
+      series.labels = newLabels;
+      series.counts = newCounts;
+
+      return series;
+    }
+
+    for (let s of chartPreData.stories.stories) {
+      s = consolidateCategories(s, 100, defaultChapter + '^');
+    }
+
+    chartPreData.categories[0] = consolidateCategories(chartPreData.categories[0], maxCats, consolidatedCatLabel);
+    chartPreData.categories[1] = consolidateCategories(chartPreData.categories[1], maxCats, consolidatedCatLabel);
+    chartPreData.location = consolidateCategories(chartPreData.location, maxCats, consolidatedCatLabel);
+    chartPreData.contemp = consolidateCategories(chartPreData.contemp, maxCats, consolidatedCatLabel);
+    chartPreData.entryType = consolidateCategories(chartPreData.entryType, maxCats, consolidatedCatLabel);
+    chartPreData.keyChanges = consolidateCategories(chartPreData.keyChanges, maxCats, consolidatedCatLabel);
+
+     //console.log('chartPreData',chartPreData);
+  //   console.log('chartDataVal',chartDataVal);
+
+    this.setState({ 
+      selectedStory: story,
+      chartData: chartPreData,
+      processedChartData: true,
+    //  chartData: chartData,
+     });  
+
+  //  console.log('chartData', chartData);
+
+    let endTimer = new Date().getTime();
+
+    let delta = endTimer - startTimer;
+    console.log('Time to process chart data: ' + delta );
+
+    return;
+
+  }
+
+
 }
+
