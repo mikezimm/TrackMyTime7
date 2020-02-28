@@ -22,6 +22,7 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
 import InfoPage from './HelpInfo/infoPages';
+import { ISelectedStory, defStory } from './Charts/chartsPage';
 
 
 import * as strings from 'TrackMyTime7WebPartStrings';
@@ -34,7 +35,7 @@ import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeS
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
         IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
         IChartData, IChartSeries,
-        IMyIcons, IMyFonts, IProjectOptions } from './ITrackMyTime7State';
+        IMyIcons, IMyFonts, IProjectOptions, IStory, IStories } from './ITrackMyTime7State';
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
@@ -222,7 +223,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     timeEntryTBD3:'',
     location:this.props.defaultLocation,
     settings:'',
-
     };
 
     return form;
@@ -332,6 +332,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       showCharts: false,
       chartData: null,
+      selectedStory: defStory,
 
       fields: buildFormFields(this.props, this.state),
 
@@ -416,6 +417,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this.clearMyInput = this.clearMyInput.bind(this);
 
     this._updateComments = this._updateComments.bind(this);
+    this._updateStory = this._updateStory.bind(this);
 
     
   }
@@ -588,15 +590,42 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       hoursSinceLastTime = getTimeDelta( this.state.lastEndTime.theTime, new Date() , 'hours');
     }
 
-    let isSaveDisabled = false;
+    let isSaveDisabledTime = false;
+    let isSaveDisabledFields = false;
+    let isSaveButtonDisabled = false;
+    
     if ( this.state.currentTimePicker === 'slider' ) {
-      if ( this.state.timeSliderValue == 0 ) { isSaveDisabled = true; }
+      if ( this.state.timeSliderValue == 0 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
 
       // Also need to add if the slider would put the start time before the last end time.
     } else if ( this.state.currentTimePicker === 'sinceLast' ) {
-      if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabled = true; }
+      if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
 
     } // else if  -- Need to add logic when Manual and days not filled out
+
+    if ( isSaveButtonDisabled === false ) {
+      if ( this.state.fields.ProjectID1.required ) {
+        if ( this.state.formEntry.projectID1.value === "*" || this.state.formEntry.projectID1.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == '' ) {
+          isSaveButtonDisabled = true;
+        }
+      }
+      if ( this.state.fields.ProjectID2.required ) {
+        if ( this.state.formEntry.projectID2.value === "*" || this.state.formEntry.projectID2.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == ''  ) {
+          isSaveButtonDisabled = true;
+        }
+      }
+      if ( this.state.fields.Category1.required ) {
+        if ( this.state.formEntry.category1 === ["*"] || this.state.formEntry.category1 == null  || this.state.formEntry.category1[0].replace(' ','') == ''  ) {
+          isSaveButtonDisabled = true;
+        }
+      }
+      if ( this.state.fields.Category2.required ) {
+        if ( this.state.formEntry.category2=== ["*"] || this.state.formEntry.projectID2 == null  || this.state.formEntry.category2[0].replace(' ','') == ''  ) {
+          isSaveButtonDisabled = true;
+        }
+      }
+    }
+
 
     let entryOptions = choiceBuilders.creatEntryTypeChoices(this.state.currentTimePicker, this._updateEntryType.bind(this));
     let theTime;
@@ -607,10 +636,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if (this.state.timeTrackerLoadStatus === "Complete") {
       if (this.state.currentTimePicker === 'sinceLast') {
 
-        theTime = <div className={( isSaveDisabled ? styles.timeError : styles.timeInPast )}>
+        theTime = <div className={( isSaveDisabledTime ? styles.timeError : styles.timeInPast )}>
           From: { getDayTimeToMinutes(this.state.lastEndTime.theTime) } until NOW<br/>
-          {( isSaveDisabled ? <div>Is to far in the past.</div> : "" )}
-          {( isSaveDisabled ? <div>Use Slider or Manual Mode to save time.</div> : "" )}
+          {( isSaveDisabledTime ? <div>Is to far in the past.</div> : "" )}
+          {( isSaveDisabledTime ? <div>Use Slider or Manual Mode to save time.</div> : "" )}
           </div>; 
 
       } else if  (this.state.currentTimePicker === 'slider' ) 
@@ -734,7 +763,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         secondary: "Press to clear form",
         buttonOnClick: this.clearMyInput.bind(this),
       },      {
-        disabled: isSaveDisabled,  
+        disabled: isSaveButtonDisabled,  
         checked: true, 
         primary: true,
         label: "Save item",
@@ -752,12 +781,12 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     </div>;
      
     let timeSlider = isSliderEntry ? sliderBuilders.createSlider(this.props,this.state, this._updateTimeSlider.bind(this)) : '';
-    let comments = formBuilders.createThisField(this.props,this.state, this.state.fields.Comments, isSaveDisabled, this._updateComments.bind(this));
-    let projectTitle = formBuilders.createThisField(this.props,this.state,this.state.fields.Title, isSaveDisabled,  this._updateProjectTitle.bind(this));
-    let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabled,  this._updateProjectID1.bind(this));
-    let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabled,  this._updateProjectID2.bind(this));
+    let comments = formBuilders.createThisField(this.props,this.state, this.state.fields.Comments, isSaveDisabledFields, this._updateComments.bind(this));
+    let projectTitle = formBuilders.createThisField(this.props,this.state,this.state.fields.Title, isSaveDisabledFields,  this._updateProjectTitle.bind(this));
+    let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabledFields,  this._updateProjectID1.bind(this));
+    let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabledFields,  this._updateProjectID2.bind(this));
 
-    let activity = formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabled,  this._updateActivity.bind(this));
+    let activity = formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
 
     let startDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.Start, false, this._updateStart.bind(this)) : '';
     let endDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.End, false, this._updateEnd.bind(this)) : '';
@@ -793,7 +822,12 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       <ChartsPage 
         allLoaded={ this.state.allLoaded }
         showCharts={ this.state.showCharts }
-        chartData={ this.state.chartData }
+        entries= {this.state.entries}
+        defaultStory="None"
+        today={this.props.today}
+        selectedStory = {this.state.selectedStory}
+        _updateStory={this._updateStory.bind(this)}
+
       ></ChartsPage>
     </div>;
 
@@ -909,15 +943,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if (event) { event.preventDefault(); }
 
     if (items.length === 0 ) {
+
       //Only return here if the lastTrackedClick was not a project.
       //The reasoning logic is because if the last click was a project, and the length is 0, then it was "unselected"
       //And instead of just returning on unselect, we need to handle it and update the state.
       //This does not work yet... I have to see what's causing the other render.
       //if (this.state.lastTrackedClick.indexOf('project') < 0 ) { return;  }
-
+      console.log('_getSelectedProject:  ITEMS.LENGTH===0');
       return;
     }
-
+    console.log('_getSelectedProject:  ITEMS.LENGTH <> 0');
     console.log('Selected items:', items);
     
     let item : IProject; // = this.state.projects.newFiltered[0];
@@ -979,7 +1014,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       selectedProjectIndex : selectedProjectIndex,
       lastSelectedProjectIndex: this.state.selectedProjectIndex,
       lastTrackedClick: 'project ' + formEntry.titleProject,
-     });  
+     });
 
   }
 
@@ -1122,7 +1157,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private _updateProjectID1(newValue: string){
     let formEntry = this.state.formEntry;
     formEntry.projectID1.value = newValue;
-    this.setState({ formEntry:formEntry, blinkOnProject: 0, });
+    this.setState({ formEntry:formEntry, blinkOnProject: 0 });
   }
 
   private _updateProjectID2(newValue: string){
@@ -1634,7 +1669,36 @@ public toggleTips = (item: any): void => {
    */
   public trackMyTime = () : void => {
     //alert('trackMyTime');
-    this.saveMyTime (this.state.formEntry , 'master');
+
+      let saveError = '';
+
+      if ( this.state.fields.ProjectID1.required ) {
+        if ( this.state.formEntry.projectID1.value === "*" || this.state.formEntry.projectID1.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == '' ) {
+          saveError += 'Project ID1 ';
+        }
+      }
+      if ( this.state.fields.ProjectID2.required ) {
+        if ( this.state.formEntry.projectID2.value === "*" || this.state.formEntry.projectID2.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == ''  ) {
+          saveError += 'Project ID2 ';
+        }
+      }
+      if ( this.state.fields.Category1.required ) {
+        if ( this.state.formEntry.category1 === ["*"] || this.state.formEntry.category1 == null  || this.state.formEntry.category1[0].replace(' ','') == ''  ) {
+          saveError += 'Category1 ';
+        }
+      }
+      if ( this.state.fields.Category2.required ) {
+        if ( this.state.formEntry.category2=== ["*"] || this.state.formEntry.projectID2 == null  || this.state.formEntry.category2[0].replace(' ','') == ''  ) {
+          saveError += 'Category2 ';
+        }
+      }
+
+      if (saveError.length > 0 ) {
+        alert('Please enter value in these fields before saving: ' +  saveError);
+        return;
+      } else {
+        this.saveMyTime (this.state.formEntry , 'master');
+      }
 
   }
 
@@ -1642,6 +1706,13 @@ public toggleTips = (item: any): void => {
     //alert('trackMyTime');
     this.saveMyTime (this.state.formEntry , 'master');
 
+  }
+
+  public _updateStory = (selectedStory: ISelectedStory) : void => {
+    
+    this.setState({  
+      selectedStory: selectedStory,
+    });
   }
 
   public clearMyInput = () : void => {
@@ -1933,7 +2004,7 @@ public toggleTips = (item: any): void => {
     projectWeb.lists.getByTitle(useProjectList).items
     .select(selectCols).expand(expandThese).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
     .then((response) => {
-      console.log('useProjectList', response);
+      //console.log('useProjectList', response);
       //console.log('fetched Project Info:', response);
       trackMyProjectsInfo.projectData = response.map((p) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
@@ -1969,7 +2040,7 @@ public toggleTips = (item: any): void => {
         if (p.OptionsTMT != null ) { pOptions = p.OptionsTMT.split(';'); }
         else if ( p.OptionsTMTCalc != null && p.OptionsTMTCalc.length>0 ) { pOptions = p.OptionsTMTCalc.split(';'); }
 
-        console.log('p.Options', p.OptionsTMT, pOptions);
+        //console.log('p.Options', p.OptionsTMT, pOptions);
 
         function getThisOption(arr: string[], splitter: string, prop: string ) {
           let theResult = null;
@@ -2124,7 +2195,7 @@ public toggleTips = (item: any): void => {
     .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(400).get()
     .then((response) => {
 
-      console.log('useTrackMyTimeList', response);
+      //console.log('useTrackMyTimeList', response);
 
 
       /**
@@ -2159,7 +2230,24 @@ public toggleTips = (item: any): void => {
           listProjects += item.ProjectID2 + ' ';
         }   
 
+        let keyChanges = [];
+        let keyChange = 'No change';
         
+        if ( item.KeyChanges == null || item.KeyChanges == '' ) {} else {
+          keyChanges = item.KeyChanges.split('-');
+          let keyChangesLC = item.KeyChanges.toLowerCase();
+          if (keyChangesLC.indexOf('hourschanged') > -1 ){
+            keyChange = "Hours changed";
+          } else if (keyChangesLC.indexOf('nooriginal') > -1 ){
+            keyChange = "No data";
+          } else if (keyChangesLC.indexOf('startchanged') > -1 ){
+            keyChange = "Start changed";
+          } else if (keyChangesLC.indexOf('endchanged') > -1 ){
+            keyChange = "End changed";
+          }
+        }
+
+
         let listComments = item.Comments ? item.Comments : "";
 
         let timeEntry : ITimeEntry = {
@@ -2197,6 +2285,9 @@ public toggleTips = (item: any): void => {
           endTime : item.EndTime , // Time stamp
           duration : item.Hours , //Number  -- May not be needed based on current testing with start and end dates.
           age: getAge(item.EndTime,"days"),
+          keyChange: keyChange,
+          keyChanges: keyChanges,
+
           //Saves what entry option was used... Since Last, Slider, Manual
           entryType : item.EntryType ,
           deltaT : item.DeltaT , //Could be used to indicate how many hours entry was made (like now, or 10 2 days in the past)
@@ -2442,6 +2533,7 @@ public toggleTips = (item: any): void => {
       *    userPriority: IProject[]; //Projects visible based on settings
       *   Put them into state.projects
     */
+
     let counts = this.createNewProjectCounts();
     let userKeys : string[] = [];
     let allEntries: ITimeEntry[] = timeTrackData;
@@ -2449,6 +2541,7 @@ public toggleTips = (item: any): void => {
     let teamEntries: ITimeEntry[] = [];
     let everyoneEntries: ITimeEntry[] = [];
     let otherEntries: ITimeEntry[] = [];
+
 
     let sessionEntries: ITimeEntry[] = [];
     let todayEntries: ITimeEntry[] = [];
@@ -2590,8 +2683,6 @@ public toggleTips = (item: any): void => {
       } 
 
     }
-    
-
 
     //console.log('nowEndTime', JSON.stringify(nowEndTime));
     if ( lastEndTime.milliseconds > nowEndTime.milliseconds  ) {
@@ -2650,8 +2741,6 @@ public toggleTips = (item: any): void => {
     allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.projectsLoadStatus === 'Complete') ? true : false,
    });
 
-   this.processChartData('user',['what??'],10,'string');
-
   }
 
 /***
@@ -2667,6 +2756,7 @@ public toggleTips = (item: any): void => {
 
   private saveMyTime (trackTimeItem: ISaveEntry , masterOrRemote : string) {
     //trackTimeItem = current this.state.formEntry
+
 
     let teamId = { results: [] };
     if (trackTimeItem.teamIds) { teamId = { results: trackTimeItem.teamIds } ; }
@@ -2871,6 +2961,8 @@ public toggleTips = (item: any): void => {
         modified: created,
         createdBy: this.state.currentUser.Id,
         modifiedBy: this.state.currentUser.Id,
+        keyChange: '',
+        keyChanges: [],
         listCategory: listCategory,
         listComments: listComments,
         listTimeSpan: listTimeSpan,
@@ -2953,494 +3045,6 @@ public toggleTips = (item: any): void => {
 
     return foundProps;
   }
-
-/***
- *          .o88b. db   db  .d8b.  d8888b. d888888b      d8888b.  .d8b.  d888888b  .d8b.  
- *         d8P  Y8 88   88 d8' `8b 88  `8D `~~88~~'      88  `8D d8' `8b `~~88~~' d8' `8b 
- *         8P      88ooo88 88ooo88 88oobY'    88         88   88 88ooo88    88    88ooo88 
- *         8b      88~~~88 88~~~88 88`8b      88         88   88 88~~~88    88    88~~~88 
- *         Y8b  d8 88   88 88   88 88 `88.    88         88  .8D 88   88    88    88   88 
- *          `Y88P' YP   YP YP   YP 88   YD    YP         Y8888D' YP   YP    YP    YP   YP 
- *                                                                                        
- *                                                                                        
- */
-
-
- /**
-  * 
-  * @param who  Filter for who's data to read in
-  * @param what TBD but goal would be like Categories of some sort
-  * @param when TBD but Time Period
-  * @param scale TBD but would be like maybe Days, Weeks, Months etc..
-  * @param isSum Default is to count.  If True, it sums values
-  */
-  //processChartData('all',['catA','catB'])
-  public processChartData(who: string, what: string[], when: number, scale: string){
-
-    let hideEmpty = false;  //Will include data points with no data
-
-    let startTimer = new Date().getTime();
-
-    function createEmptyArray(min: number, max: number, stepInc: number){
-      let arr = [];
-      let goUp = min < max ? true : false;
-      if (min !== max) {
-        for (let step = min; goUp ? step <= max : step >= max; step = step + stepInc) {
-          // Runs 5 times, with values of step 0 through 4.
-          arr[step] = null;
-          arr[step] = null;
-          arr[step] = null;
-        }
-      }
-      return arr;
-    }
-
-    function createISeries(title, axisTitle: string, min: number, max: number, stepInc: number): IChartSeries {
-      return {
-        title: title,
-        axisTitle: axisTitle,
-        labels: createEmptyArray(min,max,stepInc),
-        sums: createEmptyArray(min,max,stepInc),
-        counts:createEmptyArray(min,max,stepInc),
-        changes: [],
-        changeNotes: [],
-        warnNotes: [],
-        errorNotes: [],
-        totalS: 0,
-        totalC: 0,
-      };
-    }
-
-    /**
-     * 
-     * @param seriesData 
-     * @param dur 
-     * @param thisKey was original type number before rebuilding for using categories instead of just numbers.
-     */
-//    function updateThisSeries(seriesData : IChartSeries,  dur: number,  thisKey: number ) {
-    function updateThisSeries(seriesData : IChartSeries,  dur: number,  thisKey ) {
-      //let weekData = chartPreData.thisWeek[0];
-      //console.log('yearData',weekData);
-      if ( seriesData.sums[thisKey] == null ) { 
-        seriesData.sums[thisKey] = 0; 
-        seriesData.counts[thisKey] = 0; 
-      }
-      seriesData.sums[thisKey] += dur;
-      seriesData.totalS += dur;
-      seriesData.counts[thisKey] ++;
-      seriesData.totalC ++;
-
-      return seriesData;
-    }
-
-    let sourceData: ITimeEntry[] = this.state.entries[who];
-
-    let daysSinceMonthStart =this.props.today.daysSinceMonthStart;
-    let daysSinceNewYear =this.props.today.daysSinceNewYear;
-    let daysSinceSOW =this.props.today.daysSinceMon;
-
-    let chartPreData: IChartData = {
-      filter: 'Results for ' + who,
-      thisYear: [
-        createISeries(' This Year (mo)' , '', hideEmpty ? 0 : 0 , hideEmpty ? 0 : this.props.today.month , 1),
-        createISeries('This Year (wk)' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
-      thisMonth: [createISeries('This Month' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.date , 1)],
-      thisWeek: [createISeries('This Week' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
-      allDays: createISeries('All Days' , 'Days ago', hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
-      allWeeks: createISeries('All Weeks' , 'Weeks ago', hideEmpty ? daysSinceSOW : daysSinceSOW , hideEmpty ? daysSinceSOW : 365 , 7),
-      allMonths: createISeries('All Months' , 'Months ago', hideEmpty ? daysSinceMonthStart : daysSinceMonthStart , hideEmpty ? daysSinceMonthStart : 365 , 31), 
-      allYears: createISeries('All Years' , 'Years ago', hideEmpty ? daysSinceNewYear : daysSinceNewYear , hideEmpty ? daysSinceNewYear : 365*4 , 365), 
-      categories: [createISeries('Category1' , '', 0,0,0), createISeries('Category2' , '' , 0,0,0)], 
-      location: createISeries('Location' , '', 0,0,0), 
-      contemp: createISeries('Contemporanious' , '', 0,0,0),
-      entryType: createISeries('Entry Mode' , '', 0,0,0),      
-    };
-
-    let unknownCatLabel = 'Others';
-    let removeTheseCats = 'removeEmpty';
-    let maxCats = 5;
-    let consolidatedCatLabel = 'Others';
-    let identifyOtherLabels = false; //May be used later to add change or warning notes to series.
-    if ( consolidatedCatLabel === unknownCatLabel ) {
-      identifyOtherLabels = true;
-      unknownCatLabel += '^';
-      consolidatedCatLabel += '*';
-    }
-
-    let chartDataLabel: any [] = []; 
-    let runningTotal: number = 0;
-
-    for ( let item of sourceData) {
-      //
-      let dur = Number(item.duration); //Hours per entry
-      let theTime = item.thisTimeObj;
-      runningTotal += dur;
-      //console.log('theTime:',item.id,runningTotal, item.startTime,theTime.year,theTime.month,theTime.week,theTime.date,theTime.day,theTime.hour,theTime.isThisYear,theTime.isThisMonth,theTime.isThisWeek,theTime.isToday);
-
-      chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
-      chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
-      chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
-      chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
-
-      if (item.thisTimeObj.isThisYear) {
-        chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
-        chartPreData.thisYear[1] = updateThisSeries(chartPreData.thisYear[1], dur, item.thisTimeObj.week);
-
-      }
- 
-      if (item.thisTimeObj.isThisMonth) { 
-        chartPreData.thisMonth[0] = updateThisSeries(chartPreData.thisMonth[0], dur, item.thisTimeObj.date);  }
-
-      if (item.thisTimeObj.isThisWeek) { 
-        chartPreData.thisWeek[0] = updateThisSeries(chartPreData.thisWeek[0], dur, item.thisTimeObj.day);  }
-      
-      /**
-       * This section will allow removing uncategorized data from the chart results
-       * unknownCatLabel is the label you can bucket all empty category items into.
-       * removeTheseCats allows you to remove specific categories from the chart results.
-       * 
-       * set unknownCatLabel to be "Other" to see it included.
-       * set unknownCatLabel to be the same value as removeTheseCats to remove that item from the dataset
-       * 
-       * By default let removeTheseCats = 'removeEmpty'; unless you change it to something else.
-       * 
-       */
-      let cat1 = item.category1 == null || item.category1[0] == null || item.category1[0] == '' ? unknownCatLabel : item.category1[0];
-      if ( cat1 !== removeTheseCats ) { chartPreData.categories[0] = updateThisSeries(chartPreData.categories[0], dur, cat1); 
-      } else { 
-        if ( chartPreData.categories[0].title.lastIndexOf('^') !== chartPreData.categories[0].title.length -1 ) { chartPreData.categories[0].title += ' ^'; }
-      }
-
-      let cat2 = item.category2 == null || item.category2[0] == null || item.category2[0] == '' ? unknownCatLabel : item.category2[0];
-      if ( cat2 !== removeTheseCats ) { chartPreData.categories[1] = updateThisSeries(chartPreData.categories[1], dur, cat2); 
-      } else { 
-        if ( chartPreData.categories[1].title.lastIndexOf('^') !== chartPreData.categories[1].title.length -1 ) { chartPreData.categories[1].title += ' ^'; }
-      }
-
-      let local = item.location == null || item.location == '' ? unknownCatLabel : item.location;
-      if ( local !== removeTheseCats ) { chartPreData.location = updateThisSeries(chartPreData.location, dur, local); 
-      } else { 
-        if ( chartPreData.location.title.lastIndexOf('^') !== chartPreData.location.title.length -1 ) { chartPreData.location.title += ' ^'; }
-      }
-
-      let contemp = unknownCatLabel;
-      if ( contemp !== removeTheseCats ) { chartPreData.contemp = updateThisSeries(chartPreData.contemp, dur, contemp);
-      } else { 
-        if ( chartPreData.contemp.title.lastIndexOf('^') !== chartPreData.contemp.title.length -1 ) { chartPreData.contemp.title += ' ^'; }
-      }
-
-      let entryType = camelize(item.entryType, true);
-      chartPreData.entryType = updateThisSeries(chartPreData.entryType, dur, entryType);
-
-
-    }
-
-    function removeEmptyFromEnd(series: IChartSeries, base : number, step: number) {
-
-    
-      let lastIndex = null;
-      for (let i = series.sums.length -1 + base; i > 0; i = i - step) {
-        if (series.sums[i] !== null) {
-          lastIndex = i;
-          break;
-        }
-      }
-
-      if ( lastIndex + 1 < series.sums.length) { lastIndex ++ ; }
-      let smallerSums = series.sums.splice(0,lastIndex );
-      let smallerCounts = series.counts.splice(0,lastIndex);
-      let smallerLabels = series.labels.splice(0,lastIndex);
-
-      series.sums= smallerSums;
-      series.counts= smallerCounts;
-      series.labels= smallerLabels;
-      //console.log('lastIndex is: ',series, lastIndex);
-
-    }
-
-    removeEmptyFromEnd(chartPreData.allDays, 0, 1);
-    removeEmptyFromEnd(chartPreData.allWeeks, 0, 7);
-    removeEmptyFromEnd(chartPreData.allMonths, 0, 31);
-    removeEmptyFromEnd(chartPreData.allYears, 0, 365);
-    removeEmptyFromEnd(chartPreData.thisYear[0], 1, 1);
-    removeEmptyFromEnd(chartPreData.thisYear[1], 1, 1);
-    removeEmptyFromEnd(chartPreData.thisMonth[0], 1, 1);
-    removeEmptyFromEnd(chartPreData.thisWeek[0], 1, 1);
-
-/*
-*/
-
-    function addLabels(series: IChartSeries, labels: string, firstIndex: number) {
-
-      let useLabelString = labels.indexOf(';') > -1 ? true : false;
-      let labelArray = useLabelString ? labels.split(';'): [''];
-
-      //console.log('labelArray:', labelArray);
-      chartDataLabel = Object.keys(series['sums']);
-      //console.log('chartDataLabel',chartDataLabel);
-      let newSums : number[] = [];
-      let newCounts : number[] = [];
-      let newLabels : string[] = [];
-      for ( let itemL of chartDataLabel) {
-        let label = '';
-        if ( itemL != null ) {
-          if ( !useLabelString ) {
-            label = itemL.trim();
-          } else if ( firstIndex === 0) { //Make like days since number
-            label = (Number(itemL) + firstIndex).toString() ;
-          } else if (firstIndex < 4 ) { //This is a relative index
-            label = labelArray[Number(itemL) + firstIndex];
-          } else if ( firstIndex === 12) { //Make like month number
-            label = ("0" + itemL).slice(-2) ;
-          } else if ( firstIndex === 52) { //Make like week number
-            label = "w" + ("0" + itemL).slice(-2) ;
-          } else if ( firstIndex === 365) { //Make like days since number
-            label = ("0000" + itemL).slice(-4) ;
-          } else { //Must be an error but put the label as itself
-            console.log('unknown label conversion error:', series, labels,firstIndex);
-            label = itemL;
-          }
-          newSums.push(series.sums[itemL]);
-          newCounts.push(series.counts[itemL]);
-          newLabels.push(label);
-        }
-      }
-      series.labels = newLabels;
-      series.sums = newSums;
-      series.counts = newCounts;
-      return series;
-    }
-
-    chartPreData.allYears = addLabels(chartPreData.allYears,monthStr3['en-us'].join(';'),0); //Days of year
-    chartPreData.allMonths = addLabels(chartPreData.allMonths,monthStr3['en-us'].join(';'),0); //Days of year
-    chartPreData.allWeeks = addLabels(chartPreData.allWeeks,monthStr3['en-us'].join(';'),0); //Days of year
-    
-    chartPreData.allDays = addLabels(chartPreData.allDays,monthStr3['en-us'].join(';'),0); //Days of year
-
-    chartPreData.thisYear[0] = addLabels(chartPreData.thisYear[0],monthStr3['en-us'].join(';'),0); //Months of year
-    chartPreData.thisYear[1] = addLabels(chartPreData.thisYear[1],weekday3['en-us'].join(';'),52); // Week Numbers of Year
-    chartPreData.thisMonth[0] = addLabels(chartPreData.thisMonth[0],weekday3['en-us'].join(';'),12);  // Days of Month
-    chartPreData.thisWeek[0] = addLabels(chartPreData.thisWeek[0],weekday3['en-us'].join(';'),0);  // Days of the week
-
-    chartPreData.categories[0] = addLabels(chartPreData.categories[0],'',0);  // Category 1
-    chartPreData.categories[1] = addLabels(chartPreData.categories[1],'',0);  // Category 2
-    chartPreData.location = addLabels(chartPreData.location,'',0);  // Location
-    chartPreData.contemp = addLabels(chartPreData.contemp,'',0);  // Contemmporanious
-    chartPreData.entryType = addLabels(chartPreData.entryType,'',0);  // Entry Type
-
-    
-
-    function scrubCategories(series: IChartSeries) {
-      let changeMap = [];
-      let changeNotes = [];
-      let warnNotes = [];
-      let removeSpaces=true;
-      let removeDashes=true;
-      let camelCase=false;
-      let allCaps = false;
-
-      let newLabels : string[] = [];
-      //let newUCLabels : string[] = []; //To compare to similar ones...
-      let newCount = -1;
-      for (let i in series.labels) {
-        let newLabel = series.labels[i] + '';
-
-        //https://stackoverflow.com/a/7151225/4210807 - remove white spaces from string
-        if ( camelCase ) { newLabel = camelize(newLabel, true); }
-        if ( removeDashes ) { newLabel = newLabel.replace(/-/g, ''); }
-        if ( removeSpaces ) { newLabel = newLabel.replace(/\s/g, ''); }
-        if ( allCaps ) { newLabel = newLabel.toUpperCase(); }
-        
-        let labelChanged = newLabel != series.labels[i] ? true : false;
-        let newLabelIndex = newLabels.indexOf(newLabel);
-
-        let similarTo = '';
-        if ( newLabelIndex < 0 ) { //Label is not in the finished array, add.
-
-          let similarToIndex = newLabels.map(
-
-            //Sample to convert to arrow function
-            //const sum1 = function(list, prop){ return list.reduce( function(a, b){ return a + b[prop];}, 0);}
-            //const sum2 = (list,prop) =>  { return list.reduce((a,b) => {return (a+ b[prop])}, 0);}
-            //prior to arrow function... was this:
-            //function(x){ return x.toUpperCase(); }
-
-            (x) => {return x.toUpperCase();} 
-            
-            ).indexOf(newLabel.toUpperCase()); //Check if this is similar to another existing label
-          newLabels.push(newLabel);
-          //newLabels.map(function(x){ return x.toUpperCase() }).indexOf(newLabel.toUpperCase());
-
-          if ( similarToIndex > -1 ) {
-            //newUCLabels.push(newLabel.toUpperCase());
-            similarTo = series.labels[i] + ' is similar to ' + newLabels[similarToIndex] + ' at item ' + i;
-            warnNotes.push(similarTo);
-          } else {
-            //Is not similar to anything
-          }
-          newCount ++;
-          newLabelIndex = newCount;
-          
-        }
-
-        changeMap.push([ i, series.labels[i], newLabelIndex, newLabel, labelChanged, similarTo ]);
-        if ( labelChanged ) { changeNotes.push(series.labels[i] + ' was consolidated into ' + newLabel); }
-
-      }
-
-      /*
-      console.log('newLabels',newLabels);
-      console.log('changeMap',changeMap);
-      console.log('changeNotes',changeNotes);
-      console.log('warnNotes',warnNotes);
-*/
-      //Now re-group similar categories
-
-      let newSums = [];
-      let newCounts = [];
-
-      for (let j in changeMap) {
-        let isRow = changeMap[j][2]; //Get new array index
-        newSums[isRow] = newSums[isRow] == null ? series.sums[j] : newSums[isRow] + series.sums[j] ;
-        newCounts[isRow] = newCounts[isRow] == null ? series.counts[j] : newCounts[isRow] + series.counts[j] ;
-      }
-
-      let checkSums = newSums.reduce(
-        //B4 Arrow Function
-        //function(a, b){ return a + b; }
-        (a, b) => { return a + b; }
-        , 0);
-      let checkCounts = newCounts.reduce(
-        //B4 Arrow Function
-        //function(a, b){ return a + b; }
-        (a, b) => { return a + b; }
-        , 0);
-
-      let err = '';
-      if (checkSums !== series.totalS ) { 
-        err = 'Err reducing Category SUMs: ' + series.totalS + ' <> ' + checkSums;
-        series.errorNotes.push(err);
-        console.log(err);
-      }
-      if (checkCounts !== series.totalC ) { 
-        err = 'Err reducing Category COUNTs: ' + series.totalC + ' <> ' + checkCounts;
-        series.errorNotes.push(err);
-        console.log(err);
-      }
-
-      //reduce decimal places of results for label purposes
-      //NOTE This map will convert numbers to text
-      //newSums = newSums.map(thisSum => thisSum.toFixed(2));
-
-      series.labels = newLabels;
-      series.counts = newCounts;
-      series.sums = newSums;
-      series.changes = changeMap;
-      series.changeNotes = changeNotes;
-      series.warnNotes = warnNotes;
-
-      return series;
-    }
-
-    //Only scrub category series... NOT Dates or periods because those are not pure number indexes
-    chartPreData.categories[0] = scrubCategories(chartPreData.categories[0]);
-    chartPreData.categories[1] = scrubCategories(chartPreData.categories[1]);
-    chartPreData.location = scrubCategories(chartPreData.location);
-    chartPreData.contemp = scrubCategories(chartPreData.contemp);
-    chartPreData.entryType = scrubCategories(chartPreData.entryType);
-
-    function consolidateCategories(series: IChartSeries, maxCatsX: number, otherLabel: string) {
-
-      /**
-       * Sort biggest to smallest
-       */
-      let tempValues = series.sums.map( e => e);
-      tempValues = tempValues.sort((a, b) => b - a);
-      /**
-       * Create new array consolidating all smaller ones into one label
-      */
-      let newLabels: string[] = [], newCounts: number[] = [], newSums = [];
-      let newIndex = -1;
-      let sumCheck = 0;
-      let consolidatedSum = 0;
-
-      for ( let thisSum of tempValues ) {
-        let origIndex = series.sums.indexOf(thisSum);
-        
-        //NOTE This map will convert numbers to text
-        //newSums = newSums.map(thisSum => thisSum.toFixed(2));
-
-        if ( newIndex < maxCatsX ) { // Add to newArrays by itself
-          newLabels.push(series.labels[origIndex]);
-          newCounts.push(series.counts[origIndex]);
-          newSums.push(series.sums[origIndex]);
-          sumCheck += series.sums[origIndex];
-          newIndex ++;
-
-        } else { //Consolidate to other category
-          if (newIndex === maxCatsX ) { 
-            newLabels[newIndex] = otherLabel;
-            consolidatedSum  += newSums[newIndex];
-           }
-          
-          newCounts[newIndex] += series.counts[origIndex];
-          newSums[newIndex] += series.sums[origIndex];
-          consolidatedSum  += series.sums[origIndex];
-          sumCheck += series.sums[origIndex];
-        }
-
-      }
-
-      newSums = newSums.map( v => v.toFixed(2) );
-      /*
-      console.log('newLabels', newLabels);
-      console.log('newSums', newSums);
-      console.log('newCounts', newCounts);
-      console.log('sumCheck', sumCheck, series.totalS);
-      */
-
-      /**
-       * Add condensed arrays back into object
-       */
-      series.changeNotes.push('Recategorized ' + consolidatedSum + ' hours into ' + otherLabel );
-      series.sums = newSums;
-      series.labels = newLabels;
-      series.counts = newCounts;
-
-      return series;
-    }
-
-    chartPreData.categories[0] = consolidateCategories(chartPreData.categories[0], maxCats, consolidatedCatLabel);
-    chartPreData.categories[1] = consolidateCategories(chartPreData.categories[1], maxCats, consolidatedCatLabel);
-    chartPreData.location = consolidateCategories(chartPreData.location, maxCats, consolidatedCatLabel);
-    chartPreData.contemp = consolidateCategories(chartPreData.contemp, maxCats, consolidatedCatLabel);
-    chartPreData.entryType = consolidateCategories(chartPreData.entryType, maxCats, consolidatedCatLabel);
-
-
-     console.log('chartPreData',chartPreData);
-  //   console.log('chartDataVal',chartDataVal);
-
-    this.setState({ 
-      loadOrder: this.state.loadOrder + ' > Charts',
-      chartData: chartPreData,
-    //  chartData: chartData,
-     });  
-
-  //  console.log('chartData', chartData);
-
-    let endTimer = new Date().getTime();
-
-    let delta = endTimer - startTimer;
-    console.log('Time to process chart data: ' + delta );
-
-    return;
-
-  }
-
-
-
-
-
 
   /***
  *          d888b  d88888b d8b   db d88888b d8888b.  .d8b.  db                           

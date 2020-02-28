@@ -5,6 +5,7 @@ import { IFormFields } from './fields/fieldDefinitions';
 import { ITheTime } from '../../../services/dateServices';
 
 import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
+import { ISelectedStory } from './Charts/chartsPage';
 import { string } from 'prop-types';
 
 export interface ILink {
@@ -98,7 +99,6 @@ export interface ISaveEntry {
     //Other settings and information
     location?: string; // Location
     settings?: string;
-
   
 }
 
@@ -129,7 +129,9 @@ export interface ITimeEntry extends ISaveEntry {
     user: IUser;  //Single person column
     duration?: string; //Number  -- May not be needed based on current testing with start and end dates.
     age?: number; //Days since End Time
-  
+    keyChange: string;
+    keyChanges?: string[];
+
     options?: string;
     //Saves what entry option was used... Since Last, Slider, Manual
   
@@ -147,6 +149,7 @@ export interface ITimeEntry extends ISaveEntry {
     wasModified?: boolean;
     modifiedByUser?: boolean;
     createdByUser?: boolean;
+
 
 }
 
@@ -299,6 +302,7 @@ export interface IChartData {
   filter?: string;
   contemp?: IChartSeries;  
   location?: IChartSeries;
+  keyChanges?: IChartSeries;
   categories?: IChartSeries[];
   today?: IChartSeries[];
   thisWeek?: IChartSeries[];
@@ -310,6 +314,18 @@ export interface IChartData {
   allWeeks?: IChartSeries;
   allDays?: IChartSeries;
   entryType?: IChartSeries;
+  
+  stories?: IStories;
+  index: number;
+}
+
+
+export interface IStories {
+  stories?: IStory[];
+  titles?: string[];
+}
+export interface IStory extends IChartSeries {
+
 }
 
 export interface ITrackMyTime7State {
@@ -374,7 +390,8 @@ export interface ITrackMyTime7State {
 
   chartData?: IChartData;
   showCharts?: boolean;
-
+  selectedStory?: ISelectedStory;
+  
 
   formEntry: ISaveEntry;
   // 7 - Slider Options

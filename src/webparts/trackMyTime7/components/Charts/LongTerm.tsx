@@ -15,11 +15,14 @@ export interface IChartLongTermProps {
     chartData: IChartData;
     showCharts: boolean;
     allLoaded: boolean;
+    story: string;
+    index: number;
 }
 
 export interface IChartLongTermState {
     showIntro: boolean;
     showDetails: boolean;
+    index: number;
 }
 
 export default class ChartLongTerm extends React.Component<IChartLongTermProps, IChartLongTermState> {
@@ -41,7 +44,7 @@ public constructor(props:IChartLongTermProps){
     this.state = { 
         showIntro: true,
         showDetails: false,
-
+        index: this.props.chartData.index,
     };
 
     // because our event handler needs access to the component, bind 
@@ -69,14 +72,14 @@ public constructor(props:IChartLongTermProps){
  *                                                                                         
  */
 
-  public componentDidUpdate(prevProps){
+  public componentDidUpdate(prevProps: IChartLongTermProps){
 
-    let rebuildTiles = false;
-    /*
-    if (rebuildTiles === true) {
-      this._updateStateOnPropsChange({});
+    let rebuildCharts = false;
+    
+    if (prevProps.story !== this.props.story || this.props.index !== prevProps.index ) {
+        rebuildCharts = true;
+        console.log('LongTerm cdu');
     }
-    */
 
   }
 
@@ -93,8 +96,9 @@ public constructor(props:IChartLongTermProps){
 
     public render(): React.ReactElement<IChartLongTermProps> {
 
-        if ( this.props.allLoaded && this.props.showCharts ) {
-            console.log('chartsClass.tsx', this.props, this.state);
+        console.log('Longterm render');
+        if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
+            console.log('Longterm.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 

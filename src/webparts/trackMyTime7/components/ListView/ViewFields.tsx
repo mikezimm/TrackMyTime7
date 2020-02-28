@@ -144,7 +144,7 @@ export const  projectWide2 : IViewField = {
   maxWidth: 400,
   //render: null,
   render: (item: any) => {
-    console.log('projectWide:', item);
+    //console.log('projectWide:', item);
     let thisStyle : {} = {
       color: '#333333',
       background: 'transparent',

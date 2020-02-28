@@ -15,11 +15,14 @@ export interface IChartStoryProps {
     chartData: IChartData;
     showCharts: boolean;
     allLoaded: boolean;
+    story: string;
+    index: number;
 }
 
 export interface IChartStoryState {
     showIntro: boolean;
     showDetails: boolean;
+    index: number;
 }
 
 export default class ChartStory extends React.Component<IChartStoryProps, IChartStoryState> {
@@ -41,7 +44,7 @@ public constructor(props:IChartStoryProps){
     this.state = { 
         showIntro: true,
         showDetails: false,
-
+        index: this.props.chartData.index,
     };
 
     // because our event handler needs access to the component, bind 
@@ -69,14 +72,14 @@ public constructor(props:IChartStoryProps){
  *                                                                                         
  */
 
-  public componentDidUpdate(prevProps){
+  public componentDidUpdate(prevProps: IChartStoryProps){
 
-    let rebuildTiles = false;
-    /*
-    if (rebuildTiles === true) {
-      this._updateStateOnPropsChange({});
+    let rebuildCharts = false;
+    
+    if (prevProps.story !== this.props.story || this.props.index !== prevProps.index ) {
+        rebuildCharts = true;
+        console.log('Story cdu');
     }
-    */
 
   }
 
@@ -93,14 +96,46 @@ public constructor(props:IChartStoryProps){
 
     public render(): React.ReactElement<IChartStoryProps> {
 
-        if ( this.props.allLoaded && this.props.showCharts ) {
-            console.log('chartsClass.tsx', this.props, this.state);
+        console.log('Story render');
+        if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
+            console.log('Story.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
 
             let chartCategory1 = create1SeriesCharts( this.props.chartData.categories[0], ChartType.HorizontalBar ) ;    
             let chartCategory2 = create1SeriesCharts( this.props.chartData.categories[1], ChartType.HorizontalBar ) ;    
+
+            /*
+
+  // set the options
+  const lineOptions: Chart.ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
+    title: {
+      display: true,
+      text: this.props.chartData.categories[1].title,
+    },
+    legend: {
+      display: false
+   },
+  };
+
+  const chart3 = (
+        <ChartControl 
+        type={ ChartType.HorizontalBar }
+        data={{
+            labels: this.props.chartData.categories[1].labels,
+            datasets: [{
+            //label: series.title,
+            data: this.props.chartData.categories[1].sums
+            }]
+        }}
+        options={ lineOptions } />
+  );
+
+  */
 
             return (
                 <div>
@@ -113,6 +148,11 @@ public constructor(props:IChartStoryProps){
                         <Stack.Item align="stretch" className={styles.chartPadding}>
                             { chartCategory2 }
                         </Stack.Item>
+
+                        <Stack.Item align="stretch" className={styles.chartPadding}>
+                            { /* chart3 */ }
+                        </Stack.Item>
+
 
                     </Stack>
                 </div>
