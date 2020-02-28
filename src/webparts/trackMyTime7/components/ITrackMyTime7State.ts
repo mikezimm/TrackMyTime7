@@ -315,6 +315,7 @@ export interface IChartData {
   entryType?: IChartSeries;
   
   stories?: IStories;
+  index: number;
 }
 
 

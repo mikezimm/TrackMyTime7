@@ -15,11 +15,14 @@ export interface IChartUsageProps {
     chartData: IChartData;
     showCharts: boolean;
     allLoaded: boolean;
+    story: string;
+    index: number;
 }
 
 export interface IChartUsageState {
     showIntro: boolean;
     showDetails: boolean;
+    index: number;
 }
 
 export default class ChartUsage extends React.Component<IChartUsageProps, IChartUsageState> {
@@ -41,7 +44,7 @@ public constructor(props:IChartUsageProps){
     this.state = { 
         showIntro: true,
         showDetails: false,
-
+        index: this.props.chartData.index,
     };
 
     // because our event handler needs access to the component, bind 
@@ -69,14 +72,15 @@ public constructor(props:IChartUsageProps){
  *                                                                                         
  */
 
-  public componentDidUpdate(prevProps){
+  public componentDidUpdate(prevProps: IChartUsageProps){
 
-    let rebuildTiles = false;
-    /*
-    if (rebuildTiles === true) {
-      this._updateStateOnPropsChange({});
+    let rebuildCharts = false;
+    
+    if (prevProps.story !== this.props.story || this.props.index !== prevProps.index ) {
+        rebuildCharts = true;
+        console.log('Usage cdu');
     }
-    */
+    
 
   }
 
@@ -93,7 +97,8 @@ public constructor(props:IChartUsageProps){
 
     public render(): React.ReactElement<IChartUsageProps> {
 
-        if ( this.props.allLoaded && this.props.showCharts ) {
+        console.log('Usage render');
+        if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
             console.log('Usage.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };

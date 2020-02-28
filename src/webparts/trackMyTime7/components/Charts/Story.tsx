@@ -15,11 +15,14 @@ export interface IChartStoryProps {
     chartData: IChartData;
     showCharts: boolean;
     allLoaded: boolean;
+    story: string;
+    index: number;
 }
 
 export interface IChartStoryState {
     showIntro: boolean;
     showDetails: boolean;
+    index: number;
 }
 
 export default class ChartStory extends React.Component<IChartStoryProps, IChartStoryState> {
@@ -41,7 +44,7 @@ public constructor(props:IChartStoryProps){
     this.state = { 
         showIntro: true,
         showDetails: false,
-
+        index: this.props.chartData.index,
     };
 
     // because our event handler needs access to the component, bind 
@@ -69,14 +72,14 @@ public constructor(props:IChartStoryProps){
  *                                                                                         
  */
 
-  public componentDidUpdate(prevProps){
+  public componentDidUpdate(prevProps: IChartStoryProps){
 
-    let rebuildTiles = false;
-    /*
-    if (rebuildTiles === true) {
-      this._updateStateOnPropsChange({});
+    let rebuildCharts = false;
+    
+    if (prevProps.story !== this.props.story || this.props.index !== prevProps.index ) {
+        rebuildCharts = true;
+        console.log('Story cdu');
     }
-    */
 
   }
 
@@ -93,7 +96,8 @@ public constructor(props:IChartStoryProps){
 
     public render(): React.ReactElement<IChartStoryProps> {
 
-        if ( this.props.allLoaded && this.props.showCharts ) {
+        console.log('Story render');
+        if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
             console.log('Story.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };

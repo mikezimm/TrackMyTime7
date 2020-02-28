@@ -40,6 +40,7 @@ export interface IChartPageProps {
 export interface IChartPageState {
     selectedChoice: string;
     lastChoice: string;
+    lastStory:  ISelectedDropDown;
     selectedStory: ISelectedDropDown;
     chartData?: IChartData;
     processedChartData: boolean;
@@ -70,6 +71,7 @@ public constructor(props:IChartPageProps){
     this.state = { 
         selectedChoice: 'snapShot',
         lastChoice: '',
+        lastStory: defStory,
         selectedStory: this.props.defaultStory != null ? {key: this.props.defaultStory, text: this.props.defaultStory}  : defStory ,
         chartData: null,
         processedChartData: false,
@@ -107,7 +109,7 @@ public constructor(props:IChartPageProps){
  */
 
   public componentDidUpdate(prevProps){
-
+    
     //let rebuildTiles = false;
     if ( this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
         console.log('chartsPage Props:', this.props);
@@ -138,23 +140,8 @@ public constructor(props:IChartPageProps){
             console.log('chartsClass.tsx', this.props, this.state);
 
             const dropdownStyles: Partial<IDropdownStyles> = {
-                dropdown: { width: 300 }
-              };
-
-            /*
-                const options: IDropdownOption[] = [
-                { key: 'fruitsHeader', text: 'Fruits', itemType: DropdownMenuItemType.Header },
-                { key: 'apple', text: 'Apple' },
-                { key: 'banana', text: 'Banana' },
-                { key: 'orange', text: 'Orange', disabled: true },
-                { key: 'grape', text: 'Grape' },
-                { key: 'divider_1', text: '-', itemType: DropdownMenuItemType.Divider },
-                { key: 'vegetablesHeader', text: 'Vegetables', itemType: DropdownMenuItemType.Header },
-                { key: 'broccoli', text: 'Broccoli' },
-                { key: 'carrot', text: 'Carrot' },
-                { key: 'lettuce', text: 'Lettuce' }
-                ];
-            */
+              dropdown: { width: 300 }
+            };
 
             let options: IDropdownOption[] = this.state.chartData == null ? null : 
                 this.state.chartData.stories.titles.map(val => {
@@ -183,31 +170,38 @@ public constructor(props:IChartPageProps){
             if ( this.state.chartData != null ){
                 if ( this.state.selectedChoice === 'longTerm' ) {
                     thisPage = <div><LongTerm 
+                        index={ this.state.chartData.index }
+                        story={ this.state.selectedStory.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
                     ></LongTerm></div>;
                 } else if ( this.state.selectedChoice === 'snapShot' ) {
                     thisPage = <div><Snapshot 
+                      index={ this.state.chartData.index }
+                        story={ this.state.selectedStory.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
                     ></Snapshot></div>;
                 } else if ( this.state.selectedChoice === 'story' ) {
                     thisPage = <div><Story 
+                        index={ this.state.chartData.index }
+                        story={ this.state.selectedStory.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
                     ></Story></div>;
                 } else if ( this.state.selectedChoice === 'usage' ) {
                     thisPage = <div><Usage 
+                        index={ this.state.chartData.index }
+                        story={ this.state.selectedStory.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
                     ></Usage></div>;
                 }
             }
-
 
             return (
                 <div className={ styles.infoPane }>
@@ -216,8 +210,6 @@ public constructor(props:IChartPageProps){
                     { thisPage }
                 </div>
             );
-
-
             
         } else {
             //console.log('chartsClass.tsx return null');
@@ -281,6 +273,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
   //processChartData('all',['catA','catB'])
   private processChartData(who: string, what: string[], when: number, scale: string, story: ISelectedDropDown, chapter: ISelectedDropDown){
 
+    console.log('processChartData story:', story.text);
     let hideEmpty = false;  //Will include data points with no data
 
     let startTimer = new Date().getTime();
@@ -368,6 +361,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       entryType: createISeries('Entry Mode' , '', 0,0,0),     
       keyChanges: createISeries('Key changes' , '', 0,0,0),     
       stories: createStories(), 
+      index: this.state.chartData == null ? 0 : this.state.chartData.index + 1,
 
     };
 
@@ -528,7 +522,6 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
     function removeEmptyFromEnd(series: IChartSeries, base : number, step: number) {
 
-    
       let lastIndex = null;
       for (let i = series.sums.length -1 + base; i > 0; i = i - step) {
         if (series.sums[i] !== null) {
@@ -817,9 +810,11 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
      //console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);
+    let lastStory : ISelectedDropDown = this.state.selectedStory;
 
     this.setState({ 
       selectedStory: story,
+      lastStory: lastStory,
       chartData: chartPreData,
       processedChartData: true,
     //  chartData: chartData,

@@ -15,11 +15,14 @@ export interface IChartSnapshotProps {
     chartData: IChartData;
     showCharts: boolean;
     allLoaded: boolean;
+    story: string;
+    index: number;
 }
 
 export interface IChartSnapshotState {
     showIntro: boolean;
     showDetails: boolean;
+    index: number;
 }
 
 export default class ChartSnapshot extends React.Component<IChartSnapshotProps, IChartSnapshotState> {
@@ -41,7 +44,7 @@ public constructor(props:IChartSnapshotProps){
     this.state = { 
         showIntro: true,
         showDetails: false,
-
+        index: this.props.chartData.index,
     };
 
     // because our event handler needs access to the component, bind 
@@ -69,14 +72,13 @@ public constructor(props:IChartSnapshotProps){
  *                                                                                         
  */
 
-  public componentDidUpdate(prevProps){
-/*
-    if( this.props.chartData !== prevProps.chartData ) // Check if it's a new user, you can also use some unique property, like the ID  (this.props.user.id !== prevProps.user.id)
-    {
-        console.log('Snapshot prevProps:', prevProps);
-        console.log('Snapshot newProps:', this.props);
+  public componentDidUpdate(prevProps: IChartSnapshotProps){
+    let rebuildCharts = false;
+    
+    if (prevProps.story !== this.props.story || this.props.index !== prevProps.index ) {
+        rebuildCharts = true;
+        console.log('Snapshot cdu');
     }
-*/
 
   }
 
@@ -92,7 +94,7 @@ public constructor(props:IChartSnapshotProps){
  */
 
     public render(): React.ReactElement<IChartSnapshotProps> {
-
+        console.log('Snapshot render');
         if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
             console.log('Snapshot.tsx', this.props, this.state);
 
