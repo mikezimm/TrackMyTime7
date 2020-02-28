@@ -22,6 +22,7 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
 import InfoPage from './HelpInfo/infoPages';
+import { ISelectedStory, defStory } from './Charts/chartsPage';
 
 
 import * as strings from 'TrackMyTime7WebPartStrings';
@@ -331,6 +332,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       showCharts: false,
       chartData: null,
+      selectedStory: defStory,
 
       fields: buildFormFields(this.props, this.state),
 
@@ -415,6 +417,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this.clearMyInput = this.clearMyInput.bind(this);
 
     this._updateComments = this._updateComments.bind(this);
+    this._updateStory = this._updateStory.bind(this);
 
     
   }
@@ -822,6 +825,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         entries= {this.state.entries}
         defaultStory="None"
         today={this.props.today}
+        selectedStory = {this.state.selectedStory}
+        _updateStory={this._updateStory.bind(this)}
 
       ></ChartsPage>
     </div>;
@@ -1701,6 +1706,13 @@ public toggleTips = (item: any): void => {
     //alert('trackMyTime');
     this.saveMyTime (this.state.formEntry , 'master');
 
+  }
+
+  public _updateStory = (selectedStory: ISelectedStory) : void => {
+    
+    this.setState({  
+      selectedStory: selectedStory,
+    });
   }
 
   public clearMyInput = () : void => {

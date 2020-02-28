@@ -26,8 +26,9 @@ import Story from './Story';
 import Usage from './Usage';
 
 import * as choiceBuilders from '../fields/choiceFieldBuilder';
+import { any } from 'prop-types';
 
-export interface ISelectedDropDown { key: string | number | undefined; text: string; }
+export interface ISelectedStory { key: string | number | undefined; text: string; }
 
 export interface IChartPageProps {
     showCharts: boolean;
@@ -35,18 +36,21 @@ export interface IChartPageProps {
     entries: IEntryInfo;
     defaultStory?: string;
     today: ITheTime;
+    selectedStory: ISelectedStory;
+    _updateStory: any;
 }
 
 export interface IChartPageState {
     selectedChoice: string;
     lastChoice: string;
-    lastStory:  ISelectedDropDown;
-    selectedStory: ISelectedDropDown;
+    lastStory:  ISelectedStory;
+    selectedStory: ISelectedStory;
     chartData?: IChartData;
     processedChartData: boolean;
+
 }
 
-const defStory: ISelectedDropDown = {
+export const defStory: ISelectedStory = {
     key: "None",
     text: "None",
 };
@@ -75,6 +79,7 @@ public constructor(props:IChartPageProps){
         selectedStory: this.props.defaultStory != null ? {key: this.props.defaultStory, text: this.props.defaultStory}  : defStory ,
         chartData: null,
         processedChartData: false,
+
     };
 
     // because our event handler needs access to the component, bind 
@@ -114,7 +119,10 @@ public constructor(props:IChartPageProps){
     if ( this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
         console.log('chartsPage Props:', this.props);
         this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
+    } else if ( this.props.selectedStory.text !== prevProps.selectedStory.text) {
+        this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
     }
+
     /*
     if (rebuildTiles === true) {
       this._updateStateOnPropsChange({});
@@ -220,7 +228,7 @@ public constructor(props:IChartPageProps){
 
     private _onStoryChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
         console.log(`Selection change: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
-
+        this.props._updateStory(item);
         this.processChartData('all',['what??'],10,'string',item, null);
 
       }
@@ -271,7 +279,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
   * @param isSum Default is to count.  If True, it sums values
   */
   //processChartData('all',['catA','catB'])
-  private processChartData(who: string, what: string[], when: number, scale: string, story: ISelectedDropDown, chapter: ISelectedDropDown){
+  private processChartData(who: string, what: string[], when: number, scale: string, story: ISelectedStory, chapter: ISelectedStory){
 
     console.log('processChartData story:', story.text);
     let hideEmpty = false;  //Will include data points with no data
@@ -458,14 +466,17 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
        if ( story == null || defStory.text === story.text || item.story === story.text ) {
 
+            if (item.thisTimeObj == undefined) {
+                console.log('undefined days ago:', item.thisTimeObj);
+            }
             chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
             chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
             chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
             chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
     
             if (item.thisTimeObj.isThisYear) {
-            chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
-            chartPreData.thisYear[1] = updateThisSeries(chartPreData.thisYear[1], dur, item.thisTimeObj.week);
+                chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
+                chartPreData.thisYear[1] = updateThisSeries(chartPreData.thisYear[1], dur, item.thisTimeObj.week);
     
             }
     
@@ -810,7 +821,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
      //console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);
-    let lastStory : ISelectedDropDown = this.state.selectedStory;
+    let lastStory : ISelectedStory = this.state.selectedStory;
 
     this.setState({ 
       selectedStory: story,

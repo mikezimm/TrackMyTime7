@@ -106,6 +106,37 @@ public constructor(props:IChartStoryProps){
             let chartCategory1 = create1SeriesCharts( this.props.chartData.categories[0], ChartType.HorizontalBar ) ;    
             let chartCategory2 = create1SeriesCharts( this.props.chartData.categories[1], ChartType.HorizontalBar ) ;    
 
+            /*
+
+  // set the options
+  const lineOptions: Chart.ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
+    title: {
+      display: true,
+      text: this.props.chartData.categories[1].title,
+    },
+    legend: {
+      display: false
+   },
+  };
+
+  const chart3 = (
+        <ChartControl 
+        type={ ChartType.HorizontalBar }
+        data={{
+            labels: this.props.chartData.categories[1].labels,
+            datasets: [{
+            //label: series.title,
+            data: this.props.chartData.categories[1].sums
+            }]
+        }}
+        options={ lineOptions } />
+  );
+
+  */
+
             return (
                 <div>
                     <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
@@ -117,6 +148,11 @@ public constructor(props:IChartStoryProps){
                         <Stack.Item align="stretch" className={styles.chartPadding}>
                             { chartCategory2 }
                         </Stack.Item>
+
+                        <Stack.Item align="stretch" className={styles.chartPadding}>
+                            { /* chart3 */ }
+                        </Stack.Item>
+
 
                     </Stack>
                 </div>

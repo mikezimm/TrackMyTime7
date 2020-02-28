@@ -5,6 +5,7 @@ import { IFormFields } from './fields/fieldDefinitions';
 import { ITheTime } from '../../../services/dateServices';
 
 import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
+import { ISelectedStory } from './Charts/chartsPage';
 import { string } from 'prop-types';
 
 export interface ILink {
@@ -389,7 +390,8 @@ export interface ITrackMyTime7State {
 
   chartData?: IChartData;
   showCharts?: boolean;
-
+  selectedStory?: ISelectedStory;
+  
 
   formEntry: ISaveEntry;
   // 7 - Slider Options
