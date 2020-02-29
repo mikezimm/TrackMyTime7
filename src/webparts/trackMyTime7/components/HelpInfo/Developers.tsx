@@ -131,7 +131,7 @@ public constructor(props:IInfoDevelopersProps){
                     <tr><td>{links.devDocsList}</td><td>{links.gitSampleReactList}</td><td>Used for Projects and History List</td></tr>
                     <tr><td>{links.devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>     
 
-                    
+                    <tr><td>{links.chartJSSamples}</td><td></td><td>Used for all charts</td></tr>                    
 
                 </table>
             </div>;
