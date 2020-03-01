@@ -108,6 +108,74 @@ For the appropriate Divs:
 </div>
 */
 
+
+
+export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boolean, showLegend: boolean, series: IChartSeries[], thisType: ChartType, WebpartWidth: number){
+//https://codepen.io/natenorberg/pen/WwqRar?editors=0010
+
+  // set the options
+  const lineOptions: Chart.ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: true, //false = regular works
+    aspectRatio: WebpartWidth/300,
+    scales:  { yAxes:[{ticks:{beginAtZero: true}, stacked: stackMe,}] },
+    title: {
+      display: chartTitle.length > 0 ? true : false,
+      text: chartTitle.length > 0 ? chartTitle : '',
+    },
+    legend: {
+      display: showLegend
+   },
+  };
+/*
+    // set the options
+    const doughnutOptions: Chart.ChartOptions = {
+      responsive: true,
+      maintainAspectRatio: true,
+      //scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
+      title: {
+        display: chartTitle.length > 0 ? true : false,
+        text: chartTitle.length > 0 ? chartTitle : '',
+      },
+      legend: {
+        display: false  //legend must be false until I can properly size the chart
+     },
+    };
+  */
+
+    let chartOptions: Chart.ChartOptions = null;
+    if ( thisType === ChartType.Bar ) { chartOptions = lineOptions; }
+    //else if ( thisType === ChartType.Doughnut ) { chartOptions = doughnutOptions; }
+    else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
+    else if ( thisType === ChartType.HorizontalBar ) { chartOptions = lineOptions; }
+    
+    let myDataSets = series.map((s) => {
+      return {
+        label: s.title,
+        data: s.sums,
+      };
+    });
+
+
+  //console.log('creatCharts', series);
+  return (
+    <div style={{  }}>
+        <ChartControl 
+        type={ thisType }
+        data={{
+            labels: series[0].labels,
+            datasets: myDataSets
+        }}
+        options={ chartOptions } />
+
+    </div>
+
+  );
+
+}
+
+
+
 export function creatLineChart(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, series: IChartSeries){
 
   // set the options

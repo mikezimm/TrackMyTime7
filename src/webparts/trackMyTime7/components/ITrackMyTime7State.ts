@@ -322,6 +322,7 @@ export interface IChartData {
 
 export interface IStories {
   stories?: IStory[];
+  chapters?: IStory[];
   titles?: string[];
 }
 export interface IStory extends IChartSeries {
@@ -330,6 +331,12 @@ export interface IStory extends IChartSeries {
 
 export interface ITrackMyTime7State {
 
+  // 0 - Context
+  //currentUser?: IUser;  //Current user information
+  WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+  WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+
+      
   pivots?: IMyPivots;
 
   projects?: IProjectInfo;

@@ -10,6 +10,7 @@ export interface ITrackMyTime7Props {
   tenant: string;
   urlVars: {};
   today: ITheTime;
+  WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
   // 1 - Analytics options
   useListAnalytics: boolean;

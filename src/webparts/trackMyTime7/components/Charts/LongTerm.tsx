@@ -9,7 +9,7 @@ import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-
 
 import styles from '../TrackMyTime7.module.scss';
 
-import { create1SeriesCharts, creatLineChart } from './charts';
+import { create1SeriesCharts, createMultiSeries1ScaleCharts, creatLineChart } from './charts';
 
 export interface IChartLongTermProps {
     chartData: IChartData;
@@ -17,6 +17,9 @@ export interface IChartLongTermProps {
     allLoaded: boolean;
     story: string;
     index: number;
+    WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+    WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+
 }
 
 export interface IChartLongTermState {
@@ -105,7 +108,12 @@ public constructor(props:IChartLongTermProps){
             let chartDailyHistory = create1SeriesCharts( this.props.chartData.allDays, ChartType.Line ) ;
             let chartWeeklyHistory = create1SeriesCharts( this.props.chartData.allWeeks, ChartType.Line ) ;
             let chartMonthlyHistory = create1SeriesCharts( this.props.chartData.allMonths, ChartType.Line ) ;
-            let chartYearlyHistory = create1SeriesCharts( this.props.chartData.allYears, ChartType.Line ) ;    
+            let chartYearlyHistory = create1SeriesCharts( this.props.chartData.allYears, ChartType.Line ) ;
+
+            let stacked = [this.props.chartData.stories.stories[0], this.props.chartData.stories.stories[2]];
+            let stacked2 = this.props.chartData.stories.stories.map( s => s );
+            console.log('stacked2', stacked2);
+            let chartYearlyStory = createMultiSeries1ScaleCharts('Stories', true, true, stacked2, ChartType.Line, this.props.WebpartWidth);
 
             return (
                 <div>
@@ -116,15 +124,19 @@ public constructor(props:IChartLongTermProps){
                         </Stack.Item>
                         <Stack.Item align="stretch" className={styles.chartPadding}>
                             { chartMonthlyHistory }
-                        </Stack.Item>            
+                        </Stack.Item>
                         <Stack.Item align="stretch" className={styles.chartPadding}>
                             { chartYearlyHistory }
                         </Stack.Item>
+                        
 
                     </Stack>
 
-                    <div className={styles.chartHeight}>
-                    { chartDailyHistory }
+                    <div>
+                        { chartDailyHistory }
+                    </div>
+                    <div className={styles.chartHeight300}>
+                        { chartYearlyStory }
                     </div>
                 </div>
 
