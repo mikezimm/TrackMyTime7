@@ -305,6 +305,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let timeWeb = this.cleanURL(this.props.timeTrackListWeb ? this.props.timeTrackListWeb : props.pageContext.web.absoluteUrl);
     this.state = { 
 
+      //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+      WebpartHeight: this.props.WebpartElement.getBoundingClientRect().height ,
+      WebpartWidth:  this.props.WebpartElement.getBoundingClientRect().width - 50 ,
+
       // 1 - Analytics options
 
       // 2 - Source and destination list information
@@ -822,11 +826,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       <ChartsPage 
         allLoaded={ this.state.allLoaded }
         showCharts={ this.state.showCharts }
-        entries= {this.state.entries}
+        entries= { this.state.entries }
         defaultStory="None"
-        today={this.props.today}
-        selectedStory = {this.state.selectedStory}
-        _updateStory={this._updateStory.bind(this)}
+        today={ this.props.today }
+        selectedStory = { this.state.selectedStory }
+        _updateStory={ this._updateStory.bind(this) }
+        WebpartHeight={ this.state.WebpartHeight }
+        WebpartWidth={ this.state.WebpartWidth }
 
       ></ChartsPage>
     </div>;

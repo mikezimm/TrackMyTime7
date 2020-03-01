@@ -38,6 +38,9 @@ export interface IChartPageProps {
     today: ITheTime;
     selectedStory: ISelectedStory;
     _updateStory: any;
+    WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+    WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+
 }
 
 export interface IChartPageState {
@@ -47,6 +50,8 @@ export interface IChartPageState {
     selectedStory: ISelectedStory;
     chartData?: IChartData;
     processedChartData: boolean;
+    WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+    WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
 }
 
@@ -79,6 +84,9 @@ public constructor(props:IChartPageProps){
         selectedStory: this.props.defaultStory != null ? {key: this.props.defaultStory, text: this.props.defaultStory}  : defStory ,
         chartData: null,
         processedChartData: false,
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight: this.props.WebpartHeight,
+        WebpartWidth: this.props.WebpartWidth,
 
     };
 
@@ -117,10 +125,12 @@ public constructor(props:IChartPageProps){
     
     //let rebuildTiles = false;
     if ( this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
-        console.log('chartsPage Props:', this.props);
-        this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
+      console.log('chartsPage componentDidUpdate 1 Props:', this.props);
+      this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
     } else if ( this.props.selectedStory.text !== prevProps.selectedStory.text) {
-        this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
+      console.log('chartsPage componentDidUpdate 2 Props:', this.props);
+              //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
+      this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
     }
 
     /*
@@ -183,6 +193,8 @@ public constructor(props:IChartPageProps){
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
+                        WebpartHeight={ this.state.WebpartHeight }
+                        WebpartWidth={ this.state.WebpartWidth }
                     ></LongTerm></div>;
                 } else if ( this.state.selectedChoice === 'snapShot' ) {
                     thisPage = <div><Snapshot 
@@ -191,6 +203,8 @@ public constructor(props:IChartPageProps){
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
+                        WebpartHeight={ this.state.WebpartHeight }
+                        WebpartWidth={ this.state.WebpartWidth }
                     ></Snapshot></div>;
                 } else if ( this.state.selectedChoice === 'story' ) {
                     thisPage = <div><Story 
@@ -199,6 +213,8 @@ public constructor(props:IChartPageProps){
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
+                        WebpartHeight={ this.state.WebpartHeight }
+                        WebpartWidth={ this.state.WebpartWidth }
                     ></Story></div>;
                 } else if ( this.state.selectedChoice === 'usage' ) {
                     thisPage = <div><Usage 
@@ -207,6 +223,8 @@ public constructor(props:IChartPageProps){
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
+                        WebpartHeight={ this.state.WebpartHeight }
+                        WebpartWidth={ this.state.WebpartWidth }
                     ></Usage></div>;
                 }
             }
@@ -229,6 +247,7 @@ public constructor(props:IChartPageProps){
     private _onStoryChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
         console.log(`Selection change: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
         this.props._updateStory(item);
+        //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
         this.processChartData('all',['what??'],10,'string',item, null);
 
       }
@@ -340,8 +359,9 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
     function createStories(){
       let emptyStories: IStories = {
-        stories: [],
         titles: [],
+        stories: [],
+        chapters: [],
       };
       return emptyStories;
     }
@@ -403,13 +423,18 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       if (item.story != null && item.story.length > 0 ) {
         if ( chartPreData.stories.titles.indexOf(item.story) < 0) { 
           chartPreData.stories.titles.push(item.story);
-          chartPreData.stories.stories.push(
+          chartPreData.stories.chapters.push(
             createISeries(item.story , '', 0,0,0),
           );
+
+          chartPreData.stories.stories.push(
+            createISeries(item.story + ' history' , 'Days ago', hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
+          );
+
         }
 
         let storyIndex = chartPreData.stories.titles.indexOf(item.story);
-        let thisStory = chartPreData.stories.stories[storyIndex];
+        let thisStory = chartPreData.stories.chapters[storyIndex];
 
         //thisStory.totalC ++;
         //thisStory.totalS += Number(item.duration);
@@ -439,7 +464,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       if (item.story != null && item.story.length > 0 ) {
 
         let storyIndex = chartPreData.stories.titles.indexOf(item.story);
-        let thisStory = chartPreData.stories.stories[storyIndex];
+        let thisStory = chartPreData.stories.chapters[storyIndex];
         let chapterIndex = thisStory.labels.indexOf(item.chapter);
         let thisChapter = thisStory.labels[chapterIndex];
 
@@ -469,7 +494,19 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
             if (item.thisTimeObj == undefined) {
                 console.log('undefined days ago:', item.thisTimeObj);
             }
+
+            let storyIndex = chartPreData.stories.titles.indexOf(item.story);
+            let thisStory = chartPreData.stories.stories[storyIndex];
+
+            if (storyIndex > -1 && item.thisTimeObj == null ) {
+              console.log('problem with this item: ', item);
+            }
+
+            if (storyIndex > -1 ) { thisStory = updateThisSeries(thisStory, dur, item.thisTimeObj.daysAgo); }
+
             chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
+
+
             chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
             chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
             chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
@@ -553,6 +590,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
     }
 
+    for ( let s of chartPreData.stories.stories) {
+      removeEmptyFromEnd(s, 0, 1);
+    }
+
     removeEmptyFromEnd(chartPreData.allDays, 0, 1);
     removeEmptyFromEnd(chartPreData.allWeeks, 0, 7);
     removeEmptyFromEnd(chartPreData.allMonths, 0, 31);
@@ -610,6 +651,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
     chartPreData.allMonths = addLabels(chartPreData.allMonths,monthStr3['en-us'].join(';'),0); //Days of year
     chartPreData.allWeeks = addLabels(chartPreData.allWeeks,monthStr3['en-us'].join(';'),0); //Days of year
     
+    
+    for ( let s of chartPreData.stories.stories) {
+      s=addLabels(s,monthStr3['en-us'].join(';'),0); //Days of year
+    }
     chartPreData.allDays = addLabels(chartPreData.allDays,monthStr3['en-us'].join(';'),0); //Days of year
 
     chartPreData.thisYear[0] = addLabels(chartPreData.thisYear[0],monthStr3['en-us'].join(';'),0); //Months of year
@@ -808,7 +853,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       return series;
     }
 
-    for (let s of chartPreData.stories.stories) {
+    for (let s of chartPreData.stories.chapters) {
       s = consolidateCategories(s, 100, defaultChapter + '^');
     }
 
