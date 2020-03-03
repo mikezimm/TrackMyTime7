@@ -113,7 +113,8 @@ public constructor(props:IChartLongTermProps){
             let stacked = [this.props.chartData.stories.stories[0], this.props.chartData.stories.stories[2]];
             let stacked2 = this.props.chartData.stories.stories.map( s => s );
             console.log('stacked2', stacked2);
-            let chartYearlyStory = createMultiSeries1ScaleCharts('Stories', true, true, stacked2, ChartType.Line, this.props.WebpartWidth);
+            let chartYearlyStory = createMultiSeries1ScaleCharts('Stories', true, true, stacked2, 
+                    this.props.chartData.storyIndex, ChartType.Line, this.props.WebpartWidth);
 
             return (
                 <div>

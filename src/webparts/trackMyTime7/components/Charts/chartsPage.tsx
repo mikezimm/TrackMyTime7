@@ -5,7 +5,7 @@ import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo } from '../I
 import { ITheTime } from '../../../../services/dateServices';
 
 import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
-    getNicks, makeTheTimeObject, getTimeDelta, monthStr3, weekday3} from '../../../../services/dateServices';
+    getNicks, makeTheTimeObject, getTimeDelta, monthStr3, weekday3, createDeltaDateArrays} from '../../../../services/dateServices';
 
 import { camelize, } from '../../../../services/stringServices';
 
@@ -129,7 +129,7 @@ public constructor(props:IChartPageProps){
       this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
     } else if ( this.props.selectedStory.text !== prevProps.selectedStory.text) {
       console.log('chartsPage componentDidUpdate 2 Props:', this.props);
-              //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
+      //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
       this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
     }
 
@@ -300,6 +300,9 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
   //processChartData('all',['catA','catB'])
   private processChartData(who: string, what: string[], when: number, scale: string, story: ISelectedStory, chapter: ISelectedStory){
 
+    let deltaDateArrays = createDeltaDateArrays();
+    console.log('deltaDateArrays', deltaDateArrays);
+
     console.log('processChartData story:', story.text);
     let hideEmpty = false;  //Will include data points with no data
 
@@ -319,13 +322,35 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       return arr;
     }
 
+    
+    function createAllMonthsArray(){
+      let arr = [];
+
+      for (let m of deltaDateArrays.months.daysAgo) {
+          arr[m] = null;
+      }
+      return arr;
+    }
+
     function createISeries(title, axisTitle: string, min: number, max: number, stepInc: number): IChartSeries {
+
+      let nullLabels = title === 'All Months' ? deltaDateArrays.months.daysAgoNull :
+        title === 'All Years' ? deltaDateArrays.years.daysAgoNull :
+        createEmptyArray(min,max,stepInc);
+
+
       return {
         title: title,
         axisTitle: axisTitle,
-        labels: createEmptyArray(min,max,stepInc),
-        sums: createEmptyArray(min,max,stepInc),
-        counts:createEmptyArray(min,max,stepInc),
+
+        //labels: JSON.parse(JSON.stringify(nullLabels)),
+        //sums: JSON.parse(JSON.stringify(nullLabels)),
+        //counts: JSON.parse(JSON.stringify(nullLabels)),
+
+        labels: title === 'All Months' ? createAllMonthsArray() : createEmptyArray(min,max,stepInc),
+        sums:  title === 'All Months' ? createAllMonthsArray() : createEmptyArray(min,max,stepInc),
+        counts:  title === 'All Months' ? createAllMonthsArray() : createEmptyArray(min,max,stepInc),
+
         changes: [],
         changeNotes: [],
         warnNotes: [],
@@ -390,6 +415,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       keyChanges: createISeries('Key changes' , '', 0,0,0),     
       stories: createStories(), 
       index: this.state.chartData == null ? 0 : this.state.chartData.index + 1,
+      storyIndex: null,
 
     };
 
@@ -570,13 +596,27 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
     function removeEmptyFromEnd(series: IChartSeries, base : number, step: number) {
 
+      chartDataLabel = Object.keys(series['sums']);
+
       let lastIndex = null;
-      for (let i = series.sums.length -1 + base; i > 0; i = i - step) {
-        if (series.sums[i] !== null) {
-          lastIndex = i;
-          break;
+
+
+      if ( series.title === 'All Months' ) {
+        for ( let itemL of chartDataLabel) {
+          if (series.sums[itemL] !== null) {
+            //lastIndex = chartDataLabel.indexOf(itemL);
+            lastIndex = parseInt(itemL);
+          }
+        }
+      } else {
+        for (let i = series.sums.length -1 + base; i > 0; i = i - step) {
+          if (series.sums[i] !== null) {
+            lastIndex = i;
+            break;
+          }
         }
       }
+
 
       if ( lastIndex + 1 < series.sums.length) { lastIndex ++ ; }
       let smallerSums = series.sums.splice(0,lastIndex );
@@ -596,7 +636,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
     removeEmptyFromEnd(chartPreData.allDays, 0, 1);
     removeEmptyFromEnd(chartPreData.allWeeks, 0, 7);
-    removeEmptyFromEnd(chartPreData.allMonths, 0, 31);
+    removeEmptyFromEnd(chartPreData.allMonths, 0, 1);
     removeEmptyFromEnd(chartPreData.allYears, 0, 365);
     removeEmptyFromEnd(chartPreData.thisYear[0], 1, 1);
     removeEmptyFromEnd(chartPreData.thisYear[1], 1, 1);
@@ -620,7 +660,11 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       for ( let itemL of chartDataLabel) {
         let label = '';
         if ( itemL != null ) {
-          if ( !useLabelString ) {
+          if (series.title === 'All Years'){
+            label = deltaDateArrays.years.labelLong[chartDataLabel.indexOf(itemL)];
+          } else if (series.title === 'All Months'){
+            label = deltaDateArrays.months.labelLong[chartDataLabel.indexOf(itemL)];
+          } else if ( !useLabelString ) {
             label = itemL.trim();
           } else if ( firstIndex === 0) { //Make like days since number
             label = (Number(itemL) + firstIndex).toString() ;
@@ -867,6 +911,8 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
      //console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);
     let lastStory : ISelectedStory = this.state.selectedStory;
+
+    chartPreData.storyIndex = story.text === defStory.text ? 0 : chartPreData.stories.titles.indexOf(story.text);
 
     this.setState({ 
       selectedStory: story,

@@ -49,11 +49,13 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType){
     else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
     else if ( thisType === ChartType.HorizontalBar ) { chartOptions = lineOptions; }
     
-
+   let r = Math.random().toString(36).substring(7);
+    //console.log('random ref',r);
   //console.log('creatCharts', series);
   return (
     <div style={{ }}>
         <ChartControl 
+        ref={ r }
         type={ thisType }
         data={{
             labels: series.labels,
@@ -110,7 +112,7 @@ For the appropriate Divs:
 
 
 
-export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boolean, showLegend: boolean, series: IChartSeries[], thisType: ChartType, WebpartWidth: number){
+export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boolean, showLegend: boolean, series: IChartSeries[], selectedIndex: number, thisType: ChartType, WebpartWidth: number){
 //https://codepen.io/natenorberg/pen/WwqRar?editors=0010
 
   // set the options
@@ -156,19 +158,22 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
       };
     });
 
+    let r = Math.random().toString(36).substring(7);
+    //console.log('random ref',r);
 
-  //console.log('creatCharts', series);
-  return (
-    <div style={{  }}>
-        <ChartControl 
-        type={ thisType }
-        data={{
-            labels: series[0].labels,
-            datasets: myDataSets
-        }}
-        options={ chartOptions } />
+    //console.log('creatCharts', series);
+    return (
+      <div style={{  }}>
+          <ChartControl 
+          type={ thisType }
+          ref={ r }
+          data={{
+              labels: series[selectedIndex].labels,
+              datasets: myDataSets
+          }}
+          options={ chartOptions } />
 
-    </div>
+      </div>
 
   );
 

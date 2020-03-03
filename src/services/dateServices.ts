@@ -293,7 +293,10 @@ export function getTimeDelta(time1, time2, inWhat : string){
   let date = new Date(time1).getTime();
   let now = new Date(time2).getTime();
   let age : number = (now - date);
-  if (inWhat === 'days') { age =  age/(1000 * 60 * 60 * 24) ; }
+  if (inWhat === 'days') { 
+    age =  age/(1000 * 60 * 60 * 24) ;
+    age = Math.round(age);  //2020-03-02:  Added so that delta days is always whole number when in reality, 8 months out of the year there is an extra hour per day
+  }
   else if (inWhat === 'hours') { age =  age/(1000 * 60 * 60) ; }
   else if (inWhat === 'minutes') { age =  age/(1000 * 60) ; }
   else if (inWhat === 'seconds') { age =  age/(1000) ; }
@@ -370,5 +373,64 @@ export function getNicks(name: IUser){
   }
 
   return result;
+
+}
+
+
+export function createDeltaDateArrays(){
+
+
+        let result = {
+        years: {
+          daysAgo: [],
+          daysAgoR: [],
+          daysAgoNull: [],
+          labelShort: [],
+          labelLong: [],
+        },
+        months: {        
+          daysAgo: [],
+          daysAgoR: [],
+          daysAgoNull: [],
+          labelShort: [],
+          labelLong: [],
+      }
+    };
+        
+    let rightNow = new Date();
+
+    let todayYear = rightNow.getFullYear();
+    let todayMonth = rightNow.getMonth() ; //Zero Index
+    let todayDate = rightNow.getDate();
+
+    let todaysDate = new Date(todayYear,todayMonth,todayDate);
+
+    for (let y = todayYear; y > todayYear  - 4 ; y--) {
+      for (let m = 11; m > -1 ; m--) {
+
+        let thisDate = new Date(y,m,1);
+        let deltaDays = getTimeDelta(thisDate, todaysDate, 'days');
+
+        if ( deltaDays > 0 ) {
+          result.months.daysAgo.push(deltaDays);
+          let roundedDays = Math.round(deltaDays);
+          result.months.daysAgoR.push(roundedDays);
+          result.months.labelShort.push(y.toString().substring(2) + '-' + monthStr3['en-us'][m]);
+          result.months.labelLong.push(y.toString() + '-' + monthStr3['en-us'][m]);
+
+          result.months.daysAgoNull[roundedDays] = null;
+
+          if ( m === 0 ) { 
+            result.years.daysAgo.push(deltaDays);
+            result.years.daysAgoR.push(roundedDays);
+            result.years.labelShort.push(y.toString().substring(2));
+            result.years.labelLong.push(y.toString());
+            result.years.daysAgoNull[roundedDays] = null;
+          }
+        }
+      }
+    }
+
+    return result;
 
 }

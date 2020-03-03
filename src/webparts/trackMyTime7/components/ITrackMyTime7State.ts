@@ -317,6 +317,7 @@ export interface IChartData {
   
   stories?: IStories;
   index: number;
+  storyIndex: number;
 }
 
 
