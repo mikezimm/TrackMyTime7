@@ -15,6 +15,7 @@ import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartContr
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import styles from '../TrackMyTime7.module.scss';
 
@@ -52,6 +53,8 @@ export interface IChartPageState {
     processedChartData: boolean;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+    userData?: boolean;
+    chartDetails?: boolean;
 
 }
 
@@ -158,7 +161,7 @@ public constructor(props:IChartPageProps){
             console.log('chartsClass.tsx', this.props, this.state);
 
             const dropdownStyles: Partial<IDropdownStyles> = {
-              dropdown: { width: 300 }
+              dropdown: { width: 150 }
             };
 
             let options: IDropdownOption[] = this.state.chartData == null ? null : 
@@ -172,14 +175,34 @@ public constructor(props:IChartPageProps){
 
             options.unshift(defStory);
 
-            let storyDropdown = options == null ? null : <Dropdown 
-                placeholder="Select a Story" 
-                label="" 
-                selectedKey={this.state.selectedStory ? this.state.selectedStory.key : undefined}
-                onChange={this._onStoryChange}
-                options={options} 
-                styles={dropdownStyles}
-             />;
+            let storyDropdown = options == null ? null : <div
+                style={{  paddingTop: 10  }}
+                  ><Dropdown 
+                  placeholder="Select a Story" 
+                  label="" 
+                  selectedKey={this.state.selectedStory ? this.state.selectedStory.key : undefined}
+                  onChange={this._onStoryChange}
+                  options={options} 
+                  styles={{  dropdown: { width: 175 }   }}
+                />
+              </div>;
+
+            let toggleUser = <Toggle label="" 
+              onText={ 'Everyone' } 
+              offText={ 'You' } 
+              onChange={this.toggleUserData.bind(this)} 
+              checked={this.state.userData}
+              styles={{ root: { width: 120, paddingTop: 13, } }}
+            />;
+
+
+            let toggleDetails = <Toggle label="" 
+              onText={ 'Details' } 
+              offText={ 'No Details' } 
+              onChange={this.toggleChartDetails.bind(this)} 
+              checked={this.state.chartDetails}
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
 
             let pageChoices = choiceBuilders.creatChartChoices(this.state.selectedChoice, this._updateChoice.bind(this));
 
@@ -229,10 +252,21 @@ public constructor(props:IChartPageProps){
                 }
             }
 
+            const stackButtonTokensBody: IStackTokens = { childrenGap: 20 };
+
             return (
                 <div className={ styles.infoPane }>
-                    { pageChoices }
-                    { storyDropdown }
+                    <Stack padding={0} horizontal={true} wrap={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+                      { pageChoices }
+
+                      <Stack padding={0} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+                        { toggleDetails }
+                        { toggleUser }
+                        { storyDropdown }
+
+                      </Stack>
+                    </Stack>
+
                     { thisPage }
                 </div>
             );
@@ -244,13 +278,66 @@ public constructor(props:IChartPageProps){
 
     }   //End Public Render
 
+
+/***
+ *         d88888b d888888b db      d888888b d88888b d8888b.      d8888b.  .d8b.  d888888b  .d8b.  
+ *         88'       `88'   88      `~~88~~' 88'     88  `8D      88  `8D d8' `8b `~~88~~' d8' `8b 
+ *         88ooo      88    88         88    88ooooo 88oobY'      88   88 88ooo88    88    88ooo88 
+ *         88~~~      88    88         88    88~~~~~ 88`8b        88   88 88~~~88    88    88~~~88 
+ *         88        .88.   88booo.    88    88.     88 `88.      88  .8D 88   88    88    88   88 
+ *         YP      Y888888P Y88888P    YP    Y88888P 88   YD      Y8888D' YP   YP    YP    YP   YP 
+ *                                                                                                 
+ *                                                                                                 
+ */
+
+    public toggleUserData = (item): void => {
+      console.log('toggleUserData:',  item);
+      //this.props._updateStory(item);
+      //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
+      const showThis = item ? 'user' : 'all';
+      this.processChartData('user',['what??'],10,'string',null, null);
+
+    }
+
+
     private _onStoryChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
         console.log(`Selection change: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
         this.props._updateStory(item);
         //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
         this.processChartData('all',['what??'],10,'string',item, null);
 
-      }
+    }
+
+
+/***
+ *         d888888b  .d88b.   d888b   d888b  db      d88888b      d8888b. d88888b d888888b  .d8b.  d888888b db      .d8888. 
+ *         `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'          88  `8D 88'     `~~88~~' d8' `8b   `88'   88      88'  YP 
+ *            88    88    88 88      88      88      88ooooo      88   88 88ooooo    88    88ooo88    88    88      `8bo.   
+ *            88    88    88 88  ooo 88  ooo 88      88~~~~~      88   88 88~~~~~    88    88~~~88    88    88        `Y8b. 
+ *            88    `8b  d8' 88. ~8~ 88. ~8~ 88booo. 88.          88  .8D 88.        88    88   88   .88.   88booo. db   8D 
+ *            YP     `Y88P'   Y888P   Y888P  Y88888P Y88888P      Y8888D' Y88888P    YP    YP   YP Y888888P Y88888P `8888Y' 
+ *                                                                                                                          
+ *                                                                                                                          
+ */
+
+
+      public toggleChartDetails = (item): void => {
+        //This sends back the correct pivot category which matches the category on the tile.
+        let e: any = event;
+        
+        if (e.ctrlKey) {
+          //Set clicked pivot as the hero pivot
+        } else if (e.altKey) {
+          //Enable-disable ChangePivots options
+        } else {
+        }
+
+        this.setState({ 
+          chartDetails: !this.state.chartDetails,
+        //  chartData: chartData,
+         }); 
+  
+      } //End toggleChartDetails
 
 /***
  *         db    db d8888b.       .o88b. db   db  .d88b.  d888888b  .o88b. d88888b 
