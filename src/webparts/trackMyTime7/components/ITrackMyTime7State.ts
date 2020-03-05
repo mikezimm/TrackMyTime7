@@ -399,6 +399,7 @@ export interface ITrackMyTime7State {
   chartData?: IChartData;
   showCharts?: boolean;
   selectedStory?: ISelectedStory;
+  initialFilter?: 'all' | 'user'; 
   
 
   formEntry: ISaveEntry;

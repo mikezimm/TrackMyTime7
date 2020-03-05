@@ -39,9 +39,10 @@ export interface IChartPageProps {
     today: ITheTime;
     selectedStory: ISelectedStory;
     _updateStory: any;
+    _updateInitialFilter: any;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-
+    initialFilter?: 'all' | 'user'; 
 }
 
 export interface IChartPageState {
@@ -90,6 +91,7 @@ public constructor(props:IChartPageProps){
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
         WebpartHeight: this.props.WebpartHeight,
         WebpartWidth: this.props.WebpartWidth,
+        userData: this.props.initialFilter != null ? this.props.initialFilter : 'user',
 
     };
 
@@ -98,6 +100,11 @@ public constructor(props:IChartPageProps){
     //  components properties (this.props)... otherwise "this" is undefined
     // this.onLinkClick = this.onLinkClick.bind(this);
 
+    this.toggleUserData = this.toggleUserData.bind(this);
+    this._onStoryChange = this._onStoryChange.bind(this);
+    this._updateStory = this._updateStory.bind(this);
+    this._updateInitialFilter = this._updateInitialFilter.bind(this);
+    
     console.log('chartsPage Props:', this.props);
   }
 
@@ -129,11 +136,15 @@ public constructor(props:IChartPageProps){
     //let rebuildTiles = false;
     if ( this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
       console.log('chartsPage componentDidUpdate 1 Props:', this.props);
-      this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
-    } else if ( this.props.selectedStory.text !== prevProps.selectedStory.text) {
+      this.processChartData(this.state.userData,['what??'],10,'string', this.state.selectedStory, null);
+    } else if ( this.props.selectedStory.text !== prevProps.selectedStory.text ) {
       console.log('chartsPage componentDidUpdate 2 Props:', this.props);
       //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
-      this.processChartData('all',['what??'],10,'string', this.state.selectedStory, null);
+      this.processChartData(this.state.userData,['what??'],10,'string', this.state.selectedStory, null);
+    } else if ( this.props.initialFilter !== prevProps.initialFilter ) {
+      console.log('chartsPage componentDidUpdate 3 Props:', this.props);
+      //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
+      this.processChartData(this.state.userData,['what??'],10,'string', this.state.selectedStory, null);
     }
 
     /*
@@ -180,9 +191,9 @@ public constructor(props:IChartPageProps){
                   ><Dropdown 
                   placeholder="Select a Story" 
                   label="" 
-                  selectedKey={this.state.selectedStory ? this.state.selectedStory.key : undefined}
-                  onChange={this._onStoryChange}
-                  options={options} 
+                  selectedKey={ this.state.selectedStory ? this.state.selectedStory.key : undefined }
+                  onChange={ this._onStoryChange }
+                  options={ options } 
                   styles={{  dropdown: { width: 175 }   }}
                 />
               </div>;
@@ -190,8 +201,8 @@ public constructor(props:IChartPageProps){
             let toggleUser = <Toggle label="" 
               onText={ 'All' } 
               offText={ 'You' } 
-              onChange={this.toggleUserData.bind(this)} 
-              checked={this.state.userData === 'user' ? true : false }
+              onChange={ this.toggleUserData } 
+              checked={ this.state.userData === 'user' ? false : true }
               styles={{ root: { width: 120, paddingTop: 13, } }}
             />;
 
@@ -199,8 +210,8 @@ public constructor(props:IChartPageProps){
             let toggleDetails = <Toggle label="" 
               onText={ 'Details' } 
               offText={ 'No Details' } 
-              onChange={this.toggleChartDetails.bind(this)} 
-              checked={this.state.chartDetails}
+              onChange={ this.toggleChartDetails } 
+              checked={ this.state.chartDetails }
               styles={{ root: { width: 140, paddingTop: 13, } }}
             />;
 
@@ -295,14 +306,16 @@ public constructor(props:IChartPageProps){
       //this.props._updateStory(item);
       //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
       let newUserData : 'all' | 'user' = this.state.userData === 'all' ? 'user' : 'all';
-      this.processChartData(newUserData,['what??'],10,'string',null, null);
+      let currentStory = this.state.selectedStory;
+      //this.props._updateInitialFilter(newUserData);
+      this.processChartData(newUserData,['what??'],10,'string',currentStory, null);
 
     }
 
 
     private _onStoryChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
-        console.log(`Selection change: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
-        this.props._updateStory(item);
+        console.log(`_onStoryChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
+        //this.props._updateStory(item);
         let newUserData = this.state.userData;
         //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
         this.processChartData(newUserData,['what??'],10,'string',item, null);
@@ -350,6 +363,22 @@ public constructor(props:IChartPageProps){
  *                                                                                 
  *                                                                                 
  */
+
+public _updateStory = (selectedStory: ISelectedStory) : void => {
+    
+  this.setState({  
+    selectedStory: selectedStory,
+  });
+}
+
+public _updateInitialFilter = (userData: 'all' | 'user') : void => {
+
+  this.setState({  
+    userData: userData,
+  });
+}
+
+
 
 private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption){
 
@@ -1011,7 +1040,6 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       chartPreData.storyIndex = chartPreData.stories.titles.indexOf(story.text);
     }
     
-
     this.setState({ 
       selectedStory: story,
       userData: who,

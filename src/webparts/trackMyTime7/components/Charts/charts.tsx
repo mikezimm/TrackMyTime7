@@ -49,6 +49,11 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType){
     else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
     else if ( thisType === ChartType.HorizontalBar ) { chartOptions = lineOptions; }
     
+
+    let theseValues = series.sums.map(
+      (x) => {return x != null ? x.toFixed(1) : null ; }
+    ).join();
+
    let r = Math.random().toString(36).substring(7);
     //console.log('random ref',r);
   //console.log('creatCharts', series);
@@ -65,6 +70,8 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType){
             }]
         }}
         options={ chartOptions } />
+
+        <div>{ theseValues }</div>
 
     </div>
 
@@ -158,10 +165,12 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
       };
     });
 
-    let r = Math.random().toString(36).substring(7);
-    //console.log('random ref',r);
+    let theseValues = series[selectedIndex].sums.map(
+      (x) => {return x != null ? x.toFixed(1) : null ; }
+    ).join();
 
-    //console.log('creatCharts', series);
+    let r = Math.random().toString(36).substring(7);
+
     return (
       <div style={{  }}>
           <ChartControl 
@@ -172,7 +181,7 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
               datasets: myDataSets
           }}
           options={ chartOptions } />
-
+      <div>{ theseValues }</div>
       </div>
 
   );

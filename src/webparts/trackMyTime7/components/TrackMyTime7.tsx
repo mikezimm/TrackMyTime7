@@ -831,6 +831,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         today={ this.props.today }
         selectedStory = { this.state.selectedStory }
         _updateStory={ this._updateStory.bind(this) }
+        _updateInitialFilter={ this._updateInitialFilter.bind(this) }
         WebpartHeight={ this.state.WebpartHeight }
         WebpartWidth={ this.state.WebpartWidth }
 
@@ -1720,6 +1721,17 @@ public toggleTips = (item: any): void => {
       selectedStory: selectedStory,
     });
   }
+
+  public _updateInitialFilter = (initialFilter: 'all' | 'user') : void => {
+
+    this.setState({  
+      initialFilter: initialFilter,
+    });
+  }
+
+  
+
+
 
   public clearMyInput = () : void => {
 
