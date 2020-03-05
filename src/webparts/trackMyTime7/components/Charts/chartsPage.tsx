@@ -53,7 +53,7 @@ export interface IChartPageState {
     processedChartData: boolean;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-    userData?: boolean;
+    userData?: 'all' | 'user';
     chartDetails?: boolean;
 
 }
@@ -188,10 +188,10 @@ public constructor(props:IChartPageProps){
               </div>;
 
             let toggleUser = <Toggle label="" 
-              onText={ 'Everyone' } 
+              onText={ 'All' } 
               offText={ 'You' } 
               onChange={this.toggleUserData.bind(this)} 
-              checked={this.state.userData}
+              checked={this.state.userData === 'user' ? true : false }
               styles={{ root: { width: 120, paddingTop: 13, } }}
             />;
 
@@ -294,8 +294,8 @@ public constructor(props:IChartPageProps){
       console.log('toggleUserData:',  item);
       //this.props._updateStory(item);
       //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
-      const showThis = item ? 'user' : 'all';
-      this.processChartData('user',['what??'],10,'string',null, null);
+      let newUserData : 'all' | 'user' = this.state.userData === 'all' ? 'user' : 'all';
+      this.processChartData(newUserData,['what??'],10,'string',null, null);
 
     }
 
@@ -303,8 +303,9 @@ public constructor(props:IChartPageProps){
     private _onStoryChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
         console.log(`Selection change: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
         this.props._updateStory(item);
+        let newUserData = this.state.userData;
         //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
-        this.processChartData('all',['what??'],10,'string',item, null);
+        this.processChartData(newUserData,['what??'],10,'string',item, null);
 
     }
 
@@ -385,12 +386,18 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
   * @param isSum Default is to count.  If True, it sums values
   */
   //processChartData('all',['catA','catB'])
-  private processChartData(who: string, what: string[], when: number, scale: string, story: ISelectedStory, chapter: ISelectedStory){
+  private processChartData(who: 'all' |  'user', what: string[], when: number, scale: string, story: ISelectedStory, chapter: ISelectedStory){
 
     let deltaDateArrays = createDeltaDateArrays();
     console.log('deltaDateArrays', deltaDateArrays);
 
-    console.log('processChartData story:', story.text);
+    if (story != null) {
+      console.log('processChartData story:', story.text);
+    } else { 
+      console.log('processChartData who:', who);
+      story = this.state.selectedStory;
+    }
+
     let hideEmpty = false;  //Will include data points with no data
 
     let startTimer = new Date().getTime();
@@ -999,10 +1006,15 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
   //   console.log('chartDataVal',chartDataVal);
     let lastStory : ISelectedStory = this.state.selectedStory;
 
-    chartPreData.storyIndex = story.text === defStory.text ? 0 : chartPreData.stories.titles.indexOf(story.text);
+    chartPreData.storyIndex = 0;
+    if ( story != null && story.text !== defStory.text ) {
+      chartPreData.storyIndex = chartPreData.stories.titles.indexOf(story.text);
+    }
+    
 
     this.setState({ 
       selectedStory: story,
+      userData: who,
       lastStory: lastStory,
       chartData: chartPreData,
       processedChartData: true,
