@@ -403,10 +403,10 @@ public _updateStory = (selectedStory: ISelectedStory) : void => {
   });
 }
 
-public _updateUserFilter = (userFilter: 'all' | 'user') : void => {
+public _updateUserFilter = (selectedUser: ISelectedUser ) : void => {
 
   this.setState({  
-    userFilter: userFilter,
+    selectedUser: selectedUser,
   });
 }
 
