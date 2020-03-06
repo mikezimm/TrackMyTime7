@@ -22,7 +22,7 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
 import InfoPage from './HelpInfo/infoPages';
-import { ISelectedStory, defStory, ISelectedUser, defUser } from './Charts/chartsPage';
+import { ISelectedStory, defStory, ISelectedUser, curUser } from './Charts/chartsPage';
 
 
 import * as strings from 'TrackMyTime7WebPartStrings';
@@ -337,7 +337,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       showCharts: false,
       chartData: null,
       selectedStory: defStory,
-      selectedUser: defUser,
+      selectedUser: curUser,
 
       fields: buildFormFields(this.props, this.state),
 

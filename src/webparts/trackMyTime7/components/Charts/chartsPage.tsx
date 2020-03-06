@@ -69,9 +69,14 @@ export const defStory: ISelectedStory = {
     text: "None",
 };
 
-export const defUser: ISelectedUser = {
+export const curUser: ISelectedUser = {
   key: "user",
   text: "User",
+};
+
+export const allUser: ISelectedUser = {
+  key: "all",
+  text: "All",
 };
 
 export default class ChartsPage extends React.Component<IChartPageProps, IChartPageState> {
@@ -95,9 +100,9 @@ public constructor(props:IChartPageProps){
         selectedChoice: 'snapShot',
         lastChoice: '',
         lastStory: defStory,
-        lastUser: defUser,
-        selectedStory: this.props.defaultStory != null ? {key: this.props.defaultStory, text: this.props.defaultStory}  : defStory ,
-        selectedUser: this.props.defaultUser != null ? {key: this.props.defaultUser, text: this.props.defaultUser}  : defUser ,
+        lastUser: curUser,
+        selectedStory: this.props.selectedStory ? this.props.selectedStory : {key: this.props.defaultStory, text: this.props.defaultStory},
+        selectedUser: this.props.selectedUser ? this.props.selectedUser : curUser ,
 
         chartData: null,
         processedChartData: false,
@@ -113,7 +118,7 @@ public constructor(props:IChartPageProps){
     //  components properties (this.props)... otherwise "this" is undefined
     // this.onLinkClick = this.onLinkClick.bind(this);
 
-    this.toggleUserFilter = this.toggleUserFilter.bind(this);
+    this._onUserChange = this._onUserChange.bind(this);
     this._onStoryChange = this._onStoryChange.bind(this);
     this._updateStory = this._updateStory.bind(this);
     this._updateUserFilter = this._updateUserFilter.bind(this);
@@ -158,7 +163,7 @@ public constructor(props:IChartPageProps){
     } else if ( this.props.selectedStory.text !== prevProps.selectedStory.text ) {
       console.log('chartsPage componentDidUpdate 2 Props:', this.props);
       //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
-      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
+      //this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
 
     } else if ( this.props.selectedUser.text !== prevProps.selectedUser.text ) {
       console.log('chartsPage componentDidUpdate 3 Props:', this.props);
@@ -194,7 +199,7 @@ public constructor(props:IChartPageProps){
               dropdown: { width: 150 }
             };
 
-            let options: IDropdownOption[] = this.state.chartData == null ? null : 
+            let sOptions: IDropdownOption[] = this.state.chartData == null ? null : 
                 this.state.chartData.stories.titles.map(val => {
                     return {
                         key: val,
@@ -203,28 +208,28 @@ public constructor(props:IChartPageProps){
                 });
             
 
-            options.unshift(defStory);
+            sOptions.unshift(defStory);
 
-            let storyDropdown = options == null ? null : <div
+            let storyDropdown = sOptions == null ? null : <div
                 style={{  paddingTop: 10  }}
                   ><Dropdown 
                   placeholder="Select a Story" 
                   label="" 
-                  selectedKey={ this.state.selectedStory ? this.state.selectedStory.key : undefined }
-                  onChange={ this.props._updateStory }
-                  options={ options } 
+                  selectedKey={ this.props.selectedStory ? this.props.selectedStory.key : undefined }
+                  onChange={ this._onStoryChange }
+                  options={ sOptions } 
                   styles={{  dropdown: { width: 175 }   }}
                 />
               </div>;
-
-              let userDropdown = options == null ? null : <div
+              let uOptions = [curUser, allUser];
+              let userDropdown = uOptions == null ? null : <div
               style={{  paddingTop: 10  }}
                 ><Dropdown 
                 placeholder="Select Data" 
                 label="" 
-                selectedKey={ this.state.selectedUser ? this.state.selectedUser.key : undefined }
-                onChange={ this.props._updateUserFilter }
-                options={ options } 
+                selectedKey={ this.props.selectedUser.key ? this.props.selectedUser.key : undefined }
+                onChange={ this._onUserChange }
+                options={ uOptions } 
                 styles={{  dropdown: { width: 175 }   }}
               />
               </div>;
@@ -333,13 +338,14 @@ public constructor(props:IChartPageProps){
  */
 
 //    public toggleUserFilter = (item): void => {
-      public toggleUserFilter = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
-      console.log('toggleUserFilter:',  item);
+  
+    public _onUserChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+
       //this.props._updateStory(item);
       //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
-      let newUserFilter : 'all' | 'user' = this.state.userFilter === 'all' ? 'user' : 'all';
-      let currentStory = this.state.selectedStory;
-      this.props._updateUserFilter(item);
+      let findItem = item.text.toLowerCase() === 'all' ? allUser : curUser;
+      console.log(`_onUserChange: ${item.text} ${item.selected} ${findItem}`);
+      this.props._updateUserFilter(findItem);
       //this.processChartData(newUserFilter,['what??'],10,'string',currentStory, null);
 
     }
@@ -347,7 +353,13 @@ public constructor(props:IChartPageProps){
 
     private _onStoryChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
         console.log(`_onStoryChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
-        this.props._updateStory(item);
+        let storyIndex = this.state.chartData.stories.titles.indexOf(item.text);
+
+        let storyTitle = storyIndex === -1 ? 'None' : this.state.chartData.stories.titles[storyIndex];
+        let thisStory = {key: storyTitle, text: storyTitle};
+        this.processChartData(this.state.selectedUser,['what??'],10,'string',thisStory, null);
+
+        this.props._updateStory({key: storyTitle, text: storyTitle});
         //let newUserFilter = this.state.userFilter;
         //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
         //this.processChartData(newUserFilter,['what??'],10,'string',item, null);
@@ -456,16 +468,18 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       console.log('processChartData story:', story.text);
 
     } else { 
-      console.log('processChartData who:', who);
+
       story = JSON.parse(JSON.stringify(defStory));
+      console.log('processChartData story:', who, story);
       //story = this.state.selectedStory;
     }
 
     if (who != null) {
-      console.log('processChartData story:', who.text);
+      console.log('processChartData who:', who.text);
+
     } else { 
-      console.log('processChartData who:', who);
-      who = JSON.parse(JSON.stringify(defUser));
+      who = JSON.parse(JSON.stringify(curUser));
+      console.log('processChartData who:', who, story);
     }
 
 
