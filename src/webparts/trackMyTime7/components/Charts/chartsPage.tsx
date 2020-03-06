@@ -30,31 +30,36 @@ import * as choiceBuilders from '../fields/choiceFieldBuilder';
 import { any } from 'prop-types';
 
 export interface ISelectedStory { key: string | number | undefined; text: string; }
+export interface ISelectedUser { key: string | number | undefined; text: string; }
 
 export interface IChartPageProps {
     showCharts: boolean;
     allLoaded: boolean;
     entries: IEntryInfo;
     defaultStory?: string;
+    defaultUser?: string;
     today: ITheTime;
     selectedStory: ISelectedStory;
+    selectedUser: ISelectedUser;
     _updateStory: any;
-    _updateInitialFilter: any;
+    _updateUserFilter: any;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-    initialFilter?: 'all' | 'user'; 
+    userFilter?: 'all' | 'user'; 
 }
 
 export interface IChartPageState {
     selectedChoice: string;
     lastChoice: string;
     lastStory:  ISelectedStory;
+    lastUser:  ISelectedUser;
     selectedStory: ISelectedStory;
+    selectedUser: ISelectedUser;
     chartData?: IChartData;
     processedChartData: boolean;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-    userData?: 'all' | 'user';
+    userFilter?: 'all' | 'user';
     chartDetails?: boolean;
 
 }
@@ -62,6 +67,11 @@ export interface IChartPageState {
 export const defStory: ISelectedStory = {
     key: "None",
     text: "None",
+};
+
+export const defUser: ISelectedUser = {
+  key: "User",
+  text: "user",
 };
 
 export default class ChartsPage extends React.Component<IChartPageProps, IChartPageState> {
@@ -85,13 +95,16 @@ public constructor(props:IChartPageProps){
         selectedChoice: 'snapShot',
         lastChoice: '',
         lastStory: defStory,
+        lastUser: defUser,
         selectedStory: this.props.defaultStory != null ? {key: this.props.defaultStory, text: this.props.defaultStory}  : defStory ,
+        selectedUser: this.props.defaultUser != null ? {key: this.props.defaultUser, text: this.props.defaultUser}  : defUser ,
+
         chartData: null,
         processedChartData: false,
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
         WebpartHeight: this.props.WebpartHeight,
         WebpartWidth: this.props.WebpartWidth,
-        userData: this.props.initialFilter != null ? this.props.initialFilter : 'user',
+        userFilter: this.props.userFilter != null ? this.props.userFilter : 'user',
 
     };
 
@@ -100,10 +113,10 @@ public constructor(props:IChartPageProps){
     //  components properties (this.props)... otherwise "this" is undefined
     // this.onLinkClick = this.onLinkClick.bind(this);
 
-    this.toggleUserData = this.toggleUserData.bind(this);
+    this.toggleUserFilter = this.toggleUserFilter.bind(this);
     this._onStoryChange = this._onStoryChange.bind(this);
     this._updateStory = this._updateStory.bind(this);
-    this._updateInitialFilter = this._updateInitialFilter.bind(this);
+    this._updateUserFilter = this._updateUserFilter.bind(this);
     
     console.log('chartsPage Props:', this.props);
   }
@@ -134,17 +147,21 @@ public constructor(props:IChartPageProps){
   public componentDidUpdate(prevProps){
     
     //let rebuildTiles = false;
-    if ( this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
+    if ( !this.props.allLoaded || !this.props.showCharts ) {
+      
+    } else if ( this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
       console.log('chartsPage componentDidUpdate 1 Props:', this.props);
-      this.processChartData(this.state.userData,['what??'],10,'string', this.state.selectedStory, null);
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
+
     } else if ( this.props.selectedStory.text !== prevProps.selectedStory.text ) {
       console.log('chartsPage componentDidUpdate 2 Props:', this.props);
       //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
-      this.processChartData(this.state.userData,['what??'],10,'string', this.state.selectedStory, null);
-    } else if ( this.props.initialFilter !== prevProps.initialFilter ) {
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
+
+    } else if ( this.props.selectedUser.text !== prevProps.selectedUser.text ) {
       console.log('chartsPage componentDidUpdate 3 Props:', this.props);
       //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
-      this.processChartData(this.state.userData,['what??'],10,'string', this.state.selectedStory, null);
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
     }
 
     /*
@@ -192,20 +209,32 @@ public constructor(props:IChartPageProps){
                   placeholder="Select a Story" 
                   label="" 
                   selectedKey={ this.state.selectedStory ? this.state.selectedStory.key : undefined }
-                  onChange={ this._onStoryChange }
+                  onChange={ this.props._updateStory }
                   options={ options } 
                   styles={{  dropdown: { width: 175 }   }}
                 />
               </div>;
 
+              let userDropdown = options == null ? null : <div
+              style={{  paddingTop: 10  }}
+                ><Dropdown 
+                placeholder="Select Data" 
+                label="" 
+                selectedKey={ this.state.selectedStory ? this.state.selectedStory.key : undefined }
+                onChange={ this.props._updateUserFilter }
+                options={ options } 
+                styles={{  dropdown: { width: 175 }   }}
+              />
+              </div>;
+/*
             let toggleUser = <Toggle label="" 
               onText={ 'All' } 
               offText={ 'You' } 
-              onChange={ this.toggleUserData } 
-              checked={ this.state.userData === 'user' ? false : true }
+              onChange={ this.toggleUserFilter } 
+              checked={ this.state.userFilter === 'user' ? false : true }
               styles={{ root: { width: 120, paddingTop: 13, } }}
             />;
-
+*/
 
             let toggleDetails = <Toggle label="" 
               onText={ 'Details' } 
@@ -272,7 +301,7 @@ public constructor(props:IChartPageProps){
 
                       <Stack padding={0} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
                         { toggleDetails }
-                        { toggleUser }
+                        { userDropdown }
                         { storyDropdown }
 
                       </Stack>
@@ -301,24 +330,25 @@ public constructor(props:IChartPageProps){
  *                                                                                                 
  */
 
-    public toggleUserData = (item): void => {
-      console.log('toggleUserData:',  item);
+//    public toggleUserFilter = (item): void => {
+      public toggleUserFilter = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+      console.log('toggleUserFilter:',  item);
       //this.props._updateStory(item);
       //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
-      let newUserData : 'all' | 'user' = this.state.userData === 'all' ? 'user' : 'all';
+      let newUserFilter : 'all' | 'user' = this.state.userFilter === 'all' ? 'user' : 'all';
       let currentStory = this.state.selectedStory;
-      //this.props._updateInitialFilter(newUserData);
-      this.processChartData(newUserData,['what??'],10,'string',currentStory, null);
+      this.props._updateUserFilter(item);
+      //this.processChartData(newUserFilter,['what??'],10,'string',currentStory, null);
 
     }
 
 
     private _onStoryChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
         console.log(`_onStoryChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
-        //this.props._updateStory(item);
-        let newUserData = this.state.userData;
+        this.props._updateStory(item);
+        //let newUserFilter = this.state.userFilter;
         //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
-        this.processChartData(newUserData,['what??'],10,'string',item, null);
+        //this.processChartData(newUserFilter,['what??'],10,'string',item, null);
 
     }
 
@@ -371,10 +401,10 @@ public _updateStory = (selectedStory: ISelectedStory) : void => {
   });
 }
 
-public _updateInitialFilter = (userData: 'all' | 'user') : void => {
+public _updateUserFilter = (userFilter: 'all' | 'user') : void => {
 
   this.setState({  
-    userData: userData,
+    userFilter: userFilter,
   });
 }
 
@@ -415,17 +445,27 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
   * @param isSum Default is to count.  If True, it sums values
   */
   //processChartData('all',['catA','catB'])
-  private processChartData(who: 'all' |  'user', what: string[], when: number, scale: string, story: ISelectedStory, chapter: ISelectedStory){
+  private processChartData(who: ISelectedUser, what: string[], when: number, scale: string, story: ISelectedStory, chapter: ISelectedStory){
 
     let deltaDateArrays = createDeltaDateArrays();
     console.log('deltaDateArrays', deltaDateArrays);
 
     if (story != null) {
       console.log('processChartData story:', story.text);
+
     } else { 
       console.log('processChartData who:', who);
-      story = this.state.selectedStory;
+      story = JSON.parse(JSON.stringify(defStory));
+      //story = this.state.selectedStory;
     }
+
+    if (who != null) {
+      console.log('processChartData story:', who.text);
+    } else { 
+      console.log('processChartData who:', who);
+      who = JSON.parse(JSON.stringify(defUser));
+    }
+
 
     let hideEmpty = false;  //Will include data points with no data
 
@@ -514,14 +554,14 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       return emptyStories;
     }
 
-    let sourceData: ITimeEntry[] = this.props.entries[who];
+    let sourceData: ITimeEntry[] = this.props.entries[who.key];
 
     let daysSinceMonthStart =this.props.today.daysSinceMonthStart;
     let daysSinceNewYear =this.props.today.daysSinceNewYear;
     let daysSinceSOW =this.props.today.daysSinceMon;
 
     let chartPreData: IChartData = {
-      filter: 'Results for ' + who,
+      filter: 'Results for ' + who.text,
       thisYear: [
         createISeries(' This Year (mo)' , '', hideEmpty ? 0 : 0 , hideEmpty ? 0 : this.props.today.month , 1),
         createISeries('This Year (wk)' , '', hideEmpty ? 1 : 1 , hideEmpty ? 1 : this.props.today.week , 1)],
@@ -1034,6 +1074,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
      //console.log('chartPreData',chartPreData);
   //   console.log('chartDataVal',chartDataVal);
     let lastStory : ISelectedStory = this.state.selectedStory;
+    let lastUser : ISelectedStory = this.state.selectedUser;
 
     chartPreData.storyIndex = 0;
     if ( story != null && story.text !== defStory.text ) {
@@ -1042,8 +1083,9 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
     
     this.setState({ 
       selectedStory: story,
-      userData: who,
+      selectedUser: who,
       lastStory: lastStory,
+      lastUser: lastUser,
       chartData: chartPreData,
       processedChartData: true,
     //  chartData: chartData,

@@ -22,7 +22,7 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
 import InfoPage from './HelpInfo/infoPages';
-import { ISelectedStory, defStory } from './Charts/chartsPage';
+import { ISelectedStory, defStory, ISelectedUser, defUser } from './Charts/chartsPage';
 
 
 import * as strings from 'TrackMyTime7WebPartStrings';
@@ -422,6 +422,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     this._updateComments = this._updateComments.bind(this);
     this._updateStory = this._updateStory.bind(this);
+    this._updateUserFilter = this._updateUserFilter.bind(this);
 
     
   }
@@ -830,8 +831,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         defaultStory="None"
         today={ this.props.today }
         selectedStory = { this.state.selectedStory }
+        selectedUser = { this.state.selectedUser }
         _updateStory={ this._updateStory.bind(this) }
-        _updateInitialFilter={ this._updateInitialFilter.bind(this) }
+        _updateUserFilter={ this._updateUserFilter.bind(this) }
         WebpartHeight={ this.state.WebpartHeight }
         WebpartWidth={ this.state.WebpartWidth }
 
@@ -1721,14 +1723,14 @@ public toggleTips = (item: any): void => {
       selectedStory: selectedStory,
     });
   }
-
-  public _updateInitialFilter = (initialFilter: 'all' | 'user') : void => {
-
+  
+  public _updateUserFilter = (selectedUser: ISelectedUser) : void => {
+  
     this.setState({  
-      initialFilter: initialFilter,
+      selectedUser: selectedUser,
     });
   }
-
+  
   
 
 

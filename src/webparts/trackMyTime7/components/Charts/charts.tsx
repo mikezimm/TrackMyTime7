@@ -29,53 +29,67 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType){
    },
   };
 
-    // set the options
-    const doughnutOptions: Chart.ChartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      //scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
-      title: {
-        display: true,
-        text: series.title,
-      },
-      legend: {
-        display: false  //legend must be false until I can properly size the chart
-     },
-    };
-  
-    let chartOptions: Chart.ChartOptions = null;
-    if ( thisType === ChartType.Bar ) { chartOptions = lineOptions; }
-    else if ( thisType === ChartType.Doughnut ) { chartOptions = doughnutOptions; }
-    else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
-    else if ( thisType === ChartType.HorizontalBar ) { chartOptions = lineOptions; }
-    
+  // set the options
+  const doughnutOptions: Chart.ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    //scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
+    title: {
+      display: true,
+      text: series.title,
+    },
+    legend: {
+      display: false  //legend must be false until I can properly size the chart
+    },
+  };
 
-    let theseValues = series.sums.map(
-      (x) => {return x != null ? x.toFixed(1) : null ; }
+  let chartOptions: Chart.ChartOptions = null;
+  if ( thisType === ChartType.Bar ) { chartOptions = lineOptions; }
+  else if ( thisType === ChartType.Doughnut ) { chartOptions = doughnutOptions; }
+  else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
+  else if ( thisType === ChartType.HorizontalBar ) { chartOptions = lineOptions; }
+  
+
+  if ( !series ) {
+    return null;
+  } else {
+    let theseValues  = !series || series.sums == null ? '' :  series.sums.map(
+      (x) => {
+        //console.log('x.toFixed', typeof x, x);
+        if (typeof x == 'string') {
+          return x;
+        } else if ( !x || x == null ) {
+          return null;
+        } else {
+          return x.toFixed(1);
+        }
+      }
     ).join();
 
-   let r = Math.random().toString(36).substring(7);
-    //console.log('random ref',r);
-  //console.log('creatCharts', series);
-  return (
-    <div style={{ }}>
-        <ChartControl 
-        ref={ r }
-        type={ thisType }
-        data={{
-            labels: series.labels,
-            datasets: [{
-            //label: series.title,
-            data: series.sums
-            }]
-        }}
-        options={ chartOptions } />
+    let r = Math.random().toString(36).substring(7);
+  
+    return (
+      <div style={{ }}>
+          <ChartControl 
+          ref={ r }
+          type={ thisType }
+          data={{
+              labels: series.labels,
+              datasets: [{
+              //label: series.title,
+              data: series.sums
+              }]
+          }}
+          options={ chartOptions } />
+  
+          <div>{ theseValues }</div>
+  
+      </div>
+  
+    );
 
-        <div>{ theseValues }</div>
+  }
 
-    </div>
-
-  );
 
 }
 
@@ -158,34 +172,47 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
     else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
     else if ( thisType === ChartType.HorizontalBar ) { chartOptions = lineOptions; }
     
-    let myDataSets = series.map((s) => {
-      return {
-        label: s.title,
-        data: s.sums,
-      };
-    });
+    if ( !series || series.length === 0 ) {
+      return null;
+    } else {
 
-    let theseValues = series[selectedIndex].sums.map(
-      (x) => {return x != null ? x.toFixed(1) : null ; }
-    ).join();
+      let myDataSets = series.map((s) => {
+        return {
+          label: s.title,
+          data: s.sums,
+        };
+      });
 
-    let r = Math.random().toString(36).substring(7);
+      let theseValues = !series[selectedIndex] || series[selectedIndex].sums == null ? '' : series[selectedIndex].sums.map(
+        (x) => {
+          //console.log('x.toFixed', typeof x, x);
+          if (typeof x == 'string') {
+            return x;
+          } else if ( !x || x == null ) {
+            return null;
+          } else {
+            return x.toFixed(1);
+          }
+        }
+      ).join();
 
-    return (
-      <div style={{  }}>
-          <ChartControl 
-          type={ thisType }
-          ref={ r }
-          data={{
-              labels: series[selectedIndex].labels,
-              datasets: myDataSets
-          }}
-          options={ chartOptions } />
-      <div>{ theseValues }</div>
-      </div>
+      let r = Math.random().toString(36).substring(7);
 
-  );
+      return (
+        <div style={{  }}>
+            <ChartControl 
+            type={ thisType }
+            ref={ r }
+            data={{
+                labels: series[selectedIndex].labels,
+                datasets: myDataSets
+            }}
+            options={ chartOptions } />
+        <div>{ theseValues }</div>
+        </div>
 
+    );
+  }
 }
 
 
