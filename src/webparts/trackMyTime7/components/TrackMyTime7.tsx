@@ -337,6 +337,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       showCharts: false,
       chartData: null,
       selectedStory: defStory,
+      selectedUser: defUser,
 
       fields: buildFormFields(this.props, this.state),
 
@@ -823,7 +824,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ></InfoPage>
     </div>;
 
-    const chartPage = <div>
+    let loadCharts = this.state.allLoaded && this.state.showCharts ? true : false;
+    const chartPage = !loadCharts ? null : <div>
       <ChartsPage 
         allLoaded={ this.state.allLoaded }
         showCharts={ this.state.showCharts }

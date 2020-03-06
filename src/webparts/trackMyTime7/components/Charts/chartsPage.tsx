@@ -70,8 +70,8 @@ export const defStory: ISelectedStory = {
 };
 
 export const defUser: ISelectedUser = {
-  key: "User",
-  text: "user",
+  key: "user",
+  text: "User",
 };
 
 export default class ChartsPage extends React.Component<IChartPageProps, IChartPageState> {
@@ -123,11 +123,13 @@ public constructor(props:IChartPageProps){
 
 
   public componentDidMount() {
-      /*
+
     if (this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
-        console.log('chartsPage Props:', this.props);
-        this.processChartData('all',['what??'],10,'string');
+      console.log('chartsPage componentDidMount 0 Props:', this.props);
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
     }
+          /*
+
       */
 
   }
@@ -220,7 +222,7 @@ public constructor(props:IChartPageProps){
                 ><Dropdown 
                 placeholder="Select Data" 
                 label="" 
-                selectedKey={ this.state.selectedStory ? this.state.selectedStory.key : undefined }
+                selectedKey={ this.state.selectedUser ? this.state.selectedUser.key : undefined }
                 onChange={ this.props._updateUserFilter }
                 options={ options } 
                 styles={{  dropdown: { width: 175 }   }}
