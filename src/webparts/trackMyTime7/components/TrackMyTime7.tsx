@@ -22,7 +22,7 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
 import InfoPage from './HelpInfo/infoPages';
-import { ISelectedStory, defStory } from './Charts/chartsPage';
+import { ISelectedStory, defStory, ISelectedUser, curUser } from './Charts/chartsPage';
 
 
 import * as strings from 'TrackMyTime7WebPartStrings';
@@ -337,6 +337,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       showCharts: false,
       chartData: null,
       selectedStory: defStory,
+      selectedUser: curUser,
 
       fields: buildFormFields(this.props, this.state),
 
@@ -422,6 +423,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     this._updateComments = this._updateComments.bind(this);
     this._updateStory = this._updateStory.bind(this);
+    this._updateUserFilter = this._updateUserFilter.bind(this);
 
     
   }
@@ -564,8 +566,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
     //console.log('render setPivot:', setPivot);
-    console.log('Public render props:', this.props);
-    console.log('Public render state:', this.state);
+    //console.log('Public render props:', this.props);
+    console.log('TRACK MY TIME STATE:', this.state);
 
     /**
      * this section was added to keep pivots in sync when syncProjectPivotsOnToggle === true
@@ -822,7 +824,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ></InfoPage>
     </div>;
 
-    const chartPage = <div>
+    let loadCharts = this.state.allLoaded && this.state.showCharts ? true : false;
+    const chartPage = !loadCharts ? null : <div>
       <ChartsPage 
         allLoaded={ this.state.allLoaded }
         showCharts={ this.state.showCharts }
@@ -830,7 +833,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         defaultStory="None"
         today={ this.props.today }
         selectedStory = { this.state.selectedStory }
+        selectedUser = { this.state.selectedUser }
         _updateStory={ this._updateStory.bind(this) }
+        _updateUserFilter={ this._updateUserFilter.bind(this) }
         WebpartHeight={ this.state.WebpartHeight }
         WebpartWidth={ this.state.WebpartWidth }
 
@@ -1720,6 +1725,17 @@ public toggleTips = (item: any): void => {
       selectedStory: selectedStory,
     });
   }
+  
+  public _updateUserFilter = (selectedUser: ISelectedUser) : void => {
+  
+    this.setState({  
+      selectedUser: selectedUser,
+    });
+  }
+  
+  
+
+
 
   public clearMyInput = () : void => {
 

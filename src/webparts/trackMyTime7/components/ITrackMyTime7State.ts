@@ -5,7 +5,7 @@ import { IFormFields } from './fields/fieldDefinitions';
 import { ITheTime } from '../../../services/dateServices';
 
 import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
-import { ISelectedStory } from './Charts/chartsPage';
+import { ISelectedStory, ISelectedUser, } from './Charts/chartsPage';
 import { string } from 'prop-types';
 
 export interface ILink {
@@ -399,6 +399,8 @@ export interface ITrackMyTime7State {
   chartData?: IChartData;
   showCharts?: boolean;
   selectedStory?: ISelectedStory;
+  selectedUser?: ISelectedUser;
+  userFilter?: 'all' | 'user'; 
   
 
   formEntry: ISaveEntry;

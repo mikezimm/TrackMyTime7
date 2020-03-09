@@ -35,7 +35,6 @@ export function creatEntryTypeChoices(selectedKey: string, _onChange){
   options.push(  {key: 'manual', text: 'Manual' + choiceSpacer });
 
   return (
-    
     <ChoiceGroup
       // className = "inlineflex" //This didn't do anything
       //className="defaultChoiceGroup" //This came with the example but does not seem to do anything
@@ -58,10 +57,10 @@ export function creatChartChoices( selectedKey: string, _onChange){
   options.push(  {key: 'snapShot', text: 'Snapshot' + spacer4x });
   options.push(  {key: 'longTerm', text: 'Long Term' + spacer4x });
   options.push(  {key: 'story', text: 'Story' + spacer4x });
-  options.push(  {key: 'usage', text: 'Usage' + choiceSpacer });
+  options.push(  {key: 'usage', text: 'Usage' + spacer4x });
+  options.push(  {key: 'numbers', text: 'Numbers' + choiceSpacer });
 
   return (
-    
     <ChoiceGroup
       // className = "inlineflex" //This didn't do anything
       //className="defaultChoiceGroup" //This came with the example but does not seem to do anything
