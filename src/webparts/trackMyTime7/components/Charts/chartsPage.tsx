@@ -61,6 +61,7 @@ export interface IChartPageState {
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     userFilter?: 'all' | 'user';
     chartDetails?: boolean;
+  
 
 }
 
@@ -163,11 +164,13 @@ public constructor(props:IChartPageProps){
     } else if ( this.props.selectedStory.text !== prevProps.selectedStory.text ) {
       console.log('chartsPage componentDidUpdate 2 Props:', this.props);
       //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
-      //this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
 
     } else if ( this.props.selectedUser.text !== prevProps.selectedUser.text ) {
       console.log('chartsPage componentDidUpdate 3 Props:', this.props);
       //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
       this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
     }
 
@@ -343,9 +346,11 @@ public constructor(props:IChartPageProps){
 
       //this.props._updateStory(item);
       //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
-      let findItem = item.text.toLowerCase() === 'all' ? allUser : curUser;
-      console.log(`_onUserChange: ${item.text} ${item.selected} ${findItem}`);
-      this.props._updateUserFilter(findItem);
+      let thisUser = item.text.toLowerCase() === 'all' ? allUser : curUser;
+      console.log(`_onUserChange: ${item.text} ${item.selected} ${thisUser}`);
+      this.processChartData(thisUser,['what??'],10,'string',this.state.selectedStory, null);
+
+      this.props._updateUserFilter(thisUser);
       //this.processChartData(newUserFilter,['what??'],10,'string',currentStory, null);
 
     }
@@ -354,8 +359,8 @@ public constructor(props:IChartPageProps){
     private _onStoryChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
         console.log(`_onStoryChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
         let storyIndex = this.state.chartData.stories.titles.indexOf(item.text);
-
         let storyTitle = storyIndex === -1 ? 'None' : this.state.chartData.stories.titles[storyIndex];
+
         let thisStory = {key: storyTitle, text: storyTitle};
         this.processChartData(this.state.selectedUser,['what??'],10,'string',thisStory, null);
 

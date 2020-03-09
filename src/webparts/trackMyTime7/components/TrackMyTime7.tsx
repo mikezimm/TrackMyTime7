@@ -566,8 +566,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
     //console.log('render setPivot:', setPivot);
-    console.log('Public render props:', this.props);
-    console.log('Public render state:', this.state);
+    //console.log('Public render props:', this.props);
+    console.log('TRACK MY TIME STATE:', this.state);
 
     /**
      * this section was added to keep pivots in sync when syncProjectPivotsOnToggle === true
