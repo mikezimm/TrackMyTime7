@@ -1,0 +1,46 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+.chartsPage {
+
+    padding-left: 30px;
+
+    .toggleDetailsBar {
+        padding-top: 10px;
+        padding-bottom: 0px;
+    }
+
+    .showDetailToggles {
+        transition:all 0.2s ease;
+        //transition:height 0.4s ease;
+        //transition:padding-bottom 0.4s ease;
+        //transition:transform 0.4s ease;
+        transform:scaleY(1);
+        transform-origin:top;
+        height:50px;
+        //max-height: 100px;
+        overflow: hidden;
+        padding-bottom: 20px;
+        border-style: solid;
+        border-top-width: thin;
+        border-bottom-width: none;
+        border-left-width: none;
+        border-right-width: none;
+    }
+
+    .hideDetailToggles {
+        transition:all 0.2s ease;
+        //transition:height 0.4s ease;
+        //transition:padding-bottom 0.4s ease;
+        //transition:transform 0.4s ease;
+        height:0;
+        overflow: hidden;
+        padding-bottom: 0px;
+        transform:scaleY(0);
+        border-style: none;
+        border-top-width: none;
+        border-bottom-width: none;
+        border-left-width: none;
+        border-right-width: none;
+    }
+
+}

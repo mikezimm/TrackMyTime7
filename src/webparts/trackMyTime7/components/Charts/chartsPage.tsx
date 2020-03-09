@@ -18,6 +18,7 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import styles from '../TrackMyTime7.module.scss';
+import stylesC from './chartsPage.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
 
@@ -60,8 +61,13 @@ export interface IChartPageState {
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     userFilter?: 'all' | 'user';
+
     chartDetails?: boolean;
-  
+    chartTrace?: boolean;
+    chartChanges?: boolean;  
+    chartWarnings?: boolean;  
+    chartErrors?: boolean;  
+    chartAllDetails?: boolean;  
 
 }
 
@@ -111,6 +117,13 @@ public constructor(props:IChartPageProps){
         WebpartHeight: this.props.WebpartHeight,
         WebpartWidth: this.props.WebpartWidth,
         userFilter: this.props.userFilter != null ? this.props.userFilter : 'user',
+
+        chartDetails: false,
+        chartTrace: false,
+        chartChanges: false,
+        chartWarnings: false,
+        chartErrors: false,
+        chartAllDetails: false,
 
     };
 
@@ -254,6 +267,64 @@ public constructor(props:IChartPageProps){
               styles={{ root: { width: 140, paddingTop: 13, } }}
             />;
 
+/*
+            chartTrace: false,
+            chartChanges: false,
+            chartWarnings: false,
+            chartErrors: false,
+*/
+
+            const togAllDetails = <Toggle label="" 
+              onText={ 'All Details' } 
+              offText={ 'No Details' } 
+              onChange={ this.toggleAllDetails } 
+              checked={ this.state.chartAllDetails }
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
+
+            const togTrace = <Toggle label="" 
+              onText={ 'Trace data' } 
+              offText={ 'No Trace' } 
+              onChange={ this.toggleTrace } 
+              checked={ this.state.chartTrace }
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
+
+            const togChanges = <Toggle label="" 
+              onText={ 'Changes' } 
+              offText={ 'No Changes' } 
+              onChange={ this.toggleChanges } 
+              checked={ this.state.chartChanges }
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
+
+            const togWarnings = <Toggle label="" 
+              onText={ 'Warnings' } 
+              offText={ 'No Warnings' } 
+              onChange={ this.toggleWarnings } 
+              checked={ this.state.chartWarnings }
+              styles={{ root: { width: 150, paddingTop: 13, } }}
+            />;
+
+            const togErrors = <Toggle label="" 
+              onText={ 'Errors' } 
+              offText={ 'No Errors' } 
+              onChange={ this.toggleErrors } 
+              checked={ this.state.chartErrors }
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
+
+            const stackToggleTokensBody: IStackTokens = { childrenGap: 20 };
+            let detailToggles = <div className={ [stylesC.toggleDetailsBar, this.state.chartDetails ? stylesC.showDetailToggles : stylesC.hideDetailToggles].join(' ') }>
+              <Stack padding={0} horizontal={true} horizontalAlign={"space-between"} tokens={stackToggleTokensBody }> {/* Stack for Chart Toggles */}
+                { togAllDetails }
+                { togTrace }
+                { togChanges }
+                { togWarnings }
+                { togErrors }
+              </Stack>
+            </div>;
+
             let pageChoices = choiceBuilders.creatChartChoices(this.state.selectedChoice, this._updateChoice.bind(this));
 
             let thisPage = null;
@@ -305,7 +376,7 @@ public constructor(props:IChartPageProps){
             const stackButtonTokensBody: IStackTokens = { childrenGap: 20 };
 
             return (
-                <div className={ styles.infoPane }>
+                <div className={ [styles.infoPane, stylesC.chartsPage].join(' ') }>
                     <Stack padding={0} horizontal={true} wrap={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
                       { pageChoices }
 
@@ -316,7 +387,7 @@ public constructor(props:IChartPageProps){
 
                       </Stack>
                     </Stack>
-
+                    { detailToggles }
                     { thisPage }
                 </div>
             );
@@ -401,6 +472,51 @@ public constructor(props:IChartPageProps){
          }); 
   
       } //End toggleChartDetails
+
+      public toggleAllDetails = (item): void => {
+        //Shows or hides chart details
+        let newSetting = !this.state.chartAllDetails;
+        
+        this.setState({ 
+          chartAllDetails: newSetting,
+          chartTrace: newSetting,
+          chartChanges: newSetting,
+          chartWarnings: newSetting,
+          chartErrors: newSetting,
+
+         }); 
+      } //End toggleAllDetails
+
+      public toggleTrace = (item): void => {
+        //Shows or hides chart details
+        this.setState({ 
+          chartTrace: !this.state.chartTrace,
+         }); 
+      } //End toggleTrace
+     
+      public toggleChanges = (item): void => {
+        //Shows or hides chart details
+        this.setState({ 
+          chartChanges: !this.state.chartChanges,
+         }); 
+      } //End toggleChanges
+
+            
+      public toggleWarnings = (item): void => {
+        //Shows or hides chart details
+        this.setState({ 
+          chartWarnings: !this.state.chartWarnings,
+         }); 
+      } //End toggleWarnings
+
+            
+      public toggleErrors = (item): void => {
+        //Shows or hides chart details
+        this.setState({ 
+          chartErrors: !this.state.chartErrors,
+         }); 
+      } //End toggleErrors
+
 
 /***
  *         db    db d8888b.       .o88b. db   db  .d88b.  d888888b  .o88b. d88888b 
