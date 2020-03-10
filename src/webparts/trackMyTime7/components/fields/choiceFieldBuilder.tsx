@@ -65,7 +65,8 @@ export function creatChartChoices( selectedKey: string, _onChange){
       // className = "inlineflex" //This didn't do anything
       //className="defaultChoiceGroup" //This came with the example but does not seem to do anything
       //https://github.com/OfficeDev/office-ui-fabric-react/issues/8079#issuecomment-479136073
-      styles={{ flexContainer: { display: "flex" , paddingLeft: 30} }}
+      //      styles={{ flexContainer: { display: "flex" , paddingRight: 30} }}
+      styles={{ flexContainer: { display: "flex" , paddingRight: 30} }}
       selectedKey={ selectedKey }
       options={options}
       onChange={_onChange}

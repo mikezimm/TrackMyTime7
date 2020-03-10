@@ -33,6 +33,14 @@ import { any } from 'prop-types';
 export interface ISelectedStory { key: string | number | undefined; text: string; }
 export interface ISelectedUser { key: string | number | undefined; text: string; }
 
+export interface IDataOptions {
+    chartAllDetails?: boolean;
+    chartTrace?: boolean;
+    chartChanges?: boolean;  
+    chartWarnings?: boolean;  
+    chartErrors?: boolean;  
+}
+
 export interface IChartPageProps {
     showCharts: boolean;
     allLoaded: boolean;
@@ -63,11 +71,8 @@ export interface IChartPageState {
     userFilter?: 'all' | 'user';
 
     chartDetails?: boolean;
-    chartTrace?: boolean;
-    chartChanges?: boolean;  
-    chartWarnings?: boolean;  
-    chartErrors?: boolean;  
-    chartAllDetails?: boolean;  
+
+    dataOptions?: IDataOptions;
 
 }
 
@@ -119,11 +124,14 @@ public constructor(props:IChartPageProps){
         userFilter: this.props.userFilter != null ? this.props.userFilter : 'user',
 
         chartDetails: false,
-        chartTrace: false,
-        chartChanges: false,
-        chartWarnings: false,
-        chartErrors: false,
-        chartAllDetails: false,
+
+        dataOptions: {
+          chartAllDetails: false,
+          chartTrace: false,
+          chartChanges: false, 
+          chartWarnings: false, 
+          chartErrors: false, 
+        }
 
     };
 
@@ -278,7 +286,7 @@ public constructor(props:IChartPageProps){
               onText={ 'All Details' } 
               offText={ 'No Details' } 
               onChange={ this.toggleAllDetails } 
-              checked={ this.state.chartAllDetails }
+              checked={ this.state.dataOptions.chartAllDetails }
               styles={{ root: { width: 140, paddingTop: 13, } }}
             />;
 
@@ -286,7 +294,7 @@ public constructor(props:IChartPageProps){
               onText={ 'Trace data' } 
               offText={ 'No Trace' } 
               onChange={ this.toggleTrace } 
-              checked={ this.state.chartTrace }
+              checked={ this.state.dataOptions.chartTrace }
               styles={{ root: { width: 140, paddingTop: 13, } }}
             />;
 
@@ -294,7 +302,7 @@ public constructor(props:IChartPageProps){
               onText={ 'Changes' } 
               offText={ 'No Changes' } 
               onChange={ this.toggleChanges } 
-              checked={ this.state.chartChanges }
+              checked={ this.state.dataOptions.chartChanges }
               styles={{ root: { width: 140, paddingTop: 13, } }}
             />;
 
@@ -302,7 +310,7 @@ public constructor(props:IChartPageProps){
               onText={ 'Warnings' } 
               offText={ 'No Warnings' } 
               onChange={ this.toggleWarnings } 
-              checked={ this.state.chartWarnings }
+              checked={ this.state.dataOptions.chartWarnings }
               styles={{ root: { width: 150, paddingTop: 13, } }}
             />;
 
@@ -310,12 +318,15 @@ public constructor(props:IChartPageProps){
               onText={ 'Errors' } 
               offText={ 'No Errors' } 
               onChange={ this.toggleErrors } 
-              checked={ this.state.chartErrors }
+              checked={ this.state.dataOptions.chartErrors }
               styles={{ root: { width: 140, paddingTop: 13, } }}
             />;
 
+            const ColoredLine = ({ color }) => ( <hr style={{ color: color, backgroundColor: color, height: 1 }}/> );
+
             const stackToggleTokensBody: IStackTokens = { childrenGap: 20 };
             let detailToggles = <div className={ [stylesC.toggleDetailsBar, this.state.chartDetails ? stylesC.showDetailToggles : stylesC.hideDetailToggles].join(' ') }>
+              <ColoredLine color="gray" />
               <Stack padding={0} horizontal={true} horizontalAlign={"space-between"} tokens={stackToggleTokensBody }> {/* Stack for Chart Toggles */}
                 { togAllDetails }
                 { togTrace }
@@ -339,6 +350,7 @@ public constructor(props:IChartPageProps){
                         chartData={ this.state.chartData }
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
                     ></LongTerm></div>;
                 } else if ( this.state.selectedChoice === 'snapShot' ) {
                     thisPage = <div><Snapshot 
@@ -349,6 +361,7 @@ public constructor(props:IChartPageProps){
                         chartData={ this.state.chartData }
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
                     ></Snapshot></div>;
                 } else if ( this.state.selectedChoice === 'story' ) {
                     thisPage = <div><Story 
@@ -359,6 +372,7 @@ public constructor(props:IChartPageProps){
                         chartData={ this.state.chartData }
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
                     ></Story></div>;
                 } else if ( this.state.selectedChoice === 'usage' ) {
                     thisPage = <div><Usage 
@@ -369,6 +383,7 @@ public constructor(props:IChartPageProps){
                         chartData={ this.state.chartData }
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
                     ></Usage></div>;
                 }
             }
@@ -377,16 +392,19 @@ public constructor(props:IChartPageProps){
 
             return (
                 <div className={ [styles.infoPane, stylesC.chartsPage].join(' ') }>
-                    <Stack padding={0} horizontal={true} wrap={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+                    <div className={stylesC.mainBar}>
+                      <Stack padding={0} horizontal={true} wrap={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+
                       { pageChoices }
 
-                      <Stack padding={0} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
-                        { toggleDetails }
-                        { userDropdown }
-                        { storyDropdown }
+                        <Stack padding={0} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+                          { toggleDetails }
+                          { userDropdown }
+                          { storyDropdown }
 
+                        </Stack>
                       </Stack>
-                    </Stack>
+                    </div>
                     { detailToggles }
                     { thisPage }
                 </div>
@@ -475,46 +493,56 @@ public constructor(props:IChartPageProps){
 
       public toggleAllDetails = (item): void => {
         //Shows or hides chart details
-        let newSetting = !this.state.chartAllDetails;
+        let newSetting = !this.state.dataOptions.chartAllDetails;
         
         this.setState({ 
-          chartAllDetails: newSetting,
-          chartTrace: newSetting,
-          chartChanges: newSetting,
-          chartWarnings: newSetting,
-          chartErrors: newSetting,
+          dataOptions: {
+            chartAllDetails: newSetting,
+            chartTrace: newSetting,
+            chartChanges: newSetting,
+            chartWarnings: newSetting,
+            chartErrors: newSetting,
+          }
 
          }); 
       } //End toggleAllDetails
 
       public toggleTrace = (item): void => {
         //Shows or hides chart details
+        let newSetting = this.state.dataOptions;
+        newSetting.chartTrace = !this.state.dataOptions.chartTrace;
         this.setState({ 
-          chartTrace: !this.state.chartTrace,
+          dataOptions: newSetting,
          }); 
       } //End toggleTrace
      
       public toggleChanges = (item): void => {
         //Shows or hides chart details
-        this.setState({ 
-          chartChanges: !this.state.chartChanges,
-         }); 
+         let newSetting = this.state.dataOptions;
+         newSetting.chartChanges = !this.state.dataOptions.chartChanges;
+         this.setState({ 
+           dataOptions: newSetting,
+          }); 
       } //End toggleChanges
 
             
       public toggleWarnings = (item): void => {
         //Shows or hides chart details
-        this.setState({ 
-          chartWarnings: !this.state.chartWarnings,
-         }); 
+         let newSetting = this.state.dataOptions;
+         newSetting.chartWarnings = !this.state.dataOptions.chartWarnings;
+         this.setState({ 
+           dataOptions: newSetting,
+          }); 
       } //End toggleWarnings
 
             
       public toggleErrors = (item): void => {
         //Shows or hides chart details
-        this.setState({ 
-          chartErrors: !this.state.chartErrors,
-         }); 
+         let newSetting = this.state.dataOptions;
+         newSetting.chartErrors = !this.state.dataOptions.chartErrors;
+         this.setState({ 
+           dataOptions: newSetting,
+          }); 
       } //End toggleErrors
 
 

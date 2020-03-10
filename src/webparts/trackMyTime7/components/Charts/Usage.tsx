@@ -10,6 +10,7 @@ import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-
 import styles from '../TrackMyTime7.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
+import { IDataOptions } from './chartsPage';
 
 export interface IChartUsageProps {
     chartData: IChartData;
@@ -19,7 +20,7 @@ export interface IChartUsageProps {
     index: number;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-
+    dataOptions?: IDataOptions;
 }
 
 export interface IChartUsageState {
@@ -106,10 +107,10 @@ public constructor(props:IChartUsageProps){
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
     
-            let chartLocation = create1SeriesCharts( this.props.chartData.location, ChartType.Doughnut ) ;    
-            let chartContemp = create1SeriesCharts( this.props.chartData.contemp, ChartType.Doughnut ) ;   
-            let chartEntryType =  create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut ) ; 
-            let chartKeyChanges =  create1SeriesCharts( this.props.chartData.keyChanges, ChartType.HorizontalBar ) ;             
+            let chartLocation = create1SeriesCharts( this.props.chartData.location, ChartType.Doughnut, this.props.dataOptions ) ;    
+            let chartContemp = create1SeriesCharts( this.props.chartData.contemp, ChartType.Doughnut, this.props.dataOptions ) ;   
+            let chartEntryType =  create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut, this.props.dataOptions ) ; 
+            let chartKeyChanges =  create1SeriesCharts( this.props.chartData.keyChanges, ChartType.HorizontalBar, this.props.dataOptions ) ;             
             
             return (
                 <div>

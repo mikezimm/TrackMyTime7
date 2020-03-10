@@ -10,6 +10,7 @@ import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-
 import styles from '../TrackMyTime7.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
+import { IDataOptions } from './chartsPage';
 
 export interface IChartSnapshotProps {
     chartData: IChartData;
@@ -19,7 +20,7 @@ export interface IChartSnapshotProps {
     index: number;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-
+    dataOptions?: IDataOptions;
 }
 
 export interface IChartSnapshotState {
@@ -103,10 +104,10 @@ public constructor(props:IChartSnapshotProps){
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
-            let chartThisWeek = create1SeriesCharts( this.props.chartData.thisWeek[0], ChartType.Bar ) ;
-            let chartThisMonth = create1SeriesCharts( this.props.chartData.thisMonth[0], ChartType.Bar ) ;
-            let chartThisYear0 = create1SeriesCharts( this.props.chartData.thisYear[0], ChartType.Bar ) ;
-            let chartThisYear1 = create1SeriesCharts( this.props.chartData.thisYear[1], ChartType.Bar ) ;
+            let chartThisWeek = create1SeriesCharts( this.props.chartData.thisWeek[0], ChartType.Bar, this.props.dataOptions ) ;
+            let chartThisMonth = create1SeriesCharts( this.props.chartData.thisMonth[0], ChartType.Bar, this.props.dataOptions ) ;
+            let chartThisYear0 = create1SeriesCharts( this.props.chartData.thisYear[0], ChartType.Bar, this.props.dataOptions ) ;
+            let chartThisYear1 = create1SeriesCharts( this.props.chartData.thisYear[1], ChartType.Bar, this.props.dataOptions ) ;
 
             return (
                 <div>

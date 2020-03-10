@@ -7,13 +7,15 @@ import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser,
   IChartData, IChartSeries} from '../ITrackMyTime7State';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
+
 import * as strings from 'TrackMyTime7WebPartStrings';
 
 import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
 
 import styles from '../TrackMyTime7.module.scss';
+import { IDataOptions } from './chartsPage';
 
-export function create1SeriesCharts(series: IChartSeries, thisType: ChartType){
+export function create1SeriesCharts(series: IChartSeries, thisType: ChartType, dataOptions: IDataOptions){
 
   // set the options
   const lineOptions: Chart.ChartOptions = {
@@ -53,6 +55,8 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType){
   if ( !series ) {
     return null;
   } else {
+
+
     let theseValues  = !series || series.sums == null ? '' :  series.sums.map(
       (x) => {
         //console.log('x.toFixed', typeof x, x);
@@ -64,8 +68,12 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType){
           return x.toFixed(1);
         }
       }
-    ).join();
+    ).join(' ');
 
+    let theseChanges  = !series || series.changeNotes == null || dataOptions == null || !dataOptions.chartChanges ? null :  
+        series.changeNotes.map( x => { return <li>{x}</li>; } );
+
+      console.log('theseChanges', theseChanges);
     let r = Math.random().toString(36).substring(7);
   
     return (
@@ -83,7 +91,7 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType){
           options={ chartOptions } />
   
           <div>{ theseValues }</div>
-  
+          <div>{ theseChanges }</div>
       </div>
   
     );
@@ -133,7 +141,8 @@ For the appropriate Divs:
 
 
 
-export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boolean, showLegend: boolean, series: IChartSeries[], selectedIndex: number, thisType: ChartType, WebpartWidth: number){
+export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boolean, showLegend: boolean, 
+    series: IChartSeries[], selectedIndex: number, thisType: ChartType, WebpartWidth: number, dataOptions: IDataOptions){
 //https://codepen.io/natenorberg/pen/WwqRar?editors=0010
 
   // set the options

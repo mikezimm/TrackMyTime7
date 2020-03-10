@@ -3,14 +3,19 @@
 .chartsPage {
 
     padding-left: 30px;
+    padding-right: 30px;
+
+    .mainBar{
+        padding-top: 10px;
+    }
 
     .toggleDetailsBar {
-        padding-top: 10px;
+        margin-top: 20px;
         padding-bottom: 0px;
     }
 
     .showDetailToggles {
-        transition:all 0.2s ease;
+        transition:all 0.4s ease;
         //transition:height 0.4s ease;
         //transition:padding-bottom 0.4s ease;
         //transition:transform 0.4s ease;
@@ -20,27 +25,21 @@
         //max-height: 100px;
         overflow: hidden;
         padding-bottom: 20px;
-        border-style: solid;
-        border-top-width: thin;
-        border-bottom-width: none;
-        border-left-width: none;
-        border-right-width: none;
+        background: lightgray;
+
     }
 
     .hideDetailToggles {
-        transition:all 0.2s ease;
+        transition:all 0.4s ease;
         //transition:height 0.4s ease;
         //transition:padding-bottom 0.4s ease;
         //transition:transform 0.4s ease;
         height:0;
         overflow: hidden;
         padding-bottom: 0px;
-        transform:scaleY(0);
-        border-style: none;
-        border-top-width: none;
-        border-bottom-width: none;
-        border-left-width: none;
-        border-right-width: none;
+        transform:scaleY(1);
+        color: white;
+        background: none;
     }
 
 }

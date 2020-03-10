@@ -10,6 +10,7 @@ import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-
 import styles from '../TrackMyTime7.module.scss';
 
 import { create1SeriesCharts, createMultiSeries1ScaleCharts, creatLineChart } from './charts';
+import { IDataOptions } from './chartsPage';
 
 export interface IChartLongTermProps {
     chartData: IChartData;
@@ -19,7 +20,7 @@ export interface IChartLongTermProps {
     index: number;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-
+    dataOptions?: IDataOptions;
 }
 
 export interface IChartLongTermState {
@@ -105,16 +106,16 @@ public constructor(props:IChartLongTermProps){
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
-            let chartDailyHistory = create1SeriesCharts( this.props.chartData.allDays, ChartType.Line ) ;
-            let chartWeeklyHistory = create1SeriesCharts( this.props.chartData.allWeeks, ChartType.Line ) ;
-            let chartMonthlyHistory = create1SeriesCharts( this.props.chartData.allMonths, ChartType.Line ) ;
-            let chartYearlyHistory = create1SeriesCharts( this.props.chartData.allYears, ChartType.Line ) ;
+            let chartDailyHistory = create1SeriesCharts( this.props.chartData.allDays, ChartType.Line, this.props.dataOptions ) ;
+            let chartWeeklyHistory = create1SeriesCharts( this.props.chartData.allWeeks, ChartType.Line, this.props.dataOptions ) ;
+            let chartMonthlyHistory = create1SeriesCharts( this.props.chartData.allMonths, ChartType.Line, this.props.dataOptions ) ;
+            let chartYearlyHistory = create1SeriesCharts( this.props.chartData.allYears, ChartType.Line, this.props.dataOptions ) ;
 
             let stacked = [this.props.chartData.stories.stories[0], this.props.chartData.stories.stories[2]];
             let stacked2 = this.props.chartData.stories.stories.map( s => s );
             console.log('stacked2', stacked2);
             let chartYearlyStory = createMultiSeries1ScaleCharts('Stories', true, true, stacked2, 
-                    this.props.chartData.storyIndex, ChartType.Line, this.props.WebpartWidth);
+                    this.props.chartData.storyIndex, ChartType.Line, this.props.WebpartWidth, this.props.dataOptions);
 
             return (
                 <div>
