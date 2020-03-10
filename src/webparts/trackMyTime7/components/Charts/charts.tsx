@@ -57,7 +57,7 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType, d
   } else {
 
 
-    let theseValues  = !series || series.sums == null ? '' :  series.sums.map(
+    let theseValues  = !series || series.sums == null  || dataOptions == null || !dataOptions.chartTrace ? null :  series.sums.map(
       (x) => {
         //console.log('x.toFixed', typeof x, x);
         if (typeof x == 'string') {
@@ -72,6 +72,13 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType, d
 
     let theseChanges  = !series || series.changeNotes == null || dataOptions == null || !dataOptions.chartChanges ? null :  
         series.changeNotes.map( x => { return <li>{x}</li>; } );
+
+    let theseWarnings  = !series || series.warnNotes == null || dataOptions == null || !dataOptions.chartWarnings ? null :  
+        series.warnNotes.map( x => { return <li>{x}</li>; } );
+
+    let theseErrors  = !series || series.errorNotes == null || dataOptions == null || !dataOptions.chartErrors ? null :  
+        series.errorNotes.map( x => { return <li>{x}</li>; } );
+    
 
       console.log('theseChanges', theseChanges);
     let r = Math.random().toString(36).substring(7);
@@ -92,6 +99,9 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType, d
   
           <div>{ theseValues }</div>
           <div>{ theseChanges }</div>
+          <div>{ theseWarnings }</div>
+          <div>{ theseErrors }</div>
+          
       </div>
   
     );

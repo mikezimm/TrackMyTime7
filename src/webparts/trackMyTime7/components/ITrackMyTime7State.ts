@@ -15,6 +15,7 @@ export interface ILink {
 
 export interface IUser {
   title: string;
+  Title: string;
   initials?: string;  //Single person column
   email?: string;  //Single person column
   id?: any;
@@ -85,6 +86,7 @@ export interface ISaveEntry {
     //Values specific to Time Entry
   
     userId?: number;
+    userTitle?: string;
     startTime?: any; //Time stamp
     endTime?: any; // Time stamp
 
@@ -298,6 +300,12 @@ export interface IChartSeries {
   origCounts?: any[];
 }
 
+export interface ICharNote {
+  parent: string;
+  source: string;
+  note: string;
+}
+
 export interface IChartData {
   filter?: string;
   contemp?: IChartSeries;  
@@ -318,6 +326,13 @@ export interface IChartData {
   stories?: IStories;
   index: number;
   storyIndex: number;
+
+  users?: string[];
+  dateRange?: string[];
+
+  warnNotesAll: ICharNote[];
+  errorNotesAll: ICharNote[];
+
 }
 
 

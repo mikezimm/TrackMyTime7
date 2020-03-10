@@ -121,6 +121,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private createUser() {
     let user : IUser = {
       title: "",
+      Title: "" , //
       initials: "",  //Single person column
       email: "",  //Single person column
       id: null,
@@ -1981,6 +1982,7 @@ public toggleTips = (item: any): void => {
 
       let currentUser : IUser = {
         title: r['Title'] , //
+        Title: r['Title'] , //
         initials: r['Title'].split(" ").map((n)=>n[0]).join(""), //Single person column
         email: r['Email'] , //Single person column
         id: r['Id'] , //
@@ -2122,6 +2124,7 @@ public toggleTips = (item: any): void => {
           title: 'p.' , //
           initials: 'p.' , //Single person column
           email: 'p.' , //Single person column
+          Title: 'p.' , //
           id: p.LeaderId , //
           Id: p.LeaderId , //
           ID: p.LeaderId , //          
@@ -2129,6 +2132,7 @@ public toggleTips = (item: any): void => {
 
         let team : IUser = {
           title: 'p.' , //
+          Title: 'p.' , //
           initials: 'p.' , //Single person column
           email: 'p.' , //Single person column
           id: p.TeamId , //
@@ -2303,6 +2307,7 @@ public toggleTips = (item: any): void => {
           //Values specific to Time Entry
           user : item.User ,  //Single person column
           userId : item.UserId ,  //Single person column
+          userTitle : item.UserTitle ,  //Single person column
           startTime : item.StartTime , //Time stamp
           endTime : item.EndTime , // Time stamp
           duration : item.Hours , //Number  -- May not be needed based on current testing with start and end dates.

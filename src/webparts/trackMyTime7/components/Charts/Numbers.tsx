@@ -8,11 +8,13 @@ import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartContr
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 
 import styles from '../TrackMyTime7.module.scss';
+import stylesC from './chartsPage.module.scss';
+import stylesI from '../HelpInfo/InfoPane.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
 import { IDataOptions } from './chartsPage';
 
-export interface IChartUsageProps {
+export interface IChartNumbersProps {
     chartData: IChartData;
     showCharts: boolean;
     allLoaded: boolean;
@@ -24,13 +26,13 @@ export interface IChartUsageProps {
     dataOptions?: IDataOptions;
 }
 
-export interface IChartUsageState {
+export interface IChartNumbersState {
     showIntro: boolean;
     showDetails: boolean;
     index: number;
 }
 
-export default class ChartUsage extends React.Component<IChartUsageProps, IChartUsageState> {
+export default class ChartNumbers extends React.Component<IChartNumbersProps, IChartNumbersState> {
 
 
 /***
@@ -44,7 +46,7 @@ export default class ChartUsage extends React.Component<IChartUsageProps, IChart
  *                                                                                                       
  */
 
-public constructor(props:IChartUsageProps){
+public constructor(props:IChartNumbersProps){
     super(props);
     this.state = { 
         showIntro: true,
@@ -77,13 +79,13 @@ public constructor(props:IChartUsageProps){
  *                                                                                         
  */
 
-  public componentDidUpdate(prevProps: IChartUsageProps){
+  public componentDidUpdate(prevProps: IChartNumbersProps){
 
     let rebuildCharts = false;
     
     if (prevProps.story !== this.props.story || this.props.index !== prevProps.index ) {
         rebuildCharts = true;
-        console.log('Usage cdu');
+        console.log('Numbers cdu');
     }
     if (prevProps.user !== this.props.user || this.props.index !== prevProps.index ) {
         rebuildCharts = true;
@@ -103,35 +105,44 @@ public constructor(props:IChartUsageProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IChartUsageProps> {
+    public render(): React.ReactElement<IChartNumbersProps> {
 
-        console.log('Usage render');
+        console.log('Numbers render');
         if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
-            console.log('Usage.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
-    
-            let chartLocation = create1SeriesCharts( this.props.chartData.location, ChartType.Doughnut, this.props.dataOptions ) ;    
-            let chartContemp = create1SeriesCharts( this.props.chartData.contemp, ChartType.Doughnut, this.props.dataOptions ) ;   
-            let chartEntryType =  create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut, this.props.dataOptions ) ; 
-            let chartKeyChanges =  create1SeriesCharts( this.props.chartData.keyChanges, ChartType.HorizontalBar, this.props.dataOptions ) ;             
+
+            const whosData = this.props.chartData == null ? null :                 
+                <tr><td>{'Who\'s entries'}</td><td>{this.props.chartData.users.join(', ')}</td></tr>;
+
+            const whatData = this.props.chartData == null ? null :                 
+                <tr><td>{'What entries'}</td><td>Selected Story/Chapter:  {this.props.story}</td></tr>;
+            
+            const totalHours = this.props.chartData == null ? null : 
+                <tr><td>{'Total hours'}</td><td>{ this.props.chartData.allYears.totalS }</td></tr>;
+
+            const totalCount = this.props.chartData == null ? null :                 
+                <tr><td>{'Entry count'}</td><td>{ this.props.chartData.allYears.totalC }</td></tr>;
+
+            const timeRange = this.props.chartData == null ? null :                 
+                <tr><td>{'Time range'}</td><td>{ this.props.chartData.dateRange.join(' - ') }</td></tr>;
+
             
             return (
                 <div>
-                    <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
+                    <Stack horizontal={false} wrap={true} tokens={stackChartTokens}> 
 
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartEntryType }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartContemp }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartLocation }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartKeyChanges }
-                        </Stack.Item>
+                        <h2>Error/Warning summary for all data</h2>
+
+                        <table className={stylesI.infoTable}>
+                            <tr><th>{'Topic'}</th><th>{'Summary'}</th></tr>
+                            { whosData }
+                            { whatData }
+                            { timeRange }
+                            { totalHours }
+                            { totalCount }
+
+                        </table>
 
                     </Stack>
 
@@ -140,7 +151,7 @@ public constructor(props:IChartUsageProps){
             );
             
         } else {
-            console.log('chartsClass.tsx return null');
+            console.log('Numbers.tsx return null');
             return ( null );
         }
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo } from '../ITrackMyTime7State';
+import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo, ICharNote } from '../ITrackMyTime7State';
 
 import { ITheTime } from '../../../../services/dateServices';
 
@@ -19,6 +19,7 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import styles from '../TrackMyTime7.module.scss';
 import stylesC from './chartsPage.module.scss';
+import stylesI from '../HelpInfo/InfoPane.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
 
@@ -26,6 +27,7 @@ import LongTerm from './LongTerm';
 import Snapshot from './Snapshot';
 import Story from './Story';
 import Usage from './Usage';
+import Numbers from './Numbers';
 
 import * as choiceBuilders from '../fields/choiceFieldBuilder';
 import { any } from 'prop-types';
@@ -336,6 +338,26 @@ public constructor(props:IChartPageProps){
               </Stack>
             </div>;
 
+            const pageWarnItems = !this.state.dataOptions.chartWarnings || this.state.chartData.warnNotesAll.length < 1 ? null : 
+                this.state.chartData.warnNotesAll.map( w => { return <tr><td>{'W'}</td><td>{w.parent}</td><td>{ w.source}</td><td>{w.note}</td></tr>; });
+
+            const pageErrItems = !this.state.dataOptions.chartErrors || this.state.chartData.errorNotesAll.length < 1 ? null : 
+                this.state.chartData.errorNotesAll.map( w => { return <tr><td>{'E'}</td><td>{w.parent}</td><td>{ w.source}</td><td>{w.note}</td></tr>; });
+
+            const pageWarnTips = pageWarnItems == null ? null : <p>Common 'Warnings' include inconsistent categories or labels which we can not consolidate for you.
+                Although we take the liberty to remove spaces and hyphens, we can not determine the best ProperCase for you.  
+                If you want to fix them using this information, look for the TrackMyTime list column under 'Series' heading and search for values under 'Items'.  Common in-consistancies include ProperCase vs PROPERCASE.</p>;
+
+            const pageNotes = pageWarnItems != null || pageErrItems != null ? <div>
+              <h2>Error/Warning summary for all data</h2>
+              <table className={stylesI.infoTable}>
+                <tr><th>{'Type'}</th><th>{'Series'}</th><th>{'Item'}</th><th>{'Comments'}</th></tr>
+                { pageErrItems }
+                { pageWarnItems }
+              </table>
+              { pageWarnTips }
+            </div> : null;
+
             let pageChoices = choiceBuilders.creatChartChoices(this.state.selectedChoice, this._updateChoice.bind(this));
 
             let thisPage = null;
@@ -345,17 +367,20 @@ public constructor(props:IChartPageProps){
                     thisPage = <div><LongTerm 
                         index={ this.state.chartData.index }
                         story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
+
                     ></LongTerm></div>;
                 } else if ( this.state.selectedChoice === 'snapShot' ) {
                     thisPage = <div><Snapshot 
                       index={ this.state.chartData.index }
                         story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
@@ -367,6 +392,7 @@ public constructor(props:IChartPageProps){
                     thisPage = <div><Story 
                         index={ this.state.chartData.index }
                         story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
@@ -378,6 +404,7 @@ public constructor(props:IChartPageProps){
                     thisPage = <div><Usage 
                         index={ this.state.chartData.index }
                         story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
@@ -385,13 +412,25 @@ public constructor(props:IChartPageProps){
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
                     ></Usage></div>;
-                }
+                  } else if ( this.state.selectedChoice === 'numbers' ) {
+                    thisPage = <div><Numbers 
+                        index={ this.state.chartData.index }
+                        story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
+                        allLoaded={ this.props.allLoaded }
+                        showCharts={ this.props.showCharts }
+                        chartData={ this.state.chartData }
+                        WebpartHeight={ this.state.WebpartHeight }
+                        WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
+                    ></Numbers></div>;
+                    }
             }
 
             const stackButtonTokensBody: IStackTokens = { childrenGap: 20 };
 
             return (
-                <div className={ [styles.infoPane, stylesC.chartsPage].join(' ') }>
+                <div className={ [stylesI.infoPane, stylesC.chartsPage].join(' ') }>
                     <div className={stylesC.mainBar}>
                       <Stack padding={0} horizontal={true} wrap={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
 
@@ -407,6 +446,9 @@ public constructor(props:IChartPageProps){
                     </div>
                     { detailToggles }
                     { thisPage }
+                    { pageNotes }
+
+                    <ColoredLine color="gray" />
                 </div>
             );
             
@@ -744,6 +786,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       stories: createStories(), 
       index: this.state.chartData == null ? 0 : this.state.chartData.index + 1,
       storyIndex: null,
+      warnNotesAll: [],
+      errorNotesAll: [],
+      users: [],
+      dateRange: [],
 
     };
 
@@ -856,10 +902,12 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
               console.log('problem with this item: ', item);
             }
 
+            let thisUser = item.user.title + ' ( ' + item.user.Id + ' )';
+            if ( chartPreData.users.indexOf( thisUser ) < 0 ) { chartPreData.users.push( thisUser ); }
+
             if (storyIndex > -1 ) { thisStory = updateThisSeries(thisStory, dur, item.thisTimeObj.daysAgo); }
 
             chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
-
 
             chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
             chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
@@ -918,7 +966,6 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
             let keyChange = camelize(item.keyChange, true);
             chartPreData.keyChanges = updateThisSeries(chartPreData.keyChanges, dur, keyChange);
        }
-
 
     }
 
@@ -1088,6 +1135,11 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
             //newUCLabels.push(newLabel.toUpperCase());
             similarTo = series.labels[i] + ' is similar to ' + newLabels[similarToIndex] + ' at item ' + i;
             warnNotes.push(similarTo);
+            chartPreData.warnNotesAll.push({
+              note: similarTo,
+              parent: series.title,
+              source: series.labels[i],
+            });
           } else {
             //Is not similar to anything
           }
@@ -1130,14 +1182,24 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
         , 0);
 
       let err = '';
-      if (checkSums !== series.totalS ) { 
+      if (checkSums !== series.totalS && Math.abs(checkSums - series.totalS) > .01 ) { 
         err = 'Err reducing Category SUMs: ' + series.totalS + ' <> ' + checkSums;
         series.errorNotes.push(err);
+        chartPreData.errorNotesAll.push({
+          note: err,
+          parent: series.title,
+          source: series.title,
+        });
         console.log(err);
       }
-      if (checkCounts !== series.totalC ) { 
+      if (checkCounts !== series.totalC && Math.abs(checkCounts - series.totalC) > .01 ) { 
         err = 'Err reducing Category COUNTs: ' + series.totalC + ' <> ' + checkCounts;
         series.errorNotes.push(err);
+        chartPreData.errorNotesAll.push({
+          note: err,
+          parent: series.title,
+          source: series.title,
+        });
         console.log(err);
       }
 

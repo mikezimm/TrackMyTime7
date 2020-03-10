@@ -42,4 +42,84 @@
         background: none;
     }
 
+
+}
+
+//Copied from InfoPane.module.scss so it can be more stand alone.
+.infoPane {
+
+
+    .infoTable {
+  
+      tr {
+        padding-top: 0px;
+      }
+  
+      tr :hover {
+        background-color: lightgray;
+        transition:all 0.4s ease;
+      }
+  
+      th {
+        @extend .headerPadding;
+        color: black;
+        background-color: lightgray;
+        border: none;
+      }
+  
+      td {
+        @extend .cellPadding;
+      }
+  
+    }
+
+    .infoTableTHRed {
+      @extend .infoTable;
+      th {
+        color: red;
+      }
+  
+    }
+
+    .cellPadding {
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    .headerPadding {
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+    
+
+    .iColNam{
+      font-weight: bolder;
+      padding-left: 10px;
+      padding-right: 20px;
+    }
+  
+    .iColNamU {
+      @extend .iColNam;
+      color: red;
+    } 
+  
+    .iColNamV {
+      @extend .iColNam;
+      color: green;
+    } 
+  
+    .iColNamH {
+      @extend .iColNam;
+      color: blue;
+    } 
+  
+    .infoPane {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
 }

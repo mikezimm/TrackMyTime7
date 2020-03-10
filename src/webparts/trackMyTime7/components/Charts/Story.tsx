@@ -17,6 +17,7 @@ export interface IChartStoryProps {
     showCharts: boolean;
     allLoaded: boolean;
     story: string;
+    user: string;
     index: number;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -84,7 +85,10 @@ public constructor(props:IChartStoryProps){
         rebuildCharts = true;
         console.log('Story cdu');
     }
-
+    if (prevProps.user !== this.props.user || this.props.index !== prevProps.index ) {
+        rebuildCharts = true;
+        console.log('Usage cdu');
+    }  
   }
 
 /***
