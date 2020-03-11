@@ -89,7 +89,8 @@ export function creatInfoChoices( selectedKey: string, _onChange){
   options.push(  {key: 'advanced', text: 'Advanced' + spacer4x });
   options.push(  {key: 'errors', text: 'Errors' + spacer4x });
   options.push(  {key: 'futurePlans', text: 'Future Plans' + spacer4x });
-  options.push(  {key: 'dev', text: 'Developers' + choiceSpacer });
+  options.push(  {key: 'dev', text: 'Developers' + spacer4x });
+  options.push(  {key: 'about', text: 'About' + choiceSpacer });
 
   return (
     

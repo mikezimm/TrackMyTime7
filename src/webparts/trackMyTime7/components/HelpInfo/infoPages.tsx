@@ -25,6 +25,7 @@ import Advanced from './Advanced';
 import InfoDevelopers from './Developers';
 import GettingStarted from './GettingStarted';
 import FuturePlans from './FuturePlans';
+import About from './About';
 
 export interface IInfoPageProps {
     showInfo: boolean;
@@ -160,6 +161,13 @@ public constructor(props:IInfoPageProps){
                     allLoaded={ this.props.allLoaded }
                     showInfo={ this.props.showInfo }
                 ></Errors>;
+            } else if ( this.state.selectedChoice === 'about' ) {
+                thisPage = <About 
+                    parentProps={  this.props.parentProps }
+                    parentState={  this.props.parentState }
+                    allLoaded={ this.props.allLoaded }
+                    showInfo={ this.props.showInfo }
+                ></About>;
             }
 
 /*
@@ -203,6 +211,8 @@ public constructor(props:IInfoPageProps){
             styles={{ root: { width: 160, paddingTop: 13, paddingLeft: 20, } }}
             />;
 
+            const ColoredLine = ({ color }) => ( <hr style={{ color: color, backgroundColor: color, height: 1 }}/> );
+
             return (
                 <div className={ styles.infoPane }>
                     <Stack padding={20} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
@@ -210,6 +220,7 @@ public constructor(props:IInfoPageProps){
                         { toggleDebug }
                     </Stack>
                     { thisPage }
+                    <ColoredLine color="gray" />
                 </div>
             );
             
