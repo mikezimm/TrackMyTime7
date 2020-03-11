@@ -10,16 +10,18 @@ import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-
 import styles from '../TrackMyTime7.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
+import { IDataOptions } from './chartsPage';
 
 export interface IChartStoryProps {
     chartData: IChartData;
     showCharts: boolean;
     allLoaded: boolean;
     story: string;
+    user: string;
     index: number;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-
+    dataOptions?: IDataOptions;
 }
 
 export interface IChartStoryState {
@@ -83,7 +85,10 @@ public constructor(props:IChartStoryProps){
         rebuildCharts = true;
         console.log('Story cdu');
     }
-
+    if (prevProps.user !== this.props.user || this.props.index !== prevProps.index ) {
+        rebuildCharts = true;
+        console.log('Usage cdu');
+    }  
   }
 
 /***
@@ -105,9 +110,8 @@ public constructor(props:IChartStoryProps){
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
-
-            let chartCategory1 = create1SeriesCharts( this.props.chartData.categories[0], ChartType.HorizontalBar ) ;    
-            let chartCategory2 = create1SeriesCharts( this.props.chartData.categories[1], ChartType.HorizontalBar ) ;    
+            let chartCategory1 = create1SeriesCharts( this.props.chartData.categories[0], ChartType.HorizontalBar, this.props.dataOptions ) ;    
+            let chartCategory2 = create1SeriesCharts( this.props.chartData.categories[1], ChartType.HorizontalBar, this.props.dataOptions ) ;    
 
             /*
 

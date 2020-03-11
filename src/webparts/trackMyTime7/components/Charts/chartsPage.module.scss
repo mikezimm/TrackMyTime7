@@ -1,7 +1,51 @@
 @import '~office-ui-fabric-react/dist/sass/References.scss';
 
-//Copied to chartsPage.module.scss so it can be more stand alone.
+.chartsPage {
 
+    padding-left: 30px;
+    padding-right: 30px;
+
+    .mainBar{
+        padding-top: 10px;
+    }
+
+    .toggleDetailsBar {
+        margin-top: 20px;
+        padding-bottom: 0px;
+    }
+
+    .showDetailToggles {
+        transition:all 0.4s ease;
+        //transition:height 0.4s ease;
+        //transition:padding-bottom 0.4s ease;
+        //transition:transform 0.4s ease;
+        transform:scaleY(1);
+        transform-origin:top;
+        height:50px;
+        //max-height: 100px;
+        overflow: hidden;
+        padding-bottom: 20px;
+        background: lightgray;
+
+    }
+
+    .hideDetailToggles {
+        transition:all 0.4s ease;
+        //transition:height 0.4s ease;
+        //transition:padding-bottom 0.4s ease;
+        //transition:transform 0.4s ease;
+        height:0;
+        overflow: hidden;
+        padding-bottom: 0px;
+        transform:scaleY(1);
+        color: white;
+        background: none;
+    }
+
+
+}
+
+//Copied from InfoPane.module.scss so it can be more stand alone.
 .infoPane {
 
 

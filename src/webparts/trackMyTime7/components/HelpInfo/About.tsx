@@ -12,7 +12,7 @@ import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
 import styles from './InfoPane.module.scss';
 
-export interface IInfoDevelopersProps {
+export interface IInfoAboutMeProps {
     showInfo: boolean;
     allLoaded: boolean;
     parentProps: ITrackMyTime7Props;
@@ -20,12 +20,12 @@ export interface IInfoDevelopersProps {
 
 }
 
-export interface IInfoDevelopersState {
+export interface IInfoAboutMeState {
     selectedChoice: string;
     lastChoice: string;
 }
 
-export default class InfoDevelopers extends React.Component<IInfoDevelopersProps, IInfoDevelopersState> {
+export default class InfoAboutMe extends React.Component<IInfoAboutMeProps, IInfoAboutMeState> {
 
 
 /***
@@ -39,10 +39,10 @@ export default class InfoDevelopers extends React.Component<IInfoDevelopersProps
  *                                                                                                       
  */
 
-public constructor(props:IInfoDevelopersProps){
+public constructor(props:IInfoAboutMeProps){
     super(props);
     this.state = { 
-        selectedChoice: 'snapShot',
+        selectedChoice: 'About',
         lastChoice: '',
 
     };
@@ -94,10 +94,10 @@ public constructor(props:IInfoDevelopersProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IInfoDevelopersProps> {
+    public render(): React.ReactElement<IInfoAboutMeProps> {
 
         if ( this.props.allLoaded && this.props.showInfo ) {
-            console.log('infoPages.tsx', this.props, this.state);
+            console.log('About.tsx', this.props, this.state);
 
 /***
  *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
@@ -109,32 +109,26 @@ public constructor(props:IInfoDevelopersProps){
  *                                                                                     
  *                                                                                     
  */
+            
+            const stackTokensBody: IStackTokens = { childrenGap: 20 };
 
             let thisPage = null;
 
             thisPage = <div>
-                <h2></h2>
+                <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackTokensBody}>
+                    { links.gitRepoTrackMyTime.repo }
+                    { links.gitRepoTrackMyTime.issues }
+                    { links.gitRepoTrackMyTime.wiki }
+                </Stack>
+
+                <h2>Version History</h2>
+
+
                 <table className={styles.infoTable}>
-                    <tr><th>MS Dev Docs</th><th>Github</th><th>Description</th></tr>
-                    <tr><td>{links.devDocsWeb}</td><td>{links.gitRepoSPFxContReact}</td><td>MSFT Dev Docs for Fabric React UI Components</td></tr>
-                    <tr><td>{links.devDocsIcon}</td><td></td><td>Icons used webpart and also available for Project Options</td></tr>                                
-                    <tr><td>{links.devDocsText}</td><td></td><td>Used for text input on entry form</td></tr>
-                    <tr><td>{links.devDocsDate}</td><td>{links.gitSampleReactDate}</td><td>Used for Manual Time Entry</td></tr>                                
-                    <tr><td>{links.devDocsSlider}</td><td></td><td>Used for Time Slider</td></tr>
-                    <tr><td>{links.devDocsToggle}</td><td></td><td>Used for Toggle function</td></tr>
-                    <tr><td>{links.devDocsChoice}</td><td></td><td>Used for Choice selection</td></tr>
-
-
-                    
-                    <tr><td>{links.devDocsButton}</td><td></td><td>This is used for Save Entry, Clear Form buttons</td></tr>
-                    <tr><td>{links.devDocsStack}</td><td></td><td>Used in general for layout of components</td></tr>
-                    <tr><td>{links.devDocsList}</td><td>{links.gitSampleReactList}</td><td>Used for Projects and History List</td></tr>
-                    <tr><td>{links.devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>     
-
-                    <tr><td>{links.chartJSSamples}</td><td></td><td>Used for all charts</td></tr>                    
-
+                    <tr><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td>{'1.0.0.8'}</td><td>Charts</td><td>Add Story and User filters.  Add Details toggle.  Add About and Numbers page.</td></tr>
+                    <tr><td>{'1.0.0.7'}</td><td>Charts/Help</td><td>Initial addition of Charts and Help</td></tr>
                 </table>
-
             </div>;
 
 /***

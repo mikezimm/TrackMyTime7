@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo } from '../ITrackMyTime7State';
+import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
 
 import { ITheTime } from '../../../../services/dateServices';
 
@@ -18,6 +18,8 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import styles from '../TrackMyTime7.module.scss';
+import stylesC from './chartsPage.module.scss';
+import stylesI from '../HelpInfo/InfoPane.module.scss';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
 
@@ -25,12 +27,21 @@ import LongTerm from './LongTerm';
 import Snapshot from './Snapshot';
 import Story from './Story';
 import Usage from './Usage';
+import Numbers from './Numbers';
 
 import * as choiceBuilders from '../fields/choiceFieldBuilder';
 import { any } from 'prop-types';
 
 export interface ISelectedStory { key: string | number | undefined; text: string; }
 export interface ISelectedUser { key: string | number | undefined; text: string; }
+
+export interface IDataOptions {
+    chartAllDetails?: boolean;
+    chartTrace?: boolean;
+    chartChanges?: boolean;  
+    chartWarnings?: boolean;  
+    chartErrors?: boolean;  
+}
 
 export interface IChartPageProps {
     showCharts: boolean;
@@ -60,8 +71,10 @@ export interface IChartPageState {
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     userFilter?: 'all' | 'user';
+
     chartDetails?: boolean;
-  
+
+    dataOptions?: IDataOptions;
 
 }
 
@@ -98,7 +111,7 @@ export default class ChartsPage extends React.Component<IChartPageProps, IChartP
 public constructor(props:IChartPageProps){
     super(props);
     this.state = { 
-        selectedChoice: 'snapShot',
+        selectedChoice: 'numbers',
         lastChoice: '',
         lastStory: defStory,
         lastUser: curUser,
@@ -111,6 +124,16 @@ public constructor(props:IChartPageProps){
         WebpartHeight: this.props.WebpartHeight,
         WebpartWidth: this.props.WebpartWidth,
         userFilter: this.props.userFilter != null ? this.props.userFilter : 'user',
+
+        chartDetails: false,
+
+        dataOptions: {
+          chartAllDetails: false,
+          chartTrace: false,
+          chartChanges: false, 
+          chartWarnings: false, 
+          chartErrors: false, 
+        }
 
     };
 
@@ -254,6 +277,87 @@ public constructor(props:IChartPageProps){
               styles={{ root: { width: 140, paddingTop: 13, } }}
             />;
 
+/*
+            chartTrace: false,
+            chartChanges: false,
+            chartWarnings: false,
+            chartErrors: false,
+*/
+
+            const togAllDetails = <Toggle label="" 
+              onText={ 'All Details' } 
+              offText={ 'No Details' } 
+              onChange={ this.toggleAllDetails } 
+              checked={ this.state.dataOptions.chartAllDetails }
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
+
+            const togTrace = <Toggle label="" 
+              onText={ 'Trace data' } 
+              offText={ 'No Trace' } 
+              onChange={ this.toggleTrace } 
+              checked={ this.state.dataOptions.chartTrace }
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
+
+            const togChanges = <Toggle label="" 
+              onText={ 'Changes' } 
+              offText={ 'No Changes' } 
+              onChange={ this.toggleChanges } 
+              checked={ this.state.dataOptions.chartChanges }
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
+
+            const togWarnings = <Toggle label="" 
+              onText={ 'Warnings' } 
+              offText={ 'No Warnings' } 
+              onChange={ this.toggleWarnings } 
+              checked={ this.state.dataOptions.chartWarnings }
+              styles={{ root: { width: 150, paddingTop: 13, } }}
+            />;
+
+            const togErrors = <Toggle label="" 
+              onText={ 'Errors' } 
+              offText={ 'No Errors' } 
+              onChange={ this.toggleErrors } 
+              checked={ this.state.dataOptions.chartErrors }
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
+
+            const ColoredLine = ({ color }) => ( <hr style={{ color: color, backgroundColor: color, height: 1 }}/> );
+
+            const stackToggleTokensBody: IStackTokens = { childrenGap: 20 };
+            let detailToggles = <div className={ [stylesC.toggleDetailsBar, this.state.chartDetails ? stylesC.showDetailToggles : stylesC.hideDetailToggles].join(' ') }>
+              <ColoredLine color="gray" />
+              <Stack padding={0} horizontal={true} horizontalAlign={"space-between"} tokens={stackToggleTokensBody }> {/* Stack for Chart Toggles */}
+                { togAllDetails }
+                { togTrace }
+                { togChanges }
+                { togWarnings }
+                { togErrors }
+              </Stack>
+            </div>;
+
+            const pageWarnItems = !this.state.dataOptions.chartWarnings || this.state.chartData.warnNotesAll.length < 1 ? null : 
+                this.state.chartData.warnNotesAll.map( w => { return <tr><td>{'W'}</td><td>{w.parent}</td><td>{ w.source}</td><td>{w.note}</td></tr>; });
+
+            const pageErrItems = !this.state.dataOptions.chartErrors || this.state.chartData.errorNotesAll.length < 1 ? null : 
+                this.state.chartData.errorNotesAll.map( w => { return <tr><td>{'E'}</td><td>{w.parent}</td><td>{ w.source}</td><td>{w.note}</td></tr>; });
+
+            const pageWarnTips = pageWarnItems == null ? null : <p>Common 'Warnings' include inconsistent categories or labels which we can not consolidate for you.
+                Although we take the liberty to remove spaces and hyphens, we can not determine the best ProperCase for you.  
+                If you want to fix them using this information, look for the TrackMyTime list column under 'Series' heading and search for values under 'Items'.  Common in-consistancies include ProperCase vs PROPERCASE.</p>;
+
+            const pageNotes = pageWarnItems != null || pageErrItems != null ? <div>
+              <h2>Error/Warning summary for all data</h2>
+              <table className={stylesI.infoTable}>
+                <tr><th>{'Type'}</th><th>{'Series'}</th><th>{'Item'}</th><th>{'Comments'}</th></tr>
+                { pageErrItems }
+                { pageWarnItems }
+              </table>
+              { pageWarnTips }
+            </div> : null;
+
             let pageChoices = choiceBuilders.creatChartChoices(this.state.selectedChoice, this._updateChoice.bind(this));
 
             let thisPage = null;
@@ -263,61 +367,88 @@ public constructor(props:IChartPageProps){
                     thisPage = <div><LongTerm 
                         index={ this.state.chartData.index }
                         story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
+
                     ></LongTerm></div>;
                 } else if ( this.state.selectedChoice === 'snapShot' ) {
                     thisPage = <div><Snapshot 
                       index={ this.state.chartData.index }
                         story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
                     ></Snapshot></div>;
                 } else if ( this.state.selectedChoice === 'story' ) {
                     thisPage = <div><Story 
                         index={ this.state.chartData.index }
                         story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
                     ></Story></div>;
                 } else if ( this.state.selectedChoice === 'usage' ) {
                     thisPage = <div><Usage 
                         index={ this.state.chartData.index }
                         story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
                         allLoaded={ this.props.allLoaded }
                         showCharts={ this.props.showCharts }
                         chartData={ this.state.chartData }
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
                     ></Usage></div>;
-                }
+                  } else if ( this.state.selectedChoice === 'numbers' ) {
+                    thisPage = <div><Numbers 
+                        index={ this.state.chartData.index }
+                        story={ this.state.selectedStory.text }
+                        user={ this.state.selectedUser.text }
+                        allLoaded={ this.props.allLoaded }
+                        showCharts={ this.props.showCharts }
+                        chartData={ this.state.chartData }
+                        WebpartHeight={ this.state.WebpartHeight }
+                        WebpartWidth={ this.state.WebpartWidth }
+                        dataOptions={ this.state.dataOptions }
+                    ></Numbers></div>;
+                    }
             }
 
             const stackButtonTokensBody: IStackTokens = { childrenGap: 20 };
 
             return (
-                <div className={ styles.infoPane }>
-                    <Stack padding={0} horizontal={true} wrap={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+                <div className={ [stylesI.infoPane, stylesC.chartsPage].join(' ') }>
+                    <div className={stylesC.mainBar}>
+                      <Stack padding={0} horizontal={true} wrap={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+
                       { pageChoices }
 
-                      <Stack padding={0} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
-                        { toggleDetails }
-                        { userDropdown }
-                        { storyDropdown }
+                        <Stack padding={0} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+                          { toggleDetails }
+                          { userDropdown }
+                          { storyDropdown }
 
+                        </Stack>
                       </Stack>
-                    </Stack>
-
+                    </div>
+                    { detailToggles }
                     { thisPage }
+                    { pageNotes }
+
+                    <ColoredLine color="gray" />
                 </div>
             );
             
@@ -401,6 +532,61 @@ public constructor(props:IChartPageProps){
          }); 
   
       } //End toggleChartDetails
+
+      public toggleAllDetails = (item): void => {
+        //Shows or hides chart details
+        let newSetting = !this.state.dataOptions.chartAllDetails;
+        
+        this.setState({ 
+          dataOptions: {
+            chartAllDetails: newSetting,
+            chartTrace: newSetting,
+            chartChanges: newSetting,
+            chartWarnings: newSetting,
+            chartErrors: newSetting,
+          }
+
+         }); 
+      } //End toggleAllDetails
+
+      public toggleTrace = (item): void => {
+        //Shows or hides chart details
+        let newSetting = this.state.dataOptions;
+        newSetting.chartTrace = !this.state.dataOptions.chartTrace;
+        this.setState({ 
+          dataOptions: newSetting,
+         }); 
+      } //End toggleTrace
+     
+      public toggleChanges = (item): void => {
+        //Shows or hides chart details
+         let newSetting = this.state.dataOptions;
+         newSetting.chartChanges = !this.state.dataOptions.chartChanges;
+         this.setState({ 
+           dataOptions: newSetting,
+          }); 
+      } //End toggleChanges
+
+            
+      public toggleWarnings = (item): void => {
+        //Shows or hides chart details
+         let newSetting = this.state.dataOptions;
+         newSetting.chartWarnings = !this.state.dataOptions.chartWarnings;
+         this.setState({ 
+           dataOptions: newSetting,
+          }); 
+      } //End toggleWarnings
+
+            
+      public toggleErrors = (item): void => {
+        //Shows or hides chart details
+         let newSetting = this.state.dataOptions;
+         newSetting.chartErrors = !this.state.dataOptions.chartErrors;
+         this.setState({ 
+           dataOptions: newSetting,
+          }); 
+      } //End toggleErrors
+
 
 /***
  *         db    db d8888b.       .o88b. db   db  .d88b.  d888888b  .o88b. d88888b 
@@ -600,8 +786,16 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       stories: createStories(), 
       index: this.state.chartData == null ? 0 : this.state.chartData.index + 1,
       storyIndex: null,
+      warnNotesAll: [],
+      errorNotesAll: [],
+      users: [],
+      usersSummary: [],
+      dateRange: [],
 
     };
+
+    chartPreData.dateRange.push(new Date(this.props.entries.dateRange[0]).toLocaleString());
+    chartPreData.dateRange.push(new Date(this.props.entries.dateRange[1]).toLocaleString());
 
     let unknownCatLabel = 'Others';
     let removeTheseCats = 'removeEmpty';
@@ -712,10 +906,34 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
               console.log('problem with this item: ', item);
             }
 
-            if (storyIndex > -1 ) { thisStory = updateThisSeries(thisStory, dur, item.thisTimeObj.daysAgo); }
+            let thisUser = item.user.Title + ' ( ' + item.user.ID + ' )';
+            let userIndex = chartPreData.users.indexOf( thisUser );
+            if ( userIndex < 0 ) { 
+              chartPreData.users.push( thisUser ); 
+              userIndex ++;
+              chartPreData.usersSummary.push( 
+                {
+                  Id: item.user.ID,
+                  count: 0,
+                  hours: 0,
+                  percent: null,
+                  title: item.user.Title,
+                  stories: [],
+                }
+               );
+            }
+
+            chartPreData.usersSummary[userIndex].count ++;
+            chartPreData.usersSummary[userIndex].hours += dur;
+
+            if ( storyIndex > -1 ) { 
+              thisStory = updateThisSeries(thisStory, dur, item.thisTimeObj.daysAgo ); 
+              if ( thisStory.title != null && chartPreData.usersSummary[userIndex].stories.indexOf(thisStory.title) < 0 ) { 
+                chartPreData.usersSummary[userIndex].stories.push(thisStory.title);
+              } 
+            }
 
             chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
-
 
             chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
             chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
@@ -774,7 +992,6 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
             let keyChange = camelize(item.keyChange, true);
             chartPreData.keyChanges = updateThisSeries(chartPreData.keyChanges, dur, keyChange);
        }
-
 
     }
 
@@ -944,6 +1161,11 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
             //newUCLabels.push(newLabel.toUpperCase());
             similarTo = series.labels[i] + ' is similar to ' + newLabels[similarToIndex] + ' at item ' + i;
             warnNotes.push(similarTo);
+            chartPreData.warnNotesAll.push({
+              note: similarTo,
+              parent: series.title,
+              source: series.labels[i],
+            });
           } else {
             //Is not similar to anything
           }
@@ -986,14 +1208,24 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
         , 0);
 
       let err = '';
-      if (checkSums !== series.totalS ) { 
+      if (checkSums !== series.totalS && Math.abs(checkSums - series.totalS) > .01 ) { 
         err = 'Err reducing Category SUMs: ' + series.totalS + ' <> ' + checkSums;
         series.errorNotes.push(err);
+        chartPreData.errorNotesAll.push({
+          note: err,
+          parent: series.title,
+          source: series.title,
+        });
         console.log(err);
       }
-      if (checkCounts !== series.totalC ) { 
+      if (checkCounts !== series.totalC && Math.abs(checkCounts - series.totalC) > .01 ) { 
         err = 'Err reducing Category COUNTs: ' + series.totalC + ' <> ' + checkCounts;
         series.errorNotes.push(err);
+        chartPreData.errorNotesAll.push({
+          note: err,
+          parent: series.title,
+          source: series.title,
+        });
         console.log(err);
       }
 
