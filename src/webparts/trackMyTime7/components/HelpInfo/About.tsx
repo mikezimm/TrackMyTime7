@@ -116,6 +116,11 @@ public constructor(props:IInfoAboutMeProps){
 
             thisPage = <div>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackTokensBody}>
+                    <div><b>Your Lists:</b></div>
+                    { links.createLink(this.props.parentState.projectListURL,'_blank', this.props.parentState.projectListName ) }
+                    { links.createLink(this.props.parentState.timeTrackerListURL,'_blank', this.props.parentState.timeTrackListName ) }
+                    <div></div>
+                    <div><b>Webpart info on Github:</b></div>
                     { links.gitRepoTrackMyTime.repo }
                     { links.gitRepoTrackMyTime.issues }
                     { links.gitRepoTrackMyTime.wiki }
@@ -126,6 +131,7 @@ public constructor(props:IInfoAboutMeProps){
 
                 <table className={styles.infoTable}>
                     <tr><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td>{'1.0.0.9'}</td><td>Charts</td><td>Fix user summary Hours, Add Last Entry.  Fix Time display error.</td></tr>
                     <tr><td>{'1.0.0.8'}</td><td>Charts</td><td>Add Story and User filters.  Add Details toggle.  Add About and Numbers page.</td></tr>
                     <tr><td>{'1.0.0.7'}</td><td>Charts/Help</td><td>Initial addition of Charts and Help</td></tr>
                 </table>

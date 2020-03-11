@@ -21,6 +21,7 @@ export const devDocsList = createLink( baseDevDocs + 'detailslist','_blank', 'Li
 export const devDocsDate = createLink( baseDevDocs + 'datepicker','_blank', 'DatePicker' );
 export const devDocsPivo = createLink( baseDevDocs + 'pivot','_blank', 'Pivot' );
 export const devDocsText = createLink( baseDevDocs + 'textfield','_blank', 'TextField' );
+export const devDocsLink = createLink( baseDevDocs + 'link','_blank', 'Link' );
 export const devDocsIcon = createLink( 'https://developer.microsoft.com/en-us/fabric#/styles/web/icons#available-icons','_blank', 'Icons' );
 
 
@@ -71,7 +72,7 @@ export const blogSPTimeZone = createLink( 'https://sharepointmaven.com/sharepoin
 
 export function createRepoLinks(href: string, target: string, linkDesc: string){
     return {
-        repo: createLink( href, target, linkDesc ),
+        repo: createLink( href, target, linkDesc + ' on Github' ),
         issues: createLink( href + '/issues', target, linkDesc + " Issues" ),
         wiki: createLink( href + '/wiki', target, linkDesc + " Wiki" ),
         href: href,

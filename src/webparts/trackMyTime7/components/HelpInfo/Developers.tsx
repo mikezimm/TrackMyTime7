@@ -129,7 +129,10 @@ public constructor(props:IInfoDevelopersProps){
                     <tr><td>{links.devDocsButton}</td><td></td><td>This is used for Save Entry, Clear Form buttons</td></tr>
                     <tr><td>{links.devDocsStack}</td><td></td><td>Used in general for layout of components</td></tr>
                     <tr><td>{links.devDocsList}</td><td>{links.gitSampleReactList}</td><td>Used for Projects and History List</td></tr>
-                    <tr><td>{links.devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>     
+                    <tr><td>{links.devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>
+
+                    <tr><td>{links.devDocsLink}</td><td></td><td>Used for Links</td></tr>
+                    
 
                     <tr><td>{links.chartJSSamples}</td><td></td><td>Used for all charts</td></tr>                    
 

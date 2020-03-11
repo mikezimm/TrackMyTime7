@@ -134,9 +134,12 @@ public constructor(props:IChartNumbersProps){
             const userSummary = this.props.chartData.users.length == 0 ? null :  
             this.props.chartData.usersSummary.map( u => { 
                 return <tr><td>{ u.Id }</td><td>{ u.title }</td>
-                <td>{ u.count + ' or ' + (u.count / totalCounts).toFixed() + ' %'}</td>
+                <td>{ u.count + ' or ' + ((u.count / totalCounts)*100).toFixed(1) + ' %'}</td>
                 <td>{ u.hours.toFixed(1) + ' or ' + ((u.hours / totalSums)*100).toFixed(1) + ' %' }</td>
-                <td>{ u.stories.map( s => { return s; }).join(', ') }</td></tr>; }
+                <td>{ u.lastEntryText + ' ( -' + u.daysAgo + ' )' }</td>
+                <td>{ u.stories.map( s => { return s; }).join(', ') }</td>
+                </tr>; }
+
             );
             
             return (
@@ -156,7 +159,7 @@ public constructor(props:IChartNumbersProps){
                         </table>
 
                         <table className={stylesI.infoTable}>
-                            <tr><th>{'ID'}</th><th>{'Name'}</th><th>{'Count'}</th><th>{'Hours'}</th><th>{'Stories'}</th></tr>
+                            <tr><th>{'ID'}</th><th>{'Name'}</th><th>{'Count'}</th><th>{'Hours'}</th><th>{'Last Entry'}</th><th>{'Stories'}</th></tr>
                             { userSummary }
 
                         </table>

@@ -150,6 +150,7 @@ public constructor(props:IGettingStartedProps){
                     <li>Select a <b>Time Entry Mode</b> in upper right</li>
                     <li><b>Fill in any details</b> you want to save.</li>
                     <li>Press <b>Save Item</b> button.</li>
+                    <li>{ links.createLink(this.props.parentState.timeTrackerListURL,'_blank', this.props.parentState.timeTrackListName + ' list' ) }</li>
                 </ol>
           </div>;
 

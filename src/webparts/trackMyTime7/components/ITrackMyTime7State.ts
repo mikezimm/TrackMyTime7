@@ -314,6 +314,9 @@ export interface IUserSummary {
   hours: number; 
   percent: number; 
   stories: string[];
+  lastEntry: number;
+  lastEntryText: string;
+  daysAgo: number;
  }
 
 export interface IChartData {

@@ -82,6 +82,9 @@ export interface ITheTime {
   daysSinceMon?: number;
   daysSinceNewYear?: number;
   daysSinceMonthStart?: number;
+  dayMMMDD?: string;
+  dayDDDMMMDD?: string;
+  dayYYYYMMDD?: string;
 
 }
 
@@ -200,6 +203,10 @@ export function makeTheTimeObject(timeString) {
     daysSinceMon: getTimeDelta(priorMonday, todaysDate, 'days'),
     daysSinceNewYear: getTimeDelta(priorNewYears, todaysDate, 'days'),
     daysSinceMonthStart: getTimeDelta(firstOfMonth, todaysDate, 'days'),
+
+    dayMMMDD: monthStr3['en-us'][givenMonth] + '-' + givenDate,
+    dayDDDMMMDD: [weekday3['en-us'][givenDay],monthStr3['en-us'][givenMonth],givenDate].join(' '),
+    dayYYYYMMDD: [givenYear,("0" + (givenMonth + 1)).slice(-2),givenDate].join('-'),
 
   };
 

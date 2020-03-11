@@ -832,7 +832,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
           );
 
           chartPreData.stories.stories.push(
-            createISeries(item.story + ' history' , 'Days ago', hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
+            createISeries(item.story + '' , 'Days ago', hideEmpty ? 0 : 0 , hideEmpty ? 0 : 365 , 1),
           );
 
         }
@@ -908,9 +908,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
             let thisUser = item.user.Title + ' ( ' + item.user.ID + ' )';
             let userIndex = chartPreData.users.indexOf( thisUser );
+            //Create UserSummary
             if ( userIndex < 0 ) { 
               chartPreData.users.push( thisUser ); 
-              userIndex ++;
+              userIndex = chartPreData.users.length -1 ;
               chartPreData.usersSummary.push( 
                 {
                   Id: item.user.ID,
@@ -919,13 +920,30 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
                   percent: null,
                   title: item.user.Title,
                   stories: [],
+                  lastEntry: null,
+                  lastEntryText: null,
+                  daysAgo: null,
                 }
                );
             }
 
+            //Update UserSummary Count and Hours
             chartPreData.usersSummary[userIndex].count ++;
             chartPreData.usersSummary[userIndex].hours += dur;
 
+            //Update UserSummary last Entry
+            if ( chartPreData.usersSummary[userIndex].lastEntry == null ) {
+              chartPreData.usersSummary[userIndex].lastEntry = item.thisTimeObj.milliseconds;
+              chartPreData.usersSummary[userIndex].lastEntryText = item.thisTimeObj.dayMMMDD;
+              chartPreData.usersSummary[userIndex].daysAgo = item.thisTimeObj.daysAgo;
+
+            } else if ( item.thisTimeObj.milliseconds > chartPreData.usersSummary[userIndex].lastEntry ) {
+              chartPreData.usersSummary[userIndex].lastEntry = item.thisTimeObj.milliseconds;              
+              chartPreData.usersSummary[userIndex].lastEntryText = item.thisTimeObj.dayMMMDD;
+              chartPreData.usersSummary[userIndex].daysAgo = item.thisTimeObj.daysAgo;
+            }
+
+            //Update UserSummary Story
             if ( storyIndex > -1 ) { 
               thisStory = updateThisSeries(thisStory, dur, item.thisTimeObj.daysAgo ); 
               if ( thisStory.title != null && chartPreData.usersSummary[userIndex].stories.indexOf(thisStory.title) < 0 ) { 

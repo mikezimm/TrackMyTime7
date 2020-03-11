@@ -2653,11 +2653,16 @@ public toggleTips = (item: any): void => {
       let daysSince = thisEntry.age;
       counts[countThese].total ++;
 
-      if ( daysSince <= 0 ) { today = true;
+      if ( daysSince = 0 ) { today = true;
+        fromProject.filterFlags.push('today') ;
+        thisEntry.filterFlags.push('today') ;
+        thisEntry.timeGroup = '1. Ended Today';
+        counts[countThese].today ++ ; }
+      else if ( daysSince < 0 ) { today = true;
         fromProject.filterFlags.push('today') ;
         thisEntry.filterFlags.push('today') ;
         thisEntry.timeGroup = '0. These went Back to the Future :)';
-        counts[countThese].today ++ ; }
+          counts[countThese].today ++ ; }
       else if ( daysSince <= 1 ) { today = true;
         fromProject.filterFlags.push('today') ;
         thisEntry.filterFlags.push('today') ;
@@ -2977,7 +2982,7 @@ public toggleTips = (item: any): void => {
       if ( trackTimeItem.category2 !== null && trackTimeItem.category2 ) {
         listCategory += trackTimeItem.category2.join(', ');
       }
-      let listTimeSpan = getTimeSpan(trackTimeItem.startTime, trackTimeItem.endTime);
+      let listTimeSpan = getTimeSpan(response.data.StartTime, response.data.EndTime);
       let listComments = trackTimeItem.comments ? trackTimeItem.comments.value : "";
       let listProjects = "";
       if ( trackTimeItem.projectID1 !== null && trackTimeItem.projectID1.value ) {
@@ -2986,7 +2991,6 @@ public toggleTips = (item: any): void => {
       if ( trackTimeItem.projectID2 !== null && trackTimeItem.projectID2.value ) {
         listProjects += trackTimeItem.projectID2.value + ' ';
       }   
-
       let newEntry : ITimeEntry = {...trackTimeItem,
         user: this.state.currentUser,
         userInitials: "You!",
@@ -3012,6 +3016,7 @@ public toggleTips = (item: any): void => {
         comments: this.buildSmartText(response.data.Comments),
         projectID1 : this.buildSmartText(response.data.ProjectID1) ,  //Example Project # - look for strings starting with * and ?
         projectID2 : this.buildSmartText(response.data.ProjectID2) ,  //Example Cost Center # - look for strings starting with * and ?
+        thisTimeObj: makeTheTimeObject(response.data.StartTime),
       
       };
 
