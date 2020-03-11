@@ -111,7 +111,7 @@ export default class ChartsPage extends React.Component<IChartPageProps, IChartP
 public constructor(props:IChartPageProps){
     super(props);
     this.state = { 
-        selectedChoice: 'snapShot',
+        selectedChoice: 'numbers',
         lastChoice: '',
         lastStory: defStory,
         lastUser: curUser,

@@ -54,11 +54,12 @@ export function creatChartChoices( selectedKey: string, _onChange){
   let options : IChoiceGroupOption[] = [];
   let choiceSpacer = '\u00A0\u00A0';
   let spacer4x = choiceSpacer + choiceSpacer + choiceSpacer + choiceSpacer;
+  options.push(  {key: 'numbers', text: 'Numbers' + spacer4x });
   options.push(  {key: 'snapShot', text: 'Snapshot' + spacer4x });
   options.push(  {key: 'longTerm', text: 'Long Term' + spacer4x });
   options.push(  {key: 'story', text: 'Story' + spacer4x });
-  options.push(  {key: 'usage', text: 'Usage' + spacer4x });
-  options.push(  {key: 'numbers', text: 'Numbers' + choiceSpacer });
+  options.push(  {key: 'usage', text: 'Usage' + choiceSpacer });
+
 
   return (
     <ChoiceGroup
