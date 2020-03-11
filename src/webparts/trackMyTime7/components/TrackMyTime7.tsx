@@ -2221,7 +2221,7 @@ public toggleTips = (item: any): void => {
     .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(400).get()
     .then((response) => {
 
-      //console.log('useTrackMyTimeList', response);
+      console.log('useTrackMyTimeList', response);
 
 
       /**
@@ -2307,7 +2307,7 @@ public toggleTips = (item: any): void => {
           //Values specific to Time Entry
           user : item.User ,  //Single person column
           userId : item.UserId ,  //Single person column
-          userTitle : item.UserTitle ,  //Single person column
+          userTitle : item.User.Title ,  //Single person column
           startTime : item.StartTime , //Time stamp
           endTime : item.EndTime , // Time stamp
           duration : item.Hours , //Number  -- May not be needed based on current testing with start and end dates.
@@ -2577,6 +2577,7 @@ public toggleTips = (item: any): void => {
 
     let stateProjects = this.state.projects;
     let stateEntries: IEntryInfo = this.state.entries;
+    let dateRange: number[] = [];
 
     let userId = this.state.currentUser.id;
      //console.log('processTimeEntries: userId',userId, typeof userId);
@@ -2593,6 +2594,13 @@ public toggleTips = (item: any): void => {
     }
 
     let lastEndTime = makeTheTimeObject(new Date(2007,0,1).toUTCString());
+    let firstStarTime = makeTheTimeObject(new Date(2030,0,1).toUTCString());
+    //dateRange?: string[];
+
+
+    dateRange.push(firstStarTime.milliseconds);
+    dateRange.push(lastEndTime.milliseconds);
+
     let nowEndTime = makeTheTimeObject('');
     //console.log(JSON.stringify(lastEndTime));
     //alert(lastEndTime);
@@ -2621,6 +2629,9 @@ public toggleTips = (item: any): void => {
           }
         }
       }
+
+      if ( thisEntry.thisTimeObj.milliseconds < dateRange[0] ) { dateRange[0] = thisEntry.thisTimeObj.milliseconds; }
+      if ( thisEndTime.milliseconds > dateRange[1] ) { dateRange[1] = thisEndTime.milliseconds; }
 
       //Check if project is tagged to you
       if (fromProject.teamIds.indexOf(userId) > -1 ) { team = true; } 
@@ -2737,6 +2748,7 @@ public toggleTips = (item: any): void => {
     stateEntries.today = todayEntries;
     stateEntries.newFiltered = allEntries;
     stateEntries.lastFiltered = allEntries;  
+    stateEntries.dateRange = dateRange;
 
     //Change from sinceLast if the time is longer than x- hours ago.
     let hoursSinceLastTime = this.state.currentTimePicker === 'sinceLast' && getTimeDelta( lastEndTime.theTime, new Date() , 'hours');
@@ -2979,6 +2991,7 @@ public toggleTips = (item: any): void => {
         user: this.state.currentUser,
         userInitials: "You!",
         userId: response.data.UserId,
+        userTitle: response.data.UserTitle,
         filterFlags: ["your","session"],
         timeGroup: "0. This browser session",
         duration: getTimeDelta( trackTimeItem.endTime , trackTimeItem.startTime , 'hours').toString(),

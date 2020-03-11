@@ -116,23 +116,34 @@ public constructor(props:IChartNumbersProps){
                 <tr><td>{'Who\'s entries'}</td><td>{this.props.chartData.users.join(', ')}</td></tr>;
 
             const whatData = this.props.chartData == null ? null :                 
-                <tr><td>{'What entries'}</td><td>Selected Story/Chapter:  {this.props.story}</td></tr>;
+                <tr><td>{'What entries'}</td><td>Selected Story/Chapter:  {this.props.story !== 'None' ? this.props.story : 'Everyone\'s'}</td></tr>;
             
-            const totalHours = this.props.chartData == null ? null : 
-                <tr><td>{'Total hours'}</td><td>{ this.props.chartData.allYears.totalS }</td></tr>;
 
+            const totalSums = this.props.chartData.allYears.totalS;
+            const totalHours = this.props.chartData == null ? null : 
+                <tr><td>{'Filtered hours'}</td><td>{ totalSums.toFixed(1) }</td></tr>;
+
+            const totalCounts = this.props.chartData.allYears.totalC;
             const totalCount = this.props.chartData == null ? null :                 
-                <tr><td>{'Entry count'}</td><td>{ this.props.chartData.allYears.totalC }</td></tr>;
+                <tr><td>{'Filtered count'}</td><td>{ totalCounts }</td></tr>;
 
             const timeRange = this.props.chartData == null ? null :                 
-                <tr><td>{'Time range'}</td><td>{ this.props.chartData.dateRange.join(' - ') }</td></tr>;
+                <tr><td>{'Entire time range'}</td><td>{ this.props.chartData.dateRange.join(' - ') }</td></tr>;
 
+
+            const userSummary = this.props.chartData.users.length == 0 ? null :  
+            this.props.chartData.usersSummary.map( u => { 
+                return <tr><td>{ u.Id }</td><td>{ u.title }</td>
+                <td>{ u.count + ' or ' + (u.count / totalCounts).toFixed() + ' %'}</td>
+                <td>{ u.hours.toFixed(1) + ' or ' + ((u.hours / totalSums)*100).toFixed(1) + ' %' }</td>
+                <td>{ u.stories.map( s => { return s; }).join(', ') }</td></tr>; }
+            );
             
             return (
                 <div>
                     <Stack horizontal={false} wrap={true} tokens={stackChartTokens}> 
 
-                        <h2>Error/Warning summary for all data</h2>
+                        <h2>Overall summary of selected data</h2>
 
                         <table className={stylesI.infoTable}>
                             <tr><th>{'Topic'}</th><th>{'Summary'}</th></tr>
@@ -141,6 +152,12 @@ public constructor(props:IChartNumbersProps){
                             { timeRange }
                             { totalHours }
                             { totalCount }
+
+                        </table>
+
+                        <table className={stylesI.infoTable}>
+                            <tr><th>{'ID'}</th><th>{'Name'}</th><th>{'Count'}</th><th>{'Hours'}</th><th>{'Stories'}</th></tr>
+                            { userSummary }
 
                         </table>
 

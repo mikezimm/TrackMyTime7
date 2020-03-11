@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo, ICharNote } from '../ITrackMyTime7State';
+import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
 
 import { ITheTime } from '../../../../services/dateServices';
 
@@ -789,9 +789,13 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       warnNotesAll: [],
       errorNotesAll: [],
       users: [],
+      usersSummary: [],
       dateRange: [],
 
     };
+
+    chartPreData.dateRange.push(new Date(this.props.entries.dateRange[0]).toLocaleString());
+    chartPreData.dateRange.push(new Date(this.props.entries.dateRange[1]).toLocaleString());
 
     let unknownCatLabel = 'Others';
     let removeTheseCats = 'removeEmpty';
@@ -902,10 +906,32 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
               console.log('problem with this item: ', item);
             }
 
-            let thisUser = item.user.title + ' ( ' + item.user.Id + ' )';
-            if ( chartPreData.users.indexOf( thisUser ) < 0 ) { chartPreData.users.push( thisUser ); }
+            let thisUser = item.user.Title + ' ( ' + item.user.ID + ' )';
+            let userIndex = chartPreData.users.indexOf( thisUser );
+            if ( userIndex < 0 ) { 
+              chartPreData.users.push( thisUser ); 
+              userIndex ++;
+              chartPreData.usersSummary.push( 
+                {
+                  Id: item.user.ID,
+                  count: 0,
+                  hours: 0,
+                  percent: null,
+                  title: item.user.Title,
+                  stories: [],
+                }
+               );
+            }
 
-            if (storyIndex > -1 ) { thisStory = updateThisSeries(thisStory, dur, item.thisTimeObj.daysAgo); }
+            chartPreData.usersSummary[userIndex].count ++;
+            chartPreData.usersSummary[userIndex].hours += dur;
+
+            if ( storyIndex > -1 ) { 
+              thisStory = updateThisSeries(thisStory, dur, item.thisTimeObj.daysAgo ); 
+              if ( thisStory.title != null && chartPreData.usersSummary[userIndex].stories.indexOf(thisStory.title) < 0 ) { 
+                chartPreData.usersSummary[userIndex].stories.push(thisStory.title);
+              } 
+            }
 
             chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
 

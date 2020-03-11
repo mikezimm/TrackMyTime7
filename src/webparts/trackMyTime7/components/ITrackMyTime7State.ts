@@ -48,6 +48,7 @@ export interface IEntryInfo {
   lastFiltered: ITimeEntry[]; //Last filtered for search
   lastEntry: ITimeEntry[];
   newFiltered: ITimeEntry[]; //new filtered for search
+  dateRange?: number[];
   
 }
 
@@ -306,6 +307,15 @@ export interface ICharNote {
   note: string;
 }
 
+export interface IUserSummary { 
+  title: string; 
+  Id: string; 
+  count: number; 
+  hours: number; 
+  percent: number; 
+  stories: string[];
+ }
+
 export interface IChartData {
   filter?: string;
   contemp?: IChartSeries;  
@@ -328,6 +338,7 @@ export interface IChartData {
   storyIndex: number;
 
   users?: string[];
+  usersSummary?: IUserSummary[];
   dateRange?: string[];
 
   warnNotesAll: ICharNote[];
