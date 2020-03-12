@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
 
 import { ITheTime } from '../../../../services/dateServices';
 
@@ -57,6 +57,9 @@ export interface IChartPageProps {
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     userFilter?: 'all' | 'user'; 
+    
+    parentState: ITrackMyTime7State;
+
 }
 
 export interface IChartPageState {
@@ -374,8 +377,8 @@ public constructor(props:IChartPageProps){
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
-
                     ></LongTerm></div>;
+
                 } else if ( this.state.selectedChoice === 'snapShot' ) {
                     thisPage = <div><Snapshot 
                       index={ this.state.chartData.index }
@@ -388,6 +391,7 @@ public constructor(props:IChartPageProps){
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
                     ></Snapshot></div>;
+
                 } else if ( this.state.selectedChoice === 'story' ) {
                     thisPage = <div><Story 
                         index={ this.state.chartData.index }
@@ -400,6 +404,7 @@ public constructor(props:IChartPageProps){
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
                     ></Story></div>;
+
                 } else if ( this.state.selectedChoice === 'usage' ) {
                     thisPage = <div><Usage 
                         index={ this.state.chartData.index }
@@ -412,6 +417,7 @@ public constructor(props:IChartPageProps){
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
                     ></Usage></div>;
+
                   } else if ( this.state.selectedChoice === 'numbers' ) {
                     thisPage = <div><Numbers 
                         index={ this.state.chartData.index }
@@ -423,6 +429,11 @@ public constructor(props:IChartPageProps){
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
+                        projectListURL={ this.props.parentState.projectListURL }
+                        projectListName={ this.props.parentState.projectListName }
+                        timeTrackerListURL={ this.props.parentState.timeTrackerListURL }
+                        timeTrackListName={ this.props.parentState.timeTrackListName }
+
                     ></Numbers></div>;
                     }
             }
@@ -792,6 +803,9 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       usersSummary: [],
       dateRange: [],
 
+      coreTimeS: [],  //This is the flexible array of core time per day
+      coreTime: createISeries('Core time' , '', 0,0,0),  //This is more of a category summary
+
     };
 
     chartPreData.dateRange.push(new Date(this.props.entries.dateRange[0]).toLocaleString());
@@ -1009,6 +1023,8 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
     
             let keyChange = camelize(item.keyChange, true);
             chartPreData.keyChanges = updateThisSeries(chartPreData.keyChanges, dur, keyChange);
+
+            
        }
 
     }

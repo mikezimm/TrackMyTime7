@@ -839,7 +839,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         _updateUserFilter={ this._updateUserFilter.bind(this) }
         WebpartHeight={ this.state.WebpartHeight }
         WebpartWidth={ this.state.WebpartWidth }
-
+        parentState= { this.state }
       ></ChartsPage>
     </div>;
 

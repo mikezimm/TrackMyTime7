@@ -10,6 +10,10 @@ import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
+
+import WebPartLinks from './WebPartLinks';
+import { IWebPartLinksProps, IWebPartLinksState } from './WebPartLinks';
+
 import styles from './InfoPane.module.scss';
 
 export interface IInfoAboutMeProps {
@@ -115,19 +119,14 @@ public constructor(props:IInfoAboutMeProps){
             let thisPage = null;
 
             thisPage = <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackTokensBody}>
-                    <div><b>Your Lists:</b></div>
-                    { links.createLink(this.props.parentState.projectListURL,'_blank', this.props.parentState.projectListName ) }
-                    { links.createLink(this.props.parentState.timeTrackerListURL,'_blank', this.props.parentState.timeTrackListName ) }
-                    <div></div>
-                    <div><b>Webpart info on Github:</b></div>
-                    { links.gitRepoTrackMyTime.repo }
-                    { links.gitRepoTrackMyTime.issues }
-                    { links.gitRepoTrackMyTime.wiki }
-                </Stack>
+                <WebPartLinks
+                    projectListURL={ this.props.parentState.projectListURL }
+                    projectListName={ this.props.parentState.projectListName }
+                    timeTrackerListURL={ this.props.parentState.timeTrackerListURL }
+                    timeTrackListName={ this.props.parentState.timeTrackListName }
+                ></WebPartLinks>
 
                 <h2>Version History</h2>
-
 
                 <table className={styles.infoTable}>
                     <tr><th>Version</th><th>Focus</th><th>Notes</th></tr>

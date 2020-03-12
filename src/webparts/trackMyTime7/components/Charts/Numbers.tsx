@@ -4,12 +4,15 @@ import { IChartData, IChartSeries} from '../ITrackMyTime7State';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 
+import * as links from '../HelpInfo/AllLinks';
+
 import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 
 import styles from '../TrackMyTime7.module.scss';
 import stylesC from './chartsPage.module.scss';
 import stylesI from '../HelpInfo/InfoPane.module.scss';
+import WebPartLinks from '../HelpInfo/WebPartLinks';
 
 import { create1SeriesCharts, creatLineChart } from './charts';
 import { IDataOptions } from './chartsPage';
@@ -24,6 +27,12 @@ export interface IChartNumbersProps {
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     dataOptions?: IDataOptions;
+
+    projectListURL?: string; //WebPartLinks
+    projectListName?: string;
+    timeTrackerListURL?: string;
+    timeTrackListName?: string;
+
 }
 
 export interface IChartNumbersState {
@@ -142,13 +151,21 @@ public constructor(props:IChartNumbersProps){
 
             );
             
+            const stackTokensBody: IStackTokens = { childrenGap: 20 };
+
             return (
                 <div>
                     <Stack horizontal={false} wrap={true} tokens={stackChartTokens}> 
 
                         <h2>Overall summary of selected data</h2>
+                        <WebPartLinks
+                            projectListURL={ this.props.projectListURL }
+                            projectListName={ this.props.projectListName }
+                            timeTrackerListURL={ this.props.timeTrackerListURL }
+                            timeTrackListName={ this.props.timeTrackListName }
+                        ></WebPartLinks>
 
-                        <table className={stylesI.infoTable}>
+                       <table className={stylesI.infoTable}>
                             <tr><th>{'Topic'}</th><th>{'Summary'}</th></tr>
                             { whosData }
                             { whatData }

@@ -335,6 +335,8 @@ export interface IChartData {
   allWeeks?: IChartSeries;
   allDays?: IChartSeries;
   entryType?: IChartSeries;
+  coreTimeS?: IChartSeries[];  //This is the flexible array of core time per day
+  coreTime?: IChartSeries;  //This is more of a category summary
   
   stories?: IStories;
   index: number;
@@ -419,6 +421,9 @@ export interface ITrackMyTime7State {
   lastEndTime?: ITheTime; //Should be latest timestamp of the current user... used to create start time for next entry.
   blinkOnProject?: number; //Tells text fields to blink when project is clicked on and values reset
   blinkOnActivity?: number; //Tells text fields to blink when project is clicked on and values reset
+  coreStart?: number; //Used for calculating hours in core times
+  coreEnd?: number; //Used for calculating hours in core times
+  coreWeekend?: boolean; //Used for calculating hours in core times 
 
   elapsedTime?: any;  //Elapsed Time since last entry
 
