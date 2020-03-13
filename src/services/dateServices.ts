@@ -183,7 +183,7 @@ export function makeTheTimeObject(timeString, coreStart = 8, coreEnd = 18, useHo
 
   let givenDateMidnight = new Date(givenYear,givenMonth,givenDate);
   let firstOfMonth = new Date(givenYear,givenMonth,1);
-    
+
   let priorSunday = getDayOfWeek(timeString, 'sun');
   let priorMonday = getDayOfWeek(timeString, 'mon');
 

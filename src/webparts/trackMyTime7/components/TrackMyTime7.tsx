@@ -355,6 +355,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       locationChoice: '',  //semi-colon separated choices
       blinkOnProject: 0, //Tells text fields to blink when project is clicked on and values reset
       blinkOnActivity: 0, //Tells text fields to blink when project is clicked on and values reset
+
+      coreStart: 8, //Used for calculating hours in core times
+      coreEnd: 18, //Used for calculating hours in core times
+      coreWeekend: true, //Used for calculating hours in core times 
+
       smartLinkRules: smartLinks.buildSmartLinkRules(this.props),
 
       // 6 - User Feedback:
@@ -2628,6 +2633,64 @@ public toggleTips = (item: any): void => {
             lastEndTime = thisEndTime;
           }
         }
+      }
+
+      /**
+       * Add logic for coreTime
+       *       coreTime?: string;
+       *       hoursEarly?: number;
+       *       hoursLate?: number;
+       */
+      thisEntry.hoursEarly = 0;
+      thisEntry.hoursLate = 0;
+      thisEntry.hoursWeekEnd = 0;        
+      thisEntry.hoursHoliday = 0;
+      thisEntry.hoursNormal = 0;
+      thisEntry.hoursUnknown = 0;
+
+      let theseHours = Number(thisEntry.duration);
+
+      //If Hours is to long ( > normal work duration ) set unknown... likely error or to complex to calculate.
+      if ( theseHours > ( 18 - 8 )) {
+        thisEntry.coreTime = 'Unknown';
+        thisEntry.hoursUnknown = theseHours;
+
+      //If StartTime is holiday, the entire entry is considered holiday.
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Holiday' ) {
+        thisEntry.coreTime = 'Holiday';
+        thisEntry.hoursHoliday = theseHours;
+
+      //Else if StartTime is Weekend, then entire entry is considered weekend
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Weekend' ) {
+        thisEntry.coreTime = 'Weekend';
+        thisEntry.hoursWeekEnd = theseHours;
+
+      //Else if Start and End are Normal, all hours are normal
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Normal' && thisEndTime.coreTime === 'Normal' ) {
+        thisEntry.coreTime = 'Normal';
+        thisEntry.hoursNormal = theseHours;
+
+      //Else if StartTime is Late, then entire entry is considered Late
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Late' ) {
+        thisEntry.coreTime = 'Late';
+        thisEntry.hoursLate = theseHours;
+
+      //Else if EndTime is Early, then entire entry is considered Early
+      } else if ( thisEndTime.coreTime === 'Early' ) {
+        thisEntry.coreTime = 'Early';
+        thisEntry.hoursEarly = theseHours;
+
+      //Else if Start is Early, then part of hours are considered Early
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Early' ) {
+        thisEntry.coreTime = 'Early';
+        thisEntry.hoursEarly = thisEntry.thisTimeObj.hoursEarly;
+        thisEntry.hoursNormal = theseHours - thisEntry.hoursEarly;
+
+      //Else if EndTime is Late, then part of hours are considered Late
+      } else if ( thisEndTime.coreTime === 'Late' ) {
+        thisEntry.coreTime = 'Late';
+        thisEntry.hoursLate = thisEndTime.hoursLate;
+        thisEntry.hoursNormal = theseHours - thisEntry.hoursLate;
       }
 
       if ( thisEntry.thisTimeObj.milliseconds < dateRange[0] ) { dateRange[0] = thisEntry.thisTimeObj.milliseconds; }

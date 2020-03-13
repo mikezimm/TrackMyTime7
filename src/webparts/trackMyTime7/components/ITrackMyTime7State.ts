@@ -126,6 +126,14 @@ export interface ITimeEntry extends ISaveEntry {
     filterFlags?: string[]; // what flags does this match?  yourRecent, allRecent etc...
     timeGroup?: string; //Used for grouping the list of entries
 
+    coreTime?: string;
+    hoursEarly?: number;
+    hoursLate?: number;
+    hoursWeekEnd?: number;
+    hoursHoliday?: number;
+    hoursNormal?: number;
+    hoursUnknown?: number;
+
     //Values that relate to project list item
 
     //Values specific to Time Entry
@@ -335,8 +343,8 @@ export interface IChartData {
   allWeeks?: IChartSeries;
   allDays?: IChartSeries;
   entryType?: IChartSeries;
-  coreTimeS?: IChartSeries[];  //This is the flexible array of core time per day
-  coreTime?: IChartSeries;  //This is more of a category summary
+  coreTimeS?: ICoreTimes;  //This is the flexible array of core time per day
+
   
   stories?: IStories;
   index: number;
@@ -352,11 +360,22 @@ export interface IChartData {
 }
 
 
+export interface ICoreTimes {
+  cores?: ICoreTime[];
+  coreTime?: ICoreTime[];
+  titles?: string[];
+}
+
+export interface ICoreTime extends IChartSeries {
+
+}
+
 export interface IStories {
   stories?: IStory[];
   chapters?: IStory[];
   titles?: string[];
 }
+
 export interface IStory extends IChartSeries {
 
 }

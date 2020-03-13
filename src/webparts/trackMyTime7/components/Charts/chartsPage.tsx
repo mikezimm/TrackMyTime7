@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { ITrackMyTime7State, IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IChartData, IChartSeries, ITimeEntry, IStories, ICoreTimes, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
 
 import { ITheTime } from '../../../../services/dateServices';
 
@@ -763,6 +763,22 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       return seriesData;
     }
 
+    function createCoreTimeS(){
+      let emptyCoreTimes: ICoreTimes = {
+        titles: ['Early','Normal','Late','Weekend','Holiday'],
+        cores: [
+          createISeries('Early' , 'Early' , 0,365,1),
+          createISeries('Normal' , 'Normal', 0,365,1),
+          createISeries('Late' , 'Late' , 0,365,1),
+          createISeries('Weekend' , 'Weekend' , 0,365,1),
+          createISeries('Holiday' , 'Holiday' , 0,365,1),
+        ],
+        coreTime: [],
+      };
+
+      return emptyCoreTimes;
+    }
+
     function createStories(){
       let emptyStories: IStories = {
         titles: [],
@@ -803,8 +819,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       usersSummary: [],
       dateRange: [],
 
-      coreTimeS: [],  //This is the flexible array of core time per day
-      coreTime: createISeries('Core time' , '', 0,0,0),  //This is more of a category summary
+      coreTimeS: createCoreTimeS(),  //This is the flexible array of core time per day
 
     };
 
@@ -874,10 +889,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
         }
       }
 
+
       /**
        * Start filtering the "What data here"
        */
-
 
       if (item.story != null && item.story.length > 0 ) {
 
@@ -955,6 +970,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
               chartPreData.usersSummary[userIndex].lastEntry = item.thisTimeObj.milliseconds;              
               chartPreData.usersSummary[userIndex].lastEntryText = item.thisTimeObj.dayMMMDD;
               chartPreData.usersSummary[userIndex].daysAgo = item.thisTimeObj.daysAgo;
+
             }
 
             //Update UserSummary Story
@@ -971,6 +987,23 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
             chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
             chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
     
+            if (item.hoursEarly) {
+              chartPreData.coreTimeS.cores[0] = updateThisSeries(chartPreData.coreTimeS.cores[0], item.hoursEarly, item.thisTimeObj.daysAgo);
+            }
+            if (item.hoursNormal) {
+              chartPreData.coreTimeS.cores[1] = updateThisSeries(chartPreData.coreTimeS.cores[1], item.hoursNormal, item.thisTimeObj.daysAgo);
+            }
+            if (item.hoursLate) {
+              chartPreData.coreTimeS.cores[2] = updateThisSeries(chartPreData.coreTimeS.cores[2], item.hoursLate, item.thisTimeObj.daysAgo);
+            }
+            if (item.hoursWeekEnd) {
+              chartPreData.coreTimeS.cores[3] = updateThisSeries(chartPreData.coreTimeS.cores[3], item.hoursWeekEnd, item.thisTimeObj.daysAgo);
+            }
+            if (item.hoursHoliday) {
+              chartPreData.coreTimeS.cores[4] = updateThisSeries(chartPreData.coreTimeS.cores[4], item.hoursHoliday, item.thisTimeObj.daysAgo);
+            }
+
+
             if (item.thisTimeObj.isThisYear) {
                 chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
                 chartPreData.thisYear[1] = updateThisSeries(chartPreData.thisYear[1], dur, item.thisTimeObj.week);
