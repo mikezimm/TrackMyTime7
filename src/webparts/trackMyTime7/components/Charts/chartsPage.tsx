@@ -773,7 +773,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
           createISeries('Weekend' , 'Weekend' , 0,365,1),
           createISeries('Holiday' , 'Holiday' , 0,365,1),
         ],
-        coreTime: [],
+        coreTime: createISeries('Core time' , '', 0,0,0),
       };
 
       return emptyCoreTimes;
@@ -946,6 +946,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
                   Id: item.user.ID,
                   count: 0,
                   hours: 0,
+                  normal: 0,
                   percent: null,
                   title: item.user.Title,
                   stories: [],
@@ -1003,11 +1004,12 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
               chartPreData.coreTimeS.cores[4] = updateThisSeries(chartPreData.coreTimeS.cores[4], item.hoursHoliday, item.thisTimeObj.daysAgo);
             }
 
+            chartPreData.usersSummary[userIndex].normal += item.hoursNormal;
 
             if (item.thisTimeObj.isThisYear) {
                 chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
                 chartPreData.thisYear[1] = updateThisSeries(chartPreData.thisYear[1], dur, item.thisTimeObj.week);
-    
+
             }
     
             if (item.thisTimeObj.isThisMonth) { 
@@ -1062,6 +1064,32 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
     }
 
+    /**
+     * 
+     * Summarize CoreTime categories
+    */
+
+    for (let i in chartPreData.coreTimeS.cores ) {
+      chartPreData.coreTimeS.coreTime.labels.push( chartPreData.coreTimeS.cores[i].title);
+      chartPreData.coreTimeS.coreTime.sums.push( chartPreData.coreTimeS.cores[i].totalS);
+      chartPreData.coreTimeS.coreTime.counts.push( chartPreData.coreTimeS.cores[i].totalC);
+      chartPreData.coreTimeS.coreTime.totalS += chartPreData.coreTimeS.cores[i].totalS;
+      chartPreData.coreTimeS.coreTime.totalC += chartPreData.coreTimeS.cores[i].totalC;
+    }
+
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Core time is considered between '  + this.props.parentState.coreStart + ':00 and '   + this.props.parentState.coreEnd + ':00 - YOUR TIME ZONE' );
+    chartPreData.coreTimeS.coreTime.warnNotes.push(' --- Therefore, it MAY NOT reflect a user\'s actual time if they are not entering time in your timezone.' );
+
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Weekend: the entire entry time if the start time is on Saturday or Sunday.');
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Holiday: the entire entry time if the start time is on a designated holiday.');
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Early: the portion of the entry time BEFORE ' + this.props.parentState.coreStart + ':00 YOUR local time.');
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Normal: the portion of the entry time BETWEEN ' + this.props.parentState.coreStart + ':00 and '   + this.props.parentState.coreEnd + ':00 YOUR local time.');
+
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Late: the portion of the entry time AFTER ' + this.props.parentState.coreEnd + ':00 YOUR local time.');
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Unknown: the entire entry time if the entry is longer than a normal day of ' + (this.props.parentState.coreEnd - this.props.parentState.coreStart) + ' hours.');
+
+    
+
     function removeEmptyFromEnd(series: IChartSeries, base : number, step: number) {
 
       chartDataLabel = Object.keys(series['sums']);
@@ -1099,6 +1127,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
     }
 
     for ( let s of chartPreData.stories.stories) {
+      removeEmptyFromEnd(s, 0, 1);
+    }
+
+    for ( let s of chartPreData.coreTimeS.cores) {
       removeEmptyFromEnd(s, 0, 1);
     }
 
@@ -1167,6 +1199,11 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
     for ( let s of chartPreData.stories.stories) {
       s=addLabels(s,monthStr3['en-us'].join(';'),0); //Days of year
     }
+
+    for ( let s of chartPreData.coreTimeS.cores) {
+      s=addLabels(s,monthStr3['en-us'].join(';'),0); //Days of year
+    }
+
     chartPreData.allDays = addLabels(chartPreData.allDays,monthStr3['en-us'].join(';'),0); //Days of year
 
     chartPreData.thisYear[0] = addLabels(chartPreData.thisYear[0],monthStr3['en-us'].join(';'),0); //Months of year

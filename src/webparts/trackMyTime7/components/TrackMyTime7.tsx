@@ -2691,6 +2691,9 @@ public toggleTips = (item: any): void => {
         thisEntry.coreTime = 'Late';
         thisEntry.hoursLate = thisEndTime.hoursLate;
         thisEntry.hoursNormal = theseHours - thisEntry.hoursLate;
+        if (thisEntry.hoursNormal < 0 ) {
+          console.log('found problem here');
+        }
       }
 
       if ( thisEntry.thisTimeObj.milliseconds < dateRange[0] ) { dateRange[0] = thisEntry.thisTimeObj.milliseconds; }
@@ -2716,46 +2719,54 @@ public toggleTips = (item: any): void => {
       let daysSince = thisEntry.age;
       counts[countThese].total ++;
 
-      if ( daysSince = 0 ) { today = true;
+      if ( daysSince === 0 ) { today = true;
         fromProject.filterFlags.push('today') ;
         thisEntry.filterFlags.push('today') ;
         thisEntry.timeGroup = '1. Ended Today';
         counts[countThese].today ++ ; }
+
       else if ( daysSince < 0 ) { today = true;
         fromProject.filterFlags.push('today') ;
         thisEntry.filterFlags.push('today') ;
         thisEntry.timeGroup = '0. These went Back to the Future :)';
           counts[countThese].today ++ ; }
+
       else if ( daysSince <= 1 ) { today = true;
         fromProject.filterFlags.push('today') ;
         thisEntry.filterFlags.push('today') ;
         thisEntry.timeGroup = '1. Ended Today';
         counts[countThese].today ++ ; }
+
       else if ( daysSince <= 7 ) { week = true;
         fromProject.filterFlags.push('week') ;
         thisEntry.filterFlags.push('week') ;
         thisEntry.timeGroup = '2. Ended Past Week';
         counts[countThese].week ++ ; }
+
       else if ( daysSince <= 31 ) { month = true;
         fromProject.filterFlags.push('month') ;
         thisEntry.filterFlags.push('month') ;
         thisEntry.timeGroup = '3. Ended Past Month';
         counts[countThese].month ++ ; }
+
       else if ( daysSince <= 91 ) { month = true;
         fromProject.filterFlags.push('quarter') ;
         thisEntry.filterFlags.push('quarter') ;
         thisEntry.timeGroup = '4. Ended Past Quarter';
         counts[countThese].quarter ++ ; }
+
       else if ( daysSince <= 365 ) { month = true;
         fromProject.filterFlags.push('quarter') ;
         thisEntry.filterFlags.push('quarter') ;
         thisEntry.timeGroup = '5. Ended Past Year';
         counts[countThese].quarter ++ ; }
+
       else if ( daysSince <= 730*4 ) { month = true;
         fromProject.filterFlags.push('quarter') ;
         thisEntry.filterFlags.push('quarter') ;
         thisEntry.timeGroup = '6. Ended a LONG time ago';
         counts[countThese].quarter ++ ; }
+        
       else if ( daysSince <= recentDays ) { recent = true;
         fromProject.filterFlags.push('recent') ;
         thisEntry.filterFlags.push('recent') ;

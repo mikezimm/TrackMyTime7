@@ -319,7 +319,8 @@ export interface IUserSummary {
   title: string; 
   Id: string; 
   count: number; 
-  hours: number; 
+  hours: number;
+  normal: number;
   percent: number; 
   stories: string[];
   lastEntry: number;
@@ -362,7 +363,7 @@ export interface IChartData {
 
 export interface ICoreTimes {
   cores?: ICoreTime[];
-  coreTime?: ICoreTime[];
+  coreTime?: ICoreTime;
   titles?: string[];
 }
 

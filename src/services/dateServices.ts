@@ -210,7 +210,7 @@ export function makeTheTimeObject(timeString, coreStart = 8, coreEnd = 18, useHo
     hoursEarly += ( 1 - givenMinutes/60 );
     coreTime = 'Early';
 
-  } else if ( givenHour >= coreEnd && givenMinutes > 0 ) {
+  } else if ( givenHour >= coreEnd ) {
     hoursLate = givenHour - coreEnd;
     hoursLate += givenMinutes/60;
     coreTime = 'Late';
