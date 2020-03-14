@@ -1398,7 +1398,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
       }
 
-      newSums = newSums.map( v => v.toFixed(2) );
+      newSums = newSums.map( v => (v == null) ? null : v.toFixed(2) );
       /*
       console.log('newLabels', newLabels);
       console.log('newSums', newSums);

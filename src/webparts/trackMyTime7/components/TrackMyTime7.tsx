@@ -2766,7 +2766,7 @@ public toggleTips = (item: any): void => {
         thisEntry.filterFlags.push('quarter') ;
         thisEntry.timeGroup = '6. Ended a LONG time ago';
         counts[countThese].quarter ++ ; }
-        
+
       else if ( daysSince <= recentDays ) { recent = true;
         fromProject.filterFlags.push('recent') ;
         thisEntry.filterFlags.push('recent') ;
@@ -2931,6 +2931,8 @@ public toggleTips = (item: any): void => {
     let OriginalHours = getTimeDelta(itemStartTime, itemEndTime, 'hours');
 //    alert (OriginalHours);
 
+
+
     let saveThisItem = {
         //Values that would come from Project item
         //editLink : ILink, //Link to view/edit item link
@@ -3065,6 +3067,66 @@ public toggleTips = (item: any): void => {
       if ( trackTimeItem.projectID2 !== null && trackTimeItem.projectID2.value ) {
         listProjects += trackTimeItem.projectID2.value + ' ';
       }   
+
+      
+      let hoursEarly = 0;
+      let hoursLate = 0;
+      let hoursWeekEnd = 0;        
+      let hoursHoliday = 0;
+      let hoursNormal = 0;
+      let hoursUnknown = 0;
+      let coreTime = '';
+
+      let theseHours = Number(response.data.OriginalHours);
+      let thisTimeObj = makeTheTimeObject(trackTimeItem.startTime); 
+      let thisEndTime = makeTheTimeObject(trackTimeItem.endTime); 
+
+      //If Hours is to long ( > normal work duration ) set unknown... likely error or to complex to calculate.
+      if ( theseHours > ( 18 - 8 )) {
+        coreTime = 'Unknown';
+        hoursUnknown = theseHours;
+
+      //If StartTime is holiday, the entire entry is considered holiday.
+      } else if ( thisTimeObj.coreTime === 'Holiday' ) {
+        coreTime = 'Holiday';
+        hoursHoliday = theseHours;
+
+      //Else if StartTime is Weekend, then entire entry is considered weekend
+      } else if ( thisTimeObj.coreTime === 'Weekend' ) {
+        coreTime = 'Weekend';
+        hoursWeekEnd = theseHours;
+
+      //Else if Start and End are Normal, all hours are normal
+      } else if ( thisTimeObj.coreTime === 'Normal' && thisEndTime.coreTime === 'Normal' ) {
+        coreTime = 'Normal';
+        hoursNormal = theseHours;
+
+      //Else if StartTime is Late, then entire entry is considered Late
+      } else if ( thisTimeObj.coreTime === 'Late' ) {
+        coreTime = 'Late';
+        hoursLate = theseHours;
+
+      //Else if EndTime is Early, then entire entry is considered Early
+      } else if ( thisEndTime.coreTime === 'Early' ) {
+        coreTime = 'Early';
+        hoursEarly = theseHours;
+
+      //Else if Start is Early, then part of hours are considered Early
+      } else if ( thisTimeObj.coreTime === 'Early' ) {
+        coreTime = 'Early';
+        hoursEarly = thisTimeObj.hoursEarly;
+        hoursNormal = theseHours - hoursEarly;
+
+      //Else if EndTime is Late, then part of hours are considered Late
+      } else if ( thisEndTime.coreTime === 'Late' ) {
+        coreTime = 'Late';
+        hoursLate = thisEndTime.hoursLate;
+        hoursNormal = theseHours - hoursLate;
+        if (hoursNormal < 0 ) {
+          console.log('found problem here');
+        }
+      }
+
       let newEntry : ITimeEntry = {...trackTimeItem,
         user: this.state.currentUser,
         userInitials: "You!",
@@ -3072,8 +3134,11 @@ public toggleTips = (item: any): void => {
         userTitle: response.data.UserTitle,
         filterFlags: ["your","session"],
         timeGroup: "0. This browser session",
-        duration: getTimeDelta( trackTimeItem.endTime , trackTimeItem.startTime , 'hours').toString(),
+        duration: theseHours.toFixed(),
         age: getAge(trackTimeItem.endTime,"days"),
+        category1: trackTimeItem.category1 == null || trackTimeItem.category1.length === 0 ? null : trackTimeItem.category1,
+        category2: trackTimeItem.category2 == null || trackTimeItem.category2.length === 0 ? null : trackTimeItem.category2,
+        teamIds: trackTimeItem.teamIds == null || trackTimeItem.teamIds.length === 0 ? null : trackTimeItem.teamIds,
         deltaT: response.data.DeltaT,
         created: created,
         modified: created,
@@ -3092,6 +3157,14 @@ public toggleTips = (item: any): void => {
         projectID2 : this.buildSmartText(response.data.ProjectID2) ,  //Example Cost Center # - look for strings starting with * and ?
         thisTimeObj: makeTheTimeObject(response.data.StartTime),
       
+        hoursEarly : hoursEarly,
+        hoursLate : hoursLate,
+        hoursWeekEnd : hoursWeekEnd,
+        hoursHoliday : hoursHoliday,
+        hoursNormal : hoursNormal,
+        hoursUnknown : hoursUnknown,
+        coreTime : coreTime,
+
       };
 
       let entries = this.state.entries;
