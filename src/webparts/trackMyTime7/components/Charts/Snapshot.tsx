@@ -102,9 +102,9 @@ public constructor(props:IChartSnapshotProps){
  */
 
     public render(): React.ReactElement<IChartSnapshotProps> {
-        console.log('Snapshot render');
+        //console.log('Snapshot render');
         if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
-            console.log('Snapshot.tsx', this.props, this.state);
+            //console.log('Snapshot.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
@@ -112,6 +112,10 @@ public constructor(props:IChartSnapshotProps){
             let chartThisMonth = create1SeriesCharts( this.props.chartData.thisMonth[0], ChartType.Bar, this.props.dataOptions ) ;
             let chartThisYear0 = create1SeriesCharts( this.props.chartData.thisYear[0], ChartType.Bar, this.props.dataOptions ) ;
             let chartThisYear1 = create1SeriesCharts( this.props.chartData.thisYear[1], ChartType.Bar, this.props.dataOptions ) ;
+
+            
+            let chartCategory1 = create1SeriesCharts( this.props.chartData.categories[0], ChartType.HorizontalBar, this.props.dataOptions ) ;    
+            let chartCategory2 = create1SeriesCharts( this.props.chartData.categories[1], ChartType.HorizontalBar, this.props.dataOptions ) ;    
 
             return (
                 <div>
@@ -129,6 +133,17 @@ public constructor(props:IChartSnapshotProps){
                             { chartThisYear1 }
                         </Stack.Item>
 
+                        <Stack.Item align="stretch" className={styles.chartPadding}>
+                            { chartCategory1 }
+                        </Stack.Item>
+                        <Stack.Item align="stretch" className={styles.chartPadding}>
+                            { chartCategory2 }
+                        </Stack.Item>
+
+                        <Stack.Item align="stretch" className={styles.chartPadding}>
+                            { /* chart3 */ }
+                        </Stack.Item>
+
                     </Stack>
 
                 </div>
@@ -136,7 +151,7 @@ public constructor(props:IChartSnapshotProps){
             );
             
         } else {
-            console.log('chartsClass.tsx return null');
+            //console.log('chartsClass.tsx return null');
             return ( null );
         }
 

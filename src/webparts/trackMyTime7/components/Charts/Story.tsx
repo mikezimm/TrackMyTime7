@@ -8,8 +8,9 @@ import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartContr
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 
 import styles from '../TrackMyTime7.module.scss';
+import stylesC from './chartsPage.module.scss';
 
-import { create1SeriesCharts, creatLineChart } from './charts';
+import { create1SeriesCharts, creatLineChart, createMultiSeries1ScaleCharts, create1TallSeriesCharts } from './charts';
 import { IDataOptions } from './chartsPage';
 
 export interface IChartStoryProps {
@@ -104,63 +105,67 @@ public constructor(props:IChartStoryProps){
 
     public render(): React.ReactElement<IChartStoryProps> {
 
-        console.log('Story render');
+        //console.log('Story render');
         if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
-            console.log('Story.tsx', this.props, this.state);
+            //console.log('Story.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
-            let chartCategory1 = create1SeriesCharts( this.props.chartData.categories[0], ChartType.HorizontalBar, this.props.dataOptions ) ;    
-            let chartCategory2 = create1SeriesCharts( this.props.chartData.categories[1], ChartType.HorizontalBar, this.props.dataOptions ) ;    
 
-            /*
+            let stacked = [this.props.chartData.stories.stories[0], this.props.chartData.stories.stories[2]];
+            let stacked2 = this.props.chartData.stories.stories.map( s => s );
+            //console.log('stacked2', stacked2);
+            let chartYearlyStory = createMultiSeries1ScaleCharts('Stories', true, true, stacked2, 
+                    this.props.chartData.storyIndex, ChartType.Line, this.props.WebpartWidth, this.props.dataOptions);
 
-  // set the options
-  const lineOptions: Chart.ChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
-    title: {
-      display: true,
-      text: this.props.chartData.categories[1].title,
-    },
-    legend: {
-      display: false
-   },
-  };
+            let chartClass = null;
+            let chaptersLength = this.props.chartData.stories.chapters.length;
 
-  const chart3 = (
-        <ChartControl 
-        type={ ChartType.HorizontalBar }
-        data={{
-            labels: this.props.chartData.categories[1].labels,
-            datasets: [{
-            //label: series.title,
-            data: this.props.chartData.categories[1].sums
-            }]
-        }}
-        options={ lineOptions } />
-  );
+            let WebpartRatio = this.props.WebpartWidth /( 800 );
 
-  */
+            if ( chaptersLength < 2 || this.props.WebpartWidth < 600 ) {  //Single or no charts or narrow screen (not big enough for 2 charts), width = 100%
+                chartClass = stylesC.chartW100;
+                WebpartRatio = this.props.WebpartWidth / 300;
+
+            } else if ( chaptersLength === 2 || chaptersLength === 4 ) { // 2 or 4 set to 50%
+                chartClass = stylesC.chartW45;
+
+            } else if ( chaptersLength > 3 ) {
+                chartClass = stylesC.chartW33;
+
+            } else {
+                chartClass = stylesC.chartW100;
+            }
+
+            console.log('chartClass', chaptersLength, chartClass);
+
+            let chapters = this.props.chartData.stories.chapters.map(
+                s => {
+                    let theseChapters = s.labels.length === 0 || s.totalS === 0 ? null : create1TallSeriesCharts( s, ChartType.HorizontalBar, WebpartRatio, this.props.dataOptions, chartClass );
+                    return ( theseChapters );
+                }
+            );
+
+            
+            let noChapters = this.props.chartData.stories.chapters.map(
+                s => {
+                    let theseChapters = s.labels.length === 0 || s.totalS === 0 ? <li>{ s.title }</li> : null;
+                    return ( theseChapters );
+                }
+            );
+            
+            let noChaptersTable = <div>
+                <ul> { noChapters } </ul>
+            </div>;
 
             return (
                 <div>
+                    <div className={styles.chartHeight300}>
+                        { chartYearlyStory }
+                    </div>
+                    { noChaptersTable }
                     <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
-
-
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartCategory1 }
-                        </Stack.Item>
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { chartCategory2 }
-                        </Stack.Item>
-
-                        <Stack.Item align="stretch" className={styles.chartPadding}>
-                            { /* chart3 */ }
-                        </Stack.Item>
-
-
+                        { chapters }
                     </Stack>
                 </div>
 

@@ -116,7 +116,7 @@ public constructor(props:IChartNumbersProps){
 
     public render(): React.ReactElement<IChartNumbersProps> {
 
-        console.log('Numbers render');
+        //console.log('Numbers render');
         if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };

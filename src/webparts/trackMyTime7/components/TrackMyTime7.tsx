@@ -862,6 +862,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                      
  */
 
+    let greeting = this.state.WebpartWidth < 800 ? null : <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>;
 
     return (
       <div className={ styles.trackMyTime7 }>
@@ -872,7 +873,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             { this.createPivotObject(choice1, display1)  }
 
             { /*this.createPivotObject(setPivot, "block") */ }
-            <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>
+            { greeting }
             { this.createProjectTypeToggle(this.state) }
             { toggleChartsButton }
             { toggleTipsButton }

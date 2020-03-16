@@ -105,14 +105,14 @@ public constructor(props:IChartUsageProps){
 
     public render(): React.ReactElement<IChartUsageProps> {
 
-        console.log('Usage render');
+        //console.log('Usage render');
         if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
-            console.log('Usage.tsx', this.props, this.state);
+            //console.log('Usage.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
     
             let stacked2 = this.props.chartData.coreTimeS.cores.map( s => s );
-            console.log('stacked2', stacked2);
+            //console.log('stacked2', stacked2);
             let chartYearlyCoreTime = createMultiSeries1ScaleCharts('Core time', true, true, stacked2, 
                     this.props.chartData.storyIndex, ChartType.Line, this.props.WebpartWidth, this.props.dataOptions);
 

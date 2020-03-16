@@ -101,9 +101,9 @@ public constructor(props:IChartLongTermProps){
 
     public render(): React.ReactElement<IChartLongTermProps> {
 
-        console.log('Longterm render');
+        //console.log('Longterm render');
         if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
-            console.log('Longterm.tsx', this.props, this.state);
+            //console.log('Longterm.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
 
@@ -112,11 +112,6 @@ public constructor(props:IChartLongTermProps){
             let chartMonthlyHistory = create1SeriesCharts( this.props.chartData.allMonths, ChartType.Line, this.props.dataOptions ) ;
             let chartYearlyHistory = create1SeriesCharts( this.props.chartData.allYears, ChartType.Line, this.props.dataOptions ) ;
 
-            let stacked = [this.props.chartData.stories.stories[0], this.props.chartData.stories.stories[2]];
-            let stacked2 = this.props.chartData.stories.stories.map( s => s );
-            console.log('stacked2', stacked2);
-            let chartYearlyStory = createMultiSeries1ScaleCharts('Stories', true, true, stacked2, 
-                    this.props.chartData.storyIndex, ChartType.Line, this.props.WebpartWidth, this.props.dataOptions);
 
             return (
                 <div>
@@ -138,9 +133,7 @@ public constructor(props:IChartLongTermProps){
                     <div>
                         { chartDailyHistory }
                     </div>
-                    <div className={styles.chartHeight300}>
-                        { chartYearlyStory }
-                    </div>
+
                 </div>
 
             );
