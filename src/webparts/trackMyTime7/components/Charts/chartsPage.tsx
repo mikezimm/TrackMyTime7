@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IChartData, IChartSeries, ITimeEntry, IStories, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IChartData, IChartSeries, ITimeEntry, IStories, ICoreTimes, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
 
 import { ITheTime } from '../../../../services/dateServices';
 
@@ -15,6 +15,7 @@ import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartContr
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import styles from '../TrackMyTime7.module.scss';
@@ -41,6 +42,7 @@ export interface IDataOptions {
     chartChanges?: boolean;  
     chartWarnings?: boolean;  
     chartErrors?: boolean;  
+    chartItems?: boolean;
 }
 
 export interface IChartPageProps {
@@ -52,11 +54,17 @@ export interface IChartPageProps {
     today: ITheTime;
     selectedStory: ISelectedStory;
     selectedUser: ISelectedUser;
+    chartStringFilter: string;
     _updateStory: any;
     _updateUserFilter: any;
+    _updateChartFilter: any;
+
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     userFilter?: 'all' | 'user'; 
+    
+    parentState: ITrackMyTime7State;
+
 }
 
 export interface IChartPageState {
@@ -64,8 +72,11 @@ export interface IChartPageState {
     lastChoice: string;
     lastStory:  ISelectedStory;
     lastUser:  ISelectedUser;
+
     selectedStory: ISelectedStory;
     selectedUser: ISelectedUser;
+    chartStringFilter: string;
+
     chartData?: IChartData;
     processedChartData: boolean;
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -117,7 +128,8 @@ public constructor(props:IChartPageProps){
         lastUser: curUser,
         selectedStory: this.props.selectedStory ? this.props.selectedStory : {key: this.props.defaultStory, text: this.props.defaultStory},
         selectedUser: this.props.selectedUser ? this.props.selectedUser : curUser ,
-
+        chartStringFilter: this.props.chartStringFilter ? this.props.chartStringFilter : null ,
+        
         chartData: null,
         processedChartData: false,
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -133,6 +145,7 @@ public constructor(props:IChartPageProps){
           chartChanges: false, 
           chartWarnings: false, 
           chartErrors: false, 
+          chartItems: false,
         }
 
     };
@@ -146,6 +159,7 @@ public constructor(props:IChartPageProps){
     this._onStoryChange = this._onStoryChange.bind(this);
     this._updateStory = this._updateStory.bind(this);
     this._updateUserFilter = this._updateUserFilter.bind(this);
+    this._updateChartFilter = this._updateChartFilter.bind(this);    
     
     console.log('chartsPage Props:', this.props);
   }
@@ -155,7 +169,7 @@ public constructor(props:IChartPageProps){
 
     if (this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
       console.log('chartsPage componentDidMount 0 Props:', this.props);
-      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
     }
           /*
 
@@ -182,19 +196,25 @@ public constructor(props:IChartPageProps){
       
     } else if ( this.props.allLoaded && this.props.showCharts && !this.state.processedChartData ) {
       console.log('chartsPage componentDidUpdate 1 Props:', this.props);
-      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
 
     } else if ( this.props.selectedStory.text !== prevProps.selectedStory.text ) {
       console.log('chartsPage componentDidUpdate 2 Props:', this.props);
       //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
-      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
-      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
 
     } else if ( this.props.selectedUser.text !== prevProps.selectedUser.text ) {
       console.log('chartsPage componentDidUpdate 3 Props:', this.props);
       //NOTE:  This is a duplicate call under _updateStory but is required to redraw charts on story change.
-      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
-      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null);
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
+
+    } else if ( this.props.chartStringFilter !== prevProps.chartStringFilter ) {
+      console.log('chartsPage componentDidUpdate 3 Props:', this.props);
+      //NOTE:  This is a duplicate call under _updateChartFilter but is required to redraw charts on story change.
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
     }
 
     /*
@@ -324,6 +344,24 @@ public constructor(props:IChartPageProps){
               styles={{ root: { width: 140, paddingTop: 13, } }}
             />;
 
+            const togItems = <Toggle label="" 
+              onText={ 'Items' } 
+              offText={ 'No Items' } 
+              onChange={ this.toggleItems } 
+              checked={ this.state.dataOptions.chartItems }
+              styles={{ root: { width: 140, paddingTop: 13, } }}
+            />;
+
+            const searchBox = <SearchBox 
+              placeholder="Search chart data"
+              onChange={ this._onChartFilterChange }
+              onSearch={ this._onChartFilterChange }
+              onClear={ this._onChartFilterClear }
+              underlined={true}
+              styles={{ root: { marginTop: 10, marginBottom: 10 } }}
+            />;
+
+
             const ColoredLine = ({ color }) => ( <hr style={{ color: color, backgroundColor: color, height: 1 }}/> );
 
             const stackToggleTokensBody: IStackTokens = { childrenGap: 20 };
@@ -335,7 +373,9 @@ public constructor(props:IChartPageProps){
                 { togChanges }
                 { togWarnings }
                 { togErrors }
+                { togItems }
               </Stack>
+              { searchBox }
             </div>;
 
             const pageWarnItems = !this.state.dataOptions.chartWarnings || this.state.chartData.warnNotesAll.length < 1 ? null : 
@@ -358,6 +398,22 @@ public constructor(props:IChartPageProps){
               { pageWarnTips }
             </div> : null;
 
+
+            //this.state.dataOptions.chartItems
+            const chartItemsX = !this.state.dataOptions.chartItems ? null : 
+              this.state.chartData.filterItems.map( d => { return <tr><td>{d}</td></tr>; });
+            
+            let tableTitle = this.state.chartData.filterItems.length + ' Items found';
+            if ( this.state.chartStringFilter != null ) { tableTitle += ' with: '+ this.props.chartStringFilter; }
+
+            const chartItems = !this.state.dataOptions.chartItems ? null : <div>
+              <h2>{ tableTitle } </h2>
+                <table className={stylesI.infoTable}>
+                  <tr><th>{'Searched Items'}</th></tr>
+                  { chartItemsX }
+                </table>
+              </div>;
+
             let pageChoices = choiceBuilders.creatChartChoices(this.state.selectedChoice, this._updateChoice.bind(this));
 
             let thisPage = null;
@@ -374,8 +430,8 @@ public constructor(props:IChartPageProps){
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
-
                     ></LongTerm></div>;
+
                 } else if ( this.state.selectedChoice === 'snapShot' ) {
                     thisPage = <div><Snapshot 
                       index={ this.state.chartData.index }
@@ -388,6 +444,7 @@ public constructor(props:IChartPageProps){
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
                     ></Snapshot></div>;
+
                 } else if ( this.state.selectedChoice === 'story' ) {
                     thisPage = <div><Story 
                         index={ this.state.chartData.index }
@@ -400,6 +457,7 @@ public constructor(props:IChartPageProps){
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
                     ></Story></div>;
+
                 } else if ( this.state.selectedChoice === 'usage' ) {
                     thisPage = <div><Usage 
                         index={ this.state.chartData.index }
@@ -412,6 +470,7 @@ public constructor(props:IChartPageProps){
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
                     ></Usage></div>;
+
                   } else if ( this.state.selectedChoice === 'numbers' ) {
                     thisPage = <div><Numbers 
                         index={ this.state.chartData.index }
@@ -423,6 +482,11 @@ public constructor(props:IChartPageProps){
                         WebpartHeight={ this.state.WebpartHeight }
                         WebpartWidth={ this.state.WebpartWidth }
                         dataOptions={ this.state.dataOptions }
+                        projectListURL={ this.props.parentState.projectListURL }
+                        projectListName={ this.props.parentState.projectListName }
+                        timeTrackerListURL={ this.props.parentState.timeTrackerListURL }
+                        timeTrackListName={ this.props.parentState.timeTrackListName }
+
                     ></Numbers></div>;
                     }
             }
@@ -447,6 +511,7 @@ public constructor(props:IChartPageProps){
                     { detailToggles }
                     { thisPage }
                     { pageNotes }
+                    { chartItems }
 
                     <ColoredLine color="gray" />
                 </div>
@@ -479,7 +544,7 @@ public constructor(props:IChartPageProps){
       //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
       let thisUser = item.text.toLowerCase() === 'all' ? allUser : curUser;
       console.log(`_onUserChange: ${item.text} ${item.selected} ${thisUser}`);
-      this.processChartData(thisUser,['what??'],10,'string',this.state.selectedStory, null);
+      this.processChartData(thisUser,['what??'],10,'string',this.state.selectedStory, null, this.state.chartStringFilter );
 
       this.props._updateUserFilter(thisUser);
       //this.processChartData(newUserFilter,['what??'],10,'string',currentStory, null);
@@ -493,15 +558,34 @@ public constructor(props:IChartPageProps){
         let storyTitle = storyIndex === -1 ? 'None' : this.state.chartData.stories.titles[storyIndex];
 
         let thisStory = {key: storyTitle, text: storyTitle};
-        this.processChartData(this.state.selectedUser,['what??'],10,'string',thisStory, null);
+        this.processChartData(this.state.selectedUser,['what??'],10,'string',thisStory, null, this.state.chartStringFilter );
 
         this.props._updateStory({key: storyTitle, text: storyTitle});
         //let newUserFilter = this.state.userFilter;
         //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
         //this.processChartData(newUserFilter,['what??'],10,'string',item, null);
-
     }
 
+    private _onChartFilterChange = (item): void => {
+
+      this.processChartData(this.state.selectedUser,['what??'],10,'string',this.state.selectedStory, null, item );
+
+      this.props._updateChartFilter( item );
+      //let newUserFilter = this.state.userFilter;
+      //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
+      //this.processChartData(newUserFilter,['what??'],10,'string',item, null);
+    }
+
+    private _onChartFilterClear = (): void => {
+
+      this.processChartData(this.state.selectedUser,['what??'],10,'string',this.state.selectedStory, null, null );
+
+      this.props._updateChartFilter( null );
+      //let newUserFilter = this.state.userFilter;
+      //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
+      //this.processChartData(newUserFilter,['what??'],10,'string',item, null);
+    }
+    
 
 /***
  *         d888888b  .d88b.   d888b   d888b  db      d88888b      d8888b. d88888b d888888b  .d8b.  d888888b db      .d8888. 
@@ -587,6 +671,16 @@ public constructor(props:IChartPageProps){
           }); 
       } //End toggleErrors
 
+      public toggleItems = (item): void => {
+        //Shows or hides chart details
+         let newSetting = this.state.dataOptions;
+         newSetting.chartItems = !this.state.dataOptions.chartItems;
+         this.setState({ 
+           dataOptions: newSetting,
+          }); 
+      } //End toggleItems
+      
+
 
 /***
  *         db    db d8888b.       .o88b. db   db  .d88b.  d888888b  .o88b. d88888b 
@@ -613,6 +707,13 @@ public _updateUserFilter = (selectedUser: ISelectedUser ) : void => {
   });
 }
 
+public _updateChartFilter = (chartStringFilter: string ) : void => {
+
+  this.setState({  
+    chartStringFilter: chartStringFilter,
+  });
+}
+
 
 
 private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption){
@@ -626,6 +727,36 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
      });
   }
+
+
+
+  public searchForItems = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+ 
+    console.log('searchForItems: e',e);
+    console.log('searchForItems: item', item);
+    console.log('searchForItems: this', this);
+    this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, item);
+//    return ;
+  } //End searchForItems
+
+  
+
+  public clearSearch = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+ 
+    console.log('clearSearch: e',e);
+
+      console.log('clearSearch: item', item);
+      console.log('clearSearch: this', this);
+          /*
+    */
+
+    return ;
+    
+  } //End searchForItems
 
 
 
@@ -650,7 +781,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
   * @param isSum Default is to count.  If True, it sums values
   */
   //processChartData('all',['catA','catB'])
-  private processChartData(who: ISelectedUser, what: string[], when: number, scale: string, story: ISelectedStory, chapter: ISelectedStory){
+  private processChartData(who: ISelectedUser, what: string[], when: number, scale: string, story: ISelectedStory, chapter: ISelectedStory, searchString: string | null ){
 
     let deltaDateArrays = createDeltaDateArrays();
     console.log('deltaDateArrays', deltaDateArrays);
@@ -752,6 +883,22 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       return seriesData;
     }
 
+    function createCoreTimeS(){
+      let emptyCoreTimes: ICoreTimes = {
+        titles: ['Early','Normal','Late','Weekend','Holiday'],
+        cores: [
+          createISeries('Early' , 'Early' , 0,365,1),
+          createISeries('Normal' , 'Normal', 0,365,1),
+          createISeries('Late' , 'Late' , 0,365,1),
+          createISeries('Weekend' , 'Weekend' , 0,365,1),
+          createISeries('Holiday' , 'Holiday' , 0,365,1),
+        ],
+        coreTime: createISeries('Core time' , '', 0,0,0),
+      };
+
+      return emptyCoreTimes;
+    }
+
     function createStories(){
       let emptyStories: IStories = {
         titles: [],
@@ -789,8 +936,11 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       warnNotesAll: [],
       errorNotesAll: [],
       users: [],
+      filterItems: [],
       usersSummary: [],
       dateRange: [],
+
+      coreTimeS: createCoreTimeS(),  //This is the flexible array of core time per day
 
     };
 
@@ -860,10 +1010,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
         }
       }
 
+
       /**
        * Start filtering the "What data here"
        */
-
 
       if (item.story != null && item.story.length > 0 ) {
 
@@ -892,126 +1042,186 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       /**
        * Update Story series
        */
+      //searchString = "2020-02";
+      let includeEntry = false;
+      if ( story == null || defStory.text === story.text || item.story === story.text ) {
+        includeEntry = true;
+        if ( searchString ) {
+          if ( searchString != 'searchString' ) {
+            if ( item.searchString.indexOf(searchString.toLowerCase()) === -1  ) { includeEntry = false; }
+          }
+        }
+      }
 
-       if ( story == null || defStory.text === story.text || item.story === story.text ) {
+      
+      if ( includeEntry ) {
 
-            if (item.thisTimeObj == undefined) {
-                console.log('undefined days ago:', item.thisTimeObj);
+        if (item.thisTimeObj == undefined) {
+            console.log('undefined days ago:', item.thisTimeObj);
+        }
+
+        chartPreData.filterItems.push(item.searchStringPC);
+
+        let storyIndex = chartPreData.stories.titles.indexOf(item.story);
+        let thisStory = chartPreData.stories.stories[storyIndex];
+
+        if (storyIndex > -1 && item.thisTimeObj == null ) {
+          console.log('problem with this item: ', item);
+        }
+
+        let thisUser = item.user.Title + ' ( ' + item.user.ID + ' )';
+        let userIndex = chartPreData.users.indexOf( thisUser );
+        //Create UserSummary
+        if ( userIndex < 0 ) { 
+          chartPreData.users.push( thisUser ); 
+          userIndex = chartPreData.users.length -1 ;
+          chartPreData.usersSummary.push( 
+            {
+              Id: item.user.ID,
+              count: 0,
+              hours: 0,
+              normal: 0,
+              percent: null,
+              title: item.user.Title,
+              stories: [],
+              lastEntry: null,
+              lastEntryText: null,
+              daysAgo: null,
             }
+            );
+        }
 
-            let storyIndex = chartPreData.stories.titles.indexOf(item.story);
-            let thisStory = chartPreData.stories.stories[storyIndex];
+        //Update UserSummary Count and Hours
+        chartPreData.usersSummary[userIndex].count ++;
+        chartPreData.usersSummary[userIndex].hours += dur;
 
-            if (storyIndex > -1 && item.thisTimeObj == null ) {
-              console.log('problem with this item: ', item);
-            }
+        //Update UserSummary last Entry
+        if ( chartPreData.usersSummary[userIndex].lastEntry == null ) {
+          chartPreData.usersSummary[userIndex].lastEntry = item.thisTimeObj.milliseconds;
+          chartPreData.usersSummary[userIndex].lastEntryText = item.thisTimeObj.dayMMMDD;
+          chartPreData.usersSummary[userIndex].daysAgo = item.thisTimeObj.daysAgo;
 
-            let thisUser = item.user.Title + ' ( ' + item.user.ID + ' )';
-            let userIndex = chartPreData.users.indexOf( thisUser );
-            //Create UserSummary
-            if ( userIndex < 0 ) { 
-              chartPreData.users.push( thisUser ); 
-              userIndex = chartPreData.users.length -1 ;
-              chartPreData.usersSummary.push( 
-                {
-                  Id: item.user.ID,
-                  count: 0,
-                  hours: 0,
-                  percent: null,
-                  title: item.user.Title,
-                  stories: [],
-                  lastEntry: null,
-                  lastEntryText: null,
-                  daysAgo: null,
-                }
-               );
-            }
+        } else if ( item.thisTimeObj.milliseconds > chartPreData.usersSummary[userIndex].lastEntry ) {
+          chartPreData.usersSummary[userIndex].lastEntry = item.thisTimeObj.milliseconds;              
+          chartPreData.usersSummary[userIndex].lastEntryText = item.thisTimeObj.dayMMMDD;
+          chartPreData.usersSummary[userIndex].daysAgo = item.thisTimeObj.daysAgo;
 
-            //Update UserSummary Count and Hours
-            chartPreData.usersSummary[userIndex].count ++;
-            chartPreData.usersSummary[userIndex].hours += dur;
+        }
 
-            //Update UserSummary last Entry
-            if ( chartPreData.usersSummary[userIndex].lastEntry == null ) {
-              chartPreData.usersSummary[userIndex].lastEntry = item.thisTimeObj.milliseconds;
-              chartPreData.usersSummary[userIndex].lastEntryText = item.thisTimeObj.dayMMMDD;
-              chartPreData.usersSummary[userIndex].daysAgo = item.thisTimeObj.daysAgo;
+        //Update UserSummary Story
+        if ( storyIndex > -1 ) { 
+          thisStory = updateThisSeries(thisStory, dur, item.thisTimeObj.daysAgo ); 
+          if ( thisStory.title != null && chartPreData.usersSummary[userIndex].stories.indexOf(thisStory.title) < 0 ) { 
+            chartPreData.usersSummary[userIndex].stories.push(thisStory.title);
+          } 
+        }
 
-            } else if ( item.thisTimeObj.milliseconds > chartPreData.usersSummary[userIndex].lastEntry ) {
-              chartPreData.usersSummary[userIndex].lastEntry = item.thisTimeObj.milliseconds;              
-              chartPreData.usersSummary[userIndex].lastEntryText = item.thisTimeObj.dayMMMDD;
-              chartPreData.usersSummary[userIndex].daysAgo = item.thisTimeObj.daysAgo;
-            }
+        chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
 
-            //Update UserSummary Story
-            if ( storyIndex > -1 ) { 
-              thisStory = updateThisSeries(thisStory, dur, item.thisTimeObj.daysAgo ); 
-              if ( thisStory.title != null && chartPreData.usersSummary[userIndex].stories.indexOf(thisStory.title) < 0 ) { 
-                chartPreData.usersSummary[userIndex].stories.push(thisStory.title);
-              } 
-            }
+        chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
+        chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
+        chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
 
-            chartPreData.allDays = updateThisSeries(chartPreData.allDays, dur, item.thisTimeObj.daysAgo);
+        if (item.hoursEarly) {
+          chartPreData.coreTimeS.cores[0] = updateThisSeries(chartPreData.coreTimeS.cores[0], item.hoursEarly, item.thisTimeObj.daysAgo);
+        }
+        if (item.hoursNormal) {
+          chartPreData.coreTimeS.cores[1] = updateThisSeries(chartPreData.coreTimeS.cores[1], item.hoursNormal, item.thisTimeObj.daysAgo);
+        }
+        if (item.hoursLate) {
+          chartPreData.coreTimeS.cores[2] = updateThisSeries(chartPreData.coreTimeS.cores[2], item.hoursLate, item.thisTimeObj.daysAgo);
+        }
+        if (item.hoursWeekEnd) {
+          chartPreData.coreTimeS.cores[3] = updateThisSeries(chartPreData.coreTimeS.cores[3], item.hoursWeekEnd, item.thisTimeObj.daysAgo);
+        }
+        if (item.hoursHoliday) {
+          chartPreData.coreTimeS.cores[4] = updateThisSeries(chartPreData.coreTimeS.cores[4], item.hoursHoliday, item.thisTimeObj.daysAgo);
+        }
 
-            chartPreData.allWeeks = updateThisSeries(chartPreData.allWeeks, dur, item.thisTimeObj.daysSinceMon);
-            chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
-            chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
-    
-            if (item.thisTimeObj.isThisYear) {
-                chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
-                chartPreData.thisYear[1] = updateThisSeries(chartPreData.thisYear[1], dur, item.thisTimeObj.week);
-    
-            }
-    
-            if (item.thisTimeObj.isThisMonth) { 
-            chartPreData.thisMonth[0] = updateThisSeries(chartPreData.thisMonth[0], dur, item.thisTimeObj.date);  }
-    
-            if (item.thisTimeObj.isThisWeek) { 
-            chartPreData.thisWeek[0] = updateThisSeries(chartPreData.thisWeek[0], dur, item.thisTimeObj.day);  }
-            
-            /**
-             * This section will allow removing uncategorized data from the chart results
-             * unknownCatLabel is the label you can bucket all empty category items into.
-             * removeTheseCats allows you to remove specific categories from the chart results.
-             * 
-             * set unknownCatLabel to be "Other" to see it included.
-             * set unknownCatLabel to be the same value as removeTheseCats to remove that item from the dataset
-             * 
-             * By default let removeTheseCats = 'removeEmpty'; unless you change it to something else.
-             * 
-             */
-            let cat1 = item.category1 == null || item.category1[0] == null || item.category1[0] == '' ? unknownCatLabel : item.category1[0];
-            if ( cat1 !== removeTheseCats ) { chartPreData.categories[0] = updateThisSeries(chartPreData.categories[0], dur, cat1); 
-            } else { 
-            if ( chartPreData.categories[0].title.lastIndexOf('^') !== chartPreData.categories[0].title.length -1 ) { chartPreData.categories[0].title += ' ^'; }
-            }
-    
-            let cat2 = item.category2 == null || item.category2[0] == null || item.category2[0] == '' ? unknownCatLabel : item.category2[0];
-            if ( cat2 !== removeTheseCats ) { chartPreData.categories[1] = updateThisSeries(chartPreData.categories[1], dur, cat2); 
-            } else { 
-            if ( chartPreData.categories[1].title.lastIndexOf('^') !== chartPreData.categories[1].title.length -1 ) { chartPreData.categories[1].title += ' ^'; }
-            }
-    
-            let local = item.location == null || item.location == '' ? unknownCatLabel : item.location;
-            if ( local !== removeTheseCats ) { chartPreData.location = updateThisSeries(chartPreData.location, dur, local); 
-            } else { 
-            if ( chartPreData.location.title.lastIndexOf('^') !== chartPreData.location.title.length -1 ) { chartPreData.location.title += ' ^'; }
-            }
-    
-            let contemp = unknownCatLabel;
-            if ( contemp !== removeTheseCats ) { chartPreData.contemp = updateThisSeries(chartPreData.contemp, dur, contemp);
-            } else { 
-            if ( chartPreData.contemp.title.lastIndexOf('^') !== chartPreData.contemp.title.length -1 ) { chartPreData.contemp.title += ' ^'; }
-            }
-    
-            let entryType = camelize(item.entryType, true);
-            chartPreData.entryType = updateThisSeries(chartPreData.entryType, dur, entryType);
-    
-            let keyChange = camelize(item.keyChange, true);
-            chartPreData.keyChanges = updateThisSeries(chartPreData.keyChanges, dur, keyChange);
-       }
+        chartPreData.usersSummary[userIndex].normal += item.hoursNormal;
+
+        if (item.thisTimeObj.isThisYear) {
+            chartPreData.thisYear[0] = updateThisSeries(chartPreData.thisYear[0], dur, item.thisTimeObj.month);
+            chartPreData.thisYear[1] = updateThisSeries(chartPreData.thisYear[1], dur, item.thisTimeObj.week);
+
+        }
+
+        if (item.thisTimeObj.isThisMonth) { 
+        chartPreData.thisMonth[0] = updateThisSeries(chartPreData.thisMonth[0], dur, item.thisTimeObj.date);  }
+
+        if (item.thisTimeObj.isThisWeek) { 
+        chartPreData.thisWeek[0] = updateThisSeries(chartPreData.thisWeek[0], dur, item.thisTimeObj.day);  }
+        
+        /**
+         * This section will allow removing uncategorized data from the chart results
+         * unknownCatLabel is the label you can bucket all empty category items into.
+         * removeTheseCats allows you to remove specific categories from the chart results.
+         * 
+         * set unknownCatLabel to be "Other" to see it included.
+         * set unknownCatLabel to be the same value as removeTheseCats to remove that item from the dataset
+         * 
+         * By default let removeTheseCats = 'removeEmpty'; unless you change it to something else.
+         * 
+         */
+        let cat1 = item.category1 == null || item.category1[0] == null || item.category1[0] == '' ? unknownCatLabel : item.category1[0];
+        if ( cat1 !== removeTheseCats ) { chartPreData.categories[0] = updateThisSeries(chartPreData.categories[0], dur, cat1); 
+        } else { 
+        if ( chartPreData.categories[0].title.lastIndexOf('^') !== chartPreData.categories[0].title.length -1 ) { chartPreData.categories[0].title += ' ^'; }
+        }
+
+        let cat2 = item.category2 == null || item.category2[0] == null || item.category2[0] == '' ? unknownCatLabel : item.category2[0];
+        if ( cat2 !== removeTheseCats ) { chartPreData.categories[1] = updateThisSeries(chartPreData.categories[1], dur, cat2); 
+        } else { 
+        if ( chartPreData.categories[1].title.lastIndexOf('^') !== chartPreData.categories[1].title.length -1 ) { chartPreData.categories[1].title += ' ^'; }
+        }
+
+        let local = item.location == null || item.location == '' ? unknownCatLabel : item.location;
+        if ( local !== removeTheseCats ) { chartPreData.location = updateThisSeries(chartPreData.location, dur, local); 
+        } else { 
+        if ( chartPreData.location.title.lastIndexOf('^') !== chartPreData.location.title.length -1 ) { chartPreData.location.title += ' ^'; }
+        }
+
+        let contemp = unknownCatLabel;
+        if ( contemp !== removeTheseCats ) { chartPreData.contemp = updateThisSeries(chartPreData.contemp, dur, contemp);
+        } else { 
+        if ( chartPreData.contemp.title.lastIndexOf('^') !== chartPreData.contemp.title.length -1 ) { chartPreData.contemp.title += ' ^'; }
+        }
+
+        let entryType = camelize(item.entryType, true);
+        chartPreData.entryType = updateThisSeries(chartPreData.entryType, dur, entryType);
+
+        let keyChange = camelize(item.keyChange, true);
+        chartPreData.keyChanges = updateThisSeries(chartPreData.keyChanges, dur, keyChange);
+
+      }
 
     }
+
+    /**
+     * 
+     * Summarize CoreTime categories
+    */
+
+    for (let i in chartPreData.coreTimeS.cores ) {
+      chartPreData.coreTimeS.coreTime.labels.push( chartPreData.coreTimeS.cores[i].title);
+      chartPreData.coreTimeS.coreTime.sums.push( chartPreData.coreTimeS.cores[i].totalS);
+      chartPreData.coreTimeS.coreTime.counts.push( chartPreData.coreTimeS.cores[i].totalC);
+      chartPreData.coreTimeS.coreTime.totalS += chartPreData.coreTimeS.cores[i].totalS;
+      chartPreData.coreTimeS.coreTime.totalC += chartPreData.coreTimeS.cores[i].totalC;
+    }
+
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Core time is considered between '  + this.props.parentState.coreStart + ':00 and '   + this.props.parentState.coreEnd + ':00 - YOUR TIME ZONE' );
+    chartPreData.coreTimeS.coreTime.warnNotes.push(' --- Therefore, it MAY NOT reflect a user\'s actual time if they are not entering time in your timezone.' );
+
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Weekend: the entire entry time if the start time is on Saturday or Sunday.');
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Holiday: the entire entry time if the start time is on a designated holiday.');
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Early: the portion of the entry time BEFORE ' + this.props.parentState.coreStart + ':00 YOUR local time.');
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Normal: the portion of the entry time BETWEEN ' + this.props.parentState.coreStart + ':00 and '   + this.props.parentState.coreEnd + ':00 YOUR local time.');
+
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Late: the portion of the entry time AFTER ' + this.props.parentState.coreEnd + ':00 YOUR local time.');
+    chartPreData.coreTimeS.coreTime.warnNotes.push('Unknown: the entire entry time if the entry is longer than a normal day of ' + (this.props.parentState.coreEnd - this.props.parentState.coreStart) + ' hours.');
+
+    
 
     function removeEmptyFromEnd(series: IChartSeries, base : number, step: number) {
 
@@ -1050,6 +1260,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
     }
 
     for ( let s of chartPreData.stories.stories) {
+      removeEmptyFromEnd(s, 0, 1);
+    }
+
+    for ( let s of chartPreData.coreTimeS.cores) {
       removeEmptyFromEnd(s, 0, 1);
     }
 
@@ -1118,6 +1332,11 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
     for ( let s of chartPreData.stories.stories) {
       s=addLabels(s,monthStr3['en-us'].join(';'),0); //Days of year
     }
+
+    for ( let s of chartPreData.coreTimeS.cores) {
+      s=addLabels(s,monthStr3['en-us'].join(';'),0); //Days of year
+    }
+
     chartPreData.allDays = addLabels(chartPreData.allDays,monthStr3['en-us'].join(';'),0); //Days of year
 
     chartPreData.thisYear[0] = addLabels(chartPreData.thisYear[0],monthStr3['en-us'].join(';'),0); //Months of year
@@ -1312,7 +1531,7 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
       }
 
-      newSums = newSums.map( v => v.toFixed(2) );
+      newSums = newSums.map( v => (v == null) ? null : v.toFixed(2) );
       /*
       console.log('newLabels', newLabels);
       console.log('newSums', newSums);

@@ -126,6 +126,16 @@ export interface ITimeEntry extends ISaveEntry {
     filterFlags?: string[]; // what flags does this match?  yourRecent, allRecent etc...
     timeGroup?: string; //Used for grouping the list of entries
 
+    coreTime?: string;
+    hoursEarly?: number;
+    hoursLate?: number;
+    hoursWeekEnd?: number;
+    hoursHoliday?: number;
+    hoursNormal?: number;
+    hoursUnknown?: number;
+    searchString?: string;  //LowerCase search string for charts
+    searchStringPC?: string;  //Proper Case search string for charts
+
     //Values that relate to project list item
 
     //Values specific to Time Entry
@@ -311,7 +321,8 @@ export interface IUserSummary {
   title: string; 
   Id: string; 
   count: number; 
-  hours: number; 
+  hours: number;
+  normal: number;
   percent: number; 
   stories: string[];
   lastEntry: number;
@@ -335,6 +346,9 @@ export interface IChartData {
   allWeeks?: IChartSeries;
   allDays?: IChartSeries;
   entryType?: IChartSeries;
+  coreTimeS?: ICoreTimes;  //This is the flexible array of core time per day
+
+  filterItems?: string[];
   
   stories?: IStories;
   index: number;
@@ -350,11 +364,22 @@ export interface IChartData {
 }
 
 
+export interface ICoreTimes {
+  cores?: ICoreTime[];
+  coreTime?: ICoreTime;
+  titles?: string[];
+}
+
+export interface ICoreTime extends IChartSeries {
+
+}
+
 export interface IStories {
   stories?: IStory[];
   chapters?: IStory[];
   titles?: string[];
 }
+
 export interface IStory extends IChartSeries {
 
 }
@@ -419,6 +444,9 @@ export interface ITrackMyTime7State {
   lastEndTime?: ITheTime; //Should be latest timestamp of the current user... used to create start time for next entry.
   blinkOnProject?: number; //Tells text fields to blink when project is clicked on and values reset
   blinkOnActivity?: number; //Tells text fields to blink when project is clicked on and values reset
+  coreStart?: number; //Used for calculating hours in core times
+  coreEnd?: number; //Used for calculating hours in core times
+  coreWeekend?: boolean; //Used for calculating hours in core times 
 
   elapsedTime?: any;  //Elapsed Time since last entry
 
@@ -430,6 +458,7 @@ export interface ITrackMyTime7State {
   selectedStory?: ISelectedStory;
   selectedUser?: ISelectedUser;
   userFilter?: 'all' | 'user'; 
+  chartStringFilter?: string;
   
 
   formEntry: ISaveEntry;

@@ -2,34 +2,31 @@ import * as React from 'react';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 
-import { Link, ILinkProps } from 'office-ui-fabric-react';
-
 import * as links from './AllLinks';
 
+import { Link, ILinkProps } from 'office-ui-fabric-react';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
-
-import WebPartLinks from './WebPartLinks';
-
 import styles from './InfoPane.module.scss';
 
-export interface IGettingStartedProps {
-    showInfo: boolean;
-    allLoaded: boolean;
-    parentProps: ITrackMyTime7Props;
-    parentState: ITrackMyTime7State;
+export interface IWebPartLinksProps {
+    projectListURL?: string; //Get from list item
+    timeTrackerListURL?: string; //Get from list item
+  
+    projectListName: string;  // Static Name of list (for URL) - used for links and determined by first returned item
+    timeTrackListName: string;  // Static Name of list (for URL) - used for links and determined by first returned item
 
 }
 
-export interface IGettingStartedState {
+export interface IWebPartLinksState {
     selectedChoice: string;
     lastChoice: string;
 }
 
-export default class GettingStarted extends React.Component<IGettingStartedProps, IGettingStartedState> {
+export default class WebPartLinks extends React.Component<IWebPartLinksProps, IWebPartLinksState> {
 
 
 /***
@@ -43,10 +40,10 @@ export default class GettingStarted extends React.Component<IGettingStartedProps
  *                                                                                                       
  */
 
-public constructor(props:IGettingStartedProps){
+public constructor(props:IWebPartLinksProps){
     super(props);
     this.state = { 
-        selectedChoice: 'projectList',
+        selectedChoice: 'About',
         lastChoice: '',
 
     };
@@ -98,10 +95,8 @@ public constructor(props:IGettingStartedProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IGettingStartedProps> {
+    public render(): React.ReactElement<IWebPartLinksProps> {
 
-        if ( this.props.allLoaded && this.props.showInfo ) {
-            console.log('infoPages.tsx', this.props, this.state);
 
 /***
  *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
@@ -113,55 +108,24 @@ public constructor(props:IGettingStartedProps){
  *                                                                                     
  *                                                                                     
  */
+            
+            const stackTokensBody: IStackTokens = { childrenGap: 20 };
 
             let thisPage = null;
-            thisPage =     <div className={styles.infoPane}>
 
-            <h3>Please submit any issues or suggestions on github (requires free account)</h3>
-            <WebPartLinks
-                    projectListURL={ this.props.parentState.projectListURL }
-                    projectListName={ this.props.parentState.projectListName }
-                    timeTrackerListURL={ this.props.parentState.timeTrackerListURL }
-                    timeTrackListName={ this.props.parentState.timeTrackListName }
-            ></WebPartLinks>
+            thisPage = <div>
+                <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackTokensBody}>
+                    <div><b>Your Lists:</b></div>
+                    { links.createLink(this.props.projectListURL,'_blank', this.props.projectListName ) }
+                    { links.createLink(this.props.timeTrackerListURL,'_blank', this.props.timeTrackListName ) }
+                    <div></div>
+                    <div><b>Webpart info on Github:</b></div>
+                    { links.gitRepoTrackMyTime.repo }
+                    { links.gitRepoTrackMyTime.issues }
+                    { links.gitRepoTrackMyTime.wiki }
+                </Stack>
 
-            <h2><mark>Before you start:</mark>  Set your time zone in Office 365 Personal settings</h2>
-            
-            Go to { links.blogSPTimeZone } and scroll down to Personal Setting Option 2, set your personal regional time zone:<br/>
-
-            If you do not do this first, your times will be saved in the site's local time zone and will cause the webpart not to work properly.<br/>
-            NOTE:  This will also insure that wherever you go in SharePoint, things will be converted to your local time :).
-
-            <h2>First:  Create a Project List and TrackMyTime List in your site</h2>
-                <ol>
-                    <li>Go to <b>WebPart Properties</b> - Edit Page, Edit Webpart.</li>
-                    <li>Expand <b>Create-Verify Lists</b> section.</li>
-                    <li>Press <b>Create-Verify Projects List</b> button.</li>
-                    <li>Press <b>Create-Verify TrackMyTime List</b> button.</li>
-                    <li>Exit <b>WebPart Properties</b></li>
-                    <li><b>Save</b> this page.</li>
-                    <li><b>Refresh</b> this page.</li>
-                </ol>
-
-            <h2>Second:  Create some Projects in the Projects list</h2>
-                <ol>
-                    <li>Go to <b>Project List</b> section in this guide and review what the columns do.</li>
-                    <li>Go to your <Link href={this.props.parentState.projectListURL} target='_blank'>{ this.props.parentProps.projectListTitle }
-                        </Link> and create some new Projects.
-                    </li>
-                </ol>
-
-            <h2>Third:  Start Tracking your Time!</h2>
-                <ol>
-                    <li><b>Refresh</b> this page.</li>
-                    <li>Select a <b>Project</b> from the list on the left side.  If you do not see any, click the tabs in upper left to find one</li>
-                    <li>Select a <b>Time Entry Mode</b> in upper right</li>
-                    <li><b>Fill in any details</b> you want to save.</li>
-                    <li>Press <b>Save Item</b> button.</li>
-                    <li>{ links.createLink(this.props.parentState.timeTrackerListURL,'_blank', this.props.parentState.timeTrackListName + ' list' ) }</li>
-                </ol>
-          </div>;
-
+            </div>;
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -175,18 +139,9 @@ public constructor(props:IGettingStartedProps){
  */
 
             return (
-                <div className={ styles.infoPane }>
+                <div>
                     { thisPage }
                 </div>
-            );
-            
-        } else {
-            console.log('infoPages.tsx return null');
-            return ( null );
-        }
-
+            ); 
     }   //End Public Render
-
-
-
 }

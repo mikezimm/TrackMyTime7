@@ -30,7 +30,7 @@ import Utils from './utils';
 
 import { saveTheTime, saveAnalytics, getTheCurrentTime } from '../../../services/createAnalytics';
 import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
-          getNicks, makeTheTimeObject, getTimeDelta, monthStr3, weekday3} from '../../../services/dateServices';
+          getNicks, makeTheTimeObject, getTimeDelta, monthStr3, monthStr, weekday3} from '../../../services/dateServices';
 
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
         IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
@@ -355,6 +355,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       locationChoice: '',  //semi-colon separated choices
       blinkOnProject: 0, //Tells text fields to blink when project is clicked on and values reset
       blinkOnActivity: 0, //Tells text fields to blink when project is clicked on and values reset
+
+      coreStart: 8, //Used for calculating hours in core times
+      coreEnd: 18, //Used for calculating hours in core times
+      coreWeekend: true, //Used for calculating hours in core times 
+
       smartLinkRules: smartLinks.buildSmartLinkRules(this.props),
 
       // 6 - User Feedback:
@@ -425,6 +430,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._updateComments = this._updateComments.bind(this);
     this._updateStory = this._updateStory.bind(this);
     this._updateUserFilter = this._updateUserFilter.bind(this);
+    this._updateChartFilter = this._updateChartFilter.bind(this);
 
     
   }
@@ -835,11 +841,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         today={ this.props.today }
         selectedStory = { this.state.selectedStory }
         selectedUser = { this.state.selectedUser }
+        chartStringFilter = { this.state.chartStringFilter }
         _updateStory={ this._updateStory.bind(this) }
         _updateUserFilter={ this._updateUserFilter.bind(this) }
+        _updateChartFilter={ this._updateChartFilter.bind(this) }
         WebpartHeight={ this.state.WebpartHeight }
         WebpartWidth={ this.state.WebpartWidth }
-
+        parentState= { this.state }
       ></ChartsPage>
     </div>;
 
@@ -857,6 +865,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                      
  */
 
+    let greeting = this.state.WebpartWidth < 800 ? null : <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>;
 
     return (
       <div className={ styles.trackMyTime7 }>
@@ -867,7 +876,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             { this.createPivotObject(choice1, display1)  }
 
             { /*this.createPivotObject(setPivot, "block") */ }
-            <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>
+            { greeting }
             { this.createProjectTypeToggle(this.state) }
             { toggleChartsButton }
             { toggleTipsButton }
@@ -1731,6 +1740,13 @@ public toggleTips = (item: any): void => {
   
     this.setState({  
       selectedUser: selectedUser,
+    });
+  }
+    
+  public _updateChartFilter = (chartStringFilter: string) : void => {
+  
+    this.setState({  
+      chartStringFilter: chartStringFilter,
     });
   }
   
@@ -2630,6 +2646,67 @@ public toggleTips = (item: any): void => {
         }
       }
 
+      /**
+       * Add logic for coreTime
+       *       coreTime?: string;
+       *       hoursEarly?: number;
+       *       hoursLate?: number;
+       */
+      thisEntry.hoursEarly = 0;
+      thisEntry.hoursLate = 0;
+      thisEntry.hoursWeekEnd = 0;        
+      thisEntry.hoursHoliday = 0;
+      thisEntry.hoursNormal = 0;
+      thisEntry.hoursUnknown = 0;
+
+      let theseHours = Number(thisEntry.duration);
+
+      //If Hours is to long ( > normal work duration ) set unknown... likely error or to complex to calculate.
+      if ( theseHours > ( 18 - 8 )) {
+        thisEntry.coreTime = 'Unknown';
+        thisEntry.hoursUnknown = theseHours;
+
+      //If StartTime is holiday, the entire entry is considered holiday.
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Holiday' ) {
+        thisEntry.coreTime = 'Holiday';
+        thisEntry.hoursHoliday = theseHours;
+
+      //Else if StartTime is Weekend, then entire entry is considered weekend
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Weekend' ) {
+        thisEntry.coreTime = 'Weekend';
+        thisEntry.hoursWeekEnd = theseHours;
+
+      //Else if Start and End are Normal, all hours are normal
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Normal' && thisEndTime.coreTime === 'Normal' ) {
+        thisEntry.coreTime = 'Normal';
+        thisEntry.hoursNormal = theseHours;
+
+      //Else if StartTime is Late, then entire entry is considered Late
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Late' ) {
+        thisEntry.coreTime = 'Late';
+        thisEntry.hoursLate = theseHours;
+
+      //Else if EndTime is Early, then entire entry is considered Early
+      } else if ( thisEndTime.coreTime === 'Early' ) {
+        thisEntry.coreTime = 'Early';
+        thisEntry.hoursEarly = theseHours;
+
+      //Else if Start is Early, then part of hours are considered Early
+      } else if ( thisEntry.thisTimeObj.coreTime === 'Early' ) {
+        thisEntry.coreTime = 'Early';
+        thisEntry.hoursEarly = thisEntry.thisTimeObj.hoursEarly;
+        thisEntry.hoursNormal = theseHours - thisEntry.hoursEarly;
+
+      //Else if EndTime is Late, then part of hours are considered Late
+      } else if ( thisEndTime.coreTime === 'Late' ) {
+        thisEntry.coreTime = 'Late';
+        thisEntry.hoursLate = thisEndTime.hoursLate;
+        thisEntry.hoursNormal = theseHours - thisEntry.hoursLate;
+        if (thisEntry.hoursNormal < 0 ) {
+          console.log('found problem here');
+        }
+      }
+
       if ( thisEntry.thisTimeObj.milliseconds < dateRange[0] ) { dateRange[0] = thisEntry.thisTimeObj.milliseconds; }
       if ( thisEndTime.milliseconds > dateRange[1] ) { dateRange[1] = thisEndTime.milliseconds; }
 
@@ -2650,49 +2727,76 @@ public toggleTips = (item: any): void => {
         countThese = 'otherPeople';
       }
 
+
+      //Build up options to search on
+      thisEntry.searchStringPC = 
+      ['id:' + thisEntry.id ,
+      'day:' + thisEntry.thisTimeObj.dayYYYYMMDD,
+      'user:' + thisEntry.userTitle ,
+      'story:' + thisEntry.story ,
+      'chapter:' + thisEntry.chapter ,
+      'projects:' + thisEntry.listProjects ,
+      'category:' + thisEntry.listCategory ,
+      'entry:' + thisEntry.entryType ,
+      'titleProject:' + thisEntry.titleProject ,
+      'coreTime:' + thisEntry.coreTime ,
+      'keyChanges:' + thisEntry.keyChanges.join(';') ,
+      'comments:' + thisEntry.comments.value ,
+      ].join(' | ');
+
+      thisEntry.searchString = thisEntry.searchStringPC.toLowerCase();
+
       let daysSince = thisEntry.age;
       counts[countThese].total ++;
 
-      if ( daysSince = 0 ) { today = true;
+      if ( daysSince === 0 ) { today = true;
         fromProject.filterFlags.push('today') ;
         thisEntry.filterFlags.push('today') ;
         thisEntry.timeGroup = '1. Ended Today';
         counts[countThese].today ++ ; }
+
       else if ( daysSince < 0 ) { today = true;
         fromProject.filterFlags.push('today') ;
         thisEntry.filterFlags.push('today') ;
         thisEntry.timeGroup = '0. These went Back to the Future :)';
           counts[countThese].today ++ ; }
+
       else if ( daysSince <= 1 ) { today = true;
         fromProject.filterFlags.push('today') ;
         thisEntry.filterFlags.push('today') ;
         thisEntry.timeGroup = '1. Ended Today';
         counts[countThese].today ++ ; }
+
       else if ( daysSince <= 7 ) { week = true;
         fromProject.filterFlags.push('week') ;
         thisEntry.filterFlags.push('week') ;
         thisEntry.timeGroup = '2. Ended Past Week';
         counts[countThese].week ++ ; }
+
       else if ( daysSince <= 31 ) { month = true;
         fromProject.filterFlags.push('month') ;
         thisEntry.filterFlags.push('month') ;
         thisEntry.timeGroup = '3. Ended Past Month';
         counts[countThese].month ++ ; }
+
       else if ( daysSince <= 91 ) { month = true;
         fromProject.filterFlags.push('quarter') ;
         thisEntry.filterFlags.push('quarter') ;
         thisEntry.timeGroup = '4. Ended Past Quarter';
         counts[countThese].quarter ++ ; }
+
       else if ( daysSince <= 365 ) { month = true;
         fromProject.filterFlags.push('quarter') ;
         thisEntry.filterFlags.push('quarter') ;
         thisEntry.timeGroup = '5. Ended Past Year';
         counts[countThese].quarter ++ ; }
+
       else if ( daysSince <= 730*4 ) { month = true;
         fromProject.filterFlags.push('quarter') ;
         thisEntry.filterFlags.push('quarter') ;
         thisEntry.timeGroup = '6. Ended a LONG time ago';
         counts[countThese].quarter ++ ; }
+
       else if ( daysSince <= recentDays ) { recent = true;
         fromProject.filterFlags.push('recent') ;
         thisEntry.filterFlags.push('recent') ;
@@ -2724,6 +2828,7 @@ public toggleTips = (item: any): void => {
       if (thisEntry.filterFlags.indexOf('otherPeople') > -1) { 
         everyoneEntries.push(thisEntry);
       } 
+
 
     }
 
@@ -2856,6 +2961,8 @@ public toggleTips = (item: any): void => {
 
     let OriginalHours = getTimeDelta(itemStartTime, itemEndTime, 'hours');
 //    alert (OriginalHours);
+
+
 
     let saveThisItem = {
         //Values that would come from Project item
@@ -2991,6 +3098,66 @@ public toggleTips = (item: any): void => {
       if ( trackTimeItem.projectID2 !== null && trackTimeItem.projectID2.value ) {
         listProjects += trackTimeItem.projectID2.value + ' ';
       }   
+
+      
+      let hoursEarly = 0;
+      let hoursLate = 0;
+      let hoursWeekEnd = 0;        
+      let hoursHoliday = 0;
+      let hoursNormal = 0;
+      let hoursUnknown = 0;
+      let coreTime = '';
+
+      let theseHours = Number(response.data.OriginalHours);
+      let thisTimeObj = makeTheTimeObject(trackTimeItem.startTime); 
+      let thisEndTime = makeTheTimeObject(trackTimeItem.endTime); 
+
+      //If Hours is to long ( > normal work duration ) set unknown... likely error or to complex to calculate.
+      if ( theseHours > ( 18 - 8 )) {
+        coreTime = 'Unknown';
+        hoursUnknown = theseHours;
+
+      //If StartTime is holiday, the entire entry is considered holiday.
+      } else if ( thisTimeObj.coreTime === 'Holiday' ) {
+        coreTime = 'Holiday';
+        hoursHoliday = theseHours;
+
+      //Else if StartTime is Weekend, then entire entry is considered weekend
+      } else if ( thisTimeObj.coreTime === 'Weekend' ) {
+        coreTime = 'Weekend';
+        hoursWeekEnd = theseHours;
+
+      //Else if Start and End are Normal, all hours are normal
+      } else if ( thisTimeObj.coreTime === 'Normal' && thisEndTime.coreTime === 'Normal' ) {
+        coreTime = 'Normal';
+        hoursNormal = theseHours;
+
+      //Else if StartTime is Late, then entire entry is considered Late
+      } else if ( thisTimeObj.coreTime === 'Late' ) {
+        coreTime = 'Late';
+        hoursLate = theseHours;
+
+      //Else if EndTime is Early, then entire entry is considered Early
+      } else if ( thisEndTime.coreTime === 'Early' ) {
+        coreTime = 'Early';
+        hoursEarly = theseHours;
+
+      //Else if Start is Early, then part of hours are considered Early
+      } else if ( thisTimeObj.coreTime === 'Early' ) {
+        coreTime = 'Early';
+        hoursEarly = thisTimeObj.hoursEarly;
+        hoursNormal = theseHours - hoursEarly;
+
+      //Else if EndTime is Late, then part of hours are considered Late
+      } else if ( thisEndTime.coreTime === 'Late' ) {
+        coreTime = 'Late';
+        hoursLate = thisEndTime.hoursLate;
+        hoursNormal = theseHours - hoursLate;
+        if (hoursNormal < 0 ) {
+          console.log('found problem here');
+        }
+      }
+
       let newEntry : ITimeEntry = {...trackTimeItem,
         user: this.state.currentUser,
         userInitials: "You!",
@@ -2998,8 +3165,11 @@ public toggleTips = (item: any): void => {
         userTitle: response.data.UserTitle,
         filterFlags: ["your","session"],
         timeGroup: "0. This browser session",
-        duration: getTimeDelta( trackTimeItem.endTime , trackTimeItem.startTime , 'hours').toString(),
+        duration: theseHours.toFixed(),
         age: getAge(trackTimeItem.endTime,"days"),
+        category1: trackTimeItem.category1 == null || trackTimeItem.category1.length === 0 ? null : trackTimeItem.category1,
+        category2: trackTimeItem.category2 == null || trackTimeItem.category2.length === 0 ? null : trackTimeItem.category2,
+        teamIds: trackTimeItem.teamIds == null || trackTimeItem.teamIds.length === 0 ? null : trackTimeItem.teamIds,
         deltaT: response.data.DeltaT,
         created: created,
         modified: created,
@@ -3018,6 +3188,14 @@ public toggleTips = (item: any): void => {
         projectID2 : this.buildSmartText(response.data.ProjectID2) ,  //Example Cost Center # - look for strings starting with * and ?
         thisTimeObj: makeTheTimeObject(response.data.StartTime),
       
+        hoursEarly : hoursEarly,
+        hoursLate : hoursLate,
+        hoursWeekEnd : hoursWeekEnd,
+        hoursHoliday : hoursHoliday,
+        hoursNormal : hoursNormal,
+        hoursUnknown : hoursUnknown,
+        coreTime : coreTime,
+
       };
 
       let entries = this.state.entries;

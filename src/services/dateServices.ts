@@ -25,6 +25,9 @@ export const monthStr = {
   'ro-ro': ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"],
 };
 
+export const holidays = [
+  [12,25],[1,1],[7,4]
+];
 
 export const monthStr3 = {
   'en-us':["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -57,17 +60,20 @@ export const weekday3 = {
 };
 
 export interface ITheTime {
+
   now: Date;
   theTime : string;
   milliseconds : number;
   year?: number;
   month?: number; //Zero Index
+  minute?: number; //Zero Index
   monthStr?: string;
   week?: number;
   day?: number;
   date?: number;
   dayStr?: string;
   hour?: number;
+
   isToday?: boolean;
   isYesterday?: boolean;
   isThisWeek?: boolean;
@@ -75,16 +81,23 @@ export interface ITheTime {
   isThisYear?: boolean;
   daysAgo?: number;
   isoWeek?: number;
+
   priorSunday?: Date;
   priorMonday?: Date;
   firstOfMonth?: Date;
+
   daysSinceSun?: number;
   daysSinceMon?: number;
   daysSinceNewYear?: number;
   daysSinceMonthStart?: number;
+
   dayMMMDD?: string;
   dayDDDMMMDD?: string;
   dayYYYYMMDD?: string;
+
+  coreTime?: string;
+  hoursEarly?: number;
+  hoursLate?: number;
 
 }
 
@@ -128,7 +141,7 @@ export function ISO8601_week_no(dt)
 
 
   //This is a more detailed version of the time object for charting purposes
-export function makeTheTimeObject(timeString) {
+export function makeTheTimeObject(timeString, coreStart = 8, coreEnd = 18, useHolidays = holidays) {
 
   //console.log('makeTimeObject: ', timeString);
   let rightNow = new Date();
@@ -161,6 +174,7 @@ export function makeTheTimeObject(timeString) {
 
   let givenTime = giveTime.getTime() ;
   let givenHour = giveTime.getHours() ;
+  let givenMinutes = giveTime.getMinutes() ;
 
   let isThisYear = todayYear === givenYear ? true : false;
   let isThisMonth = isThisYear && todayMonth === givenMonth ? true : false;
@@ -169,9 +183,39 @@ export function makeTheTimeObject(timeString) {
 
   let givenDateMidnight = new Date(givenYear,givenMonth,givenDate);
   let firstOfMonth = new Date(givenYear,givenMonth,1);
-    
+
   let priorSunday = getDayOfWeek(timeString, 'sun');
   let priorMonday = getDayOfWeek(timeString, 'mon');
+
+  let coreTime = 'Normal';
+  let hoursEarly = 0;
+  let hoursLate = 0;
+
+  let isHoliday = false;
+
+  for ( let d of useHolidays ) {
+    if (d[0] - 1 === givenMonth && d[1] == givenDate ) {
+      isHoliday = true;
+    }
+  }
+
+  if ( isHoliday ) {
+    coreTime = 'Holiday';
+
+  } else if ( givenDay === 0 || givenDay === 6 ) {
+    coreTime = 'Weekend';
+
+  } else if ( givenHour < coreStart ) {
+    hoursEarly = coreStart - givenHour;
+    hoursEarly += ( 1 - givenMinutes/60 );
+    coreTime = 'Early';
+
+  } else if ( givenHour >= coreEnd ) {
+    hoursLate = givenHour - coreEnd;
+    hoursLate += givenMinutes/60;
+    coreTime = 'Late';
+
+  }
 
 
   let daysAgo = Math.round(Math.abs((rightNow.getTime() - giveTime.getTime()) / msPerDay));
@@ -186,6 +230,7 @@ export function makeTheTimeObject(timeString) {
     date: givenDate,
     day: givenDay,
     hour: givenHour,
+    minute: givenMinutes,
 
     isThisYear: isThisYear,
     isThisMonth: isThisMonth,
@@ -208,8 +253,13 @@ export function makeTheTimeObject(timeString) {
     dayDDDMMMDD: [weekday3['en-us'][givenDay],monthStr3['en-us'][givenMonth],givenDate].join(' '),
     dayYYYYMMDD: [givenYear,("0" + (givenMonth + 1)).slice(-2),givenDate].join('-'),
 
+    coreTime: coreTime,
+    hoursEarly: hoursEarly,
+    hoursLate: hoursLate,
+
   };
 
+  //console.log('theTime:', theTime);
   return theTime;
 
 }

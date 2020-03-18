@@ -10,6 +10,10 @@ import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State } from '../ITrackMyTime7State';
+
+import WebPartLinks from './WebPartLinks';
+import { IWebPartLinksProps, IWebPartLinksState } from './WebPartLinks';
+
 import styles from './InfoPane.module.scss';
 
 export interface IInfoAboutMeProps {
@@ -115,25 +119,21 @@ public constructor(props:IInfoAboutMeProps){
             let thisPage = null;
 
             thisPage = <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackTokensBody}>
-                    <div><b>Your Lists:</b></div>
-                    { links.createLink(this.props.parentState.projectListURL,'_blank', this.props.parentState.projectListName ) }
-                    { links.createLink(this.props.parentState.timeTrackerListURL,'_blank', this.props.parentState.timeTrackListName ) }
-                    <div></div>
-                    <div><b>Webpart info on Github:</b></div>
-                    { links.gitRepoTrackMyTime.repo }
-                    { links.gitRepoTrackMyTime.issues }
-                    { links.gitRepoTrackMyTime.wiki }
-                </Stack>
+                <WebPartLinks
+                    projectListURL={ this.props.parentState.projectListURL }
+                    projectListName={ this.props.parentState.projectListName }
+                    timeTrackerListURL={ this.props.parentState.timeTrackerListURL }
+                    timeTrackListName={ this.props.parentState.timeTrackListName }
+                ></WebPartLinks>
 
                 <h2>Version History</h2>
 
-
                 <table className={styles.infoTable}>
-                    <tr><th>Version</th><th>Focus</th><th>Notes</th></tr>
-                    <tr><td>{'1.0.0.9'}</td><td>Charts</td><td>Fix user summary Hours, Add Last Entry.  Fix Time display error.</td></tr>
-                    <tr><td>{'1.0.0.8'}</td><td>Charts</td><td>Add Story and User filters.  Add Details toggle.  Add About and Numbers page.</td></tr>
-                    <tr><td>{'1.0.0.7'}</td><td>Charts/Help</td><td>Initial addition of Charts and Help</td></tr>
+                    <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td>2020-03-18</td><td>{'1.0.0.10'}</td><td>Charts</td><td>Add Core Time, Revise Story charts, Add Chapter charts, Search to chart data.</td></tr>
+                    <tr><td>2020-03-11</td><td>{'1.0.0.9'}</td><td>Charts</td><td>Fix user summary Hours, Add Last Entry.  Fix Time display error.</td></tr>
+                    <tr><td></td><td>{'1.0.0.8'}</td><td>Charts</td><td>Add Story and User filters.  Add Details toggle.  Add About and Numbers page.</td></tr>
+                    <tr><td></td><td>{'1.0.0.7'}</td><td>Charts/Help</td><td>Initial addition of Charts and Help</td></tr>
                 </table>
             </div>;
 

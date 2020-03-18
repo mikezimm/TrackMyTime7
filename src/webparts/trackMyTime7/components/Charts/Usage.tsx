@@ -9,7 +9,7 @@ import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-
 
 import styles from '../TrackMyTime7.module.scss';
 
-import { create1SeriesCharts, creatLineChart } from './charts';
+import { create1SeriesCharts, createMultiSeries1ScaleCharts, creatLineChart } from './charts';
 import { IDataOptions } from './chartsPage';
 
 export interface IChartUsageProps {
@@ -105,17 +105,24 @@ public constructor(props:IChartUsageProps){
 
     public render(): React.ReactElement<IChartUsageProps> {
 
-        console.log('Usage render');
+        //console.log('Usage render');
         if ( this.props.allLoaded && this.props.showCharts && this.props.chartData != null ) {
-            console.log('Usage.tsx', this.props, this.state);
+            //console.log('Usage.tsx', this.props, this.state);
 
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
     
+            let stacked2 = this.props.chartData.coreTimeS.cores.map( s => s );
+            //console.log('stacked2', stacked2);
+            let chartYearlyCoreTime = createMultiSeries1ScaleCharts('Core time', true, true, stacked2, 
+                    this.props.chartData.storyIndex, ChartType.Line, this.props.WebpartWidth, this.props.dataOptions);
+
+
             let chartLocation = create1SeriesCharts( this.props.chartData.location, ChartType.Doughnut, this.props.dataOptions ) ;    
             let chartContemp = create1SeriesCharts( this.props.chartData.contemp, ChartType.Doughnut, this.props.dataOptions ) ;   
-            let chartEntryType =  create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut, this.props.dataOptions ) ; 
-            let chartKeyChanges =  create1SeriesCharts( this.props.chartData.keyChanges, ChartType.HorizontalBar, this.props.dataOptions ) ;             
-            
+            let chartEntryType = create1SeriesCharts( this.props.chartData.entryType, ChartType.Doughnut, this.props.dataOptions ) ; 
+            let chartKeyChanges = create1SeriesCharts( this.props.chartData.keyChanges, ChartType.HorizontalBar, this.props.dataOptions ) ;
+            let chartCoreTime = create1SeriesCharts( this.props.chartData.coreTimeS.coreTime, ChartType.HorizontalBar, this.props.dataOptions ) ;
+
             return (
                 <div>
                     <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackChartTokens}>
@@ -132,9 +139,17 @@ public constructor(props:IChartUsageProps){
                         <Stack.Item align="stretch" className={styles.chartPadding}>
                             { chartKeyChanges }
                         </Stack.Item>
+                        <Stack.Item align="stretch" className={styles.chartPadding}>
+                            { chartCoreTime }
+                        </Stack.Item>
+                        
 
                     </Stack>
 
+                    <div className={styles.chartHeight300}>
+                        { chartYearlyCoreTime }
+                    </div>
+                    
                 </div>
 
             );
