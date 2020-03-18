@@ -139,12 +139,21 @@ public constructor(props:IChartStoryProps){
 
             console.log('chartClass', chaptersLength, chartClass);
 
-            let chapters = this.props.chartData.stories.chapters.map(
-                s => {
-                    let theseChapters = s.labels.length === 0 || s.totalS === 0 ? null : create1TallSeriesCharts( s, ChartType.HorizontalBar, WebpartRatio, this.props.dataOptions, chartClass );
-                    return ( theseChapters );
-                }
-            );
+            let chapters = null;
+            let thisIndex = this.props.chartData.stories.titles.indexOf(this.props.story);
+
+            if ( thisIndex !== -1 ) {
+                chapters = create1TallSeriesCharts( this.props.chartData.stories.chapters[thisIndex], ChartType.HorizontalBar, WebpartRatio, this.props.dataOptions, chartClass );
+            } else {
+
+                chapters = this.props.chartData.stories.chapters.map(
+                    s => {
+                        let theseChapters = s.labels.length === 0 || s.totalS === 0 ? null : create1TallSeriesCharts( s, ChartType.HorizontalBar, WebpartRatio, this.props.dataOptions, chartClass );
+                        return ( theseChapters );
+                    }
+                );
+            } 
+
 
             
             let noChapters = this.props.chartData.stories.chapters.map(

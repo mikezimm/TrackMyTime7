@@ -30,7 +30,7 @@ import Utils from './utils';
 
 import { saveTheTime, saveAnalytics, getTheCurrentTime } from '../../../services/createAnalytics';
 import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
-          getNicks, makeTheTimeObject, getTimeDelta, monthStr3, weekday3} from '../../../services/dateServices';
+          getNicks, makeTheTimeObject, getTimeDelta, monthStr3, monthStr, weekday3} from '../../../services/dateServices';
 
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
         IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
@@ -430,6 +430,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._updateComments = this._updateComments.bind(this);
     this._updateStory = this._updateStory.bind(this);
     this._updateUserFilter = this._updateUserFilter.bind(this);
+    this._updateChartFilter = this._updateChartFilter.bind(this);
 
     
   }
@@ -840,8 +841,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         today={ this.props.today }
         selectedStory = { this.state.selectedStory }
         selectedUser = { this.state.selectedUser }
+        chartStringFilter = { this.state.chartStringFilter }
         _updateStory={ this._updateStory.bind(this) }
         _updateUserFilter={ this._updateUserFilter.bind(this) }
+        _updateChartFilter={ this._updateChartFilter.bind(this) }
         WebpartHeight={ this.state.WebpartHeight }
         WebpartWidth={ this.state.WebpartWidth }
         parentState= { this.state }
@@ -1737,6 +1740,13 @@ public toggleTips = (item: any): void => {
   
     this.setState({  
       selectedUser: selectedUser,
+    });
+  }
+    
+  public _updateChartFilter = (chartStringFilter: string) : void => {
+  
+    this.setState({  
+      chartStringFilter: chartStringFilter,
     });
   }
   
@@ -2717,6 +2727,25 @@ public toggleTips = (item: any): void => {
         countThese = 'otherPeople';
       }
 
+
+      //Build up options to search on
+      thisEntry.searchStringPC = 
+      ['id:' + thisEntry.id ,
+      'day:' + thisEntry.thisTimeObj.dayYYYYMMDD,
+      'user:' + thisEntry.userTitle ,
+      'story:' + thisEntry.story ,
+      'chapter:' + thisEntry.chapter ,
+      'projects:' + thisEntry.listProjects ,
+      'category:' + thisEntry.listCategory ,
+      'entry:' + thisEntry.entryType ,
+      'titleProject:' + thisEntry.titleProject ,
+      'coreTime:' + thisEntry.coreTime ,
+      'keyChanges:' + thisEntry.keyChanges.join(';') ,
+      'comments:' + thisEntry.comments.value ,
+      ].join(' | ');
+
+      thisEntry.searchString = thisEntry.searchStringPC.toLowerCase();
+
       let daysSince = thisEntry.age;
       counts[countThese].total ++;
 
@@ -2799,6 +2828,7 @@ public toggleTips = (item: any): void => {
       if (thisEntry.filterFlags.indexOf('otherPeople') > -1) { 
         everyoneEntries.push(thisEntry);
       } 
+
 
     }
 

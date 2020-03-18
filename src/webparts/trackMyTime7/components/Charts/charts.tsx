@@ -124,7 +124,7 @@ export function create1TallSeriesCharts(series: IChartSeries, thisType: ChartTyp
     scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
     title: {
       display: true,
-      text: series.title,
+      text: series != null ? series.title : 'Unknown Series',
     },
     legend: {
       display: false
@@ -139,7 +139,7 @@ export function create1TallSeriesCharts(series: IChartSeries, thisType: ChartTyp
     //scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
     title: {
       display: true,
-      text: series.title,
+      text: series != null ? series.title : 'Unknown Series',
     },
     legend: {
       display: false  //legend must be false until I can properly size the chart
@@ -303,6 +303,7 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
         };
       });
 
+
       let theseValues = !series[selectedIndex] || series[selectedIndex].sums == null ? '' : series[selectedIndex].sums.map(
         (x) => {
           //console.log('x.toFixed', typeof x, x);
@@ -324,13 +325,12 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
             type={ thisType }
             ref={ r }
             data={{
-                labels: series[selectedIndex].labels,
+                labels: series[ selectedIndex === -1 ? 0 : selectedIndex ].labels,
                 datasets: myDataSets
             }}
             options={ chartOptions } />
         <div>{ theseValues }</div>
         </div>
-
     );
   }
 }

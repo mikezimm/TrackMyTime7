@@ -133,6 +133,8 @@ export interface ITimeEntry extends ISaveEntry {
     hoursHoliday?: number;
     hoursNormal?: number;
     hoursUnknown?: number;
+    searchString?: string;  //LowerCase search string for charts
+    searchStringPC?: string;  //Proper Case search string for charts
 
     //Values that relate to project list item
 
@@ -346,6 +348,7 @@ export interface IChartData {
   entryType?: IChartSeries;
   coreTimeS?: ICoreTimes;  //This is the flexible array of core time per day
 
+  filterItems?: string[];
   
   stories?: IStories;
   index: number;
@@ -455,6 +458,7 @@ export interface ITrackMyTime7State {
   selectedStory?: ISelectedStory;
   selectedUser?: ISelectedUser;
   userFilter?: 'all' | 'user'; 
+  chartStringFilter?: string;
   
 
   formEntry: ISaveEntry;
