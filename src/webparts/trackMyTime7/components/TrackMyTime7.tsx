@@ -606,15 +606,20 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let isSaveDisabledTime = false;
     let isSaveDisabledFields = false;
     let isSaveButtonDisabled = false;
+    let isEndBeforeStart = false;
     
     if ( this.state.currentTimePicker === 'slider' ) {
       if ( this.state.timeSliderValue == 0 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
-
+      if ( getTimeDelta(this.state.formEntry.endTime, this.state.formEntry.startTime, 'ms') > 0 ) { isEndBeforeStart = true; isSaveButtonDisabled = true; }
       // Also need to add if the slider would put the start time before the last end time.
     } else if ( this.state.currentTimePicker === 'sinceLast' ) {
       if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
 
-    } // else if  -- Need to add logic when Manual and days not filled out
+    } else if ( this.state.currentTimePicker === 'manual' ) {
+      if ( getTimeDelta(this.state.formEntry.endTime, this.state.formEntry.startTime, 'ms') > 0 ) { isEndBeforeStart = true; isSaveButtonDisabled = true; }
+    }
+
+    
 
     if ( isSaveButtonDisabled === false ) {
       if ( this.state.fields.ProjectID1.required ) {
@@ -655,20 +660,29 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           {( isSaveDisabledTime ? <div>Use Slider or Manual Mode to save time.</div> : "" )}
           </div>; 
 
-      } else if  (this.state.currentTimePicker === 'slider' ) 
-        if (this.state.timeSliderValue > 0 ) {
-           //The START time IS NOW and the end time is in the future (based on slider)
-           theTime = <div className={ styles.timeInFuture }>From NOW until: { getDayTimeToMinutes(this.state.formEntry.endTime) }</div>;
+      } else if  (this.state.currentTimePicker === 'slider' ) {
+        if ( isEndBeforeStart ) {
+          theTime = <div className={( styles.timeError )}>
+            Adjust the slider before saving.
+          </div>;
+        } else if (this.state.timeSliderValue > 0 ) {
+            //The START time IS NOW and the end time is in the future (based on slider)
+            theTime = <div className={ styles.timeInFuture }>From NOW until: { getDayTimeToMinutes(this.state.formEntry.endTime) }</div>;
         } else if ( this.state.timeSliderValue < 0 )  {
           //The END time IS NOW and the end time is in the past (based on slider)
           theTime = <div className={ styles.timeInPast }>From { getDayTimeToMinutes(this.state.formEntry.startTime) } until NOW</div>;
         } else { // Value can not be zero or the save button should not be visible.
           theTime = <div className={ styles.timeError }>Adjust the slider before saving</div>;
-        } else if ( this.state.currentTimePicker === 'start' ) {
-          theTime = <div>Creates zero minutes entry to start your day</div>;
         }
-    
-      
+
+      } else if ( this.state.currentTimePicker === 'start' ) {
+        theTime = <div>Creates zero minutes entry to start your day</div>;
+
+      } else if ( this.state.currentTimePicker === 'manual' && isEndBeforeStart ) {
+        theTime = <div className={( styles.timeError )}>
+          End Time is BEFORE Start Time, please fix before saving.
+          </div>; 
+      }
 
     } else { theTime = ""; }
 
@@ -1714,7 +1728,10 @@ public toggleTips = (item: any): void => {
         }
       }
 
-      if (saveError.length > 0 ) {
+      if ( this.state.formEntry.startTime > this.state.formEntry.endTime ) {
+        alert('Please make sure End Time is AFTER start time!');
+        return;
+      } else if (saveError.length > 0 ) {
         alert('Please enter value in these fields before saving: ' +  saveError);
         return;
       } else {
