@@ -40,6 +40,14 @@ export interface ITrackMyTime7Props {
 
   projectType:boolean; //Projects = 0 History = 1
 
+  // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
+  // title special words:  Replace..., IgnoreTitle, Derive
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ... 
+  // Special shortcuts:  title=NoTitleType-Activity - replaces Project Title with just the Type-Activity values
+  // Special shortcuts:  title=DeriveType-Activity - uses just Title column to derive Type and Activity fields (not recommended or programmed yet)
+  projActivityRule: string;  //title=NoTitleType-Activity
+
   // 5 - UI Defaults
   defaultProjectPicker: string; //Recent, Your Projects, All Projects etc...
   defaultTimePicker: string; //SinceLast, Slider, Manual???

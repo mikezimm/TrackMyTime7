@@ -35,7 +35,8 @@ import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeS
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
         IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
         IChartData, IChartSeries,
-        IMyIcons, IMyFonts, IProjectOptions, IStory, IStories } from './ITrackMyTime7State';
+        IMyIcons, IMyFonts, IProjectOptions, IStory, IStories,
+        IPropsActivityURL, IProjActivityURL } from './ITrackMyTime7State';
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
@@ -116,6 +117,45 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       mask: '',  //Required for building text fields
     };
     return smart;
+  }
+
+  private createActURLRules( projActivityRule: string ) {
+
+  // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
+  // title special words:  Replace..., IgnoreTitle, Derive
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ... 
+  // Special shortcuts:  title=IgnoreTitleType-Activity - replaces Project Title with just the Type-Activity values
+  // Special shortcuts:  title=DeriveType-Activity - uses just Title column to derive Type and Activity fields (not recommended or programmed yet)
+    
+    let specialRule = '';
+    let rules = projActivityRule != null ? projActivityRule.split(';') : null;
+    let titleMap = '';
+    let titleRule = '';
+    // <Type>-<Activity>
+    if ( rules != null ) {
+      for (let r in rules){
+        let theseRules = r.split('=');
+        if ( theseRules != null && theseRules[0] == 'title') { 
+          titleRule = theseRules[1] + '';
+          if ( theseRules[1].indexOf('Replace...') === 0 ) { specialRule = 'Replace'; theseRules[1] = theseRules[1].replace('Replace...',''); }
+          else if ( theseRules[1].indexOf('IgnoreTitle...') === 0 ) { specialRule = 'IgnoreTitle'; theseRules[1] = theseRules[1].replace('IgnoreTitle...',''); }
+          else if ( theseRules[1].indexOf('Derive...') === 0 ) { specialRule = 'Derive'; theseRules[1] = theseRules[1].replace('Derive...',''); }
+          titleMap = theseRules[1];
+          return;
+        }
+      }
+    }
+
+    let result : IPropsActivityURL = {
+      rule: specialRule,
+      rules:  rules,
+      titleMap:  titleMap,  //String with replace variables like Title, Type and Activity
+      titleRule:  titleRule,
+    };
+
+    return result;   
+
   }
 
   private createUser() {
@@ -348,6 +388,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       onlyActiveProjects: this.props.onlyActiveProjects,
       projectType: this.props.projectType,
       syncProjectPivotsOnToggle: this.props.syncProjectPivotsOnToggle, //always keep pivots in sync when toggling projects/history
+
+      projActivityRule: this.createActURLRules(this.props.projActivityRule),
 
       // 5 - UI Defaults
       currentProjectPicker: '', //User selection of defaultProjectPicker:  Recent, Your Projects, All Projects etc...
@@ -2097,6 +2139,7 @@ public toggleTips = (item: any): void => {
         if (p.OptionsTMT != null ) { pOptions = p.OptionsTMT.split(';'); }
         else if ( p.OptionsTMTCalc != null && p.OptionsTMTCalc.length>0 ) { pOptions = p.OptionsTMTCalc.split(';'); }
 
+
         //console.log('p.Options', p.OptionsTMT, pOptions);
 
         function getThisOption(arr: string[], splitter: string, prop: string ) {
@@ -2153,6 +2196,62 @@ public toggleTips = (item: any): void => {
 
         };
 
+
+        /**
+         * Get Project Pre-made Activity Link URL
+         */
+        let pActivityType = p.ActivityType;  //Label part of Activity Type ( before the | )
+        let pActivityID = p.Activity; //Test value from Activity Column in list
+        let pActivtyOptionsCalc = p.ActivtyOptionsCalc; //Options for formatting the Icon
+        let pActivityOptions = [];
+        if ( pActivtyOptionsCalc != null && pActivtyOptionsCalc.length > 0 ) { pActivityOptions = pActivtyOptionsCalc.split(';'); }
+
+        let pActivityURL = p.ActivtyURL;
+        // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
+        // title special words:  Replace..., IgnoreTitle, Derive
+        // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...
+        // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ... 
+        // Special shortcuts:  title=NoTitleType-Activity - replaces Project Title with just the Type-Activity values
+        // Special shortcuts:  title=DeriveType-Activity - uses just Title column to derive Type and Activity fields (not recommended or programmed yet)
+        // projActivityRule: string;  //title=NoTitleType-Activity
+
+        // this.state.projActivityRule
+        // projActivity?: IProjActivityURL;
+        let showLink = false;
+        let thisProjectTitle = p.Title;
+
+        if ( this.state.projActivityRule.rule === 'Derive' ) {
+
+        } else if ( this.state.projActivityRule.rule === 'Replace' ) {
+          thisProjectTitle = p.Title.replace('<Title>',p.Title).replace('<Type>',pActivityType).replace('<Activity>',pActivityID); 
+
+        } else if ( this.state.projActivityRule.rule === 'IgnoreTitle' ) {
+          thisProjectTitle = this.state.projActivityRule.titleMap.replace('<Type>',pActivityType).replace('<Activity>',pActivityID);
+
+        }
+
+        if ( pActivityURL != null && pActivityURL.length > 0 ) {
+          //There is no ActivityURL Formula value so there is no URL to click.
+          showLink = true;
+        } 
+
+        let projActivity : IProjActivityURL = {
+          showLink: showLink,
+          activity: pActivityID,
+          type: pActivityType,
+          href: pActivityURL,
+          title: thisProjectTitle,
+          optionString: pActivtyOptionsCalc,
+          optionArray: pActivityOptions,
+          bgColor: getThisOption(pActivityOptions,'=', 'bgColor'),
+          font: getFontOptions(pActivityOptions,'='),
+          icon: getIconOptions(pActivityOptions,'='),
+        };
+
+
+        //Attempt to split ActivityType by | in case formatting or icon is included.
+
+
         let leader : IUser = {
           title: 'p.' , //
           initials: 'p.' , //Single person column
@@ -2177,7 +2276,10 @@ public toggleTips = (item: any): void => {
           projectType: 'Master',
           id: p.Id,
           editLink: null , //Link to view/edit item link
-          titleProject: p.Title,
+          titleProject: thisProjectTitle,
+
+          projActivity: projActivity,
+
           comments: this.buildSmartText(p.Comments),
           active: p.Active,
           everyone: p.Everyone,

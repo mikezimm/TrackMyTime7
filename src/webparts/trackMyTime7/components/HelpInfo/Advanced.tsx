@@ -131,6 +131,10 @@ public constructor(props:IAdvancedProps){
 
             let options4 = <tr><td>Options^</td><td>See calculated column formula as an example</td><td>You can create a formula here to automatically build option text on all your projects.  <br/>If you have anything in the normal Options column, it will over-ride this calculated value.</td></tr>;
 
+            let activity1 = <tr><td>ActivityOptions^</td><td>See calculated column formula as an example</td><td>You can create a formula here to create Project Links with Icons in the center pane.  Syntax is similar to Icons for defining Icon and Color</td></tr>;
+            
+
+
             thisPage = <div>
                 <h2></h2>
                 <table className={styles.infoTable}>
@@ -150,7 +154,8 @@ public constructor(props:IAdvancedProps){
                     { options2 }
                     { options3 }
 
-                    { options4 }                         
+                    { options4 }   
+                    { activity1 }                      
                 </table>
             </div>;
 
