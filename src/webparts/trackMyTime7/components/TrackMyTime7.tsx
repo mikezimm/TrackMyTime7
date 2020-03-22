@@ -22,6 +22,9 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
 import InfoPage from './HelpInfo/infoPages';
+
+import CenterPane from './Project/CenterPane';
+
 import { ISelectedStory, defStory, ISelectedUser, curUser } from './Charts/chartsPage';
 
 
@@ -474,7 +477,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._updateUserFilter = this._updateUserFilter.bind(this);
     this._updateChartFilter = this._updateChartFilter.bind(this);
 
-    
+    this._onActivityClick = this._onActivityClick.bind(this);
+       
   }
 
 
@@ -907,8 +911,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ></ChartsPage>
     </div>;
 
-    let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this) );
-    let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this) );
+    let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this), null );
+    let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this), null );
+
+    let centerPane = <CenterPane 
+        allLoaded={ true } 
+        projectIndex={ this.state.selectedProjectIndex }
+        showCenter={ true }
+        parentProps= { this.props }
+        parentState= { this.state }
+        _onActivityClick={ this._onActivityClick.bind(this) }
+    ></CenterPane>;
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -955,7 +968,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
                 { this.getPivotHelpText(this.state, this.props)}
                 { listProjects }
               </Stack>  {/* Stack for Pivot Help and Projects */}
-
+              { centerPane }
               <Stack horizontal={false} horizontalAlign={"end"} tokens={stackFormRowsTokens}>{/* Stack for Buttons and Fields */}
                 { entryOptions }
                 { (timeSlider) }
@@ -1277,6 +1290,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
      });
   }
   
+
+  public _onActivityClick = (ev: React.FormEvent<HTMLInputElement>): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let thisProject = this.state.projects.newFiltered[this.state.selectedProjectIndex];
+
+    let projActivity = thisProject.projActivity;
+    let url = projActivity.href;
+    
+    console.log('_onActivityClick item:', url);
+    window.open(url, '_blank');
+
+  } //End onNavClick
+
 /***
  *         d8b   db  .d88b.  d888888b      db    db .d8888. d88888b d8888b. 
  *         888o  88 .8P  Y8. `~~88~~'      88    88 88'  YP 88'     88  `8D 

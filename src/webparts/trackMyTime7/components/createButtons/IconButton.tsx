@@ -8,7 +8,24 @@ const emojiIcon: IIconProps = { iconName: 'BarChartVerticalFill' };
 
 import styles from './CreateButtons.module.scss';
 
-export function createIconButton(iconName, titleText, _onClick){
+export const defCommandIconStyles = {
+  root: {padding:'10px !important', height: 32},//color: 'green' works here
+  icon: { 
+    fontSize: 18,
+    fontWeight: "normal",
+    margin: '0px 2px',
+    color: '#00457e', //This will set icon color
+ },
+};
+
+export function createIconButton(iconName, titleText, _onClick, iconStyles){
+
+    if ( iconStyles == null ) { iconStyles = defCommandIconStyles ; }
+
+    if ( iconName === 'Help' ) { iconStyles.icon.fontWeight = '900' ; }
+
+    console.log('createIconButton:', iconStyles);
+
     return (
       <div className= {styles.buttons}>
       <IconButton iconProps={{ iconName: iconName }} 
@@ -17,16 +34,7 @@ export function createIconButton(iconName, titleText, _onClick){
       disabled={false} 
       checked={false}
       onClick={ _onClick }
-
-      styles={{
-        root: {padding:'10px !important', height: 32},//color: 'green' works here
-        icon: { 
-          fontSize: 18,
-          fontWeight: iconName === 'Help' ? "900" : "normal",
-          margin: '0px 2px',
-          color: '#00457e', //This will set icon color
-       },
-      }}
+      styles={ iconStyles }
       />
       </div>
     );

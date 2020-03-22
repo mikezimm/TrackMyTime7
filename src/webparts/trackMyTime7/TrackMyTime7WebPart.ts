@@ -221,7 +221,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
         projectType: this.properties.projectType, //Projects = 0 History = 1
 
-        projActivityRule: this.properties.projActivityRule ? this.properties.projActivityRule : 'title=IgnoreTitle...<Type>-<Activity>',  // is same as 'title=<Type>-<Activity>'
+        projActivityRule: this.properties.projActivityRule ? this.properties.projActivityRule : 'title=Replace...<Title>: <Type>-<Activity>',  // is same as 'title=<Type>-<Activity>'
 
         // 5 - UI Defaults
         defaultProjectPicker: this.properties.defaultProjectPicker, //Recent, Your Projects, All Projects etc...
