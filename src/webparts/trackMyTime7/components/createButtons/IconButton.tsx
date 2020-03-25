@@ -18,19 +18,27 @@ export const defCommandIconStyles = {
  },
 };
 
-export function createIconButton(iconName, titleText, _onClick, iconStyles){
+export function createIconButton(iconName, titleText, _onClick, thisID,  iconStyles){
 
     if ( iconStyles == null ) { iconStyles = defCommandIconStyles ; }
 
     if ( iconName === 'Help' ) { iconStyles.icon.fontWeight = '900' ; }
 
+    if (thisID == null ) { thisID = Math.random().toString(36).substring(7);} else {
+      //Remove all special characters in Title or this so that it can be made an element ID
+      thisID = thisID.replace(/[^\w\s|-]/gi, '');
+    }
+
     console.log('createIconButton:', iconStyles);
 
     return (
-      <div className= {styles.buttons}>
+      <div className= {styles.buttons} id={ thisID }>
       <IconButton iconProps={{ iconName: iconName }} 
-      title= { titleText } 
-      ariaLabel= { titleText } 
+      title= { titleText} 
+      //uniqueId= { titleText } 
+      //data= { titleText } 
+      //key= { titleText } 
+      //ariaLabel= { titleText } 
       disabled={false} 
       checked={false}
       onClick={ _onClick }

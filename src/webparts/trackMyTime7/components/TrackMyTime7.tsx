@@ -39,7 +39,7 @@ import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProject
         IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
         IChartData, IChartSeries,
         IMyIcons, IMyFonts, IProjectOptions, IStory, IStories,
-        IPropsActivityURL, IProjActivityURL } from './ITrackMyTime7State';
+        IPropsActivityURL } from './ITrackMyTime7State';
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
@@ -859,7 +859,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabledFields,  this._updateProjectID1.bind(this));
     let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabledFields,  this._updateProjectID2.bind(this));
 
-    let activity = formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
+    let activity =  formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
+
+    //let activity = ( this.state.projects.newFiltered[this.state.selectedProjectIndex].projActivity.showLink === true ) ? null :
+      //formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
+
 
     let startDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.Start, false, this._updateStart.bind(this)) : '';
     let endDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.End, false, this._updateEnd.bind(this)) : '';
@@ -911,8 +915,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ></ChartsPage>
     </div>;
 
-    let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this), null );
-    let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this), null );
+    let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this), null, null );
+    let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this), null, null );
 
     let centerPane = <CenterPane 
         allLoaded={ true } 
@@ -1063,7 +1067,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       console.log('_getSelectedProject error:');
       console.log('_getSelectedProject items:', items);
       console.log('_getSelectedProject item:', item);
-      console.log('_getSelectedProject this.state.projects:',this.state.projects);   
+      console.log('_getSelectedProject this.state.projects:',this.state.projects);
       //item = this.createFormEntry();
     }
 
@@ -1095,8 +1099,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       formEntry.ccList  =  item.ccList;
       formEntry.story  =  item.story;
       formEntry.chapter  =  item.chapter;
+      formEntry.activity = {
+        Description: item.projOptions.type + ' - ' + item.projOptions.activity,
+        Url: item.projOptions.href,
+      };
     }
-
 
     this.setState({ 
       formEntry:formEntry, 
@@ -1293,13 +1300,39 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   public _onActivityClick = (ev: React.FormEvent<HTMLInputElement>): void => {
     //This sends back the correct pivot category which matches the category on the tile.
+
+    //let itemID = (item.title + '|Splitme|' + item.activity);
+    let parent = ev.currentTarget.parentElement;
+    let buttonID = parent.id;
+    let splitID = buttonID.split('|Splitme|');
+
+
+    let e = ev;
+    console.log('_onActivityClick e:', e);
+    console.log('_onActivityClick event:', ev);
+    
     let thisProject = this.state.projects.newFiltered[this.state.selectedProjectIndex];
 
-    let projActivity = thisProject.projActivity;
-    let url = projActivity.href;
+    let projOptions = thisProject.projOptions;
+    let url = projOptions.href;
+
+    if ( splitID[1] != null ) { 
+      splitID[1] = splitID[1].trim();
+      url = url.replace('[Activity]',splitID[1]) ;
+     }
     
     console.log('_onActivityClick item:', url);
     window.open(url, '_blank');
+
+    let formEntry = this.state.formEntry;
+    formEntry.activity = {
+      Description: buttonID.replace('|Splitme|',' - '),
+      Url: url,
+    };
+
+    this.setState({ 
+      formEntry:formEntry, 
+    });
 
   } //End onNavClick
 
@@ -2213,26 +2246,17 @@ public toggleTips = (item: any): void => {
           return iconOptions;
         }
 
-        let projOptions : IProjectOptions = {
-          optionString: p.OptionsTMT,
-          optionArray: pOptions,
-          bgColor: getThisOption(pOptions,'=', 'bgColor'),
-          font: getFontOptions(pOptions,'='),
-          icon: getIconOptions(pOptions,'='),
-
-        };
-
 
         /**
          * Get Project Pre-made Activity Link URL
          */
         let pActivityType = p.ActivityType;  //Label part of Activity Type ( before the | )
-        let pActivityID = p.Activity; //Test value from Activity Column in list
+        let pActivityID = p.ActivityTMT; //Test value from Activity Column in list
         let pActivtyOptionsCalc = p.ActivtyOptionsCalc; //Options for formatting the Icon
         let pActivityOptions = [];
         if ( pActivtyOptionsCalc != null && pActivtyOptionsCalc.length > 0 ) { pActivityOptions = pActivtyOptionsCalc.split(';'); }
 
-        let pActivityURL = p.ActivtyURL;
+        let pActivityURL = p.ActivtyURLCalc;
         // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
         // title special words:  Replace..., IgnoreTitle, Derive
         // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...
@@ -2241,10 +2265,19 @@ public toggleTips = (item: any): void => {
         // Special shortcuts:  title=DeriveType-Activity - uses just Title column to derive Type and Activity fields (not recommended or programmed yet)
         // projActivityRule: string;  //title=NoTitleType-Activity
 
-        // this.state.projActivityRule
-        // projActivity?: IProjActivityURL;
         let showLink = false;
         let thisProjectTitle = p.Title;
+
+        if ( pActivityURL != null && pActivityURL.length > 0 ) {
+          //Intentionally skip ActivityTMT column at this point so it can be multi-mapped later when building the link.
+          pActivityURL = pActivityURL.replace("[Title]",p.Title).replace("[Type]",p.ActivityType);
+          pActivityURL = pActivityURL.replace("[Category1]",p.Category1).replace("[Category2]",p.Category2);
+          pActivityURL = pActivityURL.replace("[ProjectID1]",p.ProjectID1).replace("[ProjectID2]",p.ProjectID2);
+          pActivityURL = pActivityURL.replace("[Story]",p.Story).replace("[Chapter]",p.Chapter);
+          //There is no ActivityURL Formula value so there is no URL to click.
+          showLink = true;
+        } 
+
 
         if ( this.state.projActivityRule.rule === 'Derive' ) {
 
@@ -2256,24 +2289,20 @@ public toggleTips = (item: any): void => {
 
         }
 
-        if ( pActivityURL != null && pActivityURL.length > 0 ) {
-          //There is no ActivityURL Formula value so there is no URL to click.
-          showLink = true;
-        } 
-
-        let projActivity : IProjActivityURL = {
+        let projOptions : IProjectOptions = {
           showLink: showLink,
           activity: pActivityID,
           type: pActivityType,
           href: pActivityURL,
           title: thisProjectTitle,
-          optionString: pActivtyOptionsCalc,
-          optionArray: pActivityOptions,
-          bgColor: getThisOption(pActivityOptions,'=', 'bgColor'),
-          font: getFontOptions(pActivityOptions,'='),
-          icon: getIconOptions(pActivityOptions,'='),
-        };
 
+          optionString: p.OptionsTMT,
+          optionArray: pOptions,
+          bgColor: getThisOption(pOptions,'=', 'bgColor'),
+          font: getFontOptions(pOptions,'='),
+          icon: getIconOptions(pOptions,'='),
+
+        };
 
         //Attempt to split ActivityType by | in case formatting or icon is included.
 
@@ -2303,8 +2332,6 @@ public toggleTips = (item: any): void => {
           id: p.Id,
           editLink: null , //Link to view/edit item link
           titleProject: thisProjectTitle,
-
-          projActivity: projActivity,
 
           comments: this.buildSmartText(p.Comments),
           active: p.Active,

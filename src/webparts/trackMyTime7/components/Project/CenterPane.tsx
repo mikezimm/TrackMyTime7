@@ -5,15 +5,17 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 //import * as links from './AllLinks';
 
 import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
-import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
+import { CompoundButton, Stack, IStackTokens, elementContains, Link, ILinkProps, DefaultButton } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
-import { ITrackMyTime7State, IProjActivityURL } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IProjectOptions } from '../ITrackMyTime7State';
 
 import { ColoredLine, ProjectTitleElement, MyIcon } from '../../../../services/drawServices';
 
 import { createIconButton } from "../createButtons/IconButton";
+
+import styles from '../createButtons/CreateButtons.module.scss';
 
 //import styles from './InfoPane.module.scss';
 
@@ -26,6 +28,13 @@ export const defCenterIconStyle = {
     name: null,
     color: 'green',
     size: 72,
+    weight: null,
+};
+
+export const defSmallCenterIconStyle = {
+    name: null,
+    color: 'green',
+    size: 36,
     weight: null,
 };
 
@@ -108,16 +117,16 @@ public constructor(props:ICenterPaneProps){
         console.log('centerPanes.tsx', this.props, this.state);
 
         //This checks for case where your projects are based on Time items, not the project list.
-        //Time items do not have projActivity prop so it will cause a crash error.
+        //Time items do not have projOptions prop so it will cause a crash error.
         // parentState.projectType === false for a real project and true if it's based on Time items
         let validProject = this.props.parentState.projectType !== false ? null :
             this.props.parentState.projects.newFiltered[this.props.projectIndex];
 
         if ( this.props.allLoaded && this.props.showCenter && this.props.projectIndex > -1  && validProject != null ) {
 
-            let projActivity = validProject.projActivity;
+            let projOptions = validProject.projOptions;
 
-            let ActivityLinkElement = projActivity.showLink == false ? null : this.ActivityLink(projActivity, this.props._onActivityClick);
+            let ActivityLinkElement = projOptions.showLink == false ? null : this.ActivityLink(projOptions, this.props._onActivityClick);
 
             let thisProjectElement = null;
 
@@ -142,41 +151,91 @@ public constructor(props:ICenterPaneProps){
 
     }   //End Public Render
 
-    private ActivityLink(item: IProjActivityURL, _onActivityClick: any) {
+    private ActivityLink(item: IProjectOptions, _onActivityClick: any) {
 
-        let icon: any =  item.showLink === true ? this.ActivityButton(item, _onActivityClick):  MyIcon(item.icon, defCenterIconStyle);
         const stackActivityLink: IStackTokens = { childrenGap: 10 };
 
         let typeSize = item.type.length == 0 ? 20 : Math.min(32, 200 / item.type.length);
         let actSize = item.activity.length == 0 ? 20 : Math.min(32, 200 / item.activity.length);
 
         const elementType: any = React.createElement("span", { style: {fontSize: typeSize, whiteSpace: 'nowrap'} }, item.type);
-        const elementActivity: any = React.createElement("span", { style: {fontSize: actSize, whiteSpace: 'nowrap'} }, item.activity);
+
+        let activityIDs = item.activity.split(';');
+        let icon = null;
+        let elementActivity: any = null;
+        let activityIconElement = null;
+        if ( activityIDs == null || activityIDs.length === 1 ) {
+            icon =  item.showLink === true ? this.ActivityButton(item, _onActivityClick, item.activity, 72):  MyIcon(item.icon, defCenterIconStyle);
+            elementActivity = React.createElement("span", { style: {fontSize: actSize, whiteSpace: 'nowrap'} }, item.activity);
+            activityIconElement = <Stack padding={10} horizontal={false} horizontalAlign={"center"} tokens={stackActivityLink}>
+                <div> { elementActivity } </div> { icon }
+                </Stack>;
+
+        } else if ( activityIDs.length > 2 ) {
+            //Adjust actSize based on number of Icons
+            actSize = Math.min(32, 200 / (item.activity.length / activityIDs.length));
+            activityIconElement = activityIDs.map( activityIDsZZZ => {
+
+                const thisButtonStyles = {root: {
+                    padding:'10px !important', 
+                    //height: rootSize, width: rootSize, id: 'ZZZZZ1234',
+                    fontSize: 24, height: 40, minWidth: 200,
+                    whiteSpace: 'nowrap',
+                    }};//color: 'green' works here,
+
+                let itemID = item.title + '|Splitme|' + activityIDsZZZ;
+                return <div className= {styles.buttonsBig} id={ itemID }>
+                    <DefaultButton 
+                        //href={ url }
+                        styles={ thisButtonStyles  }
+                        text= { activityIDsZZZ } 
+                        onClick={ _onActivityClick } 
+                     /></div>;
+
+            } );
+            activityIconElement = <div> { activityIconElement } </div>;
+
+        } else {
+            //Adjust actSize based on number of Icons
+            actSize = Math.min(32, 200 / (item.activity.length / activityIDs.length));
+            activityIconElement = activityIDs.map( activityIDsZZZ => {
+                icon =  item.showLink === true ? this.ActivityButton(item, _onActivityClick, activityIDsZZZ, 50):  MyIcon(item.icon, defSmallCenterIconStyle);
+                elementActivity = React.createElement("span", { style: {fontSize: actSize, whiteSpace: 'nowrap'} }, activityIDsZZZ);
+                return <Stack padding={0} horizontal={true} horizontalAlign={"start"} verticalAlign={"center"} tokens={stackActivityLink}>
+                         { icon } { elementActivity }
+                    </Stack>;
+            } );
+
+        }
 
         let fullElement: any = <div>
             <Stack padding={10} horizontal={false} horizontalAlign={"center"} tokens={stackActivityLink}> {/* Stack for Projects and body */}
                 <div> { elementType } </div>
-                <div> { elementActivity } </div>
-                { icon }
+                { activityIconElement }
             </Stack>
         </div>;
 
         return fullElement;
     }
 
-    private ActivityButton( item: IProjActivityURL, _onActivityClick: any ){
+    private ActivityButton( item: IProjectOptions, _onActivityClick: any , itemID: string, size: number){
+
+        let rootSize = size;
+        let iconSize = size === 72 ? 56 : size === 50? 40 : 50;
 
         const activityButtonStyles = {
-            root: {padding:'10px !important', height: 72, width: 72},//color: 'green' works here
+            root: {padding:'10px !important', height: rootSize, width: rootSize, id: 'ZZZZZ1234'},//color: 'green' works here
             icon: { 
-            fontSize: item.icon.size ? item.icon.size : 56,
+            fontSize: item.icon.size ? item.icon.size : iconSize,
             fontWeight: item.font.weight ? item.font.weight : "normal",
             margin: '0px 2px',
             color: item.font.color ? item.font.color :'#00457e', //This will set icon color
         },
         };
+
+        itemID = item.title + '|Splitme|' + itemID;
         console.log('ActivityButton item:', item);
-        let activityButton = createIconButton(item.icon.name, item.title, _onActivityClick, activityButtonStyles );
+        let activityButton = createIconButton(item.icon.name, item.title, _onActivityClick, itemID, activityButtonStyles );
 
         return activityButton;
     }

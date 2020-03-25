@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
-import { IProjActivityURL } from '../webparts/trackMyTime7/components/ITrackMyTime7State';
+import { IProjectOptions } from '../webparts/trackMyTime7/components/ITrackMyTime7State';
 
 
 export const ColoredLine = ({ color, height }) => ( <hr style={{ color: color, backgroundColor: color, height: height }}/> );

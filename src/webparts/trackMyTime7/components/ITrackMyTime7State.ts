@@ -210,16 +210,6 @@ export interface IMyIcons{
 
 export interface IProjectOptions{
 
-  optionString?: string;
-  optionArray?: string[];
-  bgColor?: string;
-  font?: IMyFonts;
-  icon?: IMyIcons;
-
-}
-
-
-export interface IProjActivityURL {
   // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
   // title special words:  Replace..., IgnoreTitle, Derive
   // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...
@@ -233,6 +223,7 @@ export interface IProjActivityURL {
   type?: string;
   activity?: string;
   href?: string;
+  firstActivity?: string;
 
   optionString?: string;
   optionArray?: string[];
@@ -269,8 +260,6 @@ export interface IProject {
 
   timeTarget?: IProjectTarget;
   projOptions?: IProjectOptions;
-
-  projActivity?: IProjActivityURL;
 
   //This might be computed at the time page loads
   lastEntry?: any;  //Should be a time entry

@@ -372,21 +372,18 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             //const choicesA2 = await ensureResult.list.fields.getByTitle("ActivityType").update({Title: 'ActivityType'});
 
             fieldDescription = "Used to complete Activity URL based on the selected choice.  Auto Builds Activity Link in TrackMyTime form.";
-            const Activity1: IFieldAddResult = await ensureResult.list.fields.addText("Activity", 255, { Group: columnGroup, Description: fieldDescription });
+            const Activity1: IFieldAddResult = await ensureResult.list.fields.addText("ActivityTMT", 255, { Group: columnGroup, Description: fieldDescription });
+            const Activity1S = await ensureResult.list.fields.getByTitle("ActivityTMT").update({Title: 'Activity'});
 
-            let formula1 = '=IF(ActivityType="Build","https://plm. ..... /enovia/common/emxNavigator.jsp?type=GEOBuildOrder&name="&Activity&"&rev=-&return=specific",IF(ActivityType="Ship","https://alvweb.alv.autoliv.int/PRISM/SalesOrder_List.aspx?Order="&Activity,""))';
+            let formula1 = '=IF(ActivityType="Build","https://plm. ..... /enovia/common/emxNavigator.jsp?type=GEOBuildOrder&name=[Activity]&rev=-&return=specific",IF(ActivityType="Ship","https://alvweb.alv.autoliv.int/PRISM/SalesOrder_List.aspx?Order=[Activity]",IF(ActivityType="TMT Issue","https://github.com/mikezimm/TrackMyTime7/issues/[Activity]",IF(ActivityType="Socialiis Issue","https://github.com/mikezimm/Social-iis-7/issues/[Activity]",IF(ActivityType="Pivot Tiles Issue","https://github.com/mikezimm/Pivot-Tiles/issues/[Activity]","")))))';
             const ActivtyURLCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated("ActivtyURLCalc", formula1, DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
             const ActivtyURLCalc2 = await ensureResult.list.fields.getByTitle("ActivtyURLCalc").update({Title: 'ActivityURL^'});
-
-            let formula2 = '=IF(ISNUMBER(FIND("Ship",ActivityType)),"icon=DeliveryTruck;","")&IF(ISNUMBER(FIND("Build",ActivityType)),"icon=Manufacturing;","")&IF(ISNUMBER(FIND("Expedite",ActivityType)),"icon=Airplane;","")&IF(ISNUMBER(FIND("Drawing",ActivityType)),"icon=Personalize;","")&IF(ISNUMBER(FIND("Idea",ActivityType)),"icon=Lightbulb;","")';
-            const ActivtyURLOptions: IFieldAddResult = await ensureResult.list.fields.addCalculated("ActivtyOptionsCalc", formula2, DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
-            const ActivtyURLOptions2 = await ensureResult.list.fields.getByTitle("ActivtyOptionsCalc").update({Title: 'ActivityOptions^'});
 
             fieldDescription = "Special field for enabling special project level options in the webpart.";
             const OptionsTMT: IFieldAddResult = await ensureResult.list.fields.addText("OptionsTMT", 255, { Group: columnGroup, Description: fieldDescription });
             const OptionsTMT2 = await ensureResult.list.fields.getByTitle("OptionsTMT").update({Title: 'Options'});
 
-            let thisFormula = '=IF(ISNUMBER(FIND("Test",Title)),"icon=TestAutoSolid;","")&IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")';
+            let thisFormula = '=IF(ISNUMBER(FIND("JIRA",ActivityType)),"icon=Info;","")&IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")&IF(ISNUMBER(FIND("Test",Title)),"icon=TestAutoSolid;","")';
             const OptionsTMTCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated('OptionsTMTCalc', thisFormula, DateTimeFieldFormatType.DateOnly, FieldTypes.Text, { Group: columnGroup, Description: fieldDescription });
             const OptionsTMTCalc2 = await ensureResult.list.fields.getByTitle("OptionsTMTCalc").update({Title: 'Options^'});
 
@@ -558,7 +555,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             /**ActivtyOptionsCalc
              * Build Activity View to verify those columns
              */
-            viewXml = '<View Name="{9AF9E93E-088C-4A2D-99E5-951BDC433C4B}" Type="HTML" DisplayName="Activity" Url="/sites/Templates/Tmt/Lists/Projects/Activity.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="Activity" /><FieldRef Name="ActivityType" /><FieldRef Name="ActivtyOptionsCalc" /><FieldRef Name="ActivtyURL" /></ViewFields><ViewData /><Query><GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="ActivityType" Ascending="FALSE" /></GroupBy><OrderBy><FieldRef Name="Activity" Ascending="FALSE" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+            viewXml = '<View Name="{9AF9E93E-088C-4A2D-99E5-951BDC433C4B}" Type="HTML" DisplayName="Activity" Url="/sites/Templates/Tmt/Lists/Projects/Activity.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="ActivityTMT" /><FieldRef Name="ActivityType" /><FieldRef Name="ActivtyOptionsCalc" /><FieldRef Name="ActivtyURLCalc" /></ViewFields><ViewData /><Query><GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="ActivityType" Ascending="FALSE" /></GroupBy><OrderBy><FieldRef Name="ActivityTMT" Ascending="FALSE" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
             const activityView = await ensureResult.list.views.add('Activity');
             await activityView.view.setViewXml(viewXml);
 
