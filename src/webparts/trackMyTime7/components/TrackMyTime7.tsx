@@ -1306,7 +1306,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let buttonID = parent.id;
     let splitID = buttonID.split('|Splitme|');
 
-
     let e = ev;
     console.log('_onActivityClick e:', e);
     console.log('_onActivityClick event:', ev);
@@ -2212,6 +2211,8 @@ public toggleTips = (item: any): void => {
             }
           }
 
+          return theResult;
+
         }
 
         function getFontOptions(arr: string[], splitter: string ) {
@@ -2253,8 +2254,6 @@ public toggleTips = (item: any): void => {
         let pActivityType = p.ActivityType;  //Label part of Activity Type ( before the | )
         let pActivityID = p.ActivityTMT; //Test value from Activity Column in list
         let pActivtyOptionsCalc = p.ActivtyOptionsCalc; //Options for formatting the Icon
-        let pActivityOptions = [];
-        if ( pActivtyOptionsCalc != null && pActivtyOptionsCalc.length > 0 ) { pActivityOptions = pActivtyOptionsCalc.split(';'); }
 
         let pActivityURL = p.ActivtyURLCalc;
         // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
@@ -2268,6 +2267,40 @@ public toggleTips = (item: any): void => {
         let showLink = false;
         let thisProjectTitle = p.Title;
 
+        /**
+         * This is to allow the calculation to add these fields values if the field itself is empty
+         */
+        if ( pOptions.length > 0 ) {
+
+          let checkThis = null;
+
+          checkThis = getThisOption(pOptions, '=', 'Story');
+          if ( checkThis!= null && p.Story == null ) { p.Story = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'Chapter');
+          if ( checkThis!= null && p.Chapter == null ) { p.Chapter = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'Category1');
+          if ( checkThis!= null && p.Category1 == null ) { p.Category1 = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'Category2');
+          if ( checkThis!= null && p.Category2 == null ) { p.Category2 = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'ProjectID1');
+          if ( checkThis!= null && p.ProjectID1 == null ) { p.ProjectID1 = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'ProjectID2');
+          if ( checkThis!= null && p.ProjectID2 == null ) { p.ProjectID2 = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'ActivityTMT');
+          if ( checkThis!= null && p.ActivityTMT == null ) { p.ActivityTMT = checkThis; pActivityID = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'ActivityType');
+          if ( checkThis!= null && p.ActivityType == null ) { p.ActivityType = checkThis; pActivityType = checkThis; }
+
+        }
+
+        
         if ( pActivityURL != null && pActivityURL.length > 0 ) {
           //Intentionally skip ActivityTMT column at this point so it can be multi-mapped later when building the link.
           pActivityURL = pActivityURL.replace("[Title]",p.Title).replace("[Type]",p.ActivityType);
@@ -2276,8 +2309,7 @@ public toggleTips = (item: any): void => {
           pActivityURL = pActivityURL.replace("[Story]",p.Story).replace("[Chapter]",p.Chapter);
           //There is no ActivityURL Formula value so there is no URL to click.
           showLink = true;
-        } 
-
+        }
 
         if ( this.state.projActivityRule.rule === 'Derive' ) {
 

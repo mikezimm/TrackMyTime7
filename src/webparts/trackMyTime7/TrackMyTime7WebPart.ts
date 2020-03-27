@@ -799,7 +799,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
     const list = sp.web.lists.getByTitle("Projects");
     const r = await list.fields();
 
-    let getFields=["Title","Active","Everyone","ProjectID1","ProjectID2","Category1","Category2","Activity","Story","Chapter"];
+    let getFields=["Title","Active","ProjectID1","ProjectID2","Category1","Category2","Activity","Story","Chapter","ActivityTMT","ActivityType"];
 
     let fieldTitles = r.filter(f => f.Hidden !== true && getFields.indexOf(f.StaticName) > -1).map( 
       f => {return [f.StaticName,f.Title,f.Description,f.Required,f.FieldTypeKind];});
