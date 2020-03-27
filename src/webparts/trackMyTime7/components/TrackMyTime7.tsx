@@ -1081,11 +1081,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       formEntry = this.createFormEntry();
     } else {
       formEntry.sourceProjectRef = [this.state.projectListURL, this.state.projectListName, item.id,].join(' || ');
+
+      let splitActivity = item.projOptions.activity.split(";");
+      let activityURL = item.projOptions.href;
+      if ( splitActivity[0] != null ) { 
+        splitActivity[0] = splitActivity[0].trim();
+        activityURL = activityURL.replace('[Activity]',splitActivity[0]) ;
+       }
+
       formEntry.sourceProject = {
         Description: '( ' + item.id + ' ) ' + item.titleProject ,
         Url: this.state.projectListURL + '/DispForm.aspx?ID=' + item.id ,
       };
-  
+
       formEntry.titleProject = item.titleProject;
       formEntry.projectID1  =  item.projectID1;
       formEntry.projectID2  =  item.projectID2;
@@ -1101,7 +1109,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       formEntry.chapter  =  item.chapter;
       formEntry.activity = {
         Description: item.projOptions.type + ' - ' + item.projOptions.activity,
-        Url: item.projOptions.href,
+        Url: activityURL,
       };
     }
 
@@ -2281,10 +2289,10 @@ public toggleTips = (item: any): void => {
           if ( checkThis!= null && p.Chapter == null ) { p.Chapter = checkThis; }
 
           checkThis = getThisOption(pOptions, '=', 'Category1');
-          if ( checkThis!= null && p.Category1 == null ) { p.Category1 = checkThis; }
+          if ( checkThis!= null && p.Category1 == null ) { p.Category1 = [checkThis]; }
 
           checkThis = getThisOption(pOptions, '=', 'Category2');
-          if ( checkThis!= null && p.Category2 == null ) { p.Category2 = checkThis; }
+          if ( checkThis!= null && p.Category2 == null ) { p.Category2 = [checkThis]; }
 
           checkThis = getThisOption(pOptions, '=', 'ProjectID1');
           if ( checkThis!= null && p.ProjectID1 == null ) { p.ProjectID1 = checkThis; }
@@ -2298,6 +2306,19 @@ public toggleTips = (item: any): void => {
           checkThis = getThisOption(pOptions, '=', 'ActivityType');
           if ( checkThis!= null && p.ActivityType == null ) { p.ActivityType = checkThis; pActivityType = checkThis; }
 
+          checkThis = getThisOption(pOptions, '=', 'Active');
+          if ( checkThis!= null ) { 
+            checkThis=checkThis.toLowerCase();
+            if ( checkThis.indexOf('force') === 0 ){
+              checkThis = checkThis.replace('force','');
+              if (checkThis === 'yes') { p.Active = true; }
+              if (checkThis === 'no') { p.Active = false; }
+            } else if ( p.Active == null) {
+              //Only set if the current value is null
+              if (checkThis === 'yes') { p.Active = true; }
+              if (checkThis === 'no') { p.Active = false; }
+            }
+          }
         }
 
         
