@@ -116,16 +116,7 @@ public constructor(props:IFuturePlansProps){
 
             <h3>Please submit any issues or suggestions on github (requires free account)</h3>
               { links.gitRepoTrackMyTime.issues }
-                
-            <h3>FUTURE USE Project List Activity Columns:  Must be used with Property Pane Rule(s)</h3>
-              <p>Activity links on Time entry form can be created using these 2 fields on the Project list.  Set up Choices in Activity Type.  Then create URL rules in Property Pane.  To use, select the Activity Type, then type in an activity.</p>
-              <ul>
-                <li><span className={styles.iColNamU}>Activity Type:</span>Define Choices in column settings like:  <b>GeoTestOrder</b>  and Drawing.  Then Select on Project Item</li>
-                <li><span className={styles.iColNamU}>Prop Pane Rule:</span>https://plm.autoliv.int:10090/enovia/common/emxNavigator.jsp?type=GEOTestOrder&amp;name=?<b>&lt;&lt;GeoTestOrder&gt;&gt;</b>&amp;rev=-&amp;return=specific</li>
-                <li><span className={styles.iColNamU}>Activity:</span>Type in the Geo Test Order such as <b>T2001000664</b>.</li>
-                <li><span className={styles.iColNamU}>Result in webpart:</span>Link to here:  https://plm.autoliv.int:10090/enovia/common/emxNavigator.jsp?type=GEOTestOrder&name=<b>T2001000664</b>&rev=-&return=specific</li>
-              </ul>
-        
+                        
             <h3>FUTURE Use columns (Projects as Tasks):  These may be used in the future for advanced functionality.</h3>
               <ul>
                 <li><span className={styles.iColNamU}>Status:</span>Project column to be used as alternative to 'Active' column.</li>

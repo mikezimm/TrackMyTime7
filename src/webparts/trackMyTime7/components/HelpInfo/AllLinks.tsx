@@ -51,6 +51,13 @@ export const gitRepoPivotTiles = createRepoLinks( baseMyRepos + 'Pivot-Tiles','_
 export const gitRepoSocialiis = createRepoLinks( baseMyRepos + 'Social-iis-7','_blank', 'Social-iis-7' );
 
 
+/**
+ * Track My Time links
+ */
+
+export const gitTMTActivityTypeWiki = createLink( baseMyRepos + 'TrackMyTime7/wiki/ActivityURL%5E-calculated-column-example' , '_blank', 'ActivityType examples' );
+export const gitTMTActivityURLWiki = createLink( baseMyRepos + 'TrackMyTime7/wiki/ActivityURL%5E-calculated-column-example' , '_blank', 'ActivityURL^ Formula examples' );
+export const gitTMTOptionsWiki = createLink( baseMyRepos + 'TrackMyTime7/wiki/Options%5E-calculated-column-example' , '_blank', 'Options^ Formula examples' );
 
 /**
  *  Github Samples

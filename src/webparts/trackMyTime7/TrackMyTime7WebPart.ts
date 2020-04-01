@@ -85,6 +85,7 @@ export interface ITrackMyTimeWebPartProps {
   syncProjectPivotsOnToggle: boolean;  //always keep pivots in sync when toggling projects/history
 
   projectType?:boolean; //Projects = 0 History = 1
+  projActivityRule?: string;  //title=NoTitleType-Activity
 
   // 5 - UI Defaults
   defaultProjectPicker: string; //Recent, Your Projects, All Projects etc...
@@ -219,6 +220,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
         syncProjectPivotsOnToggle: this.properties.syncProjectPivotsOnToggle, //always keep pivots in sync when toggling projects/history
 
         projectType: this.properties.projectType, //Projects = 0 History = 1
+
+        projActivityRule: this.properties.projActivityRule ? this.properties.projActivityRule : 'title=Replace...<Title>: <Type>-<Activity>',  // is same as 'title=<Type>-<Activity>'
 
         // 5 - UI Defaults
         defaultProjectPicker: this.properties.defaultProjectPicker, //Recent, Your Projects, All Projects etc...
@@ -356,26 +359,31 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           fieldSchema = '<Field Type="Text" DisplayName="ProjectID2" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{432aeccc-6f3a-4bf0-b451-6970c0eb292d}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="ProjectID2" Name="ProjectID2" ColName="nvarchar5" RowOrdinal="0" />';
           const projectID2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          if (isProject){
+          if ( isProject ) {
             fieldDescription = "Used by webpart to define targets for charting.";
             fieldSchema = '<Field Type="Text" DisplayName="TimeTarget" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{02c5c9a7-7690-4efe-8e75-404a90654946}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="TimeTarget" Name="TimeTarget" ColName="nvarchar6" RowOrdinal="0" />';
             const timeTarget: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
             fieldDescription = "Used as rule to apply to Project Activy Text to build Activity URL";
-            const choicesA = [`Build`, `Test`, `Deliver`, `Verify`, `Order`];
+            const choicesA = [`Build`, `Test`, `Ship`, `Verify`, `Order`];
           
             //NOTE that allow user fill in is determined by isProject
             const choicesA1 = await ensureResult.list.fields.addChoice("ActivityType", choicesA, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription });
             //const choicesA2 = await ensureResult.list.fields.getByTitle("ActivityType").update({Title: 'ActivityType'});
 
             fieldDescription = "Used to complete Activity URL based on the selected choice.  Auto Builds Activity Link in TrackMyTime form.";
-            const Activity1: IFieldAddResult = await ensureResult.list.fields.addText("Activity", 255, { Group: columnGroup, Description: fieldDescription });
-  
+            const Activity1: IFieldAddResult = await ensureResult.list.fields.addText("ActivityTMT", 255, { Group: columnGroup, Description: fieldDescription });
+            const Activity1S = await ensureResult.list.fields.getByTitle("ActivityTMT").update({Title: 'Activity'});
+
+            let formula1 = '=IF(ActivityType="Build","https://plm. ..... /enovia/common/emxNavigator.jsp?type=GEOBuildOrder&name=[Activity]&rev=-&return=specific",IF(ActivityType="Ship","https://alvweb.alv.autoliv.int/PRISM/SalesOrder_List.aspx?Order=[Activity]",IF(ActivityType="TMT Issue","https://github.com/mikezimm/TrackMyTime7/issues/[Activity]",IF(ActivityType="Socialiis Issue","https://github.com/mikezimm/Social-iis-7/issues/[Activity]",IF(ActivityType="Pivot Tiles Issue","https://github.com/mikezimm/Pivot-Tiles/issues/[Activity]","")))))';
+            const ActivtyURLCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated("ActivtyURLCalc", formula1, DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+            const ActivtyURLCalc2 = await ensureResult.list.fields.getByTitle("ActivtyURLCalc").update({Title: 'ActivityURL^'});
+
             fieldDescription = "Special field for enabling special project level options in the webpart.";
             const OptionsTMT: IFieldAddResult = await ensureResult.list.fields.addText("OptionsTMT", 255, { Group: columnGroup, Description: fieldDescription });
             const OptionsTMT2 = await ensureResult.list.fields.getByTitle("OptionsTMT").update({Title: 'Options'});
 
-            let thisFormula = '=IF(ISNUMBER(FIND("Test",Title)),"icon=TestAutoSolid;","")&IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")';
+            let thisFormula = '=IF(ISNUMBER(FIND("JIRA",ActivityType)),"icon=Info;","")&IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")&IF(ISNUMBER(FIND("Test",Title)),"icon=TestAutoSolid;","")';
             const OptionsTMTCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated('OptionsTMTCalc', thisFormula, DateTimeFieldFormatType.DateOnly, FieldTypes.Text, { Group: columnGroup, Description: fieldDescription });
             const OptionsTMTCalc2 = await ensureResult.list.fields.getByTitle("OptionsTMTCalc").update({Title: 'Options^'});
 
@@ -528,6 +536,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
              viewXml = '<View Name="{E5C88B9A-E4EB-4AD0-A57F-D864B101C03E}" Type="HTML" DisplayName="Options" Url="/sites/Templates/Tmt/Lists/Projects/Options.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="OptionsTMT" /><FieldRef Name="OptionsTMTCalc" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><Toolbar Type="Standard" /><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
              const optionsView = await ensureResult.list.views.add('Options');
              await optionsView.view.setViewXml(viewXml);
+
             /**
              * These are Task related columns
              */
@@ -542,6 +551,13 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
                 await stepView.view.setViewXml(viewXml);
               }
             }
+
+            /**ActivtyOptionsCalc
+             * Build Activity View to verify those columns
+             */
+            viewXml = '<View Name="{9AF9E93E-088C-4A2D-99E5-951BDC433C4B}" Type="HTML" DisplayName="Activity" Url="/sites/Templates/Tmt/Lists/Projects/Activity.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="ActivityTMT" /><FieldRef Name="ActivityType" /><FieldRef Name="ActivtyOptionsCalc" /><FieldRef Name="ActivtyURLCalc" /></ViewFields><ViewData /><Query><GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="ActivityType" Ascending="FALSE" /></GroupBy><OrderBy><FieldRef Name="ActivityTMT" Ascending="FALSE" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+            const activityView = await ensureResult.list.views.add('Activity');
+            await activityView.view.setViewXml(viewXml);
 
           } else if (isTime) { //Add more views for this list
             const V1 = await ensureResult.list.views.add("ActivityURLTesting");
@@ -783,7 +799,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
     const list = sp.web.lists.getByTitle("Projects");
     const r = await list.fields();
 
-    let getFields=["Title","Active","Everyone","ProjectID1","ProjectID2","Category1","Category2","Activity","Story","Chapter"];
+    let getFields=["Title","Active","ProjectID1","ProjectID2","Category1","Category2","Activity","Story","Chapter","ActivityTMT","ActivityType"];
 
     let fieldTitles = r.filter(f => f.Hidden !== true && getFields.indexOf(f.StaticName) > -1).map( 
       f => {return [f.StaticName,f.Title,f.Description,f.Required,f.FieldTypeKind];});

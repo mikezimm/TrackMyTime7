@@ -193,6 +193,7 @@ export const  projectWide2 : IViewField = {
     if ( lineHeight === 'large') { lineHeight = '18px' ; }
 
     if ( iconName && iconName.length ) { thisStyle['line-height'] = lineHeight; }
+    
     const icon: any = iconName && iconName.length > 0 ? <Icon iconName={iconName} styles = {iconStyles}/> : null;
 //    const element: any = React.createElement("span", { style: { color: _color, background : _bgColor } }, item.titleProject);
     const element: any = React.createElement("span", { style: thisStyle }, item.titleProject);

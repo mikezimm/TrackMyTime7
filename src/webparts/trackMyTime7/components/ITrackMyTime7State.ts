@@ -210,6 +210,21 @@ export interface IMyIcons{
 
 export interface IProjectOptions{
 
+  // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
+  // title special words:  Replace..., IgnoreTitle, Derive
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ... 
+  // Special shortcuts:  title=NoTitleType-Activity - replaces Project Title with just the Type-Activity values
+  // Special shortcuts:  title=DeriveType-Activity - uses just Title column to derive Type and Activity fields (not recommended or programmed yet)
+  // projActivityRule: string;  //title=NoTitleType-Activity
+
+  showLink: boolean;
+  title?: string;
+  type?: string;
+  activity?: string;
+  href?: string;
+  firstActivity?: string;
+
   optionString?: string;
   optionArray?: string[];
   bgColor?: string;
@@ -384,6 +399,23 @@ export interface IStory extends IChartSeries {
 
 }
 
+export interface IPropsActivityURL {
+  // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
+  // title special words:  Replace..., IgnoreTitle, Derive
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ... 
+  // Special shortcuts:  title=NoTitleType-Activity - replaces Project Title with just the Type-Activity values
+  // Special shortcuts:  title=DeriveType-Activity - uses just Title column to derive Type and Activity fields (not recommended or programmed yet)
+  // projActivityRule: string;  //title=NoTitleType-Activity
+
+  //projActivityRule
+  rule: string;
+  rules: string[];
+  titleMap: string;  //String with replace variables like Title, Type and Activity
+  titleRule: string;
+
+}
+
 export interface ITrackMyTime7State {
 
   // 0 - Context
@@ -430,6 +462,8 @@ export interface ITrackMyTime7State {
 
   projectType?:boolean; //Projects = 0 History = 1
   syncProjectPivotsOnToggle; //always keep pivots in sync when toggling projects/history
+
+  projActivityRule?: IPropsActivityURL;
 
   // 5 - UI Defaults
   currentProjectPicker: string; //User selection of defaultProjectPicker:  Recent, Your Projects, All Projects etc...

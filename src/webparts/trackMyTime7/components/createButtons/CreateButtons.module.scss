@@ -20,3 +20,8 @@
     border-radius: 5px;
   }
 }
+
+.buttonsBig {
+  @extend .buttons;
+  margin:10px;
+}

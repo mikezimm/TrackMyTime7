@@ -22,6 +22,9 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
 import InfoPage from './HelpInfo/infoPages';
+
+import CenterPane from './Project/CenterPane';
+
 import { ISelectedStory, defStory, ISelectedUser, curUser } from './Charts/chartsPage';
 
 
@@ -35,7 +38,8 @@ import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeS
 import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
         IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
         IChartData, IChartSeries,
-        IMyIcons, IMyFonts, IProjectOptions, IStory, IStories } from './ITrackMyTime7State';
+        IMyIcons, IMyFonts, IProjectOptions, IStory, IStories,
+        IPropsActivityURL } from './ITrackMyTime7State';
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
@@ -116,6 +120,45 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       mask: '',  //Required for building text fields
     };
     return smart;
+  }
+
+  private createActURLRules( projActivityRule: string ) {
+
+  // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
+  // title special words:  Replace..., IgnoreTitle, Derive
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...
+  // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ... 
+  // Special shortcuts:  title=IgnoreTitleType-Activity - replaces Project Title with just the Type-Activity values
+  // Special shortcuts:  title=DeriveType-Activity - uses just Title column to derive Type and Activity fields (not recommended or programmed yet)
+    
+    let specialRule = '';
+    let rules = projActivityRule != null ? projActivityRule.split(';') : null;
+    let titleMap = '';
+    let titleRule = '';
+    // <Type>-<Activity>
+    if ( rules != null ) {
+      for (let r in rules){
+        let theseRules = r.split('=');
+        if ( theseRules != null && theseRules[0] == 'title') { 
+          titleRule = theseRules[1] + '';
+          if ( theseRules[1].indexOf('Replace...') === 0 ) { specialRule = 'Replace'; theseRules[1] = theseRules[1].replace('Replace...',''); }
+          else if ( theseRules[1].indexOf('IgnoreTitle...') === 0 ) { specialRule = 'IgnoreTitle'; theseRules[1] = theseRules[1].replace('IgnoreTitle...',''); }
+          else if ( theseRules[1].indexOf('Derive...') === 0 ) { specialRule = 'Derive'; theseRules[1] = theseRules[1].replace('Derive...',''); }
+          titleMap = theseRules[1];
+          return;
+        }
+      }
+    }
+
+    let result : IPropsActivityURL = {
+      rule: specialRule,
+      rules:  rules,
+      titleMap:  titleMap,  //String with replace variables like Title, Type and Activity
+      titleRule:  titleRule,
+    };
+
+    return result;   
+
   }
 
   private createUser() {
@@ -349,6 +392,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       projectType: this.props.projectType,
       syncProjectPivotsOnToggle: this.props.syncProjectPivotsOnToggle, //always keep pivots in sync when toggling projects/history
 
+      projActivityRule: this.createActURLRules(this.props.projActivityRule),
+
       // 5 - UI Defaults
       currentProjectPicker: '', //User selection of defaultProjectPicker:  Recent, Your Projects, All Projects etc...
       currentTimePicker: this.props.defaultTimePicker, //User selection of :defaultTimePicker  SinceLast, Slider, Manual???
@@ -432,7 +477,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._updateUserFilter = this._updateUserFilter.bind(this);
     this._updateChartFilter = this._updateChartFilter.bind(this);
 
-    
+    this._onActivityClick = this._onActivityClick.bind(this);
+       
   }
 
 
@@ -813,7 +859,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabledFields,  this._updateProjectID1.bind(this));
     let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabledFields,  this._updateProjectID2.bind(this));
 
-    let activity = formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
+    let activity =  formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
+
+    //let activity = ( this.state.projects.newFiltered[this.state.selectedProjectIndex].projActivity.showLink === true ) ? null :
+      //formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
+
 
     let startDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.Start, false, this._updateStart.bind(this)) : '';
     let endDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.End, false, this._updateEnd.bind(this)) : '';
@@ -865,8 +915,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ></ChartsPage>
     </div>;
 
-    let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this) );
-    let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this) );
+    let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this), null, null );
+    let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this), null, null );
+
+    let centerPane = <CenterPane 
+        allLoaded={ true } 
+        projectIndex={ this.state.selectedProjectIndex }
+        showCenter={ true }
+        parentProps= { this.props }
+        parentState= { this.state }
+        _onActivityClick={ this._onActivityClick.bind(this) }
+    ></CenterPane>;
 
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -913,7 +972,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
                 { this.getPivotHelpText(this.state, this.props)}
                 { listProjects }
               </Stack>  {/* Stack for Pivot Help and Projects */}
-
+              { centerPane }
               <Stack horizontal={false} horizontalAlign={"end"} tokens={stackFormRowsTokens}>{/* Stack for Buttons and Fields */}
                 { entryOptions }
                 { (timeSlider) }
@@ -1008,7 +1067,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       console.log('_getSelectedProject error:');
       console.log('_getSelectedProject items:', items);
       console.log('_getSelectedProject item:', item);
-      console.log('_getSelectedProject this.state.projects:',this.state.projects);   
+      console.log('_getSelectedProject this.state.projects:',this.state.projects);
       //item = this.createFormEntry();
     }
 
@@ -1022,11 +1081,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       formEntry = this.createFormEntry();
     } else {
       formEntry.sourceProjectRef = [this.state.projectListURL, this.state.projectListName, item.id,].join(' || ');
+
+      let splitActivity = item.projOptions.activity.split(";");
+      let activityURL = item.projOptions.href;
+      if ( splitActivity[0] != null ) { 
+        splitActivity[0] = splitActivity[0].trim();
+        activityURL = activityURL.replace('[Activity]',splitActivity[0]) ;
+       }
+
       formEntry.sourceProject = {
         Description: '( ' + item.id + ' ) ' + item.titleProject ,
         Url: this.state.projectListURL + '/DispForm.aspx?ID=' + item.id ,
       };
-  
+
       formEntry.titleProject = item.titleProject;
       formEntry.projectID1  =  item.projectID1;
       formEntry.projectID2  =  item.projectID2;
@@ -1040,8 +1107,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       formEntry.ccList  =  item.ccList;
       formEntry.story  =  item.story;
       formEntry.chapter  =  item.chapter;
+      formEntry.activity = {
+        Description: item.projOptions.type + ' - ' + item.projOptions.activity,
+        Url: activityURL,
+      };
     }
-
 
     this.setState({ 
       formEntry:formEntry, 
@@ -1235,6 +1305,44 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
      });
   }
   
+
+  public _onActivityClick = (ev: React.FormEvent<HTMLInputElement>): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+
+    //let itemID = (item.title + '|Splitme|' + item.activity);
+    let parent = ev.currentTarget.parentElement;
+    let buttonID = parent.id;
+    let splitID = buttonID.split('|Splitme|');
+
+    let e = ev;
+    console.log('_onActivityClick e:', e);
+    console.log('_onActivityClick event:', ev);
+    
+    let thisProject = this.state.projects.newFiltered[this.state.selectedProjectIndex];
+
+    let projOptions = thisProject.projOptions;
+    let url = projOptions.href;
+
+    if ( splitID[1] != null ) { 
+      splitID[1] = splitID[1].trim();
+      url = url.replace('[Activity]',splitID[1]) ;
+     }
+    
+    console.log('_onActivityClick item:', url);
+    window.open(url, '_blank');
+
+    let formEntry = this.state.formEntry;
+    formEntry.activity = {
+      Description: buttonID.replace('|Splitme|',' - '),
+      Url: url,
+    };
+
+    this.setState({ 
+      formEntry:formEntry, 
+    });
+
+  } //End onNavClick
+
 /***
  *         d8b   db  .d88b.  d888888b      db    db .d8888. d88888b d8888b. 
  *         888o  88 .8P  Y8. `~~88~~'      88    88 88'  YP 88'     88  `8D 
@@ -2097,6 +2205,7 @@ public toggleTips = (item: any): void => {
         if (p.OptionsTMT != null ) { pOptions = p.OptionsTMT.split(';'); }
         else if ( p.OptionsTMTCalc != null && p.OptionsTMTCalc.length>0 ) { pOptions = p.OptionsTMTCalc.split(';'); }
 
+
         //console.log('p.Options', p.OptionsTMT, pOptions);
 
         function getThisOption(arr: string[], splitter: string, prop: string ) {
@@ -2109,6 +2218,8 @@ public toggleTips = (item: any): void => {
               
             }
           }
+
+          return theResult;
 
         }
 
@@ -2144,7 +2255,100 @@ public toggleTips = (item: any): void => {
           return iconOptions;
         }
 
+
+        /**
+         * Get Project Pre-made Activity Link URL
+         */
+        let pActivityType = p.ActivityType;  //Label part of Activity Type ( before the | )
+        let pActivityID = p.ActivityTMT; //Test value from Activity Column in list
+        let pActivtyOptionsCalc = p.ActivtyOptionsCalc; //Options for formatting the Icon
+
+        let pActivityURL = p.ActivtyURLCalc;
+        // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
+        // title special words:  Replace..., IgnoreTitle, Derive
+        // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...
+        // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ... 
+        // Special shortcuts:  title=NoTitleType-Activity - replaces Project Title with just the Type-Activity values
+        // Special shortcuts:  title=DeriveType-Activity - uses just Title column to derive Type and Activity fields (not recommended or programmed yet)
+        // projActivityRule: string;  //title=NoTitleType-Activity
+
+        let showLink = false;
+        let thisProjectTitle = p.Title;
+
+        /**
+         * This is to allow the calculation to add these fields values if the field itself is empty
+         */
+        if ( pOptions.length > 0 ) {
+
+          let checkThis = null;
+
+          checkThis = getThisOption(pOptions, '=', 'Story');
+          if ( checkThis!= null && p.Story == null ) { p.Story = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'Chapter');
+          if ( checkThis!= null && p.Chapter == null ) { p.Chapter = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'Category1');
+          if ( checkThis!= null && p.Category1 == null ) { p.Category1 = [checkThis]; }
+
+          checkThis = getThisOption(pOptions, '=', 'Category2');
+          if ( checkThis!= null && p.Category2 == null ) { p.Category2 = [checkThis]; }
+
+          checkThis = getThisOption(pOptions, '=', 'ProjectID1');
+          if ( checkThis!= null && p.ProjectID1 == null ) { p.ProjectID1 = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'ProjectID2');
+          if ( checkThis!= null && p.ProjectID2 == null ) { p.ProjectID2 = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'ActivityTMT');
+          if ( checkThis!= null && p.ActivityTMT == null ) { p.ActivityTMT = checkThis; pActivityID = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'ActivityType');
+          if ( checkThis!= null && p.ActivityType == null ) { p.ActivityType = checkThis; pActivityType = checkThis; }
+
+          checkThis = getThisOption(pOptions, '=', 'Active');
+          if ( checkThis!= null ) { 
+            checkThis=checkThis.toLowerCase();
+            if ( checkThis.indexOf('force') === 0 ){
+              checkThis = checkThis.replace('force','');
+              if (checkThis === 'yes') { p.Active = true; }
+              if (checkThis === 'no') { p.Active = false; }
+            } else if ( p.Active == null) {
+              //Only set if the current value is null
+              if (checkThis === 'yes') { p.Active = true; }
+              if (checkThis === 'no') { p.Active = false; }
+            }
+          }
+        }
+
+        
+        if ( pActivityURL != null && pActivityURL.length > 0 ) {
+          //Intentionally skip ActivityTMT column at this point so it can be multi-mapped later when building the link.
+          pActivityURL = pActivityURL.replace("[Title]",p.Title).replace("[Type]",p.ActivityType);
+          pActivityURL = pActivityURL.replace("[Category1]",p.Category1).replace("[Category2]",p.Category2);
+          pActivityURL = pActivityURL.replace("[ProjectID1]",p.ProjectID1).replace("[ProjectID2]",p.ProjectID2);
+          pActivityURL = pActivityURL.replace("[Story]",p.Story).replace("[Chapter]",p.Chapter);
+          //There is no ActivityURL Formula value so there is no URL to click.
+          showLink = true;
+        }
+
+        if ( this.state.projActivityRule.rule === 'Derive' ) {
+
+        } else if ( this.state.projActivityRule.rule === 'Replace' ) {
+          thisProjectTitle = p.Title.replace('<Title>',p.Title).replace('<Type>',pActivityType).replace('<Activity>',pActivityID); 
+
+        } else if ( this.state.projActivityRule.rule === 'IgnoreTitle' ) {
+          thisProjectTitle = this.state.projActivityRule.titleMap.replace('<Type>',pActivityType).replace('<Activity>',pActivityID);
+
+        }
+
         let projOptions : IProjectOptions = {
+          showLink: showLink,
+          activity: pActivityID,
+          type: pActivityType,
+          href: pActivityURL,
+          title: thisProjectTitle,
+
           optionString: p.OptionsTMT,
           optionArray: pOptions,
           bgColor: getThisOption(pOptions,'=', 'bgColor'),
@@ -2152,6 +2356,9 @@ public toggleTips = (item: any): void => {
           icon: getIconOptions(pOptions,'='),
 
         };
+
+        //Attempt to split ActivityType by | in case formatting or icon is included.
+
 
         let leader : IUser = {
           title: 'p.' , //
@@ -2177,7 +2384,8 @@ public toggleTips = (item: any): void => {
           projectType: 'Master',
           id: p.Id,
           editLink: null , //Link to view/edit item link
-          titleProject: p.Title,
+          titleProject: thisProjectTitle,
+
           comments: this.buildSmartText(p.Comments),
           active: p.Active,
           everyone: p.Everyone,
