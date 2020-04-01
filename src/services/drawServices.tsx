@@ -52,7 +52,7 @@ export function MyIcon(item, defIcon) {
 }
 
 
-export const MySpan = ({item}) => ({
+export const MySpan = ({itemX}) => ({
 
     render: (item: any) => {
 

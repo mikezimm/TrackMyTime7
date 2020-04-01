@@ -129,11 +129,12 @@ public constructor(props:IAdvancedProps){
             let options2 = <tr><td></td><td>fWeight=bold;fStyle=italic</td><td>size sets font-weight and font-style</td></tr>;
             let options3 = <tr><td></td><td>fcolor=red;bgColor=yellow</td><td>sets font-color to red, icon-color to green, background to yellow</td></tr>;
 
-            let options4 = <tr><td>Options^</td><td>See calculated column formula as an example</td><td>You can create a formula here to automatically build option text on all your projects.  <br/>If you have anything in the normal Options column, it will over-ride this calculated value.</td></tr>;
+            let options4 = <tr><td>Options^</td><td>{links.gitTMTOptionsWiki}</td><td>You can create a formula here to automatically build option text on all your projects.  <br/>If you have anything in the normal Options column, it will over-ride this calculated value.</td></tr>;
 
-            let activity1 = <tr><td>ActivityOptions^</td><td>See calculated column formula as an example</td><td>You can create a formula here to create Project Links with Icons in the center pane.  Syntax is similar to Icons for defining Icon and Color</td></tr>;
-            
-
+            let activity1 = <tr><td>ActivityType</td><td>Choices: Build; Ship; JIRA.  {links.gitTMTActivityTypeWiki}</td><td>Choices defining typical types of activity.  Used to help build Activity Links with formulas.</td></tr>;
+            let activity2 = <tr><td>Activity</td><td>Example:  B123432</td><td>Number or ID of the Activity Type which can be used to build up the Activity Link with formulas.</td></tr>;
+            let activity3 = <tr><td>ActivityURL^</td><td>{links.gitTMTActivityURLWiki}</td><td>This is the URL that the user can click on in the center panel of the web part when selecting a project.  Have SharePoint calculate the URL you want someone to click on based on the Activity Type and Activity.</td></tr>;
+            let activity4 = <tr><td>Options^</td><td>{links.gitTMTOptionsWiki}</td><td>This is the URL that the user can click on in the center panel of the web part when selecting a project.  Have SharePoint calculate the URL you want someone to click on based on the Activity Type and Activity.</td></tr>;
 
             thisPage = <div>
                 <h2></h2>
@@ -155,7 +156,10 @@ public constructor(props:IAdvancedProps){
                     { options3 }
 
                     { options4 }   
-                    { activity1 }                      
+                    { activity1 }       
+                    { activity2 } 
+                    { activity3 }    
+
                 </table>
             </div>;
 

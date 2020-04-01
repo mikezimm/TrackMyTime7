@@ -148,7 +148,6 @@ public constructor(props:IBasicsProps){
             <h3>FUTURE Plans - See that page for more details</h3>
               <ul>
                 <li><span className={styles.iColNam}>Using Project list like a Task list:</span>See Future Plans for more details</li>
-                <li><span className={styles.iColNam}>Defining Activity Link on Project List:</span>See Future Plans for more details</li>
                 <li><span className={styles.iColNam}>CC (Carbon Copy) Time Entries</span>See Future Plans for more details</li>
               </ul>
 
