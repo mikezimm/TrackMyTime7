@@ -186,21 +186,25 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             filter: "your",
             itemKey: "your",
             data: "Projects where you are the Leader",
+            lastIndex: null,
           },
           { headerText: "Your Team",
             filter: "team",
             itemKey: "team",
             data: "Projects where you are in the Team",
+            lastIndex: null,
           },
           { headerText: "Everyone",
             filter: "everyone",
             itemKey: "everyone",
             data: "Projects where Everyone is marked Yes - overrides other categories",
+            lastIndex: null,
           },
           { headerText: "Others",
             filter: "otherPeople",
             itemKey: "otherPeople",
             data: "Projects where you are not the Leader, nor in the team, and not marked Everyone",
+            lastIndex: null,
           },
         ]
       ,
@@ -210,21 +214,25 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
             filter: "your",
             itemKey: "your",
             data: "History where you are the User",
+            lastIndex: null,
           },
           { headerText: "Your Team",
             filter: "team",
             itemKey: "team",
             data: "History where you are part of the Team, but not the User",
+            lastIndex: null,
           },
           { headerText: "Everyone",
             filter: "everyone",
             itemKey: "everyone",
             data: "Currently not in use",
+            lastIndex: null,
           },
           { headerText: "Others",
             filter: "otherPeople",
             itemKey: "otherPeople",
             data: "History where you are not the Leader, nor in the team, and not marked Everyone",
+            lastIndex: null,
           },
         ]
       ,
@@ -267,6 +275,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     timeEntryTBD3:'',
     location:this.props.defaultLocation,
     settings:'',
+
     };
 
     return form;
@@ -443,6 +452,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       debugColors: false,
 
       lastTrackedClick: null,
+      clickHistory: [],
       allLoaded: false,
 
       listError: false,
@@ -859,7 +869,20 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabledFields,  this._updateProjectID1.bind(this));
     let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabledFields,  this._updateProjectID2.bind(this));
 
-    let activity =  formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
+    let showActivity = true;
+    if (this.state.selectedProjectIndex != null) {
+      if (this.state.projects.newFiltered.length > 0){
+        if (this.state.projects.newFiltered[this.state.selectedProjectIndex]){
+          if (this.state.projects.newFiltered[this.state.selectedProjectIndex].projOptions) {
+            if (this.state.projects.newFiltered[this.state.selectedProjectIndex].projOptions.showLink) {
+              showActivity = false;
+            }
+          }
+        }
+      }
+    }
+
+    let activity =  !showActivity ? null : formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
 
     //let activity = ( this.state.projects.newFiltered[this.state.selectedProjectIndex].projActivity.showLink === true ) ? null :
       //formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
@@ -1071,7 +1094,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       //item = this.createFormEntry();
     }
 
-    let selectedProjectIndex = isItemNull ? this.state.selectedProjectIndex + 1 : this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
+    //2020-04-03:  let selectedProjectIndex = isItemNull ? this.state.selectedProjectIndex + 1 : this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
+    //2020-04-03:  let selectedProjectIndex = isItemNull ? 0 : this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
+
+    let selectedProjectIndex = isItemNull ? this.state.selectedProjectIndex : this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
+
     if (selectedProjectIndex === this.state.selectedProjectIndex) { return ;}
 
 
@@ -1082,11 +1109,22 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     } else {
       formEntry.sourceProjectRef = [this.state.projectListURL, this.state.projectListName, item.id,].join(' || ');
 
-      let splitActivity = item.projOptions.activity.split(";");
-      let activityURL = item.projOptions.href;
-      if ( splitActivity[0] != null ) { 
+      //let splitActivity = item.projOptions.activity != null ? item.projOptions.activity.split(";") : null;
+      let splitActivity = null;
+      let activityURL = null;
+      if ( item.projOptions != null ){
+        if ( item.projOptions.activity != null && item.projOptions.activity.length > 0 ){
+          splitActivity = item.projOptions.activity.split(";");
+        }
+        if ( item.projOptions.href != null && item.projOptions.href.length > 0 ){
+          activityURL = item.projOptions.href;
+        }
+
+      }
+
+      if ( splitActivity != null && splitActivity[0] != null ) { 
         splitActivity[0] = splitActivity[0].trim();
-        activityURL = activityURL.replace('[Activity]',splitActivity[0]) ;
+        activityURL = activityURL = null ? null : activityURL.replace('[Activity]',splitActivity[0]) ;
        }
 
       formEntry.sourceProject = {
@@ -1107,19 +1145,123 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       formEntry.ccList  =  item.ccList;
       formEntry.story  =  item.story;
       formEntry.chapter  =  item.chapter;
-      formEntry.activity = {
-        Description: item.projOptions.type + ' - ' + item.projOptions.activity,
-        Url: activityURL,
-      };
+
+      if ( item.projOptions != null ) {
+        if ( item.projOptions.showLink ) {
+          formEntry.activity = {
+            Description: item.projOptions.type + ' - ' + item.projOptions.activity,
+            Url: activityURL,
+          };
+        } else {
+          formEntry.activity = {
+            Description: null,
+            Url: null,
+          };
+        }
+      }
     }
 
+
+    /**
+     * This section was added to save the selected project index in the Pivot object so it can be retrieved and set when changing pivots.
+     */
+    let statePivots = this.updateStatePivots( this.state.pivots, selectedProjectIndex, this.state.projectType);
+
+    let clickHistory = this.state.clickHistory;
+    let lastTrackedClick = 'Project: ' + formEntry.sourceProject.Description;
+    clickHistory.push(lastTrackedClick);
+
     this.setState({ 
+      pivots: statePivots,
       formEntry:formEntry, 
       blinkOnProject: this.state.blinkOnProject === 1 ? 2 : 1,
       selectedProjectIndex : selectedProjectIndex,
       lastSelectedProjectIndex: this.state.selectedProjectIndex,
-      lastTrackedClick: 'project ' + formEntry.titleProject,
+      lastTrackedClick: lastTrackedClick,
+      clickHistory: clickHistory,
      });
+
+  }
+
+
+//   d888b  d88888b d888888b      .d8888. d888888b  .d8b.  d888888b d88888b      d8888b. d888888b db    db  .d88b.  d888888b .d8888. 
+//  88' Y8b 88'     `~~88~~'      88'  YP `~~88~~' d8' `8b `~~88~~' 88'          88  `8D   `88'   88    88 .8P  Y8. `~~88~~' 88'  YP 
+//  88      88ooooo    88         `8bo.      88    88ooo88    88    88ooooo      88oodD'    88    Y8    8P 88    88    88    `8bo.   
+//  88  ooo 88~~~~~    88           `Y8b.    88    88~~~88    88    88~~~~~      88~~~      88    `8b  d8' 88    88    88      `Y8b. 
+//  88. ~8~ 88.        88         db   8D    88    88   88    88    88.          88        .88.    `8bd8'  `8b  d8'    88    db   8D 
+//   Y888P  Y88888P    YP         `8888Y'    YP    YP   YP    YP    Y88888P      88      Y888888P    YP     `Y88P'     YP    `8888Y' 
+//                                                                                                                                   
+//   
+
+  /**
+   * This section was added to save the selected project index in the Pivot object so it can be retrieved and set when changing pivots.
+   * 
+   * @param statePivots 
+   * @param setLastIndex 
+   * @param projectType 
+   */
+
+  private updateStatePivots( statePivots: IMyPivots, setLastIndex: number, projectType: boolean ){
+
+    let newPivots = statePivots;
+     /**
+     * This section was added to save the selected project index in the Pivot object so it can be retrieved and set when changing pivots.
+     */
+    let pivProj = newPivots.projects;
+    let pivHist = newPivots.history;
+    let pivots = projectType === false ? pivProj : pivHist;
+    let pivotHeader = projectType === false ? this.state.projectMasterPriorityChoice : this.state.projectUserPriorityChoice;  
+
+    //get last index from pivot object... then set it to lastIndex here.
+    for (let p of pivots){
+      if ( p.filter === pivotHeader ) {
+        p.lastIndex = setLastIndex;
+        console.log('1138-Pivot index:', p);
+      }
+    }
+
+    return newPivots;
+
+  }
+  
+//   d888b  d88888b d888888b      d8888b. d888888b db    db      d8888b. d8888b.  .d88b.  d8888b. 
+//  88' Y8b 88'     `~~88~~'      88  `8D   `88'   88    88      88  `8D 88  `8D .8P  Y8. 88  `8D 
+//  88      88ooooo    88         88oodD'    88    Y8    8P      88oodD' 88oobY' 88    88 88oodD' 
+//  88  ooo 88~~~~~    88         88~~~      88    `8b  d8'      88~~~   88`8b   88    88 88~~~   
+//  88. ~8~ 88.        88         88        .88.    `8bd8'       88      88 `88. `8b  d8' 88      
+//   Y888P  Y88888P    YP         88      Y888888P    YP         88      88   YD  `Y88P'  88      
+//                                                                                                
+//                 
+
+/**
+ * 
+ * @param statePivots - copy of this.state.pivots
+ * @param projectType - copy of this.state.projectType (Projects or History driven)
+ * @param pivProp - property of pivot object to compare to
+ * @param propFind - value of pivot object to find
+ * @param returnProp - return property of pivot
+ */
+  private getSStatePivotProp( statePivots: IMyPivots, projectType: boolean, pivProp: string, propFind: string, returnProp: string ){
+
+    let newPivots = statePivots;
+     /**
+     * This section was added to save the selected project index in the Pivot object so it can be retrieved and set when changing pivots.
+     */
+    let pivProj = newPivots.projects;
+    let pivHist = newPivots.history;
+    let pivots = projectType === false ? pivProj : pivHist;
+
+    let returnValue = null;
+
+    //get last index from pivot object... then set it to lastIndex here.
+    for (let p of pivots){
+      if ( p[pivProp] === propFind ) {
+        returnValue = p[returnProp];
+        console.log('1233-get Pivot index:', p);
+      }
+    }
+
+    return returnValue;
 
   }
 
@@ -1566,14 +1708,24 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       console.log('onLinkClick: this.state', this.state);
       
       let thisFilter = [];
-      let pivots = this.state.projectType === false ? this.state.pivots.projects : this.state.pivots.history;  
+      
+      //get last index from pivot object... then set it to lastIndex here.
 
+      let lastIndex = this.getSStatePivotProp( this.state.pivots, this.state.projectType, 'headerText' , item.props.headerText, 'lastIndex' );
+      let thisFilterString = this.getSStatePivotProp( this.state.pivots, this.state.projectType, 'headerText' , item.props.headerText, 'filter' );
+
+      if (thisFilterString != null ) {
+        thisFilter.push(thisFilterString);
+      }
+/*
       for (let p of pivots){
         if ( p.headerText === item.props.headerText ) {
           thisFilter.push(p.filter);
+          lastIndex = p.lastIndex;
         }
       }
       console.log('pivots', pivots);
+      */
       console.log('thisFilter', thisFilter);
 
       let projects = this.state.projects;
@@ -1587,8 +1739,12 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       
       if ( this.state.syncProjectPivotsOnToggle ) {
         newProjectMasterPriorityChoice = thisFilter[0];
-        newProjectUserPriorityChoice = thisFilter[0];        
+        newProjectUserPriorityChoice = thisFilter[0];
       }
+
+      let clickHistory = this.state.clickHistory;
+      let lastTrackedClick = 'Pivot: ' + thisFilter[0];
+      clickHistory.push(lastTrackedClick);
 
       this.setState({
         filteredCategory: item.props.headerText,
@@ -1600,7 +1756,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         searchWhere: ' in ' + item.props.headerText,
         //pivotDefSelKey: defaultSelectedKey,
         blinkOnProject: 0,
-        lastTrackedClick: 'pivot ' + thisFilter[0],
+        lastTrackedClick: lastTrackedClick,
+        clickHistory: clickHistory,
+        selectedProjectIndex: lastIndex,
 
       });
 
@@ -1747,10 +1905,21 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let setPivot = newProjectType ? this.state.projectUserPriorityChoice  :this.state.projectMasterPriorityChoice ;
     projects.newFiltered = this.getTheseProjects(filterThese, [setPivot]);
     
+    let clickHistory = this.state.clickHistory;
+    let lastTrackedClick = 'ToggleType from ' +  this.state.projectType + ' to ' + newProjectType;
+    clickHistory.push(lastTrackedClick);
+
+    let pivotHeader = newProjectType === false ? this.state.projectMasterPriorityChoice : this.state.projectUserPriorityChoice;  
+
+    let selectedProjectIndex = this.getSStatePivotProp( this.state.pivots, newProjectType, 'filter' , pivotHeader, 'lastIndex' );
+
     this.setState({
       projectType: newProjectType,
       projects: projects,
       blinkOnProject: 0,
+      lastTrackedClick: lastTrackedClick,
+      clickHistory: clickHistory,
+      selectedProjectIndex: selectedProjectIndex,
     });
 
 
@@ -1883,9 +2052,15 @@ public toggleTips = (item: any): void => {
 
     let formEntry =this.createFormEntry();
     //console.log('formEntry: currentUser', formEntry);
+
+    let clickHistory = this.state.clickHistory;
+    let lastTrackedClick = 'Clear Input';
+    clickHistory.push(lastTrackedClick);
+
     this.setState({  
       formEntry: formEntry,
-      lastTrackedClick: 'clear',
+      lastTrackedClick: lastTrackedClick,
+      clickHistory: clickHistory,
     });
 
     //this.saveMyTime (this.state.entries.all[0] , 'master');
@@ -2310,6 +2485,7 @@ public toggleTips = (item: any): void => {
           if ( checkThis!= null ) { 
             checkThis=checkThis.toLowerCase();
             if ( checkThis.indexOf('force') === 0 ){
+              //Need to set like this to over-ride the column value already has value like a default:  Active=forceYes or Active=forceNo
               checkThis = checkThis.replace('force','');
               if (checkThis === 'yes') { p.Active = true; }
               if (checkThis === 'no') { p.Active = false; }
