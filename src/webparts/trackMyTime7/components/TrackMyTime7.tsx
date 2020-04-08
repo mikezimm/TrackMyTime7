@@ -2045,6 +2045,7 @@ public toggleTips = (item: any): void => {
     
     this.setState({  
       selectedStory: selectedStory,
+      chartStringFilter: null, //2020-04-08:  Added to clear filter box when updating story
     });
   }
   
@@ -2052,6 +2053,7 @@ public toggleTips = (item: any): void => {
   
     this.setState({  
       selectedUser: selectedUser,
+      chartStringFilter: null, //2020-04-08:  Added to clear filter box when updating story
     });
   }
     
