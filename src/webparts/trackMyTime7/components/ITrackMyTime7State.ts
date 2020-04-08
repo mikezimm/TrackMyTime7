@@ -49,6 +49,7 @@ export interface IEntryInfo {
   lastEntry: ITimeEntry[];
   newFiltered: ITimeEntry[]; //new filtered for search
   dateRange?: number[];
+  firstItem?: ITheTime;
   
 }
 

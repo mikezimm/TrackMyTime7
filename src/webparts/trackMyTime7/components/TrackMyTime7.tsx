@@ -93,6 +93,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     entryInfo.lastFiltered = []; //Last filtered for search
     entryInfo.lastEntry = []; 
     entryInfo.newFiltered = []; //New filtered for search
+    entryInfo.firstItem = null;
     
     return entryInfo;
 
@@ -664,6 +665,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let isSaveButtonDisabled = false;
     let isEndBeforeStart = false;
     
+    let deltaTime = this.state.formEntry == null ? null : getTimeDelta(this.state.formEntry.startTime,this.state.formEntry.endTime,'hours');
+    let allowedHours = this.props.timeSliderMax/60;
+
     if ( this.state.currentTimePicker === 'slider' ) {
       if ( this.state.timeSliderValue == 0 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
       if ( getTimeDelta(this.state.formEntry.endTime, this.state.formEntry.startTime, 'ms') > 0 ) { isEndBeforeStart = true; isSaveButtonDisabled = true; }
@@ -672,10 +676,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
 
     } else if ( this.state.currentTimePicker === 'manual' ) {
-      if ( getTimeDelta(this.state.formEntry.endTime, this.state.formEntry.startTime, 'ms') > 0 ) { isEndBeforeStart = true; isSaveButtonDisabled = true; }
+      if ( deltaTime < 0 ) { isEndBeforeStart = true; isSaveButtonDisabled = true; }
     }
-
-    
 
     if ( isSaveButtonDisabled === false ) {
       if ( this.state.fields.ProjectID1.required ) {
@@ -734,10 +736,20 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       } else if ( this.state.currentTimePicker === 'start' ) {
         theTime = <div>Creates zero minutes entry to start your day</div>;
 
-      } else if ( this.state.currentTimePicker === 'manual' && isEndBeforeStart ) {
-        theTime = <div className={( styles.timeError )}>
-          End Time is BEFORE Start Time, please fix before saving.
-          </div>; 
+      } else if ( this.state.currentTimePicker === 'manual' ) {
+
+        if ( deltaTime != null ) {
+          if ( deltaTime < 0 ) {
+            theTime = <div className={( styles.timeError )}>
+              End Time is BEFORE Start Time, please fix before saving.
+              </div>; 
+  
+          } else if (deltaTime > allowedHours ) {
+            theTime = <div className={( styles.timeError )}>
+              Exceeded max allowed timespan of { allowedHours } hours.
+              </div>; 
+          }
+        }
       }
 
     } else { theTime = ""; }
@@ -2005,11 +2017,17 @@ public toggleTips = (item: any): void => {
         }
       }
 
-      if ( this.state.formEntry.startTime > this.state.formEntry.endTime ) {
-        alert('Please make sure End Time is AFTER start time!');
+      let deltaTime = getTimeDelta(this.state.formEntry.startTime,this.state.formEntry.endTime,'hours');
+      let timeMessage = this.state.formEntry.startTime + ' to ' + this.state.formEntry.endTime;
+      let allowedHours = this.props.timeSliderMax/60;
+      if ( deltaTime < 0 ) {
+        alert('Please make sure End Time is AFTER start time!  ' + timeMessage +  ' or ' + deltaTime + ' hours.');
         return;
       } else if (saveError.length > 0 ) {
         alert('Please enter value in these fields before saving: ' +  saveError);
+        return;
+      } else if (deltaTime > allowedHours ) {
+        alert('Time span seems to be greater than the allowed ' + allowedHours +  ' hours: ' + timeMessage +  ' or ' + deltaTime + ' hours.');
         return;
       } else {
         this.saveMyTime (this.state.formEntry , 'master');
@@ -3019,6 +3037,7 @@ public toggleTips = (item: any): void => {
     dateRange.push(lastEndTime.milliseconds);
 
     let nowEndTime = makeTheTimeObject('');
+    let firstItem = nowEndTime;
     //console.log(JSON.stringify(lastEndTime));
     //alert(lastEndTime);
 
@@ -3111,6 +3130,8 @@ public toggleTips = (item: any): void => {
       if ( thisEntry.thisTimeObj.milliseconds < dateRange[0] ) { dateRange[0] = thisEntry.thisTimeObj.milliseconds; }
       if ( thisEndTime.milliseconds > dateRange[1] ) { dateRange[1] = thisEndTime.milliseconds; }
 
+      if ( thisEntry.thisTimeObj.milliseconds < firstItem.milliseconds ) { firstItem = thisEntry.thisTimeObj }
+
       //Check if project is tagged to you
       if (fromProject.teamIds.indexOf(userId) > -1 ) { team = true; } 
       if (fromProject.leaderId === userId ) { team = true; } 
@@ -3130,21 +3151,7 @@ public toggleTips = (item: any): void => {
 
 
       //Build up options to search on
-      thisEntry.searchStringPC = 
-      ['id:' + thisEntry.id ,
-      'day:' + thisEntry.thisTimeObj.dayYYYYMMDD,
-      'user:' + thisEntry.userTitle ,
-      'story:' + thisEntry.story ,
-      'chapter:' + thisEntry.chapter ,
-      'projects:' + thisEntry.listProjects ,
-      'category:' + thisEntry.listCategory ,
-      'entry:' + thisEntry.entryType ,
-      'titleProject:' + thisEntry.titleProject ,
-      'coreTime:' + thisEntry.coreTime ,
-      'keyChanges:' + thisEntry.keyChanges.join(';') ,
-      'comments:' + thisEntry.comments.value ,
-      ].join(' | ');
-
+      thisEntry.searchStringPC = this.getEntrySearchString(thisEntry);
       thisEntry.searchString = thisEntry.searchStringPC.toLowerCase();
 
       let daysSince = thisEntry.age;
@@ -3260,6 +3267,7 @@ public toggleTips = (item: any): void => {
     stateEntries.newFiltered = allEntries;
     stateEntries.lastFiltered = allEntries;  
     stateEntries.dateRange = dateRange;
+    stateEntries.firstItem = firstItem;
 
     //Change from sinceLast if the time is longer than x- hours ago.
     let hoursSinceLastTime = this.state.currentTimePicker === 'sinceLast' && getTimeDelta( lastEndTime.theTime, new Date() , 'hours');
@@ -3290,6 +3298,29 @@ public toggleTips = (item: any): void => {
     formEntry: formEntry,
     allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.projectsLoadStatus === 'Complete') ? true : false,
    });
+
+  }
+
+
+  private getEntrySearchString(thisEntry: ITimeEntry){
+
+          //Build up options to search on
+          let searchStringPC = 
+          ['id:' + thisEntry.id ,
+          'day:' + thisEntry.thisTimeObj.dayYYYYMMDD,
+          'user:' + thisEntry.userTitle ,
+          'story:' + thisEntry.story ,
+          'chapter:' + thisEntry.chapter ,
+          'projects:' + thisEntry.listProjects ,
+          'category:' + thisEntry.listCategory ,
+          'entry:' + thisEntry.entryType ,
+          'titleProject:' + thisEntry.titleProject ,
+          'coreTime:' + thisEntry.coreTime ,
+          'keyChanges:' + thisEntry.keyChanges.join(';') ,
+          'comments:' + thisEntry.comments.value ,
+          ].join(' | ');
+
+          return searchStringPC;
 
   }
 
@@ -3598,6 +3629,10 @@ public toggleTips = (item: any): void => {
         coreTime : coreTime,
 
       };
+
+      //2020-04-07:  Add search string to state entries so it can be filtered
+      newEntry.searchStringPC = this.getEntrySearchString(newEntry);
+      newEntry.searchString = newEntry.searchStringPC.toLowerCase();
 
       let entries = this.state.entries;
 
