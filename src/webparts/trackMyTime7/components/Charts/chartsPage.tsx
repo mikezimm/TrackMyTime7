@@ -361,7 +361,7 @@ public constructor(props:IChartPageProps){
             />;
 
             const searchBox = <SearchBox 
-              placeholder="Search chart data - any text or Story:Track or ?last20days or ?first20items"
+              placeholder="Search chart data     - ie:  text,    Story:Track,    ?last20days,    ?first20items"
               onChange={ this._onChartFilterChange }
               onSearch={ this._onChartFilterChange }
               onClear={ this._onChartFilterClear }
@@ -1115,9 +1115,9 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
           if ( searchObj.valid === true ) {
             if ( searchObj.bucket === 'last' || searchObj.bucket === 'first' ) {
               if ( searchObj.label === 'items' ) {
-                if ( searchObj.bucket === 'first' && sourceDataIdx > sourceData.length - searchObj.value ) {
+                if ( searchObj.bucket === 'last' && sourceDataIdx > searchObj.value - 1 ) {
                   includeEntry = false;
-                } else if (searchObj.bucket === 'last' && sourceDataIdx < sourceData.length - searchObj.value ) {
+                } else if (searchObj.bucket === 'first' && sourceDataIdx < sourceData.length - searchObj.value ) {
                   includeEntry = false;
                 }
               } else if ( searchObj.label === 'days' ) {

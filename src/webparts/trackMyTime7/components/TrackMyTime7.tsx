@@ -3130,7 +3130,7 @@ public toggleTips = (item: any): void => {
       if ( thisEntry.thisTimeObj.milliseconds < dateRange[0] ) { dateRange[0] = thisEntry.thisTimeObj.milliseconds; }
       if ( thisEndTime.milliseconds > dateRange[1] ) { dateRange[1] = thisEndTime.milliseconds; }
 
-      if ( thisEntry.thisTimeObj.milliseconds < firstItem.milliseconds ) { firstItem = thisEntry.thisTimeObj }
+      if ( thisEntry.thisTimeObj.milliseconds < firstItem.milliseconds ) { firstItem = thisEntry.thisTimeObj; }
 
       //Check if project is tagged to you
       if (fromProject.teamIds.indexOf(userId) > -1 ) { team = true; } 
