@@ -1119,58 +1119,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if (isItemNull) {
       formEntry = this.createFormEntry();
     } else {
-      formEntry.sourceProjectRef = [this.state.projectListURL, this.state.projectListName, item.id,].join(' || ');
+      formEntry = this.updateFormEntry(formEntry, item);
 
-      //let splitActivity = item.projOptions.activity != null ? item.projOptions.activity.split(";") : null;
-      let splitActivity = null;
-      let activityURL = null;
-      if ( item.projOptions != null ){
-        if ( item.projOptions.activity != null && item.projOptions.activity.length > 0 ){
-          splitActivity = item.projOptions.activity.split(";");
-        }
-        if ( item.projOptions.href != null && item.projOptions.href.length > 0 ){
-          activityURL = item.projOptions.href;
-        }
-
-      }
-
-      if ( splitActivity != null && splitActivity[0] != null ) { 
-        splitActivity[0] = splitActivity[0].trim();
-        activityURL = activityURL = null ? null : activityURL.replace('[Activity]',splitActivity[0]) ;
-       }
-
-      formEntry.sourceProject = {
-        Description: '( ' + item.id + ' ) ' + item.titleProject ,
-        Url: this.state.projectListURL + '/DispForm.aspx?ID=' + item.id ,
-      };
-
-      formEntry.titleProject = item.titleProject;
-      formEntry.projectID1  =  item.projectID1;
-      formEntry.projectID2  =  item.projectID2;
-      formEntry.category1  =  item.category1;
-      formEntry.category2  =  item.category2;
-      formEntry.leaderId  =  item.leaderId;
-      formEntry.leader  =  item.leader;
-      formEntry.team  =  item.team;
-      formEntry.teamIds  =  item.teamIds;
-      formEntry.ccEmail  =  item.ccEmail;
-      formEntry.ccList  =  item.ccList;
-      formEntry.story  =  item.story;
-      formEntry.chapter  =  item.chapter;
-
-      if ( item.projOptions != null ) {
-        if ( item.projOptions.showLink ) {
-          formEntry.activity = {
-            Description: item.projOptions.type + ' - ' + item.projOptions.activity,
-            Url: activityURL,
-          };
-        } else {
-          formEntry.activity = {
-            Description: null,
-            Url: null,
-          };
-        }
-      }
     }
 
 
@@ -1195,6 +1145,72 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   }
 
+/**
+ * This updates the entry form given the current form and the selected project.
+ * 
+ * @param formEntryOrig 
+ * @param item 
+ */
+  private updateFormEntry( formEntryOrig: ISaveEntry, item : IProject){
+
+    let formEntry = formEntryOrig;
+
+    formEntry.sourceProjectRef = [this.state.projectListURL, this.state.projectListName, item.id,].join(' || ');
+
+    //let splitActivity = item.projOptions.activity != null ? item.projOptions.activity.split(";") : null;
+    let splitActivity = null;
+    let activityURL = null;
+    if ( item.projOptions != null ){
+      if ( item.projOptions.activity != null && item.projOptions.activity.length > 0 ){
+        splitActivity = item.projOptions.activity.split(";");
+      }
+      if ( item.projOptions.href != null && item.projOptions.href.length > 0 ){
+        activityURL = item.projOptions.href;
+      }
+
+    }
+
+    if ( splitActivity != null && splitActivity[0] != null ) { 
+      splitActivity[0] = splitActivity[0].trim();
+      activityURL = activityURL = null ? null : activityURL.replace('[Activity]',splitActivity[0]) ;
+     }
+
+    formEntry.sourceProject = {
+      Description: '( ' + item.id + ' ) ' + item.titleProject ,
+      Url: this.state.projectListURL + '/DispForm.aspx?ID=' + item.id ,
+    };
+
+    formEntry.titleProject = item.titleProject;
+    formEntry.projectID1  =  item.projectID1;
+    formEntry.projectID2  =  item.projectID2;
+    formEntry.category1  =  item.category1;
+    formEntry.category2  =  item.category2;
+    formEntry.leaderId  =  item.leaderId;
+    formEntry.leader  =  item.leader;
+    formEntry.team  =  item.team;
+    formEntry.teamIds  =  item.teamIds;
+    formEntry.ccEmail  =  item.ccEmail;
+    formEntry.ccList  =  item.ccList;
+    formEntry.story  =  item.story;
+    formEntry.chapter  =  item.chapter;
+
+    if ( item.projOptions != null ) {
+      if ( item.projOptions.showLink ) {
+        formEntry.activity = {
+          Description: item.projOptions.type + ' - ' + item.projOptions.activity,
+          Url: activityURL,
+        };
+      } else {
+        formEntry.activity = {
+          Description: null,
+          Url: null,
+        };
+      }
+    }
+
+    return formEntry;
+
+  }
 
 //   d888b  d88888b d888888b      .d8888. d888888b  .d8b.  d888888b d88888b      d8888b. d888888b db    db  .d88b.  d888888b .d8888. 
 //  88' Y8b 88'     `~~88~~'      88'  YP `~~88~~' d8' `8b `~~88~~' 88'          88  `8D   `88'   88    88 .8P  Y8. `~~88~~' 88'  YP 
