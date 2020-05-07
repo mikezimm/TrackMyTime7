@@ -49,6 +49,7 @@ export interface IEntryInfo {
   lastEntry: ITimeEntry[];
   newFiltered: ITimeEntry[]; //new filtered for search
   dateRange?: number[];
+  firstItem?: ITheTime;
   
 }
 
@@ -302,6 +303,7 @@ export interface IPivot {
   itemKey: string;
   filter?: string;
   data?: string;
+  lastIndex: number;
 }
 
 export interface IMyPivots {
@@ -508,6 +510,7 @@ export interface ITrackMyTime7State {
   selectedProjectIndex?: number;  //Index of selected project
   lastSelectedProjectIndex?: number;  //Index of selected project
   lastTrackedClick?: string;  //Added to trap the bug where you change pivots after you click and unclick a project.
+  clickHistory?: string[];
   loadStatus?: string;
   allLoaded?: boolean;
 

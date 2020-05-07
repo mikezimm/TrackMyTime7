@@ -112,10 +112,18 @@ public constructor(props:IChartUsageProps){
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
     
             let stacked2 = this.props.chartData.coreTimeS.cores.map( s => s );
-            //console.log('stacked2', stacked2);
+            console.log('Rendering Usage:');
+            console.log('stacked2', stacked2);
+            console.log('this.props.chartData.storyIndex', this.props.chartData.storyIndex);
+            console.log('this.props.dataOptions', this.props.dataOptions);
             let chartYearlyCoreTime = createMultiSeries1ScaleCharts('Core time', true, true, stacked2, 
                     this.props.chartData.storyIndex, ChartType.Line, this.props.WebpartWidth, this.props.dataOptions);
 
+            /**     this did not work... errors out chart completely.
+             *      let chartYearlyCoreTime = createMultiSeries1ScaleCharts('Core time', true, true, stacked2, 
+                    null, ChartType.Line, this.props.WebpartWidth, this.props.dataOptions);
+             * 
+            */
 
             let chartLocation = create1SeriesCharts( this.props.chartData.location, ChartType.Doughnut, this.props.dataOptions ) ;    
             let chartContemp = create1SeriesCharts( this.props.chartData.contemp, ChartType.Doughnut, this.props.dataOptions ) ;   

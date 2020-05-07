@@ -89,6 +89,14 @@ export interface IChartPageState {
 
 }
 
+export interface ISearchObject {
+    bucket: string;
+    label: string;
+    value: number;
+    orig: string;
+    rev: string;
+    valid: boolean;
+}
 export const defStory: ISelectedStory = {
     key: "None",
     text: "None",
@@ -353,7 +361,7 @@ public constructor(props:IChartPageProps){
             />;
 
             const searchBox = <SearchBox 
-              placeholder="Search chart data"
+              placeholder="Search chart data     - ie:  text,    Story:Track,    ?last20days,    ?first20items"
               onChange={ this._onChartFilterChange }
               onSearch={ this._onChartFilterChange }
               onClear={ this._onChartFilterClear }
@@ -885,10 +893,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
     function createCoreTimeS(){
       let emptyCoreTimes: ICoreTimes = {
-        titles: ['Early','Normal','Late','Weekend','Holiday'],
+        titles: ['Normal','Early','Late','Weekend','Holiday'],
         cores: [
-          createISeries('Early' , 'Early' , 0,365,1),
           createISeries('Normal' , 'Normal', 0,365,1),
+          createISeries('Early' , 'Early' , 0,365,1),
           createISeries('Late' , 'Late' , 0,365,1),
           createISeries('Weekend' , 'Weekend' , 0,365,1),
           createISeries('Holiday' , 'Holiday' , 0,365,1),
@@ -962,7 +970,64 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
     let chartDataLabel: any [] = []; 
     let runningTotal: number = 0;
 
-    for ( let item of sourceData) {
+    
+    function getDaysOrItems( searchStr: string) {
+
+      const result : ISearchObject = {
+        bucket: null,
+        label: null,
+        value: null,
+        orig: searchStr + '',
+        rev: null,
+        valid: false,
+      };
+      
+      if ( searchStr.indexOf('?last') === 0 ) {
+        searchStr = searchStr.replace('?last','');
+        result.bucket = 'last';
+
+      } else if ( searchStr.indexOf('?first') === 0 ) {
+        searchStr = searchStr.replace('?first','');
+        result.bucket = 'first';
+
+      } 
+
+      result.rev = searchStr;
+
+      let searchStrItems = searchStr.lastIndexOf('items');
+      let searchStrDays = searchStr.lastIndexOf('days');
+
+      if ( searchStrItems > -1 && searchStrItems === searchStr.replace('items','').length ) {
+        //This value should be # of items
+        result.label = 'items';
+        result.value = Number(searchStr.replace('items',''));
+
+      } else if ( searchStrDays > -1 && searchStrDays === searchStr.replace('days','').length ) {
+        //This value should be # of items
+        result.label = 'days';
+        result.value = Number(searchStr.replace('days',''));
+      }
+      
+      if (result.bucket != null && result.label != null && result.value != null ) {
+        result.valid = true;
+
+      }
+
+      console.log('getDaysOrItems result: ', result);
+      return result;
+
+    }
+
+    let searchObj : ISearchObject = null;
+
+    if ( searchString ) {
+        searchObj = getDaysOrItems(searchString);
+    }
+
+    let sourceDataIdx = -1;
+
+    for ( let item of sourceData ) {
+      sourceDataIdx ++;
       //
       let dur = Number(item.duration); //Hours per entry
       let theTime = item.thisTimeObj;
@@ -1038,7 +1103,6 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
         */
       }
 
-
       /**
        * Update Story series
        */
@@ -1046,8 +1110,26 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
       let includeEntry = false;
       if ( story == null || defStory.text === story.text || item.story === story.text ) {
         includeEntry = true;
+
         if ( searchString ) {
-          if ( searchString != 'searchString' ) {
+          if ( searchObj.valid === true ) {
+            if ( searchObj.bucket === 'last' || searchObj.bucket === 'first' ) {
+              if ( searchObj.label === 'items' ) {
+                if ( searchObj.bucket === 'last' && sourceDataIdx > searchObj.value - 1 ) {
+                  includeEntry = false;
+                } else if (searchObj.bucket === 'first' && sourceDataIdx < sourceData.length - searchObj.value ) {
+                  includeEntry = false;
+                }
+              } else if ( searchObj.label === 'days' ) {
+                if (searchObj.bucket === 'last' && item.thisTimeObj.daysAgo > searchObj.value ) {
+                  includeEntry = false;
+                } else if (searchObj.bucket === 'first' && item.thisTimeObj.daysAgo < this.props.entries.firstItem.daysAgo - searchObj.value ) {
+                  includeEntry = false;                  
+                }
+              }
+            }
+
+          } else if ( searchString != 'searchString' ) {
             if ( item.searchString.indexOf(searchString.toLowerCase()) === -1  ) { includeEntry = false; }
           }
         }
@@ -1122,12 +1204,13 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
         chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
         chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
 
-        if (item.hoursEarly) {
-          chartPreData.coreTimeS.cores[0] = updateThisSeries(chartPreData.coreTimeS.cores[0], item.hoursEarly, item.thisTimeObj.daysAgo);
-        }
         if (item.hoursNormal) {
-          chartPreData.coreTimeS.cores[1] = updateThisSeries(chartPreData.coreTimeS.cores[1], item.hoursNormal, item.thisTimeObj.daysAgo);
+          chartPreData.coreTimeS.cores[0] = updateThisSeries(chartPreData.coreTimeS.cores[0], item.hoursNormal, item.thisTimeObj.daysAgo);
         }
+        if (item.hoursEarly) {
+          chartPreData.coreTimeS.cores[1] = updateThisSeries(chartPreData.coreTimeS.cores[1], item.hoursEarly, item.thisTimeObj.daysAgo);
+        }
+      
         if (item.hoursLate) {
           chartPreData.coreTimeS.cores[2] = updateThisSeries(chartPreData.coreTimeS.cores[2], item.hoursLate, item.thisTimeObj.daysAgo);
         }

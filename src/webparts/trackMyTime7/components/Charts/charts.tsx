@@ -317,6 +317,9 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
         }
       ).join();
 
+      //Added this back to just clear that string value from chart.
+      theseValues = null;
+
       let r = Math.random().toString(36).substring(7);
 
       return (
