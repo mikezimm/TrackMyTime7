@@ -893,10 +893,10 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
 
     function createCoreTimeS(){
       let emptyCoreTimes: ICoreTimes = {
-        titles: ['Early','Normal','Late','Weekend','Holiday'],
+        titles: ['Normal','Early','Late','Weekend','Holiday'],
         cores: [
-          createISeries('Early' , 'Early' , 0,365,1),
           createISeries('Normal' , 'Normal', 0,365,1),
+          createISeries('Early' , 'Early' , 0,365,1),
           createISeries('Late' , 'Late' , 0,365,1),
           createISeries('Weekend' , 'Weekend' , 0,365,1),
           createISeries('Holiday' , 'Holiday' , 0,365,1),
@@ -1204,12 +1204,13 @@ private _updateChoice(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGrou
         chartPreData.allMonths = updateThisSeries(chartPreData.allMonths, dur, item.thisTimeObj.daysSinceMonthStart);
         chartPreData.allYears = updateThisSeries(chartPreData.allYears, dur, item.thisTimeObj.daysSinceNewYear);
 
-        if (item.hoursEarly) {
-          chartPreData.coreTimeS.cores[0] = updateThisSeries(chartPreData.coreTimeS.cores[0], item.hoursEarly, item.thisTimeObj.daysAgo);
-        }
         if (item.hoursNormal) {
-          chartPreData.coreTimeS.cores[1] = updateThisSeries(chartPreData.coreTimeS.cores[1], item.hoursNormal, item.thisTimeObj.daysAgo);
+          chartPreData.coreTimeS.cores[0] = updateThisSeries(chartPreData.coreTimeS.cores[0], item.hoursNormal, item.thisTimeObj.daysAgo);
         }
+        if (item.hoursEarly) {
+          chartPreData.coreTimeS.cores[1] = updateThisSeries(chartPreData.coreTimeS.cores[1], item.hoursEarly, item.thisTimeObj.daysAgo);
+        }
+      
         if (item.hoursLate) {
           chartPreData.coreTimeS.cores[2] = updateThisSeries(chartPreData.coreTimeS.cores[2], item.hoursLate, item.thisTimeObj.daysAgo);
         }

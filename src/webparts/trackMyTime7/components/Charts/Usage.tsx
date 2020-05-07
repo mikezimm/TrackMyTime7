@@ -112,7 +112,10 @@ public constructor(props:IChartUsageProps){
             const stackChartTokens: IStackTokens = { childrenGap: 30 };
     
             let stacked2 = this.props.chartData.coreTimeS.cores.map( s => s );
-            //console.log('stacked2', stacked2);
+            console.log('Rendering Usage:');
+            console.log('stacked2', stacked2);
+            console.log('this.props.chartData.storyIndex', this.props.chartData.storyIndex);
+            console.log('this.props.dataOptions', this.props.dataOptions);
             let chartYearlyCoreTime = createMultiSeries1ScaleCharts('Core time', true, true, stacked2, 
                     this.props.chartData.storyIndex, ChartType.Line, this.props.WebpartWidth, this.props.dataOptions);
 
