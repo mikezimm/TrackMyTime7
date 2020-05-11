@@ -1482,6 +1482,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     //let itemID = (item.title + '|Splitme|' + item.activity);
     let parent = ev.currentTarget.parentElement;
     let buttonID = parent.id;
+
+    //2020-05-11:  Issue 44 Added so activity can have / or \ from partial URLs
+    buttonID = buttonID.replace(/forwardSSlash/gi, '\/');
+    buttonID = buttonID.replace(/backwardSSlash/gi, '\\');
+
     let splitID = buttonID.split('|Splitme|');
 
     let e = ev;
