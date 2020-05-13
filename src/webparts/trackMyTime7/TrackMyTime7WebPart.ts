@@ -322,9 +322,12 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           let columnGroup = 'TrackTimeProject';
 
           let fieldDescription = "Used by webpart to put inactive projects into different category for convenience";
-          let fieldSchema = '<Field DisplayName="Active" Description="' +  fieldDescription + '" Format="Dropdown" Name="Active" Title="Active" Type="Boolean" ID="{d738a4f4-b23d-409d-a72e-8a09a6cd78a8}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Active" ColName="bit1" RowOrdinal="0"><Default>1</Default></Field>';
-          const active: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+          
+          //2020-05-13:  Replace Active with Status
+          //let fieldSchema = '<Field DisplayName="Active" Description="' +  fieldDescription + '" Format="Dropdown" Name="Active" Title="Active" Type="Boolean" ID="{d738a4f4-b23d-409d-a72e-8a09a6cd78a8}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Active" ColName="bit1" RowOrdinal="0"><Default>1</Default></Field>';
+          //const active: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
+          let fieldSchema = '';
           if (isProject){
             fieldDescription = "Used by webpart to sort list of projects";
             fieldSchema = '<Field Type="Number" DisplayName="SortOrder" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Min="0" Max="1000" Decimals="1" ID="{a65f6333-dd5d-49af-acf9-68f1606052f2}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="SortOrder" Name="SortOrder" ColName="float1" RowOrdinal="0" />';
@@ -406,7 +409,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
            * Choices from current smile list
            * 0. Not Started;1. Under Review;2. In Process;3. Verify;4. Complete;5. Rejected;9. Cancelled;
            */
-          const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `9. Rejected`, `9. Cancelled`];
+          const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Rejected`, `9. Cancelled`];
           
           //NOTE that allow user fill in is determined by isProject
           const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", choices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription, DefaultFormula:'="0. Review"' });
@@ -430,9 +433,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
   
             }
   
-            const effectiveStatus: IFieldAddResult = await ensureResult.list.fields.addCalculated("EffectiveStatus", '=(IF([StatusNumber]=9,9,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0)))))))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+            const effectiveStatus: IFieldAddResult = await ensureResult.list.fields.addCalculated("EffectiveStatus", '=(IF([StatusNumber]=9,9,IF([StatusNumber]=8,8,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0))))))))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
             const stepCheck2: IFieldAddResult = await ensureResult.list.fields.addCalculated('IsOpen', '=IF(EffectiveStatus<4,"Yes","No") ', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });  
-
 
             // Need to add DueDate column at some point.          
             //const dueDate: IField = await sp.web.fields.getByInternalNameOrTitle('TaskDueDate');
@@ -520,9 +522,11 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
           let viewXml = '';
           if (isTime) { //View schema specific for Time
-            viewXml = '<View Name="{C7E59C90-7F68-4A19-96C8-73BB66C1A7A8}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/TrackMyTime/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE" /></OrderBy></Query><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="Active" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="User" /><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /><FieldRef Name="Hours" /><FieldRef Name="Minutes" /><FieldRef Name="Days" /><FieldRef Name="Location" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="EntryType" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /><FieldRef Name="DeltaT" /><FieldRef Name="Activity" /><FieldRef Name="Comments" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><CustomFormatter /><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+            //2020-05-13:  Replace Active with StatusTMT
+            viewXml = '<View Name="{C7E59C90-7F68-4A19-96C8-73BB66C1A7A8}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/TrackMyTime/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE" /></OrderBy></Query><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="StatusTMT" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="User" /><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /><FieldRef Name="Hours" /><FieldRef Name="Minutes" /><FieldRef Name="Days" /><FieldRef Name="Location" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="EntryType" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /><FieldRef Name="DeltaT" /><FieldRef Name="Activity" /><FieldRef Name="Comments" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><CustomFormatter /><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
           } else {
-            viewXml = '<View Name="{B02AD2F6-34B3-4AF9-BA56-4B29BF28C49E}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/Projects/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="Active" /><FieldRef Name="SortOrder" /><FieldRef Name="LinkTitle" /><FieldRef Name="Everyone" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /><FieldRef Name="TimeTarget" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="Active" /><CustomFormatter /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+            //2020-05-13:  Replace Active with StatusTMT
+            viewXml = '<View Name="{B02AD2F6-34B3-4AF9-BA56-4B29BF28C49E}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/Templates/Tmt/Lists/Projects/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="SortOrder" /><FieldRef Name="LinkTitle" /><FieldRef Name="Everyone" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="Story" /><FieldRef Name="Chapter" /><FieldRef Name="TimeTarget" /><FieldRef Name="CCList" /><FieldRef Name="CCEmail" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="SortOrder" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="StatusTMT" /><CustomFormatter /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
           }
 
           await ensureResult.list.views.getByTitle('All Items').setViewXml(viewXml);
@@ -543,7 +547,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             let orderBy = '<OrderBy><FieldRef Name="DueDateTMT" /></OrderBy>';     
 
             for (let i = 0; i < 10; i++) {
-              if (i < 6 || i === 9) {
+              if (i < 6 || i === 8 || i === 9) {
                 let stepLabel = 'Step' + i + '.All';
                 //viewXml = '<View Name="{AC0C86EB-A3DA-4973-AFE1-BD9246F334' + i + i + '}" DefaultView="TRUE" MobileView="TRUE" Type="HTML" DisplayName="' + stepLabel + '" Url="/sites/Templates/ScriptTesting/Lists/Projects/' + stepLabel + '.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">' + orderBy + '<Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">' + i + '</Value></Eq></Where></Query><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="TaskDueDate" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
                 viewXml = '<View Name="{331C141E-B5C3-4786-A5C6-FD1749A4A3' + i + i + '}" Type="HTML" DisplayName="' + stepLabel + '" Url="/sites/Templates/ScriptTesting/Lists/Projects/' + stepLabel + '.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="DueDateTMT" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><ViewData /><Query>' + orderBy + '<Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">' + i + '</Value></Eq></Where></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
@@ -560,6 +564,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             await activityView.view.setViewXml(viewXml);
 
           } else if (isTime) { //Add more views for this list
+
             const V1 = await ensureResult.list.views.add("ActivityURLTesting");
             viewXml = '<View Name="{E76C719C-F90D-4F81-9306-5F83E2FB4AB4}" Type="HTML" DisplayName="ActivityURLTesting" Url="/sites/Templates/Tmt/Lists/TrackMyTime/ActivityURLTesting.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="ID" /><FieldRef Name="LinkTitle" /><FieldRef Name="Category1" /><FieldRef Name="Category2" /><FieldRef Name="ProjectID1" /><FieldRef Name="ProjectID2" /><FieldRef Name="Activity" /><FieldRef Name="Comments" /><FieldRef Name="User" /><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /></ViewFields><ViewData /><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE" /></OrderBy></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><Toolbar Type="Standard" /><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
             await V1.view.setViewXml(viewXml);
@@ -647,7 +652,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
           console.log('what about this?');
           try {
-            const field2 = await ensureResult.list.fields.getByInternalNameOrTitle("Active").get();
+            //2020-05-13:  Replace Active with StatusTMT
+            //const field2 = await ensureResult.list.fields.getByInternalNameOrTitle("Active").get();
             if (isProject) { const field3 = await ensureResult.list.fields.getByInternalNameOrTitle("SortOrder").get(); }
             if (isProject) { const field4 = await ensureResult.list.fields.getByInternalNameOrTitle("Everyone").get(); }
             const field5 = await ensureResult.list.fields.getByInternalNameOrTitle("Leader").get();
@@ -799,7 +805,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
     const list = sp.web.lists.getByTitle("Projects");
     const r = await list.fields();
 
-    let getFields=["Title","Active","ProjectID1","ProjectID2","Category1","Category2","Activity","Story","Chapter","ActivityTMT","ActivityType"];
+    //2020-05-13:  Remove Active since it's replaced with StatusTMT which is not applicable here
+    let getFields=["Title","ProjectID1","ProjectID2","Category1","Category2","Activity","Story","Chapter","ActivityTMT","ActivityType"];
 
     let fieldTitles = r.filter(f => f.Hidden !== true && getFields.indexOf(f.StaticName) > -1).map( 
       f => {return [f.StaticName,f.Title,f.Description,f.Required,f.FieldTypeKind];});
