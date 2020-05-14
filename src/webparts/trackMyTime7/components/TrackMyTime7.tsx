@@ -110,15 +110,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private convertStatusToActive(statusNumber) {
 
     let active: boolean = true;
-    if ( statusNumber === '9' ) {
+    if ( statusNumber == 9 ) {
       active = null;
-    } else if ( statusNumber === '8' ) {
+    } else if ( statusNumber == 8 ) {
       active = false;
     }
     
     return active;
     
   }
+
   private createLink(){
     let link : ILink = {
       Description: '',
@@ -128,6 +129,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     return link;
 
   }
+
   private createSmartText(title, name) {
     let smart : ISmartText = {
       value: '',
@@ -2971,11 +2973,9 @@ public toggleTips = (item: any): void => {
       if (fromProject.teamIds && fromProject.teamIds.indexOf(userId) > -1 ) { team = true; }
       if (fromProject.leaderId === userId ) { yours = true; }
       
-      //Check if project is Active
-      isActive = true;
-      if ( !this.props.onlyActiveProjects && fromProject.active === false ) { isActive = false; }      
 
-      if ( !isActive ) { fromProject.filterFlags.push('closed') ; countThese = 'closed'; }
+      if ( fromProject.active === null ) { fromProject.filterFlags.push('closed') ; countThese = 'closed'; }
+      else if ( fromProject.active === false ) { fromProject.filterFlags.push('parkingLot') ; countThese = 'parkingLot'; }
       else if ( fromProject.everyone ) { fromProject.filterFlags.push('everyone') ; countThese = 'everyone'; }
       else if ( yours ) { fromProject.filterFlags.push('your') ; countThese = 'your'; }
       else if ( team ) { fromProject.filterFlags.push('team') ; countThese = 'team'; }
