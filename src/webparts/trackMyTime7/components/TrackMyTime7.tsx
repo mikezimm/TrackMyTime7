@@ -99,6 +99,27 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   }
 
+  /**
+   * 
+   * @param statusNumber This converts status number to the project active property
+   * active = true: project shows up in the "Yours, Team, Others, Everyone" bucket
+   * active = false: project shows up in the parking lot bucket
+   * active = null:  project is in the Inactive/Closed bucket
+   */
+
+  private convertStatusToActive(statusNumber) {
+
+    let active: boolean = true;
+    if ( statusNumber == 9 ) {
+      active = null;
+    } else if ( statusNumber == 8 ) {
+      active = false;
+    }
+    
+    return active;
+    
+  }
+
   private createLink(){
     let link : ILink = {
       Description: '',
@@ -108,6 +129,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     return link;
 
   }
+
   private createSmartText(title, name) {
     let smart : ISmartText = {
       value: '',
@@ -178,7 +200,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   }
 
-  private createPivotData(){
+  private createPivotData(onlyActiveProjects:boolean){
     // Using https://stackoverflow.com/questions/3103962/converting-html-string-into-dom-elements
     let pivots : IMyPivots = {
       projects: 
@@ -238,6 +260,25 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         ]
       ,
     };
+
+    pivots.projects.push(
+      { headerText: "Parking lot",
+      filter: "parkingLot",
+      itemKey: "parkingLot",
+      data: "Projects on hold or in parking lot",
+      lastIndex: null,
+    });
+
+    if ( !onlyActiveProjects ) { 
+      pivots.projects.push(
+        { headerText: "Closed",
+        filter: "closed",
+        itemKey: "closed",
+        data: "Inactive or closed projects",
+        lastIndex: null,
+      }
+      );
+    }
 
     return pivots;
 
@@ -378,7 +419,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       // 3 - General how accurate do you want this to be
 
       // 4 -Project options
-      pivots: this.createPivotData(),
+      pivots: this.createPivotData(this.props.onlyActiveProjects),
       projects: this.createprojectInfo(),
       entries: this.createEntryInfo(),
       
@@ -2604,7 +2645,8 @@ public toggleTips = (item: any): void => {
           titleProject: thisProjectTitle,
 
           comments: this.buildSmartText(p.Comments),
-          active: p.Active,
+          //2020-05-13:  Replace Active with StatusTMT  when Status = 9 then active = null, Status = 8 then active = false else true
+          active: this.convertStatusToActive(p.StatusNumber),
           everyone: p.Everyone,
           sort: p.Sort,
 
@@ -2741,6 +2783,10 @@ public toggleTips = (item: any): void => {
           editLink: null , //Link to view/edit item link
           titleProject : item.Title ,
           comments: this.buildSmartText(item.Comments),
+          
+          //2020-05-13:  Replace Active with StatusTMT  when Status = 9 then active = null, Status = 8 then active = false else true
+          active: this.convertStatusToActive(item.StatusNumber),
+
           category1 : item.Category1 ,
           category2 : item.Category2 ,
 
@@ -2921,17 +2967,21 @@ public toggleTips = (item: any): void => {
      for (let i = 0; i < projectData.length; i++ ) {
       let countThese = "all";
       let fromProject = projectData[i];
-      let yours, team :boolean = false;
+      let yours, team, isActive :boolean = false;
 
       //Check if project is tagged to you
       if (fromProject.teamIds && fromProject.teamIds.indexOf(userId) > -1 ) { team = true; }
       if (fromProject.leaderId === userId ) { yours = true; }
-      if (fromProject.everyone) { fromProject.filterFlags.push('everyone') ; countThese = 'everyone'; }
-      else if (yours) { fromProject.filterFlags.push('your') ; countThese = 'your'; }
-      else if (team) { fromProject.filterFlags.push('team') ; countThese = 'team'; }
-      else { fromProject.filterFlags.push('otherPeople') ; countThese = 'otherPeople'; }
+      
+
+      if ( fromProject.active === null ) { fromProject.filterFlags.push('closed') ; countThese = 'closed'; }
+      else if ( fromProject.active === false ) { fromProject.filterFlags.push('parkingLot') ; countThese = 'parkingLot'; }
+      else if ( fromProject.everyone ) { fromProject.filterFlags.push('everyone') ; countThese = 'everyone'; }
+      else if ( yours ) { fromProject.filterFlags.push('your') ; countThese = 'your'; }
+      else if ( team ) { fromProject.filterFlags.push('team') ; countThese = 'team'; }
+      else { fromProject.filterFlags.push('otherPeople' ) ; countThese = 'otherPeople'; }
       fromProject.key = this.getProjectKey(fromProject);
-      if (masterKeys.indexOf(fromProject.key) < 0) { 
+      if ( masterKeys.indexOf(fromProject.key) < 0 ) { 
         //This is a new project, add
         master.push(fromProject);
         masterKeys.push(fromProject.key);

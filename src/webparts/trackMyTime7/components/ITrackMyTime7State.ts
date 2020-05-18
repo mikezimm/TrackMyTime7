@@ -123,6 +123,8 @@ export interface ITimeEntry extends ISaveEntry {
     listProjects?: string;
     listTracking?: string; 
     listComments?: string;
+    active?: boolean;  //Used to indicate inactive projects
+
   
     filterFlags?: string[]; // what flags does this match?  yourRecent, allRecent etc...
     timeGroup?: string; //Used for grouping the list of entries

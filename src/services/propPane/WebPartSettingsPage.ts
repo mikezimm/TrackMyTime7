@@ -133,7 +133,7 @@ import {
                 label: strings.FieldLabel_OnlyActiveProjects,
                 offText: strings.FieldLabel_ToggleTextOff,
                 onText: strings.FieldLabel_ToggleTextOn,
-                disabled: true,
+                //disabled: true,
               }),
 
               PropertyPaneToggle('allowUserProjects', {
