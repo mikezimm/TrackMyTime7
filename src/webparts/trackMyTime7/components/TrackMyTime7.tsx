@@ -61,6 +61,8 @@ import * as sliderBuilders from './fields/sliderFieldBuilder';
 import * as smartLinks from './ActivityURL/ActivityURLMasks';
 import * as dateBuilders from './fields/dateFieldBuilder';
 
+import  { ICommandBarState, ICommandBarProps} from './Project/ProjectCommandBar';
+import MyCommandBar from './Project/ProjectCommandBar';
   
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
@@ -530,7 +532,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._updateChartFilter = this._updateChartFilter.bind(this);
 
     this._onActivityClick = this._onActivityClick.bind(this);
-       
+
+    this._newProject = this._newProject.bind(this);
+    this._editProject = this._editProject.bind(this);
+    this._copyProject = this._copyProject.bind(this);
+    this._parkProject = this._parkProject.bind(this);
+    this._rejectProject = this._rejectProject.bind(this);
+    this._completeProject = this._completeProject.bind(this);      
   }
 
 
@@ -1003,6 +1011,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         _onActivityClick={ this._onActivityClick.bind(this) }
     ></CenterPane>;
 
+    const projCommands = <div>
+      <MyCommandBar 
+        newProject={ this._newProject.bind(this) }
+        editProject={ this._editProject.bind(this) }
+        copyProject={ this._copyProject.bind(this) }
+        parkProject={ this._parkProject.bind(this) }
+        rejectProject={ this._rejectProject.bind(this) }
+        completeProject={ this._completeProject.bind(this) }
+      ></MyCommandBar>
+    </div>
+;
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
  *                   88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
@@ -1046,6 +1065,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
               { /* this.createProjectChoices(this.state) */ }
               <Stack horizontal={false} horizontalAlign={"start"} tokens={stackFormRowsTokens}>{/* Stack for Pivot Help and Projects */}
                 { this.getPivotHelpText(this.state, this.props)}
+                { projCommands }
                 { listProjects }
               </Stack>  {/* Stack for Pivot Help and Projects */}
               { centerPane }
@@ -1083,6 +1103,47 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     );
   }
 
+/***
+ *    d8888b. d8888b.  .d88b.     d88b       .o88b.  .d88b.  .88b  d88. .88b  d88.  .d8b.  d8b   db d8888b. .d8888. 
+ *    88  `8D 88  `8D .8P  Y8.    `8P'      d8P  Y8 .8P  Y8. 88'YbdP`88 88'YbdP`88 d8' `8b 888o  88 88  `8D 88'  YP 
+ *    88oodD' 88oobY' 88    88     88       8P      88    88 88  88  88 88  88  88 88ooo88 88V8o 88 88   88 `8bo.   
+ *    88~~~   88`8b   88    88     88       8b      88    88 88  88  88 88  88  88 88~~~88 88 V8o88 88   88   `Y8b. 
+ *    88      88 `88. `8b  d8' db. 88       Y8b  d8 `8b  d8' 88  88  88 88  88  88 88   88 88  V888 88  .8D db   8D 
+ *    88      88   YD  `Y88P'  Y8888P        `Y88P'  `Y88P'  YP  YP  YP YP  YP  YP YP   YP VP   V8P Y8888D' `8888Y' 
+ *                                                                                                                  
+ *                                                                                                                  
+ */
+
+  private _newProject(){
+    alert('Clicked _newProject!');
+    this.setState({ 
+     });
+  }
+  private _editProject(){
+    alert('Clicked _editProject!');
+    this.setState({ 
+     });
+  }
+  private _copyProject(){
+    alert('Clicked _copyProject!');
+    this.setState({ 
+     });
+  }
+  private _parkProject(){
+    alert('Clicked _parkProject!');
+    this.setState({ 
+     });
+  }
+  private _rejectProject(){
+    alert('Clicked _rejectProject!');
+    this.setState({ 
+     });
+  }
+  private _completeProject(){
+    alert('Clicked _completeProject!');
+    this.setState({ 
+     });
+  }
 
   /***
  *          d888b  d88888b d888888b      d8888b. d8888b.  .d88b.     d88b d88888b  .o88b. d888888b .d8888. 
