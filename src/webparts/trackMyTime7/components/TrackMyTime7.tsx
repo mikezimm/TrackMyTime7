@@ -810,7 +810,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           <li>{ this.props.projectListWeb } &lt;&lt;== Project Web</li>
           <li>{ this.props.tenant } &lt;&lt;== Should have this in it</li>
         </ul>
-
     </div>;
 
     const timeWebError = this.props.timeTrackListWeb.indexOf(this.props.tenant) > -1 ? '' :
