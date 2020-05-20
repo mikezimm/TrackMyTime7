@@ -478,6 +478,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       //selectedProjectIndex: null,  Adding these 2 sets the default as the first project ever time, then the number of the selection stays between pivots.
       //lastSelectedProjectIndex: null,
+
+      showProjectScreen: false,
+
       loadOrder: "",
       projectsLoadStatus:"Loading",
       projectsLoadError: "",
@@ -673,6 +676,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   public render(): React.ReactElement<ITrackMyTime7Props> {
 
+    const showTimeProject = this.state.showProjectScreen ;
     const isSinceEntry = this.state.currentTimePicker === 'sinceLast' ? true : false;   
     const isSliderEntry = this.state.currentTimePicker === 'slider' ? true : false;
     const isManualEntry = this.state.currentTimePicker === 'manual' ? true : false;

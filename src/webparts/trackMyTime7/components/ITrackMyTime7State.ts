@@ -509,6 +509,8 @@ export interface ITrackMyTime7State {
 
   // 9 - Other web part options
 
+  showProjectScreen?: boolean | 'edit' | 'copy' | 'new';
+
   selectedProjectIndex?: number;  //Index of selected project
   lastSelectedProjectIndex?: number;  //Index of selected project
   lastTrackedClick?: string;  //Added to trap the bug where you change pivots after you click and unclick a project.
