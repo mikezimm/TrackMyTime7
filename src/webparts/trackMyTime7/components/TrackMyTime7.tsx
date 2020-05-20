@@ -538,7 +538,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._copyProject = this._copyProject.bind(this);
     this._parkProject = this._parkProject.bind(this);
     this._rejectProject = this._rejectProject.bind(this);
-    this._completeProject = this._completeProject.bind(this);      
+    this._closeProject = this._closeProject.bind(this);      
   }
 
 
@@ -1017,7 +1017,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         copyProject={ this._copyProject.bind(this) }
         parkProject={ this._parkProject.bind(this) }
         rejectProject={ this._rejectProject.bind(this) }
-        completeProject={ this._completeProject.bind(this) }
+        closeProject={ this._closeProject.bind(this) }
       ></MyCommandBar>
     </div>
 ;
@@ -1138,8 +1138,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this.setState({ 
      });
   }
-  private _completeProject(){
-    alert('Clicked _completeProject!');
+  private _closeProject(){
+    alert('Clicked _closeProject!');
     this.setState({ 
      });
   }

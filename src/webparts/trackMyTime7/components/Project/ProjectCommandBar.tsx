@@ -25,7 +25,7 @@ export interface ICommandBarProps {
   copyProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
   parkProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;  
   rejectProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-  completeProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+  closeProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
 
   commandClass?: string;
   setLayout?: string;
@@ -96,16 +96,16 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
             onClick: () => this.props.rejectProject(),
         };
 
-        const _complete : ICommandBarItemProps = { key: 'complete', text: 'Complete',  name: '',   ariaLabel: 'Complete', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Complete', },
-            onClick: () => this.props.completeProject(),
+        const _close : ICommandBarItemProps = { key: 'close', text: 'Close',  name: '',   ariaLabel: 'Close', commandBarButtonAs: customButton,
+            iconProps: {  iconName: 'Close', },
+            onClick: () => this.props.closeProject(),
         };
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
         const _items: ICommandBarItemProps[] = [ _new, _edit, _copy ];
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
-        const _overFlowItems: ICommandBarItemProps[] = [  _park, _reject, _complete   ];
+        const _overFlowItems: ICommandBarItemProps[] = [  _park, _reject, _close   ];
 
         // <div className={ styles.container }></div>
         return (
