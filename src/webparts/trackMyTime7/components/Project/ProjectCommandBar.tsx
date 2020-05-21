@@ -91,8 +91,8 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
             onClick: () => this.props.parkProject(),
         };
 
-        const _reject : ICommandBarItemProps = { key: 'reject', text: 'Reject',  name: '',   ariaLabel: 'Reject', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Reject', },
+        const _reject : ICommandBarItemProps = { key: 'reject', text: 'Cancel',  name: '',   ariaLabel: 'Cancel', commandBarButtonAs: customButton,
+            iconProps: {  iconName: 'Cancel', },
             onClick: () => this.props.rejectProject(),
         };
 

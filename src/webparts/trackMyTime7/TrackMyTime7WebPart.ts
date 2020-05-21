@@ -407,9 +407,9 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           /**
            * Status related fields - Only on Projects list
            * Choices from current smile list
-           * 0. Not Started;1. Under Review;2. In Process;3. Verify;4. Complete;5. Rejected;9. Cancelled;
+           * 0. Not Started;1. Under Review;2. In Process;3. Verify;4. Complete;5. Cancelled;9. Cancelled;
            */
-          const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Rejected`, `9. Cancelled`,`9. Closed`];
+          const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`, `9. Cancelled`,`9. Closed`];
           
           //NOTE that allow user fill in is determined by isProject
           const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", choices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription, DefaultFormula:'="0. Review"' });
