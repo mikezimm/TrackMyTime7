@@ -87,7 +87,7 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
         };
 
         const _park : ICommandBarItemProps = { key: 'park', text: 'Park',  name: '',   ariaLabel: 'Park', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Park', },
+            iconProps: {  iconName: 'Car', },
             onClick: () => this.props.parkProject(),
         };
 
@@ -97,7 +97,7 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
         };
 
         const _close : ICommandBarItemProps = { key: 'close', text: 'Close',  name: '',   ariaLabel: 'Close', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Close', },
+            iconProps: {  iconName: 'SkypeCheck', },
             onClick: () => this.props.closeProject(),
         };
 

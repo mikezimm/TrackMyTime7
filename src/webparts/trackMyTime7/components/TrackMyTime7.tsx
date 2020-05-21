@@ -21,6 +21,7 @@ import { Link } from 'office-ui-fabric-react/lib/Link';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
+import MyProjectPage from './Project/ProjectEditPage';
 import InfoPage from './HelpInfo/infoPages';
 
 import CenterPane from './Project/CenterPane';
@@ -541,7 +542,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._copyProject = this._copyProject.bind(this);
     this._parkProject = this._parkProject.bind(this);
     this._rejectProject = this._rejectProject.bind(this);
-    this._closeProject = this._closeProject.bind(this);      
+    this._closeProject = this._closeProject.bind(this);   
+    this._closeProjectEdit = this._closeProjectEdit.bind(this);   
   }
 
 
@@ -676,434 +678,479 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   public render(): React.ReactElement<ITrackMyTime7Props> {
 
-    const showTimeProject = this.state.showProjectScreen ;
-    const isSinceEntry = this.state.currentTimePicker === 'sinceLast' ? true : false;   
-    const isSliderEntry = this.state.currentTimePicker === 'slider' ? true : false;
-    const isManualEntry = this.state.currentTimePicker === 'manual' ? true : false;
+    const showProjectScreen = this.state.showProjectScreen ;
 
-    let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
-    //console.log('render setPivot:', setPivot);
-    //console.log('Public render props:', this.props);
-    console.log('TRACK MY TIME STATE:', this.state);
+/***
+ *              d88888b d8888b. d888888b d888888b      d8888b. d8888b.  .d88b.     d88b d88888b  .o88b. d888888b 
+ *              88'     88  `8D   `88'   `~~88~~'      88  `8D 88  `8D .8P  Y8.    `8P' 88'     d8P  Y8 `~~88~~' 
+ *              88ooooo 88   88    88       88         88oodD' 88oobY' 88    88     88  88ooooo 8P         88    
+ *              88~~~~~ 88   88    88       88         88~~~   88`8b   88    88     88  88~~~~~ 8b         88    
+ *              88.     88  .8D   .88.      88         88      88 `88. `8b  d8' db. 88  88.     Y8b  d8    88    
+ *              Y88888P Y8888D' Y888888P    YP         88      88   YD  `Y88P'  Y8888P  Y88888P  `Y88P'    YP    
+ *                                                                                                               
+ *                                                                                                               
+ */
 
-    /**
-     * this section was added to keep pivots in sync when syncProjectPivotsOnToggle === true
-     */
-    let display1 = this.state.projectType === true ? "block" :"none";
-    let display2 = this.state.projectType === true ? "none" :"block";
-    let choice1 = this.state.projectMasterPriorityChoice;
-    let choice2 = this.state.projectUserPriorityChoice;
+    if (showProjectScreen !== false ) {
 
-    if (this.state.syncProjectPivotsOnToggle){
-      display1 = "block";
-      display2 = "none";
-      choice1 = this.state.projectMasterPriorityChoice;
-      choice2 = this.state.projectMasterPriorityChoice;
-    }
+      let projectPage = <MyProjectPage 
+        showProjectScreen={ this.state.showProjectScreen }
+        _closeProjectEdit={ this._closeProjectEdit.bind(this)}
+      ></MyProjectPage>
 
-    const stackButtonTokensBody: IStackTokens = { childrenGap: 40 };
-    const stackButtonTokens: IStackTokens = { childrenGap: 40 };
-    const stackFormRowTokens: IStackTokens = { childrenGap: 20 };
-    const stackFormRowsTokens: IStackTokens = { childrenGap: 10 };
-    const stackManualDateTokens: IStackTokens = { childrenGap: 20 };
-    const stackChartTokens: IStackTokens = { childrenGap: 30 };
-
-    let hoursSinceLastTime = 0;
-    if ( this.state.timeTrackerLoadStatus === "Complete" ) {
-      hoursSinceLastTime = getTimeDelta( this.state.lastEndTime.theTime, new Date() , 'hours');
-    }
-
-    let isSaveDisabledTime = false;
-    let isSaveDisabledFields = false;
-    let isSaveButtonDisabled = false;
-    let isEndBeforeStart = false;
-    
-    let deltaTime = this.state.formEntry == null ? null : getTimeDelta(this.state.formEntry.startTime,this.state.formEntry.endTime,'hours');
-    let allowedHours = this.props.timeSliderMax/60;
-
-    if ( this.state.currentTimePicker === 'slider' ) {
-      if ( this.state.timeSliderValue == 0 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
-      if ( getTimeDelta(this.state.formEntry.endTime, this.state.formEntry.startTime, 'ms') > 0 ) { isEndBeforeStart = true; isSaveButtonDisabled = true; }
-      // Also need to add if the slider would put the start time before the last end time.
-    } else if ( this.state.currentTimePicker === 'sinceLast' ) {
-      if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
-
-    } else if ( this.state.currentTimePicker === 'manual' ) {
-      if ( deltaTime < 0 ) { isEndBeforeStart = true; isSaveButtonDisabled = true; }
-    }
-
-    if ( isSaveButtonDisabled === false ) {
-      if ( this.state.fields.ProjectID1.required ) {
-        if ( this.state.formEntry.projectID1.value === "*" || this.state.formEntry.projectID1.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == '' ) {
-          isSaveButtonDisabled = true;
-        }
-      }
-      if ( this.state.fields.ProjectID2.required ) {
-        if ( this.state.formEntry.projectID2.value === "*" || this.state.formEntry.projectID2.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == ''  ) {
-          isSaveButtonDisabled = true;
-        }
-      }
-      if ( this.state.fields.Category1.required ) {
-        if ( this.state.formEntry.category1 === ["*"] || this.state.formEntry.category1 == null  || this.state.formEntry.category1[0].replace(' ','') == ''  ) {
-          isSaveButtonDisabled = true;
-        }
-      }
-      if ( this.state.fields.Category2.required ) {
-        if ( this.state.formEntry.category2=== ["*"] || this.state.formEntry.projectID2 == null  || this.state.formEntry.category2[0].replace(' ','') == ''  ) {
-          isSaveButtonDisabled = true;
-        }
-      }
-    }
+      return (
+        <div className={ styles.trackMyTime7 }>
+          { projectPage }
+        </div>);
 
 
-    let entryOptions = choiceBuilders.creatEntryTypeChoices(this.state.currentTimePicker, this._updateEntryType.bind(this));
-    let theTime;
+      /***
+ *              d88888b d8888b. d888888b d888888b      d888888b d888888b .88b  d88. d88888b      d88888b d8b   db d888888b d8888b. db    db 
+ *              88'     88  `8D   `88'   `~~88~~'      `~~88~~'   `88'   88'YbdP`88 88'          88'     888o  88 `~~88~~' 88  `8D `8b  d8' 
+ *              88ooooo 88   88    88       88            88       88    88  88  88 88ooooo      88ooooo 88V8o 88    88    88oobY'  `8bd8'  
+ *              88~~~~~ 88   88    88       88            88       88    88  88  88 88~~~~~      88~~~~~ 88 V8o88    88    88`8b      88    
+ *              88.     88  .8D   .88.      88            88      .88.   88  88  88 88.          88.     88  V888    88    88 `88.    88    
+ *              Y88888P Y8888D' Y888888P    YP            YP    Y888888P YP  YP  YP Y88888P      Y88888P VP   V8P    YP    88   YD    YP    
+ *                                                                                                                                          
+ *                                                                                                                                          
+ */
 
-    //How to set personal time settings
-    //https://sharepointmaven.com/sharepoint-time-zone/
+    } else {
 
-    if (this.state.timeTrackerLoadStatus === "Complete") {
-      if (this.state.currentTimePicker === 'sinceLast') {
 
-        theTime = <div className={( isSaveDisabledTime ? styles.timeError : styles.timeInPast )}>
-          From: { getDayTimeToMinutes(this.state.lastEndTime.theTime) } until NOW<br/>
-          {( isSaveDisabledTime ? <div>Is to far in the past.</div> : "" )}
-          {( isSaveDisabledTime ? <div>Use Slider or Manual Mode to save time.</div> : "" )}
-          </div>; 
 
-      } else if  (this.state.currentTimePicker === 'slider' ) {
-        if ( isEndBeforeStart ) {
-          theTime = <div className={( styles.timeError )}>
-            Adjust the slider before saving.
-          </div>;
-        } else if (this.state.timeSliderValue > 0 ) {
-            //The START time IS NOW and the end time is in the future (based on slider)
-            theTime = <div className={ styles.timeInFuture }>From NOW until: { getDayTimeToMinutes(this.state.formEntry.endTime) }</div>;
-        } else if ( this.state.timeSliderValue < 0 )  {
-          //The END time IS NOW and the end time is in the past (based on slider)
-          theTime = <div className={ styles.timeInPast }>From { getDayTimeToMinutes(this.state.formEntry.startTime) } until NOW</div>;
-        } else { // Value can not be zero or the save button should not be visible.
-          theTime = <div className={ styles.timeError }>Adjust the slider before saving</div>;
-        }
 
-      } else if ( this.state.currentTimePicker === 'start' ) {
-        theTime = <div>Creates zero minutes entry to start your day</div>;
-
-      } else if ( this.state.currentTimePicker === 'manual' ) {
-
-        if ( deltaTime != null ) {
-          if ( deltaTime < 0 ) {
-            theTime = <div className={( styles.timeError )}>
-              End Time is BEFORE Start Time, please fix before saving.
-              </div>; 
+      const isSinceEntry = this.state.currentTimePicker === 'sinceLast' ? true : false;   
+      const isSliderEntry = this.state.currentTimePicker === 'slider' ? true : false;
+      const isManualEntry = this.state.currentTimePicker === 'manual' ? true : false;
   
-          } else if (deltaTime > allowedHours ) {
-            theTime = <div className={( styles.timeError )}>
-              Exceeded max allowed timespan of { allowedHours } hours.
-              </div>; 
+      let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
+      //console.log('render setPivot:', setPivot);
+      //console.log('Public render props:', this.props);
+      console.log('TRACK MY TIME STATE:', this.state);
+  
+      /**
+       * this section was added to keep pivots in sync when syncProjectPivotsOnToggle === true
+       */
+      let display1 = this.state.projectType === true ? "block" :"none";
+      let display2 = this.state.projectType === true ? "none" :"block";
+      let choice1 = this.state.projectMasterPriorityChoice;
+      let choice2 = this.state.projectUserPriorityChoice;
+  
+      if (this.state.syncProjectPivotsOnToggle){
+        display1 = "block";
+        display2 = "none";
+        choice1 = this.state.projectMasterPriorityChoice;
+        choice2 = this.state.projectMasterPriorityChoice;
+      }
+  
+      const stackButtonTokensBody: IStackTokens = { childrenGap: 40 };
+      const stackButtonTokens: IStackTokens = { childrenGap: 40 };
+      const stackFormRowTokens: IStackTokens = { childrenGap: 20 };
+      const stackFormRowsTokens: IStackTokens = { childrenGap: 10 };
+      const stackManualDateTokens: IStackTokens = { childrenGap: 20 };
+      const stackChartTokens: IStackTokens = { childrenGap: 30 };
+  
+      let hoursSinceLastTime = 0;
+      if ( this.state.timeTrackerLoadStatus === "Complete" ) {
+        hoursSinceLastTime = getTimeDelta( this.state.lastEndTime.theTime, new Date() , 'hours');
+      }
+  
+      let isSaveDisabledTime = false;
+      let isSaveDisabledFields = false;
+      let isSaveButtonDisabled = false;
+      let isEndBeforeStart = false;
+      
+      let deltaTime = this.state.formEntry == null ? null : getTimeDelta(this.state.formEntry.startTime,this.state.formEntry.endTime,'hours');
+      let allowedHours = this.props.timeSliderMax/60;
+  
+      if ( this.state.currentTimePicker === 'slider' ) {
+        if ( this.state.timeSliderValue == 0 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
+        if ( getTimeDelta(this.state.formEntry.endTime, this.state.formEntry.startTime, 'ms') > 0 ) { isEndBeforeStart = true; isSaveButtonDisabled = true; }
+        // Also need to add if the slider would put the start time before the last end time.
+      } else if ( this.state.currentTimePicker === 'sinceLast' ) {
+        if ( hoursSinceLastTime > this.props.timeSliderMax / 60 ) { isSaveDisabledTime = true; isSaveDisabledFields = true; isSaveButtonDisabled = true; }
+  
+      } else if ( this.state.currentTimePicker === 'manual' ) {
+        if ( deltaTime < 0 ) { isEndBeforeStart = true; isSaveButtonDisabled = true; }
+      }
+  
+      if ( isSaveButtonDisabled === false ) {
+        if ( this.state.fields.ProjectID1.required ) {
+          if ( this.state.formEntry.projectID1.value === "*" || this.state.formEntry.projectID1.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == '' ) {
+            isSaveButtonDisabled = true;
+          }
+        }
+        if ( this.state.fields.ProjectID2.required ) {
+          if ( this.state.formEntry.projectID2.value === "*" || this.state.formEntry.projectID2.value == null  || this.state.formEntry.projectID1.value.replace(' ','') == ''  ) {
+            isSaveButtonDisabled = true;
+          }
+        }
+        if ( this.state.fields.Category1.required ) {
+          if ( this.state.formEntry.category1 === ["*"] || this.state.formEntry.category1 == null  || this.state.formEntry.category1[0].replace(' ','') == ''  ) {
+            isSaveButtonDisabled = true;
+          }
+        }
+        if ( this.state.fields.Category2.required ) {
+          if ( this.state.formEntry.category2=== ["*"] || this.state.formEntry.projectID2 == null  || this.state.formEntry.category2[0].replace(' ','') == ''  ) {
+            isSaveButtonDisabled = true;
           }
         }
       }
-
-    } else { theTime = ""; }
-
-    const projectsWebError = this.props.projectListWeb.indexOf(this.props.tenant) > -1 ? '' :
-    <div>
-        <p>Your Project List is not in this Tenanat...</p>
-        <ul>
-          <li>{ this.props.projectListWeb } &lt;&lt;== Project Web</li>
-          <li>{ this.props.tenant } &lt;&lt;== Should have this in it</li>
-        </ul>
-    </div>;
-
-    const timeWebError = this.props.timeTrackListWeb.indexOf(this.props.tenant) > -1 ? '' :
-    <div>
-        <p>Your TimeTrack List is not in this Tenanat...</p>
-        <ul>
-          <li>{ this.props.timeTrackListWeb } &lt;&lt;== TrackTime List Web</li>
-          <li>{ this.props.tenant } &lt;&lt;== Should have this in it</li>
-        </ul>
-    </div>;
-
-    const projectsListError = this.state.projects.master.length !== 0 ? '' :
+  
+  
+      let entryOptions = choiceBuilders.creatEntryTypeChoices(this.state.currentTimePicker, this._updateEntryType.bind(this));
+      let theTime;
+  
+      //How to set personal time settings
+      //https://sharepointmaven.com/sharepoint-time-zone/
+  
+      if (this.state.timeTrackerLoadStatus === "Complete") {
+        if (this.state.currentTimePicker === 'sinceLast') {
+  
+          theTime = <div className={( isSaveDisabledTime ? styles.timeError : styles.timeInPast )}>
+            From: { getDayTimeToMinutes(this.state.lastEndTime.theTime) } until NOW<br/>
+            {( isSaveDisabledTime ? <div>Is to far in the past.</div> : "" )}
+            {( isSaveDisabledTime ? <div>Use Slider or Manual Mode to save time.</div> : "" )}
+            </div>; 
+  
+        } else if  (this.state.currentTimePicker === 'slider' ) {
+          if ( isEndBeforeStart ) {
+            theTime = <div className={( styles.timeError )}>
+              Adjust the slider before saving.
+            </div>;
+          } else if (this.state.timeSliderValue > 0 ) {
+              //The START time IS NOW and the end time is in the future (based on slider)
+              theTime = <div className={ styles.timeInFuture }>From NOW until: { getDayTimeToMinutes(this.state.formEntry.endTime) }</div>;
+          } else if ( this.state.timeSliderValue < 0 )  {
+            //The END time IS NOW and the end time is in the past (based on slider)
+            theTime = <div className={ styles.timeInPast }>From { getDayTimeToMinutes(this.state.formEntry.startTime) } until NOW</div>;
+          } else { // Value can not be zero or the save button should not be visible.
+            theTime = <div className={ styles.timeError }>Adjust the slider before saving</div>;
+          }
+  
+        } else if ( this.state.currentTimePicker === 'start' ) {
+          theTime = <div>Creates zero minutes entry to start your day</div>;
+  
+        } else if ( this.state.currentTimePicker === 'manual' ) {
+  
+          if ( deltaTime != null ) {
+            if ( deltaTime < 0 ) {
+              theTime = <div className={( styles.timeError )}>
+                End Time is BEFORE Start Time, please fix before saving.
+                </div>; 
+    
+            } else if (deltaTime > allowedHours ) {
+              theTime = <div className={( styles.timeError )}>
+                Exceeded max allowed timespan of { allowedHours } hours.
+                </div>; 
+            }
+          }
+        }
+  
+      } else { theTime = ""; }
+  
+      const projectsWebError = this.props.projectListWeb.indexOf(this.props.tenant) > -1 ? '' :
+      <div>
+          <p>Your Project List is not in this Tenanat...</p>
+          <ul>
+            <li>{ this.props.projectListWeb } &lt;&lt;== Project Web</li>
+            <li>{ this.props.tenant } &lt;&lt;== Should have this in it</li>
+          </ul>
+      </div>;
+  
+      const timeWebError = this.props.timeTrackListWeb.indexOf(this.props.tenant) > -1 ? '' :
+      <div>
+          <p>Your TimeTrack List is not in this Tenanat...</p>
+          <ul>
+            <li>{ this.props.timeTrackListWeb } &lt;&lt;== TrackTime List Web</li>
+            <li>{ this.props.tenant } &lt;&lt;== Should have this in it</li>
+          </ul>
+      </div>;
+  
+      const projectsListError = this.state.projects.master.length !== 0 ? '' :
+        <div>
+          <ul>
+            <li>Is this the right Projects List URL? <b>{ this.props.projectListWeb }</b></li>
+            <li>Is this the right Projects List Title? <b>{ this.props.projectListTitle }</b></li>
+            <li>
+              <a href={this.state.projectListURL} target='_blank'>
+                <span>Check your Project list here</span>
+              </a>
+            </li>
+          </ul>
+        </div>;
+  
+      const timeListError = this.state.projects.user.length !== 0 ? '' :
       <div>
         <ul>
-          <li>Is this the right Projects List URL? <b>{ this.props.projectListWeb }</b></li>
-          <li>Is this the right Projects List Title? <b>{ this.props.projectListTitle }</b></li>
+          <li>Is this the right TrackYourTime List URL? <b>{ this.props.timeTrackListWeb }</b></li>
+          <li>Is this the right TrackYourTime List Title? <b>{ this.props.timeTrackListTitle }</b></li>
           <li>
-            <a href={this.state.projectListURL} target='_blank'>
-              <span>Check your Project list here</span>
+            <a href={this.state.timeTrackerListURL} target='_blank'>
+              <span>Check your TrackTime list here</span>
             </a>
           </li>
         </ul>
       </div>;
-
-    const timeListError = this.state.projects.user.length !== 0 ? '' :
-    <div>
-      <ul>
-        <li>Is this the right TrackYourTime List URL? <b>{ this.props.timeTrackListWeb }</b></li>
-        <li>Is this the right TrackYourTime List Title? <b>{ this.props.timeTrackListTitle }</b></li>
-        <li>
-          <a href={this.state.timeTrackerListURL} target='_blank'>
-            <span>Check your TrackTime list here</span>
-          </a>
-        </li>
-      </ul>
-    </div>;
-
-    const listError = this.state.listError === false ? '' :
+  
+      const listError = this.state.listError === false ? '' :
+        <div style={{ paddingTop: '0px' }}>
+          <h2>{ this.state.errTitle }</h2>
+          <h3>Here are the error(s) we received</h3>
+          <p><mark>{ this.state.loadError }</mark></p>
+          <h3>Here are some suggestions</h3>
+            {projectsWebError} 
+            {projectsListError}
+            {timeWebError}
+            {timeListError}
+  
+        </div>;
+      
+  
+      const noProjectsFound = this.state.projectType !== false && this.state.projectsLoadStatus === 'Complete' ? '' :
       <div style={{ paddingTop: '0px' }}>
-        <h2>{ this.state.errTitle }</h2>
-        <h3>Here are the error(s) we received</h3>
-        <p><mark>{ this.state.loadError }</mark></p>
-        <h3>Here are some suggestions</h3>
-          {projectsWebError} 
-          {projectsListError}
-          {timeWebError}
-          {timeListError}
-
-      </div>;
-    
-
-    const noProjectsFound = this.state.projectType !== false && this.state.projectsLoadStatus === 'Complete' ? '' :
-    <div style={{ paddingTop: '0px' }}>
-      <h2>No Projects found in "{this.state.filteredCategory}" :(</h2>
-      <h3>Get started by checking for other projects</h3>
-      <ul>
-      <li>Click on the other Project Categories like</li>
+        <h2>No Projects found in "{this.state.filteredCategory}" :(</h2>
+        <h3>Get started by checking for other projects</h3>
+        <ul>
+        <li>Click on the other Project Categories like</li>
+          <ol>
+            <li>{this.state.pivots.projects[0].headerText}</li>
+            <li>{this.state.pivots.projects[1].headerText}</li>
+            <li>{this.state.pivots.projects[2].headerText}</li>
+            <li>{this.state.pivots.projects[3].headerText}</li>
+          </ol>
+        </ul>
+        <h3>Can't find any? Create a new one!</h3>
         <ol>
-          <li>{this.state.pivots.projects[0].headerText}</li>
-          <li>{this.state.pivots.projects[1].headerText}</li>
-          <li>{this.state.pivots.projects[2].headerText}</li>
-          <li>{this.state.pivots.projects[3].headerText}</li>
+          <li>
+            <a href={this.state.projectListURL} >
+              <span>Go to your list: { this.props.projectListTitle }</span>
+            </a>
+          </li>
+          <li>Create some new projects</li>
+          <li>Make yourself the Leader for easy access</li>
+          <li>Mark generic ones 'Everyone' so they are easy to find</li>
         </ol>
-      </ul>
-      <h3>Can't find any? Create a new one!</h3>
-      <ol>
-        <li>
-          <a href={this.state.projectListURL} >
-            <span>Go to your list: { this.props.projectListTitle }</span>
-          </a>
-        </li>
-        <li>Create some new projects</li>
-        <li>Make yourself the Leader for easy access</li>
-        <li>Mark generic ones 'Everyone' so they are easy to find</li>
-      </ol>
-    </div>;
-
-
-    const buttons: ISingleButtonProps[] =
-      [/*
-        {
-        disabled: isSaveDisabled,  
-        checked: true, 
-        primary: true,
-        label: "Start Time",
-        secondary: "Create start ime",
-        buttonOnClick: this.startMyTime.bind(this),
-      },*/
-{
-        disabled: false,  
-        checked: true, 
-        primary: false,
-        label: "Clear item",
-        secondary: "Press to clear form",
-        buttonOnClick: this.clearMyInput.bind(this),
-      },      {
-        disabled: isSaveButtonDisabled,  
-        checked: true, 
-        primary: true,
-        label: "Save item",
-        secondary: "Press to Create entry",
-        buttonOnClick: this.trackMyTime.bind(this),
-      },
-
-      ];
-
-    let saveButtons = 
-    <div style={{ paddingTop: '20px' }}>
-      <ButtonCompound
-        buttons={buttons} horizontal={true}
-      />
-    </div>;
-     
-    let timeSlider = isSliderEntry ? sliderBuilders.createSlider(this.props,this.state, this._updateTimeSlider.bind(this)) : '';
-    let comments = formBuilders.createThisField(this.props,this.state, this.state.fields.Comments, isSaveDisabledFields, this._updateComments.bind(this));
-    let projectTitle = formBuilders.createThisField(this.props,this.state,this.state.fields.Title, isSaveDisabledFields,  this._updateProjectTitle.bind(this));
-    let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabledFields,  this._updateProjectID1.bind(this));
-    let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabledFields,  this._updateProjectID2.bind(this));
-
-    let showActivity = true;
-    if (this.state.selectedProjectIndex != null) {
-      if (this.state.projects.newFiltered.length > 0){
-        if (this.state.projects.newFiltered[this.state.selectedProjectIndex]){
-          if (this.state.projects.newFiltered[this.state.selectedProjectIndex].projOptions) {
-            if (this.state.projects.newFiltered[this.state.selectedProjectIndex].projOptions.showLink) {
-              showActivity = false;
+      </div>;
+  
+  
+      const buttons: ISingleButtonProps[] =
+        [/*
+          {
+          disabled: isSaveDisabled,  
+          checked: true, 
+          primary: true,
+          label: "Start Time",
+          secondary: "Create start ime",
+          buttonOnClick: this.startMyTime.bind(this),
+        },*/
+  {
+          disabled: false,  
+          checked: true, 
+          primary: false,
+          label: "Clear item",
+          secondary: "Press to clear form",
+          buttonOnClick: this.clearMyInput.bind(this),
+        },      {
+          disabled: isSaveButtonDisabled,  
+          checked: true, 
+          primary: true,
+          label: "Save item",
+          secondary: "Press to Create entry",
+          buttonOnClick: this.trackMyTime.bind(this),
+        },
+  
+        ];
+  
+      let saveButtons = 
+      <div style={{ paddingTop: '20px' }}>
+        <ButtonCompound
+          buttons={buttons} horizontal={true}
+        />
+      </div>;
+       
+      let timeSlider = isSliderEntry ? sliderBuilders.createSlider(this.props,this.state, this._updateTimeSlider.bind(this)) : '';
+      let comments = formBuilders.createThisField(this.props,this.state, this.state.fields.Comments, isSaveDisabledFields, this._updateComments.bind(this));
+      let projectTitle = formBuilders.createThisField(this.props,this.state,this.state.fields.Title, isSaveDisabledFields,  this._updateProjectTitle.bind(this));
+      let projectID1 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID1, isSaveDisabledFields,  this._updateProjectID1.bind(this));
+      let projectID2 = formBuilders.createThisField(this.props,this.state, this.state.fields.ProjectID2, isSaveDisabledFields,  this._updateProjectID2.bind(this));
+  
+      let showActivity = true;
+      if (this.state.selectedProjectIndex != null) {
+        if (this.state.projects.newFiltered.length > 0){
+          if (this.state.projects.newFiltered[this.state.selectedProjectIndex]){
+            if (this.state.projects.newFiltered[this.state.selectedProjectIndex].projOptions) {
+              if (this.state.projects.newFiltered[this.state.selectedProjectIndex].projOptions.showLink) {
+                showActivity = false;
+              }
             }
           }
         }
       }
-    }
-
-    let activity =  !showActivity ? null : formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
-
-    //let activity = ( this.state.projects.newFiltered[this.state.selectedProjectIndex].projActivity.showLink === true ) ? null :
-      //formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
-
-
-    let startDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.Start, false, this._updateStart.bind(this)) : '';
-    let endDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.End, false, this._updateEnd.bind(this)) : '';
-
-    //let entryType = formBuilders.createThisField(this.props,this.state, this.state.fields., this._updateEntryType.bind(this));
-    
-    let listProjects = null;
-    if (this.state.listError) { listProjects = listError; }
-    else if ( this.state.projectsLoadStatus === 'Complete' && this.state.projects.newFiltered.length===0 ) {
-      listProjects =  noProjectsFound;
-    } else {
-      listProjects = listBuilders.projectBuilder(this.props,this.state,this.state.projects.newFiltered, this._getSelectedProject.bind(this));
-    }
-
-    let listBuild = listBuilders.listViewBuilder(this.props,this.state,this.state.entries.newFiltered);
-
-    let userName = this.state.currentUser
-      ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
-      : "";
-
-
-    const infoPage = <div>
-      <InfoPage 
+  
+      let activity =  !showActivity ? null : formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
+  
+      //let activity = ( this.state.projects.newFiltered[this.state.selectedProjectIndex].projActivity.showLink === true ) ? null :
+        //formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
+  
+  
+      let startDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.Start, false, this._updateStart.bind(this)) : '';
+      let endDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.End, false, this._updateEnd.bind(this)) : '';
+  
+      //let entryType = formBuilders.createThisField(this.props,this.state, this.state.fields., this._updateEntryType.bind(this));
+      
+      let listProjects = null;
+      if (this.state.listError) { listProjects = listError; }
+      else if ( this.state.projectsLoadStatus === 'Complete' && this.state.projects.newFiltered.length===0 ) {
+        listProjects =  noProjectsFound;
+      } else {
+        listProjects = listBuilders.projectBuilder(this.props,this.state,this.state.projects.newFiltered, this._getSelectedProject.bind(this));
+      }
+  
+      let listBuild = listBuilders.listViewBuilder(this.props,this.state,this.state.entries.newFiltered);
+  
+      let userName = this.state.currentUser
+        ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
+        : "";
+  
+      const infoPage = <div>
+        <InfoPage 
+            allLoaded={ this.state.allLoaded }
+            showInfo={ this.state.showTips }
+            parentProps= { this.props }
+            parentState= { this.state }
+            toggleDebug = { this.toggleDebug.bind(this) }
+        ></InfoPage>
+      </div>;
+  
+      let loadCharts = this.state.allLoaded && this.state.showCharts ? true : false;
+      const chartPage = !loadCharts ? null : <div>
+        <ChartsPage 
           allLoaded={ this.state.allLoaded }
-          showInfo={ this.state.showTips }
+          showCharts={ this.state.showCharts }
+          entries= { this.state.entries }
+          defaultStory="None"
+          today={ this.props.today }
+          selectedStory = { this.state.selectedStory }
+          selectedUser = { this.state.selectedUser }
+          chartStringFilter = { this.state.chartStringFilter }
+          _updateStory={ this._updateStory.bind(this) }
+          _updateUserFilter={ this._updateUserFilter.bind(this) }
+          _updateChartFilter={ this._updateChartFilter.bind(this) }
+          WebpartHeight={ this.state.WebpartHeight }
+          WebpartWidth={ this.state.WebpartWidth }
+          parentState= { this.state }
+        ></ChartsPage>
+      </div>;
+  
+      let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this), null, null );
+      let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this), null, null );
+  
+      let centerPane = <CenterPane 
+          allLoaded={ true } 
+          projectIndex={ this.state.selectedProjectIndex }
+          showCenter={ true }
           parentProps= { this.props }
           parentState= { this.state }
-          toggleDebug = { this.toggleDebug.bind(this) }
-      ></InfoPage>
-    </div>;
-
-    let loadCharts = this.state.allLoaded && this.state.showCharts ? true : false;
-    const chartPage = !loadCharts ? null : <div>
-      <ChartsPage 
-        allLoaded={ this.state.allLoaded }
-        showCharts={ this.state.showCharts }
-        entries= { this.state.entries }
-        defaultStory="None"
-        today={ this.props.today }
-        selectedStory = { this.state.selectedStory }
-        selectedUser = { this.state.selectedUser }
-        chartStringFilter = { this.state.chartStringFilter }
-        _updateStory={ this._updateStory.bind(this) }
-        _updateUserFilter={ this._updateUserFilter.bind(this) }
-        _updateChartFilter={ this._updateChartFilter.bind(this) }
-        WebpartHeight={ this.state.WebpartHeight }
-        WebpartWidth={ this.state.WebpartWidth }
-        parentState= { this.state }
-      ></ChartsPage>
-    </div>;
-
-    let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this), null, null );
-    let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this), null, null );
-
-    let centerPane = <CenterPane 
-        allLoaded={ true } 
-        projectIndex={ this.state.selectedProjectIndex }
-        showCenter={ true }
-        parentProps= { this.props }
-        parentState= { this.state }
-        _onActivityClick={ this._onActivityClick.bind(this) }
-    ></CenterPane>;
-
-    const projCommands = <div>
-      <MyCommandBar 
-        newProject={ this._newProject.bind(this) }
-        editProject={ this._editProject.bind(this) }
-        copyProject={ this._copyProject.bind(this) }
-        parkProject={ this._parkProject.bind(this) }
-        rejectProject={ this._rejectProject.bind(this) }
-        closeProject={ this._closeProject.bind(this) }
-      ></MyCommandBar>
-    </div>
-;
-/***
- *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
- *                   88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
- *                   88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
- *                   88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
- *                   88 `88. 88.        88    88b  d88 88 `88. 88  V888 
- *                   88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
- *                                                                      
- *                                                                      
- */
-
-    let greeting = this.state.WebpartWidth < 800 ? null : <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>;
-
-    return (
-      <div className={ styles.trackMyTime7 }>
-        <div className={ styles.container }>
-        <div className={styles.floatLeft}>
-
-            { this.createPivotObject(choice2, display2)  }
-            { this.createPivotObject(choice1, display1)  }
-
-            { /*this.createPivotObject(setPivot, "block") */ }
-            { greeting }
-            { this.createProjectTypeToggle(this.state) }
-            { toggleChartsButton }
-            { toggleTipsButton }
-           
-        </div>
-        <div className={( this.state.showTips ? '' : styles.hideMe )}>
-          { infoPage }
-        </div>
-
-        <div className={( this.state.showCharts ? '' : styles.hideMe )}>
-
-          { chartPage }
-
-        </div>
-          <div>
-
-            <Stack padding={20} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
-              { /* this.createProjectChoices(this.state) */ }
-              <Stack horizontal={false} horizontalAlign={"start"} tokens={stackFormRowsTokens}>{/* Stack for Pivot Help and Projects */}
-                { this.getPivotHelpText(this.state, this.props)}
-                { projCommands }
-                { listProjects }
-              </Stack>  {/* Stack for Pivot Help and Projects */}
-              { centerPane }
-              <Stack horizontal={false} horizontalAlign={"end"} tokens={stackFormRowsTokens}>{/* Stack for Buttons and Fields */}
-                { entryOptions }
-                { (timeSlider) }
-                <Stack horizontal={true} wrap={true} horizontalAlign={"end"} tokens={stackManualDateTokens}>{/* Stack for Buttons and Fields */}
-                { startDate }
-                { endDate }
-                </Stack>  {/* Stack for Buttons and Fields */}
-                { theTime }
-                { projectTitle }
-                { activity }
-                { comments }
-                { /* entryType */ }
-                <Stack horizontal={true} tokens={stackFormRowTokens}>{ projectID1 }{ projectID2 }</Stack>
-
-                { saveButtons }
-
-              </Stack>  {/* Stack for Buttons and Fields */}
-
-            </Stack> {/* Stack for Projects and body */}
-          </div>
-
-          <div></div><div><br/><br/></div>
-          <div style={{ paddingLeft: '20px', paddingRight: '20px' }}>
-            <div><h2>Recent TrackYourTime History { userName }</h2></div>
-            {(listBuild)}
-            { /* this.createHistoryItems(this.state) */ }
-          </div>
-
-
-        </div>
+          _onActivityClick={ this._onActivityClick.bind(this) }
+      ></CenterPane>;
+  
+      const projCommands = <div>
+        <MyCommandBar 
+          newProject={ this._newProject.bind(this) }
+          editProject={ this._editProject.bind(this) }
+          copyProject={ this._copyProject.bind(this) }
+          parkProject={ this._parkProject.bind(this) }
+          rejectProject={ this._rejectProject.bind(this) }
+          closeProject={ this._closeProject.bind(this) }
+        ></MyCommandBar>
       </div>
-    );
+  ;
+  /***
+   *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
+   *                   88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
+   *                   88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
+   *                   88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
+   *                   88 `88. 88.        88    88b  d88 88 `88. 88  V888 
+   *                   88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
+   *                                                                      
+   *                                                                      
+   */
+  
+      let greeting = this.state.WebpartWidth < 800 ? null : <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>;
+  
+      return (
+        <div className={ styles.trackMyTime7 }>
+          <div className={ styles.container }>
+          <div className={styles.floatLeft}>
+  
+              { this.createPivotObject(choice2, display2)  }
+              { this.createPivotObject(choice1, display1)  }
+  
+              { /*this.createPivotObject(setPivot, "block") */ }
+              { greeting }
+              { this.createProjectTypeToggle(this.state) }
+              { toggleChartsButton }
+              { toggleTipsButton }
+             
+          </div>
+          <div className={( this.state.showTips ? '' : styles.hideMe )}>
+            { infoPage }
+          </div>
+  
+          <div className={( this.state.showCharts ? '' : styles.hideMe )}>
+  
+            { chartPage }
+  
+          </div>
+            <div>
+  
+              <Stack padding={20} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+                { /* this.createProjectChoices(this.state) */ }
+                <Stack horizontal={false} horizontalAlign={"start"} tokens={stackFormRowsTokens}>{/* Stack for Pivot Help and Projects */}
+                  { this.getPivotHelpText(this.state, this.props)}
+                  { projCommands }
+                  { listProjects }
+                </Stack>  {/* Stack for Pivot Help and Projects */}
+                { centerPane }
+                <Stack horizontal={false} horizontalAlign={"end"} tokens={stackFormRowsTokens}>{/* Stack for Buttons and Fields */}
+                  { entryOptions }
+                  { (timeSlider) }
+                  <Stack horizontal={true} wrap={true} horizontalAlign={"end"} tokens={stackManualDateTokens}>{/* Stack for Buttons and Fields */}
+                  { startDate }
+                  { endDate }
+                  </Stack>  {/* Stack for Buttons and Fields */}
+                  { theTime }
+                  { projectTitle }
+                  { activity }
+                  { comments }
+                  { /* entryType */ }
+                  <Stack horizontal={true} tokens={stackFormRowTokens}>{ projectID1 }{ projectID2 }</Stack>
+  
+                  { saveButtons }
+  
+                </Stack>  {/* Stack for Buttons and Fields */}
+  
+              </Stack> {/* Stack for Projects and body */}
+            </div>
+  
+            <div></div><div><br/><br/></div>
+            <div style={{ paddingLeft: '20px', paddingRight: '20px' }}>
+              <div><h2>Recent TrackYourTime History { userName }</h2></div>
+              {(listBuild)}
+              { /* this.createHistoryItems(this.state) */ }
+            </div>
+  
+  
+          </div>
+        </div>
+      );
+
+
+
+    }
+
   }
 
 /***
@@ -1120,33 +1167,49 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private _newProject(){
     alert('Clicked _newProject!');
     this.setState({ 
+      showProjectScreen: 'new',
      });
   }
   private _editProject(){
     alert('Clicked _editProject!');
     this.setState({ 
+      showProjectScreen: 'edit',
      });
   }
   private _copyProject(){
     alert('Clicked _copyProject!');
     this.setState({ 
+      showProjectScreen: 'copy',
      });
   }
+
+  private _closeProjectEdit(){
+    alert('Clicked _closeProjectEdit!');
+    //Update status field, Complete date and Completed by, then save, reload projects list
+    this.setState({ 
+      showProjectScreen: false,
+     });
+  }
+  
   private _parkProject(){
     alert('Clicked _parkProject!');
+    //Update status field, Complete date and Completed by, then save, reload projects list
     this.setState({ 
      });
   }
   private _rejectProject(){
     alert('Clicked _rejectProject!');
+    //Update status field, Complete date and Completed by, then save, reload projects list
     this.setState({ 
      });
   }
   private _closeProject(){
     alert('Clicked _closeProject!');
+    //Update status field, Complete date and Completed by, then save, reload projects list
     this.setState({ 
      });
   }
+
 
   /***
  *          d888b  d88888b d888888b      d8888b. d8888b.  .d88b.     d88b d88888b  .o88b. d888888b .d8888. 

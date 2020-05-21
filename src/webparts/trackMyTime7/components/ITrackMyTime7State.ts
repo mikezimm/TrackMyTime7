@@ -420,6 +420,7 @@ export interface IPropsActivityURL {
 
 }
 
+
 export interface ITrackMyTime7State {
 
   // 0 - Context
@@ -509,7 +510,7 @@ export interface ITrackMyTime7State {
 
   // 9 - Other web part options
 
-  showProjectScreen?: boolean | 'edit' | 'copy' | 'new';
+  showProjectScreen?: false | 'edit' | 'copy' | 'new';
 
   selectedProjectIndex?: number;  //Index of selected project
   lastSelectedProjectIndex?: number;  //Index of selected project
