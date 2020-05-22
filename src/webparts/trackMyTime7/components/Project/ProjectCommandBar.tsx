@@ -18,17 +18,18 @@ import styles from './CommandBar.module.scss';
 
 export interface ICommandBarProps {
     /**
-   * Callback for when the selected pivot item is changed.
-   */
-  newProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-  editProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-  copyProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-  parkProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;  
-  rejectProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-  closeProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+     * Callback for when the selected pivot item is changed.
+     */
+    hasProject: boolean;
+    newProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    editProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    copyProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    parkProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;  
+    rejectProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    closeProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
 
-  commandClass?: string;
-  setLayout?: string;
+    commandClass?: string;
+    setLayout?: string;
 
 }
 
@@ -48,9 +49,31 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
         };
     }
 
-    public render(): JSX.Element {
-        
+      /***
+ *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
+ *         88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
+ *         88   88    88    88   88      88    88 88oodD' 88   88 88ooo88    88    88ooooo 
+ *         88   88    88    88   88      88    88 88~~~   88   88 88~~~88    88    88~~~~~ 
+ *         88  .8D   .88.   88  .8D      88b  d88 88      88  .8D 88   88    88    88.     
+ *         Y8888D' Y888888P Y8888D'      ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P 
+ *                                                                                         
+ *                                                                                         
+ */
+
+    public componentDidUpdate(prevProps){
+
+        let rebuild = false;
+        if (this.props.hasProject !== prevProps.hasProject) {  rebuild = true ; }
+
+        if (rebuild === true) {
+            this._updateStateOnPropsChange(this.props.hasProject);
+        }
+    }
+    
+    //public render(): JSX.Element {
+    public render(): React.ReactElement<ICommandBarProps> {
         //2020-05-19:  Copied from Socialiis7/Master CommandBar.tsx
+        console.log('ProjectCommandBar hasProject:', this.props.hasProject);
         const customButton = (props: IButtonProps) => {
 
             return (
@@ -102,17 +125,19 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
         };
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
-        const _items: ICommandBarItemProps[] = [ _new, _edit, _copy ];
+        const _items: ICommandBarItemProps[] = [ _new, _edit, _copy ] ;
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
-        const _overFlowItems: ICommandBarItemProps[] = [  _park, _reject, _close   ];
+        const _overFlowItems: ICommandBarItemProps[] = [  _park, _reject, _close  ] ;
 
         // <div className={ styles.container }></div>
         return (
         <div>
             <CommandBar 
+            //items={ this.props.hasProject === true ? _items : [ _new ] }
+            //overflowItems={ this.props.hasProject === true ? _overFlowItems : [] }
             items={ _items }
-            overflowItems={_overFlowItems}
+            overflowItems={ _overFlowItems }    
             farItems={ [] }
             styles={{
                 root: { background: 'white', paddingLeft: '0px', height: '32px' }, // - removed backgroundColor: 'white'  
@@ -124,6 +149,11 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
             />
         </div>
         );
-
     }
+
+    private _updateStateOnPropsChange(params: any ): void {
+        this.setState({
+    
+        });
+      }
 }    

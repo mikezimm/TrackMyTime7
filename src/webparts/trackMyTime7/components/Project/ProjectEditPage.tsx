@@ -5,7 +5,7 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 //import * as links from './AllLinks';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
-import { ITrackMyTime7State, IProjectOptions } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IProjectOptions, IProject } from '../ITrackMyTime7State';
 
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 import {CommandBarButton,} from "office-ui-fabric-react/lib/Button";
@@ -22,6 +22,7 @@ import styles from './ProjectPage.module.scss';
 export interface IProjectPageProps {
     showProjectScreen: false | 'edit' | 'copy' | 'new';
     _closeProjectEdit: any;
+    selectedProject: IProject;
 }
 
 export interface IProjectPageState {
@@ -89,34 +90,25 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     public render(): React.ReactElement<IProjectPageProps> {
         
         console.log('Rendering Project Edit Page');
+        console.log('Project:', this.props.selectedProject);
         let isSaveButtonDisabled = false;
 
         const buttons: ISingleButtonProps[] =
-        [{
-            disabled: false,  
-            checked: true, 
-            primary: false,
-            label: "Cancel",
-            buttonOnClick: this.cancelForm.bind(this),
+        [{  disabled: false,  checked: true, primary: false,
+            label: "Cancel", buttonOnClick: this.cancelForm.bind(this),
+        },{ 
+            disabled: false,  checked: true, primary: false,
+            label: "Clear form", buttonOnClick: this.clearForm.bind(this),
         },{
-            disabled: false,  
-            checked: true, 
-            primary: false,
-            label: "Clear form",
-            buttonOnClick: this.clearForm.bind(this),
-        },{
-            disabled: isSaveButtonDisabled,  
-            checked: true, 
-            primary: true,
-            label: "Save/Update",
-            buttonOnClick: this.saveProject.bind(this),
-        },
-        ];
+            disabled: isSaveButtonDisabled, checked: true, primary: true,
+            label: "Save/Update", buttonOnClick: this.saveProject.bind(this),
+        },];
 
         let saveButtons = 
         <div style={{ paddingTop: '20px' }}>
 
             <h2>{"Track My Time:  Project " + this.state.showProjectScreen }</h2>
+            <h3>{ this.props.selectedProject === null ? 'New Project' : this.props.selectedProject.titleProject}</h3>
             <ButtonCompound
             buttons={buttons} horizontal={true}
             />
@@ -143,17 +135,17 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     }
 
     private cancelForm() {
-        alert('canceled form');
+        console.log('canceled form');
         this.props._closeProjectEdit();
     }
 
     private clearForm() {
-        alert('cleared form');
+        console.log('cleared form');
         this.props._closeProjectEdit();
     }
 
     private saveProject() {
-        alert('saved form');
+        console.log('saved form');
         this.props._closeProjectEdit();
     }
 }    

@@ -513,6 +513,7 @@ export interface ITrackMyTime7State {
   showProjectScreen?: false | 'edit' | 'copy' | 'new';
 
   selectedProjectIndex?: number;  //Index of selected project
+  selectedProject: IProject;      //2020-05-22:  Copying into separate object to pass to Project Edit screen.
   lastSelectedProjectIndex?: number;  //Index of selected project
   lastTrackedClick?: string;  //Added to trap the bug where you change pivots after you click and unclick a project.
   clickHistory?: string[];

@@ -493,6 +493,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       timeTrackerListError: false,
       timeTrackerItemsError: false,
 
+      selectedProject: null,
       userLoadStatus:"Loading",
       errTitle: this.errTitles(),
       showTips: false,
@@ -695,8 +696,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       let projectPage = <MyProjectPage 
         showProjectScreen={ this.state.showProjectScreen }
+        selectedProject={this.state.selectedProject}
         _closeProjectEdit={ this._closeProjectEdit.bind(this)}
-      ></MyProjectPage>
+      ></MyProjectPage>;
 
       return (
         <div className={ styles.trackMyTime7 }>
@@ -1058,6 +1060,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   
       const projCommands = <div>
         <MyCommandBar 
+          hasProject={ this.state.selectedProject === null ? false : true }
           newProject={ this._newProject.bind(this) }
           editProject={ this._editProject.bind(this) }
           copyProject={ this._copyProject.bind(this) }
@@ -1165,26 +1168,26 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  */
 
   private _newProject(){
-    alert('Clicked _newProject!');
+    console.log('Clicked _newProject!');
     this.setState({ 
       showProjectScreen: 'new',
      });
   }
   private _editProject(){
-    alert('Clicked _editProject!');
+    console.log('Clicked _editProject!');
     this.setState({ 
       showProjectScreen: 'edit',
      });
   }
   private _copyProject(){
-    alert('Clicked _copyProject!');
+    console.log('Clicked _copyProject!');
     this.setState({ 
       showProjectScreen: 'copy',
      });
   }
 
   private _closeProjectEdit(){
-    alert('Clicked _closeProjectEdit!');
+    console.log('Clicked _closeProjectEdit!');
     //Update status field, Complete date and Completed by, then save, reload projects list
     this.setState({ 
       showProjectScreen: false,
@@ -1233,6 +1236,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   }
 
   private _getSelectedProject(items: any[], exitMe : boolean){
+    let selectedProject: IProject = null;
 
     if (this.state.userLoadStatus !== 'Complete') { return; }
     if (this.state.timeTrackerLoadStatus !== 'Complete') { return; }
@@ -1281,16 +1285,18 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     if (selectedProjectIndex === this.state.selectedProjectIndex) { return ;}
 
-
     let formEntry = this.state.formEntry;
 
     if (isItemNull) {
       formEntry = this.createFormEntry();
     } else {
       formEntry = this.updateFormEntry(formEntry, item);
-
     }
 
+    //2020-05-22:  Copying into separate object to pass to Project Edit screen.
+    if (isItemNull != null) {
+      selectedProject = JSON.parse(JSON.stringify(item));
+    }
 
     /**
      * This section was added to save the selected project index in the Pivot object so it can be retrieved and set when changing pivots.
@@ -1306,6 +1312,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       formEntry:formEntry, 
       blinkOnProject: this.state.blinkOnProject === 1 ? 2 : 1,
       selectedProjectIndex : selectedProjectIndex,
+      selectedProject: selectedProject,
       lastSelectedProjectIndex: this.state.selectedProjectIndex,
       lastTrackedClick: lastTrackedClick,
       clickHistory: clickHistory,
@@ -1947,6 +1954,12 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       let lastTrackedClick = 'Pivot: ' + thisFilter[0];
       clickHistory.push(lastTrackedClick);
 
+      //2020-05-22:  Copying into separate object to pass to Project Edit screen.
+      let selectedProject: IProject = null;
+      if (lastIndex != null) {
+        selectedProject = JSON.parse(JSON.stringify(projects.newFiltered[lastIndex]));
+      }
+
       this.setState({
         filteredCategory: item.props.headerText,
         projectMasterPriorityChoice: newProjectMasterPriorityChoice,
@@ -1957,6 +1970,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         searchWhere: ' in ' + item.props.headerText,
         //pivotDefSelKey: defaultSelectedKey,
         blinkOnProject: 0,
+        selectedProject: selectedProject,
         lastTrackedClick: lastTrackedClick,
         clickHistory: clickHistory,
         selectedProjectIndex: lastIndex,
