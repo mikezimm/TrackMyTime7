@@ -47,7 +47,7 @@ import { getHelpfullError, } from '../../../services/ErrorHandler';
 import { camelize, } from '../../../services/stringServices';
 
 
-import { buildFormFields } from './fields/fieldDefinitions';
+import { buildFormFields, buildProjectFormFields } from './fields/fieldDefinitions';
 
 import ButtonCompound from './createButtons/ICreateButtons';
 import { IButtonProps,ISingleButtonProps,IButtonState } from "./createButtons/ICreateButtons";
@@ -64,6 +64,7 @@ import * as dateBuilders from './fields/dateFieldBuilder';
 
 import  { ICommandBarState, ICommandBarProps} from './Project/ProjectCommandBar';
 import MyCommandBar from './Project/ProjectCommandBar';
+import MyCommandBarNew from './Project/ProjectCommandNew';
   
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
@@ -438,6 +439,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       selectedUser: curUser,
 
       fields: buildFormFields(this.props, this.state),
+      projectFields: buildProjectFormFields(this.props,this.state),
 
       pivtTitles:['Yours', 'Your Team','Everyone','Others'],
       filteredCategory: this.props.defaultProjectPicker,
@@ -698,6 +700,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         showProjectScreen={ this.state.showProjectScreen }
         selectedProject={this.state.selectedProject}
         _closeProjectEdit={ this._closeProjectEdit.bind(this)}
+        projectFields={this.state.projectFields}
       ></MyProjectPage>;
 
       return (
@@ -1068,8 +1071,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           rejectProject={ this._rejectProject.bind(this) }
           closeProject={ this._closeProject.bind(this) }
         ></MyCommandBar>
-      </div>
-  ;
+      </div>;
+
+      const newProjCommands = null;
+
   /***
    *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
    *                   88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
@@ -1113,7 +1118,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
                 { /* this.createProjectChoices(this.state) */ }
                 <Stack horizontal={false} horizontalAlign={"start"} tokens={stackFormRowsTokens}>{/* Stack for Pivot Help and Projects */}
                   { this.getPivotHelpText(this.state, this.props)}
-                  { projCommands }
+                  { this.state.selectedProject === null ? newProjCommands : projCommands }
                   { listProjects }
                 </Stack>  {/* Stack for Pivot Help and Projects */}
                 { centerPane }
@@ -2049,7 +2054,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       comments: timeTrackData.comments, // syntax similar to ProjID?
       active: timeTrackData.active,  //Used to indicate inactive projects
       everyone: timeTrackData.everyone, //Used to designate this option should be available to everyone.
-      sort: timeTrackData.sort, //Used to prioritize in choices.... ones with number go first in order, followed by empty
+      sortOrder: timeTrackData.sortOrder, //Used to prioritize in choices.... ones with number go first in order, followed by empty
       key: this.getProjectKey(timeTrackData),
 
       category1: timeTrackData.category1,
@@ -2789,7 +2794,7 @@ public toggleTips = (item: any): void => {
           //2020-05-13:  Replace Active with StatusTMT  when Status = 9 then active = null, Status = 8 then active = false else true
           active: this.convertStatusToActive(p.StatusNumber),
           everyone: p.Everyone,
-          sort: p.Sort,
+          sortOrder: p.SortOrder,
 
           category1: p.Category1,
           category2: p.Category2,
@@ -2812,6 +2817,12 @@ public toggleTips = (item: any): void => {
           projOptions: projOptions,
           ccEmail: p.CCEmail,
           ccList: p.CCList,
+
+          //Task related fields:
+          status: p.StatusTMT,
+          dueDate: p.DueDateTMT,
+          completedDate: p.CompletedDateTMT,
+          completedBy: p.CompletedByTMT,
         
           //Values that relate to project list item
           // sourceProject: , //Add URL back to item

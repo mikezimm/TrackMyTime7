@@ -1,7 +1,7 @@
 
 import { ITrackMyTime7Props } from './ITrackMyTime7Props';
 
-import { IFormFields } from './fields/fieldDefinitions';
+import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 import { ITheTime } from '../../../services/dateServices';
 
 import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
@@ -245,7 +245,7 @@ export interface IProject {
   comments?: ISmartText; // syntax similar to ProjID?
   active?: boolean;  //Used to indicate inactive projects
   everyone?: boolean; //Used to designate this option should be available to everyone.
-  sort?: number; //Used to prioritize in choices.... ones with number go first in order, followed by empty
+  sortOrder?: number; //Used to prioritize in choices.... ones with number go first in order, followed by empty
   key?: string;
   category1?: string[];
   category2?: string[];
@@ -272,6 +272,12 @@ export interface IProject {
   sourceProjectRef?: string; //Link back to the source project list item.
   ccList?: ILink; //Link to CC List to copy item
   ccEmail?: string; //Email to CC List to copy item 
+
+  //Task related fields:
+  status?: string;
+  dueDate?: Date;
+  completedDate?: Date;
+  completedBy?: IUser;
 
   created?: Date;
   modified?: Date;
@@ -434,7 +440,8 @@ export interface ITrackMyTime7State {
   projects?: IProjectInfo;
   entries?: IEntryInfo;
   fields?: IFormFields; //List of field defininitions for making form fields
-
+  projectFields?: IProjectFormFields;
+  
   // 1 - Analytics options
   endTime?: ITheTime;
 

@@ -18,4 +18,28 @@
     //box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
   }
 
+  .projectField {
+    label {
+      font-weight: bold;
+    }
+  }
+  
+  .reportField {
+    display: table-cell;
+    width: 100%;
+
+    .fieldGroup {
+      border-color: red;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input {
+      //height: 32px;
+      min-width: 80px;
+    }
+  }
+
 }

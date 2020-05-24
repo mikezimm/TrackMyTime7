@@ -22,11 +22,6 @@ export interface ICommandBarProps {
      */
     hasProject: boolean;
     newProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-    editProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-    copyProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-    parkProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;  
-    rejectProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-    closeProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
 
     commandClass?: string;
     setLayout?: string;
@@ -56,8 +51,8 @@ export const customButton = (props: IButtonProps) => {
       />
     );
   };
-
-export default class MyCommandBar extends React.Component<ICommandBarProps, ICommandBarState> {
+  
+export default class MyCommandBarNew extends React.Component<ICommandBarProps, ICommandBarState> {
 
     constructor(props: ICommandBarProps, state: ICommandBarState) {
         super(props);
@@ -94,50 +89,18 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
         //2020-05-19:  Copied from Socialiis7/Master CommandBar.tsx
         console.log('ProjectCommandBar hasProject:', this.props.hasProject);
 
-
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
         const _new : ICommandBarItemProps = { key: 'new', text: 'New',  name: '',   ariaLabel: 'New', commandBarButtonAs: customButton,
             iconProps: {  iconName: 'Add', },
             onClick: () => this.props.newProject(),
         };
 
-        const _edit : ICommandBarItemProps = { key: 'edit', text: 'Edit',  name: '',   ariaLabel: 'Edit', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Edit', },
-            onClick: () => this.props.editProject(),
-        };
-
-        const _copy : ICommandBarItemProps = { key: 'copy', text: 'Copy',  name: '',   ariaLabel: 'Copy', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Copy', },
-            onClick: () => this.props.copyProject(),
-        };
-
-        const _park : ICommandBarItemProps = { key: 'park', text: 'Park',  name: '',   ariaLabel: 'Park', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Car', },
-            onClick: () => this.props.parkProject(),
-        };
-
-        const _reject : ICommandBarItemProps = { key: 'reject', text: 'Cancel',  name: '',   ariaLabel: 'Cancel', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Cancel', },
-            onClick: () => this.props.rejectProject(),
-        };
-
-        const _close : ICommandBarItemProps = { key: 'close', text: 'Close',  name: '',   ariaLabel: 'Close', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'SkypeCheck', },
-            onClick: () => this.props.closeProject(),
-        };
-
-        //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
-        const _items: ICommandBarItemProps[] = [ _new, _edit, _copy ] ;
-
-        //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
-        const _overFlowItems: ICommandBarItemProps[] = [  _park, _reject, _close  ] ;
-
         // <div className={ styles.container }></div>
         return (
         <div>
             <CommandBar 
-            items={ _items }
-            overflowItems={_overFlowItems }
+            items={ [ _new ] }
+            overflowItems={ [] }
             //items={ _items }
             //overflowItems={ _overFlowItems }    
             farItems={ [] }

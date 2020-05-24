@@ -13,12 +13,12 @@ import styles from '../TrackMyTime7.module.scss';
 
 import { IFieldDef } from './fieldDefinitions';
 
-const dateConvention = DateConvention.DateTime;
-const showMonthPickerAsOverlay = true;
-const showWeekNumbers = true;
-const timeConvention = TimeConvention.Hours12;
-const showGoToToday = true;
-const timeDisplayControlType = TimeDisplayControlType.Dropdown;
+export const dateConvention = DateConvention.DateTime;
+export const showMonthPickerAsOverlay = true;
+export const showWeekNumbers = true;
+export const timeConvention = TimeConvention.Hours12;
+export const showGoToToday = true;
+export const timeDisplayControlType = TimeDisplayControlType.Dropdown;
 
 export function creatDateTimeUnControled(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, field: IFieldDef, isSaveDisabled:boolean = false){
 
