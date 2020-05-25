@@ -1,12 +1,15 @@
 import { string } from "prop-types";
 import { ITheTime } from '../../../services/dateServices';
 import { PageContext } from '@microsoft/sp-page-context';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 export interface ITrackMyTime7Props {
   description: string;
 
   // 0 - Context
   pageContext: PageContext;
+  wpContext: WebPartContext;
+
   tenant: string;
   urlVars: {};
   today: ITheTime;

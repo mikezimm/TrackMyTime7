@@ -2,8 +2,25 @@
 @import '../../../../../node_modules/office-ui-fabric-react/dist/sass/_References';
 
 //2020-05-19:  Copied from Socialiis7/Master CommandBar.tsx
+
 .projectPage {
-  
+
+  .dateTimePicker {
+
+    label {
+      font-weight: bold;
+    }
+
+    .root {
+      font-weight: bold;
+    }
+
+    input {
+      //height: 32px;
+      min-width: 80px;
+    }
+  }
+
   .container {
     max-width: 1200px;
     //padding-left: 0px;

@@ -23,6 +23,7 @@ import { makeTheTimeObject } from '../../services/dateServices';
 import { getHelpfullError, } from '../../services/ErrorHandler';
 
 import { PageContext } from '@microsoft/sp-page-context';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 //  >>>> ADD import additional controls/components
 import { UrlFieldFormatType, Field } from "@pnp/sp/presets/all";
@@ -186,6 +187,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
         // 0 - Context
         pageContext: this.context.pageContext,
+        wpContext: this.context,
         tenant: this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,""),
         urlVars: this.getUrlVars(),
         today: makeTheTimeObject(''),

@@ -6,6 +6,7 @@ import { sp } from '@pnp/sp';
 
 //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
 import { Web } from "@pnp/sp/presets/all";
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Pivot, PivotItem, PivotLinkSize, PivotLinkFormat, IPivotStyles, IPivotStyleProps } from 'office-ui-fabric-react/lib/Pivot';
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
@@ -27,7 +28,6 @@ import InfoPage from './HelpInfo/infoPages';
 import CenterPane from './Project/CenterPane';
 
 import { ISelectedStory, defStory, ISelectedUser, curUser } from './Charts/chartsPage';
-
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 import Utils from './utils';
@@ -697,6 +697,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if (showProjectScreen !== false ) {
 
       let projectPage = <MyProjectPage 
+        wpContext= {this.props.wpContext}
         showProjectScreen={ this.state.showProjectScreen }
         selectedProject={this.state.selectedProject}
         _closeProjectEdit={ this._closeProjectEdit.bind(this)}

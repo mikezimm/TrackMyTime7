@@ -14,6 +14,8 @@ import ButtonCompound from '../createButtons/ICreateButtons';
 import { IButtonProps, ISingleButtonProps, IButtonState } from "../createButtons/ICreateButtons";
 import { createIconButton } from "../createButtons/IconButton";
 
+import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+
 import { IFormFields, IProjectFormFields, IFieldDef } from '../fields/fieldDefinitions';
 import { dateConvention ,showMonthPickerAsOverlay,showWeekNumbers,timeConvention,showGoToToday,timeDisplayControlType} from '../fields/dateFieldBuilder';
 import { DateTimePicker, DateConvention, TimeConvention, TimeDisplayControlType } from '@pnp/spfx-controls-react/lib/dateTimePicker';
@@ -24,6 +26,11 @@ import * as sliderBuilders from '../fields/sliderFieldBuilder';
 import * as smartLinks from '../ActivityURL/ActivityURLMasks';
 import * as dateBuilders from '../fields/dateFieldBuilder';
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
+
+import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
+
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+
 
 
 // Initialize icons in case this example uses them
@@ -37,6 +44,7 @@ export interface IProjectPageProps {
     _closeProjectEdit: any;
     selectedProject: IProject;
     projectFields: IProjectFormFields;
+    wpContext: WebPartContext;
 }
 
 export interface IProjectPageState {
@@ -52,6 +60,12 @@ const colorAdvanced = {primary:'darkorange',light:'orange'};
 const colorActivity = {primary:'blue',light:'powderblue'};
 
 const stackFormRowTokens: IStackTokens = { childrenGap: 10 };
+
+export function getChoiceKey(val: string) {
+
+    return val.replace(' ','SPACE').replace('.','DOT').replace('~','TILDE').replace('~','COMMA');
+
+}
 
 export default class MyProjectPage extends React.Component<IProjectPageProps, IProjectPageState> {
 
@@ -80,7 +94,13 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         this._updateDueDate = this._updateDueDate.bind(this);
         this._updateCompleteDate = this._updateCompleteDate.bind(this);        
 
+        this._updateLeader = this._updateLeader.bind(this);    
+        this._updateTeam = this._updateTeam.bind(this);    
 
+        this._updateCompletedBy = this._updateCompletedBy.bind(this);   
+
+        this._updateStatusChange = this._updateStatusChange.bind(this);   
+        
     }
 
         
@@ -174,7 +194,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         // <div className={ styles.container }></div>
         return (
-        <div>
+        <div className={ styles.projectPage }>
             <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
                 { projectTitle }
                 { reportingFields }
@@ -273,6 +293,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
                 dateConvention={DateConvention.Date} showMonthPickerAsOverlay={showMonthPickerAsOverlay}
                 showWeekNumbers={showWeekNumbers} timeConvention={timeConvention}
                 showGoToToday={showGoToToday} timeDisplayControlType={timeDisplayControlType}
+                showLabels={false}
 
     
             /></div>
@@ -280,6 +301,59 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     }
 
+    private createPeopleField(field: IFieldDef, maxCount: number, _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+
+        return (
+            // Uncontrolled
+            <div id={ pageIDPref + field.column }>
+                <PeoplePicker
+                    context={this.props.wpContext}
+                    //defaultSelectedUsers?: string[];
+                    titleText={ field.title }
+                    personSelectionLimit={maxCount}
+                    //groupName={"Team Site Owners"} // Leave this blank in case you want to filter from all users
+                    showtooltip={false}
+                    isRequired={false}
+                    disabled={false}
+                    selectedItems={_onChange}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000} 
+                    ensureUser={true}
+                /></div>
+        );
+
+    }
+
+    private _createDropdownField(field: IFieldDef, _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+        const dropdownStyles: Partial<IDropdownStyles> = {
+            dropdown: { width: 150 }
+          };
+
+          const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`, `9. Cancelled`,`9. Closed`];
+
+          let sOptions: IDropdownOption[] = choices == null ? null : 
+            choices.map(val => {
+                  return {
+                      key: getChoiceKey(val),
+                      text: val,
+                  };
+              });
+
+          let thisDropdown = sOptions == null ? null : <div
+              style={{  paddingTop: 10  }}
+                ><Dropdown 
+                label={ field.title }
+                selectedKey={ getChoiceKey(this.state.selectedProject[field.name]) }
+                onChange={ _onChange }
+                options={ sOptions } 
+                styles={{  dropdown: { width: 175 }   }}
+              />
+            </div>;
+
+        return thisDropdown;
+
+    }
 
 /***
  *    d888888b d888888b d888888b db      d88888b      d88888b d888888b d88888b db      d8888b. .d8888. 
@@ -373,15 +447,15 @@ private getPeopleStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles>
 
 private buildPeopleFields(isVisible: boolean) {
 
-    let everyone = this.createTextField(this.props.projectFields.StatusTMT, this._genericFieldUpdate.bind(this), this.getPeopleStyles );
-    let leader = this.createDateField(this.props.projectFields.DueDateTMT, this._genericFieldUpdate.bind(this), this.getPeopleStyles );
-    let team = this.createDateField(this.props.projectFields.CompletedDateTMT, this._genericFieldUpdate.bind(this), this.getPeopleStyles );
+    //let everyone = this.createTextField(this.props.projectFields.Everyone, this._genericFieldUpdate.bind(this), this.getPeopleStyles );
+    let leader = this.createPeopleField(this.props.projectFields.Leader, 1, this._updateLeader.bind(this), this.getPeopleStyles );
+    let team = this.createPeopleField(this.props.projectFields.Team, 5, this._updateTeam.bind(this), this.getPeopleStyles );
 
     let fields =
     <div style={{ backgroundColor: colorPeople.light, padding: 10, paddingBottom: 20 }}>
     <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-        {  }
-        {  }
+        { leader }
+        { team }
         {  }
         {  }
     </Stack></div>;  {/* Stack for Buttons and Fields */}
@@ -390,6 +464,20 @@ private buildPeopleFields(isVisible: boolean) {
 
   }
 
+  
+  private _updateLeader(newValue){
+    let selectedProject = this.state.selectedProject;
+    //selectedProject.leader = newValue;
+    console.log('_updateLeader:', newValue);
+    this.setState({ selectedProject: selectedProject });
+  }
+
+  private _updateTeam(newValue){
+    let selectedProject = this.state.selectedProject;
+    //selectedProject.team = newValue;
+    console.log('_updateTeam:', newValue);
+    this.setState({ selectedProject: selectedProject });
+  }  
 
  
 
@@ -444,10 +532,10 @@ private getTaskStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles> {
 
 private buildTaskFields(isVisible: boolean) {
 
-    let status = this.createTextField(this.props.projectFields.StatusTMT, this._genericFieldUpdate.bind(this), this.getTaskStyles );
+    let status = this._createDropdownField(this.props.projectFields.StatusTMT, this._updateStatusChange.bind(this), this.getTaskStyles );
     let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), this.getTaskStyles );
     let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), this.getTaskStyles );
-    let completedBy = this.createTextField(this.props.projectFields.CompletedByTMT, this._genericFieldUpdate.bind(this), this.getTaskStyles );
+    let completedBy = this.createPeopleField(this.props.projectFields.CompletedByTMT, 1, this._updateCompletedBy.bind(this), this.getPeopleStyles );
 
     let fields =
     <div style={{ backgroundColor: colorTask.light, padding: 10, paddingBottom: 20 }}>
@@ -461,6 +549,32 @@ private buildTaskFields(isVisible: boolean) {
     return fields;
 
   }
+
+  private _updateStatusChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+    console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
+
+    let selectedProject = this.state.selectedProject;
+    selectedProject.status = item.text;
+    this.setState({ selectedProject: selectedProject });
+
+ //   let storyIndex = this.state.chartData.stories.titles.indexOf(item.text);
+ //   let storyTitle = storyIndex === -1 ? 'None' : this.state.chartData.stories.titles[storyIndex];
+
+    //let thisStory = {key: storyTitle, text: storyTitle};
+    //this.processChartData(this.state.selectedUser,['what??'],10,'string',thisStory, null, this.state.chartStringFilter );
+
+    //this.props._updateStory({key: storyTitle, text: storyTitle});
+    //let newUserFilter = this.state.userFilter;
+    //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
+    //this.processChartData(newUserFilter,['what??'],10,'string',item, null);
+}
+
+  private _updateCompletedBy(newValue){
+    let selectedProject = this.state.selectedProject;
+    //selectedProject.team = newValue;
+    console.log('_updateCompletedBy:', newValue);
+    this.setState({ selectedProject: selectedProject });
+  }  
 
   private _updateDueDate(newValue: string){
     let selectedProject = this.state.selectedProject;
@@ -537,22 +651,22 @@ private buildTaskFields(isVisible: boolean) {
    private _findNamedElementID(element2: HTMLElement){
     let fieldID = null;
     let testElement = element2;
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
-    if (testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
+    if (testElement.id != null && testElement.id.indexOf(pageIDPref) === 0 ) { return testElement.id.replace(pageIDPref,''); } else { testElement = testElement.parentElement ; }
     return fieldID;
 
    }
