@@ -86,6 +86,8 @@ export interface ITrackMyTimeWebPartProps {
   syncProjectPivotsOnToggle: boolean;  //always keep pivots in sync when toggling projects/history
 
   projectType?:boolean; //Projects = 0 History = 1
+  defProjEditOptions?: string;
+
   projActivityRule?: string;  //title=NoTitleType-Activity
 
   // 5 - UI Defaults
@@ -222,6 +224,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
         syncProjectPivotsOnToggle: this.properties.syncProjectPivotsOnToggle, //always keep pivots in sync when toggling projects/history
 
         projectType: this.properties.projectType, //Projects = 0 History = 1
+        defProjEditOptions : this.properties.defProjEditOptions ,
 
         projActivityRule: this.properties.projActivityRule ? this.properties.projActivityRule : 'title=Replace...<Title>: <Type>-<Activity>',  // is same as 'title=<Type>-<Activity>'
 
@@ -449,6 +452,13 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const dueDate: IFieldAddResult = await ensureResult.list.fields.addDateTime("DueDateTMT", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Description: fieldDescription });
             const completeDate: IFieldAddResult = await ensureResult.list.fields.addDateTime("CompletedDateTMT", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Description: fieldDescription });
             const completedBy: IFieldAddResult = await ensureResult.list.fields.addUser("CompletedByTMT", FieldUserSelectionMode.PeopleOnly, { Group: columnGroup, Description: fieldDescription, Indexed: true });
+
+
+            fieldDescription = "Hidden field used to remember settings on Project Edit page for this project.";
+            const projectEditOptions: IFieldAddResult = await ensureResult.list.fields.addText("ProjectEditOptions", 255, { Group: columnGroup, Description: fieldDescription });
+            
+            const projectEditOption2= await ensureResult.list.fields.getByTitle("OriginalHours").update({ Hidden: true });
+
             const dueDate2= await ensureResult.list.fields.getByTitle("DueDateTMT").update({ Title: 'Due Date' });
             const completeDate2= await ensureResult.list.fields.getByTitle("CompletedDateTMT").update({ Title: 'Completed' });
             const completedBy2= await ensureResult.list.fields.getByTitle("CompletedByTMT").update({ Title: 'Completed By' });

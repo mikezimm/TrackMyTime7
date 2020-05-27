@@ -43,6 +43,9 @@ export interface ITrackMyTime7Props {
 
   projectType:boolean; //Projects = 0 History = 1
 
+  defProjEditOptions: string;  // Semi-colon separated edit options which determine default toggles in project edit screen... 
+                               // Valid ones "reporting;people;activity;task;advanced;layout1-5",
+
   // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
   // title special words:  Replace..., IgnoreTitle, Derive
   // Special shortcuts:  title=Replace...TypeActivity - replace Title only if it's value is ...

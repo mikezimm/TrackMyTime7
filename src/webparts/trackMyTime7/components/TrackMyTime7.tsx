@@ -70,6 +70,8 @@ const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
 };
 
+const defProjEditOptions = 'reporting;people';
+
 export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, ITrackMyTime7State> {
 
 /***
@@ -398,6 +400,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                                                       
  */
 
+
   public constructor(props:ITrackMyTime7Props){
     super(props);
     let projWeb = this.cleanURL(this.props.projectListWeb ? this.props.projectListWeb : props.pageContext.web.absoluteUrl);
@@ -446,6 +449,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       pivotDefSelKey:"",
       onlyActiveProjects: this.props.onlyActiveProjects,
       projectType: this.props.projectType,
+
       syncProjectPivotsOnToggle: this.props.syncProjectPivotsOnToggle, //always keep pivots in sync when toggling projects/history
 
       projActivityRule: this.createActURLRules(this.props.projActivityRule),
@@ -2759,6 +2763,8 @@ public toggleTips = (item: any): void => {
           bgColor: getThisOption(pOptions,'=', 'bgColor'),
           font: getFontOptions(pOptions,'='),
           icon: getIconOptions(pOptions,'='),
+
+          projectEditOptions: p.ProjectEditOptions == null ? defProjEditOptions : p.ProjectEditOptions,
 
         };
 

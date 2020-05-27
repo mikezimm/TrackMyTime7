@@ -233,6 +233,7 @@ export interface IProjectOptions{
   bgColor?: string;
   font?: IMyFonts;
   icon?: IMyIcons;
+  projectEditOptions?: string;
 
 }
 
@@ -263,6 +264,7 @@ export interface IProject {
 
   timeTarget?: IProjectTarget;
   projOptions?: IProjectOptions;
+  defProjEditOptions?: string;
 
   //This might be computed at the time page loads
   lastEntry?: any;  //Should be a time entry

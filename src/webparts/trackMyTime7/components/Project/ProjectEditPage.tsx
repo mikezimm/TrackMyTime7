@@ -19,6 +19,7 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { IFormFields, IProjectFormFields, IFieldDef } from '../fields/fieldDefinitions';
 import { dateConvention ,showMonthPickerAsOverlay,showWeekNumbers,timeConvention,showGoToToday,timeDisplayControlType} from '../fields/dateFieldBuilder';
 import { DateTimePicker, DateConvention, TimeConvention, TimeDisplayControlType } from '@pnp/spfx-controls-react/lib/dateTimePicker';
+import { Toggle, IToggleStyleProps, IToggleStyles } from 'office-ui-fabric-react/lib/Toggle';
 
 import * as formBuilders from '../fields/textFieldBuilder';
 import * as choiceBuilders from '../fields/choiceFieldBuilder';
@@ -45,29 +46,111 @@ export interface IProjectPageProps {
     selectedProject: IProject;
     projectFields: IProjectFormFields;
     wpContext: WebPartContext;
+    // Valid ones "reporting;people;activity;task;advanced;layout1-5",
 }
 
 export interface IProjectPageState {
     showProjectScreen?: string;
     selectedProject?: IProject;
+    showTask?:boolean;
+    showActivity?: boolean;
+    showReporting?: boolean;
+    showPeople?: boolean;
+    showAdvanced?: boolean;
+    projectEditOptions?: string[];
 }
 
 const pageIDPref = 'ProjectTMT';
 const colorReporting = {primary:'purple',light:'lavender'};
 const colorTask = {primary:'darkgreen',light:'lightgreen'};
-const colorPeople = {primary:'darkred',light:'lightcoral'};
-const colorAdvanced = {primary:'darkorange',light:'orange'};
+const colorPeople = {primary:'darkred',light:'#fdc0b9'};
+const colorAdvanced = {primary:'#663500',light:'wheat'};
 const colorActivity = {primary:'blue',light:'powderblue'};
+const colorCC = {primary:'blue',light:'powderblue'};
 
 const stackFormRowTokens: IStackTokens = { childrenGap: 10 };
+const fieldWidth = 200;
+
+const stylesToggleRoot = { width: 130, paddingTop: 13 } ; // { root: { width: 120, paddingTop: 13 } };
+const stylesToggleBase = {root: stylesToggleRoot , pill: null, container: null, thumb: null, label: null};
+
+//Syntax for adding const:  https://stackoverflow.com/a/52084409/4210807
+const stylesReportToggle: IToggleStyles = { text: {color: colorReporting.primary, fontWeight: 700 } , ...stylesToggleBase };
+const stylesTaskToggle: IToggleStyles = { text: {color: colorTask.primary, fontWeight: 700 } , ...stylesToggleBase };
+const stylesPeopleToggle: IToggleStyles = { text: {color: colorPeople.primary, fontWeight: 700 } , ...stylesToggleBase };
+const stylesAdvancedToggle: IToggleStyles = { text: {color: colorAdvanced.primary, fontWeight: 700 } , ...stylesToggleBase };
+const stylesActivityToggle: IToggleStyles = { text: {color: colorActivity.primary, fontWeight: 700 } , ...stylesToggleBase };
+const stylesCCToggle: IToggleStyles = { text: {color: colorCC.primary, fontWeight: 700 } , ...stylesToggleBase };
+
+const statusChoices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`,`9. Closed`];
+const activityTMTChoices = [`TMT Issue`, `Socialiis Issue`];
 
 export function getChoiceKey(val: string) {
 
-    return val.replace(' ','SPACE').replace('.','DOT').replace('~','TILDE').replace('~','COMMA');
+    if (val === null) {  
+      console.log('getChoiceKey is null');
+      return'valueIsNull'; }
+    else if (val === undefined) {  
+      console.log('getChoiceKey is undefined');
+      return'valueIsNull'; }
+    else {
+      return val.replace(' ','SPACE').replace('.','DOT').replace('~','TILDE').replace('~','COMMA');
+    }
 
 }
 
 export default class MyProjectPage extends React.Component<IProjectPageProps, IProjectPageState> {
+
+
+  private createStateProject(showProjectScreen: string, selectedProject: IProject) {
+
+    let stateProject: IProject = JSON.parse(JSON.stringify(selectedProject));
+    
+    if ( showProjectScreen === "NEW") {
+
+      stateProject.titleProject = null;
+
+      //Reporting columns
+      stateProject.category1 = null;
+      stateProject.category2 = null;
+      stateProject.projectID1.value = null;
+      stateProject.projectID2.value = null;
+      stateProject.story = null;
+      stateProject.chapter = null;
+
+      //Activity Columns
+      stateProject.projOptions.type = null;
+      stateProject.projOptions.activity = null;
+
+      //People Columns
+      stateProject.everyone = false;
+      stateProject.leader = null;
+      stateProject.team = null;
+
+      //Task Columns
+      stateProject.status = null;
+      stateProject.dueDate = null;
+      stateProject.completedDate = null;
+      stateProject.completedBy = null;
+      
+      //Advanced Columns
+      stateProject.ccEmail = null;
+      stateProject.ccList = null;
+      stateProject.projOptions.optionString = null;
+      stateProject.sortOrder = null;
+
+    } else if ( showProjectScreen === "COPY") {
+      stateProject.titleProject = "Copy of " + stateProject.titleProject;
+      stateProject.status = null;
+      stateProject.dueDate = null;
+      stateProject.completedDate = null;
+      stateProject.completedBy = null;
+      stateProject.projOptions.activity = null;
+    } 
+
+    return stateProject;
+
+  }
 
     /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -84,11 +167,20 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     constructor(props: IProjectPageProps) {
         super(props);
+
+        let projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions.split(';');
+        let showProjectScreen = this.props.showProjectScreen === "edit" ? "EDIT": this.props.showProjectScreen === "new" ? "NEW": this.props.showProjectScreen === "copy" ? "COPY": "HELP!";
     
         this.state = {
-            selectedProject: JSON.parse(JSON.stringify(this.props.selectedProject)),
-            showProjectScreen : this.props.showProjectScreen === "edit" ? "EDIT": this.props.showProjectScreen === "new" ? "NEW": this.props.showProjectScreen === "copy" ? "COPY": "HELP!"
-        };
+            selectedProject: this.createStateProject(showProjectScreen, this.props.selectedProject),
+            showProjectScreen : showProjectScreen,
+            showTask: projectEditOptions.indexOf('task') > -1 ? true : false,
+            showActivity: projectEditOptions.indexOf('activity') > -1 ? true : false,
+            showReporting: projectEditOptions.indexOf('reporting') > -1 ? true : false,
+            showPeople: projectEditOptions.indexOf('people') > -1 ? true : false,
+            showAdvanced: projectEditOptions.indexOf('advanced') > -1 ? true : false,
+            projectEditOptions: projectEditOptions,
+          };
 
         this._genericFieldUpdate = this._genericFieldUpdate.bind(this);
         this._updateDueDate = this._updateDueDate.bind(this);
@@ -100,9 +192,11 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         this._updateCompletedBy = this._updateCompletedBy.bind(this);   
 
         this._updateStatusChange = this._updateStatusChange.bind(this);   
+
+        this._updateActivityID = this._updateActivityID.bind(this);   
+        this._updateActivityType = this._updateActivityType.bind(this);   
         
     }
-
         
     public componentDidMount() {
         //this._getListItems();
@@ -121,13 +215,31 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
      *                                                                                         
      */
 
-    public componentDidUpdate(prevProps){
-
-        let rebuildTiles = false;
-        //if (rebuildTiles === true) {
-            //this._updateStateOnPropsChange({});
-        //}
+    public componentDidUpdate(prevProps: IProjectPageProps): void {
+      //this._updateWebPart(prevProps);
     }
+
+
+      /**
+     * Set the current zone width
+     */
+    private _updateWebPart = (prevProps: IProjectPageProps) => {
+
+      let projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions.split(';');
+      let showProjectScreen = this.props.showProjectScreen === "edit" ? "EDIT": this.props.showProjectScreen === "new" ? "NEW": this.props.showProjectScreen === "copy" ? "COPY": "HELP!";
+
+        this.state = {
+          selectedProject: this.createStateProject(showProjectScreen, this.props.selectedProject),
+          showProjectScreen : showProjectScreen,
+          showTask: projectEditOptions.indexOf('task') > -1 ? true : false,
+          showActivity: projectEditOptions.indexOf('activity') > -1 ? true : false,
+          showReporting: projectEditOptions.indexOf('reporting') > -1 ? true : false,
+          showPeople: projectEditOptions.indexOf('people') > -1 ? true : false,
+          showAdvanced: projectEditOptions.indexOf('advanced') > -1 ? true : false,
+          projectEditOptions: projectEditOptions,
+        };
+    }
+
 
     /***
      *         d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
@@ -145,6 +257,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         console.log('Rendering Project Edit Page');
         console.log('projectFields:', this.props.projectFields);
         console.log('props.selectedProject:', this.props.selectedProject);
+        console.log('state:', this.state);
         console.log('state.selectedProject:', this.state.selectedProject);
 
         let isSaveButtonDisabled = false;
@@ -162,24 +275,27 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         },{
             disabled: isSaveButtonDisabled, checked: true, primary: true,
             label: saveLabel, buttonOnClick: this.saveProject.bind(this),
-        },];
+          },];
+
+        let pageTitle = <div style={{ paddingTop: '0px' }}>
+          <h2>{"Track My Time:  Project " + this.state.showProjectScreen }</h2>
+          <h3>{ this.state.selectedProject === null ? 'New Project' : this.state.selectedProject.titleProject}</h3>
+        </div>;
 
         let saveButtons = 
         <div style={{ paddingTop: '20px' }}>
-
-            <h2>{"Track My Time:  Project " + this.state.showProjectScreen }</h2>
-            <h3>{ this.props.selectedProject === null ? 'New Project' : this.props.selectedProject.titleProject}</h3>
             <ButtonCompound
             buttons={buttons} horizontal={true}
             />
         </div>;
 
+        let columnToggles = this.buildToggles(true);
         let projectTitle = this.buildProjectTtitle(true);
-        let reportingFields = this.buildReportingFields(true);
-        let advancedFields = this.buildAdvancedFields(true);
-        let taskFields = this.buildTaskFields(true);
-        let peopleFields = this.buildPeopleFields(true);
-        let activityFields = this.buildActivityFields(true);
+        let reportingFields = this.state.showReporting ? this.buildReportingFields(true) : null;
+        let advancedFields = this.state.showAdvanced ? this.buildAdvancedFields(true) : null;
+        let taskFields = this.state.showTask ? this.buildTaskFields(true) : null;
+        let activityFields = this.state.showActivity ? this.buildActivityFields(true) : null;
+        //let peopleFields = this.state.showPeople ? this.buildPeopleFields(true) : null;
 
   /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -195,14 +311,18 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         // <div className={ styles.container }></div>
         return (
         <div className={ styles.projectPage }>
+            { pageTitle }
+            { columnToggles }
+            { projectTitle }
             <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-                { projectTitle }
-                { reportingFields }
-                { advancedFields }   
-                { taskFields }  
-                { peopleFields }  
+              { reportingFields }
+              { /*peopleFields*/ }  
+            </Stack>
+            <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+ 
                 { activityFields }  
-                
+                { taskFields }  
+                { advancedFields }   
             </Stack>    
             { saveButtons }
         </div>
@@ -251,20 +371,24 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     private createTextField(field: IFieldDef, _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
         let defaultValue = null;
-        if (field.name === "category1" || field.name === "category2" )  { defaultValue = this.props.selectedProject[field.name] === null ? '' : this.props.selectedProject[field.name].join(';'); }
-        else if (field.name === "projectID1" || field.name === "projectID2" )  { defaultValue = this.props.selectedProject[field.name].value; }
+        if (field.name === "category1" || field.name === "category2" )  { defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject[field.name].join(';'); }
+        else if (field.name === "projectID1" || field.name === "projectID2" )  { defaultValue = this.state.selectedProject[field.name].value; }
         else if (field.name === "timeTarget" )  { 
-            defaultValue = this.props.selectedProject[field.name] === null ? '' : this.props.selectedProject[field.name].value;
-            console.log('createTextField: ' + field.name,this.props.selectedProject );
+            defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject[field.name].value;
+            console.log('createTextField: ' + field.name,this.state.selectedProject );
          }
-         else if (field.name === "projOptions")  { 
-            defaultValue = this.props.selectedProject[field.name] === null ? '' : this.props.selectedProject[field.name].optionString;
-            console.log('createTextField: ' + field.name,this.props.selectedProject );
-         }         
-        else if (field.type === 'Text') { defaultValue = this.props.selectedProject[field.name]; }
-        else if (field.type === 'Smart') { defaultValue = this.props.selectedProject[field.name].value; }
-        else if (field.type === 'Time') { defaultValue = this.props.selectedProject[field.name].value; }
-        else if (field.type === 'Link') { defaultValue = this.props.selectedProject[field.name].value; }
+         else if (field.name === "optionString")  { 
+            defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject.projOptions.optionString;
+            console.log('createTextField: ' + field.name,this.state.selectedProject );
+
+         } else if (field.name === "activity") {
+            defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject.projOptions.activity;
+
+        } 
+        else if (field.type === 'Text') { defaultValue = this.state.selectedProject[field.name]; }
+        else if (field.type === 'Smart') { defaultValue = this.state.selectedProject[field.name].value; }
+        else if (field.type === 'Time') { defaultValue = this.state.selectedProject[field.name].value; }
+        else if (field.type === 'Link') { defaultValue = this.state.selectedProject[field.name].value; }
 
         let thisField = <div id={ pageIDPref + field.column }><TextField
             className={ stylesT.textField }
@@ -285,7 +409,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         return (
             // Uncontrolled
-            <div id={ pageIDPref + field.column }>
+            <div id={ pageIDPref + field.column } style={{ width: fieldWidth }}>
+            
             <DateTimePicker 
                 label={field.title}
                 value={timeStamp}
@@ -305,7 +430,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         return (
             // Uncontrolled
-            <div id={ pageIDPref + field.column }>
+            <div id={ pageIDPref + field.column } style={{ width: fieldWidth }}>
                 <PeoplePicker
                     context={this.props.wpContext}
                     //defaultSelectedUsers?: string[];
@@ -325,12 +450,12 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     }
 
-    private _createDropdownField(field: IFieldDef, _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+    private _createDropdownField(field: IFieldDef, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
         const dropdownStyles: Partial<IDropdownStyles> = {
-            dropdown: { width: 150 }
+            dropdown: { width: fieldWidth }
           };
 
-          const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`, `9. Cancelled`,`9. Closed`];
+
 
           let sOptions: IDropdownOption[] = choices == null ? null : 
             choices.map(val => {
@@ -340,20 +465,99 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
                   };
               });
 
+          let keyVal = null;
+          if ( field.name === "status" ) { keyVal = this.state.selectedProject[field.name]; } 
+          if ( field.name === "activityType" ) { keyVal = this.state.selectedProject.projOptions.type; } 
+
           let thisDropdown = sOptions == null ? null : <div
-              style={{  paddingTop: 10  }}
+              //style={{  paddingTop: 10  }}
                 ><Dropdown 
                 label={ field.title }
-                selectedKey={ getChoiceKey(this.state.selectedProject[field.name]) }
+                selectedKey={ getChoiceKey(keyVal) }
                 onChange={ _onChange }
                 options={ sOptions } 
-                styles={{  dropdown: { width: 175 }   }}
+                styles={ dropdownStyles }
               />
             </div>;
 
         return thisDropdown;
 
     }
+
+        
+    private buildSimpleToggle( thisLabel, _onChange: any, checked: boolean, thisStyle: IToggleStyles ) {
+      let toggleTask = <div id={ pageIDPref + thisLabel }>
+        <Toggle label="" 
+          onText={ thisLabel } 
+          offText={ thisLabel } 
+          onChange={ _onChange } 
+          checked={ checked }
+          styles={ thisStyle }
+        /></div>;
+
+      return toggleTask;
+    }
+
+    /***
+ *    d8888b. db    db d888888b db      d8888b.      d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
+ *    88  `8D 88    88   `88'   88      88  `8D      `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
+ *    88oooY' 88    88    88    88      88   88         88    88    88 88      88      88      88ooooo `8bo.   
+ *    88~~~b. 88    88    88    88      88   88         88    88    88 88  ooo 88  ooo 88      88~~~~~   `Y8b. 
+ *    88   8D 88b  d88   .88.   88booo. 88  .8D         88    `8b  d8' 88. ~8~ 88. ~8~ 88booo. 88.     db   8D 
+ *    Y8888P' ~Y8888P' Y888888P Y88888P Y8888D'         YP     `Y88P'   Y888P   Y888P  Y88888P Y88888P `8888Y' 
+ *                                                                                                             
+ *                                                                                                             
+ */
+
+
+private buildToggles(isVisible: boolean) {
+
+  let toggleTask = this.buildSimpleToggle('Task', this._updateToggleState.bind(this) , this.state.showTask, stylesTaskToggle );
+  let toggleActivity = this.buildSimpleToggle('Activity', this._updateToggleState.bind(this) , this.state.showActivity, stylesActivityToggle );
+  let toggleReporting = this.buildSimpleToggle('Reporting', this._updateToggleState.bind(this) , this.state.showReporting, stylesReportToggle );
+  let togglePeople = this.buildSimpleToggle('People', this._updateToggleState.bind(this) , this.state.showPeople, stylesPeopleToggle );
+  let toggleAdvanced = this.buildSimpleToggle('Advanced', this._updateToggleState.bind(this) , this.state.showAdvanced, stylesAdvancedToggle );
+
+  let fields =
+  <div style={{ backgroundColor: 'lightGray', padding: 10, paddingBottom: 20  }} className={styles.toggleRow}>
+  <Stack horizontal={true} wrap={true} horizontalAlign={ "space-evenly"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+
+  { toggleReporting }
+  { togglePeople }
+  { toggleActivity }
+  { toggleTask }
+  { toggleAdvanced }
+  </Stack></div>;  {/* Stack for Buttons and Fields */}
+
+  return fields;
+
+}
+
+
+private _updateToggleState(ev: EventTarget){
+  var element2 = event.target as HTMLElement;
+  var element3 = event.currentTarget as HTMLElement;
+  let fieldID = this._findNamedElementID(element2);
+  if (fieldID == null ) { fieldID = this._findNamedElementID(element3); } 
+  if( this.state['show' + fieldID] === null ) {
+      alert('Had some kind of problem with this.props.projectFields[' + fieldID + ']'); 
+      console.log('_genericFieldUpdate projectFields error:', fieldID, this.props.projectFields);
+  }
+  let thisProp = !this.state['show' + fieldID];
+  //selectedProject.titleProject = newValue;
+  console.log('_updateToggleTask: to ', fieldID, thisProp, ev);
+  if (fieldID === 'Reporting' && thisProp === false) {
+    this.setState({ ['show' + fieldID]: thisProp, showPeople: false });
+
+  } else if (fieldID === 'People'  && thisProp === true) {
+    this.setState({ ['show' + fieldID]: thisProp, showReporting: true });
+  } else {
+    this.setState({ ['show' + fieldID]: thisProp });
+  }
+
+}
+
+
 
 /***
  *    d888888b d888888b d888888b db      d88888b      d88888b d888888b d88888b db      d8888b. .d8888. 
@@ -368,14 +572,15 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
   private buildProjectTtitle(isVisible: boolean) {
 
-    let title =     <TextField
-        defaultValue={ this.props.selectedProject.titleProject }
+    let title = <div style= {{ paddingBottom: 20 }}>
+      <TextField
+        defaultValue={ this.state.selectedProject.titleProject }
         label={ this.props.projectFields.Title.title }
         placeholder={ "Enter " + this.props.projectFields.Title.title }
         autoComplete='off'
         onChanged={ this._updateProjectTitle.bind(this) }
         required={ true }
-    />;
+    /></div>;
 
     return title;
   }
@@ -401,7 +606,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     //Format copied from:  https://developer.microsoft.com/en-us/fluentui#/controls/web/textfield
     private getReportingStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles> {
         const { required } = props;
-        return { fieldGroup: [ { width: 200 }, { borderColor: colorReporting.primary, }, ], };
+        return { fieldGroup: [ { width: fieldWidth }, { borderColor: colorReporting.primary, }, ], };
     }
 
 
@@ -414,15 +619,24 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     let chapter = this.createTextField(this.props.projectFields.Chapter, this._genericFieldUpdate.bind(this), this.getReportingStyles );
     let story = this.createTextField(this.props.projectFields.Story, this._genericFieldUpdate.bind(this), this.getReportingStyles );
 
+    let peopleFields = this.state.showPeople ? this.buildPeopleFields(true) : null;
+
     let fields =
-    <div style={{ backgroundColor: colorReporting.light, padding: 10, paddingBottom: 20 }}>
-    <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-    { category1 }
-    { category2 }
-    { projectID1 }
-    { projectID2 }
-    { story }
-    { chapter }
+    <div style={{ backgroundColor: colorReporting.light, padding: 10, paddingBottom: 20, display: 'inline-block' }}>
+    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+      <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+        { category1 }
+        { category2 }
+      </Stack>
+      <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+      { projectID1 }
+      { projectID2 }
+      </Stack>
+      <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+        { story }
+        { chapter }
+      </Stack>
+      { peopleFields }
     </Stack></div>;  {/* Stack for Buttons and Fields */}
 
     return fields;
@@ -442,28 +656,46 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
 private getPeopleStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles> {
     const { required } = props;
-    return { fieldGroup: [ { width: 200 }, { borderColor: colorPeople.primary, }, ], };
+    return { fieldGroup: [ { width: fieldWidth }, { borderColor: colorPeople.primary, }, ], };
 }
 
 private buildPeopleFields(isVisible: boolean) {
+
+  let toggleEveryone = <Toggle label="" 
+    onText={ 'Everyone' } 
+    offText={ 'Everyone' } 
+    onChange={this._updateEveryone.bind(this)} 
+    checked={this.state.selectedProject.everyone}
+    styles={{ root: { width: fieldWidth, paddingTop: 13, } }}
+  />;
 
     //let everyone = this.createTextField(this.props.projectFields.Everyone, this._genericFieldUpdate.bind(this), this.getPeopleStyles );
     let leader = this.createPeopleField(this.props.projectFields.Leader, 1, this._updateLeader.bind(this), this.getPeopleStyles );
     let team = this.createPeopleField(this.props.projectFields.Team, 5, this._updateTeam.bind(this), this.getPeopleStyles );
 
     let fields =
-    <div style={{ backgroundColor: colorPeople.light, padding: 10, paddingBottom: 20 }}>
-    <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-        { leader }
-        { team }
-        {  }
-        {  }
+    <div 
+      style={{ backgroundColor: colorPeople.light, padding: 10, paddingBottom: 20 }}
+    >
+    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+        { toggleEveryone }
+        <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+          { leader }
+          { team }
+          {  }
+        </Stack>
     </Stack></div>;  {/* Stack for Buttons and Fields */}
 
     return fields;
 
   }
 
+  private _updateEveryone(){
+    let selectedProject = this.state.selectedProject;
+    selectedProject.everyone = !selectedProject.everyone;
+    console.log('_updateEveryone set to:', selectedProject.everyone);
+    this.setState({ selectedProject: selectedProject });
+  }
   
   private _updateLeader(newValue){
     let selectedProject = this.state.selectedProject;
@@ -494,25 +726,43 @@ private buildPeopleFields(isVisible: boolean) {
 
 private getActivityStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles> {
     const { required } = props;
-    return { fieldGroup: [ { width: 200 }, { borderColor: colorActivity.primary, }, ], };
+    return { fieldGroup: [ { width: fieldWidth }, { borderColor: colorActivity.primary, }, ], };
 }
 
 private buildActivityFields(isVisible: boolean) {
-
-    let activity = this.createTextField(this.props.projectFields.StatusTMT, this._genericFieldUpdate.bind(this), this.getActivityStyles );
-    let activityTYpe = this.createDateField(this.props.projectFields.DueDateTMT, this._genericFieldUpdate.bind(this), this.getActivityStyles );
+    let activityType = this._createDropdownField(this.props.projectFields.ActivityType, activityTMTChoices, this._updateActivityType.bind(this), this.getActivityStyles );
+    let activity = this.createTextField(this.props.projectFields.ActivityTMT, this._updateActivityID.bind(this), this.getActivityStyles );
 
     let fields =
-    <div style={{ backgroundColor: colorActivity.light, padding: 10, paddingBottom: 20 }}>
+    <div 
+    //    <div style={{ backgroundColor: colorTask.light, padding: 10, paddingBottom: 20 }}>
+      style={{ backgroundColor: colorActivity.light, padding: 10, paddingBottom: 20 }}
+    >
     <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-        {  }
-        {  }
+        { activityType }
+        { activity }
         {  }
         {  }
     </Stack></div>;  {/* Stack for Buttons and Fields */}
 
     return fields;
 
+  }
+
+  private _updateActivityType = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+    console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
+
+    let selectedProject = this.state.selectedProject;
+    selectedProject.projOptions.type = item.text;
+    this.setState({ selectedProject: selectedProject });
+  }
+
+  private _updateActivityID ( ev: EventTarget )  {
+    console.log(`_updateActivityID: ${ev}`);
+    let fieldVal : any = ev;
+    let selectedProject = this.state.selectedProject;
+    selectedProject.projOptions.activity = fieldVal;
+    this.setState({ selectedProject: selectedProject });
   }
 
  /***
@@ -525,25 +775,30 @@ private buildActivityFields(isVisible: boolean) {
  *                                                                                           
  *                                                                                           
  */
+
 private getTaskStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles> {
     const { required } = props;
-    return { fieldGroup: [ { width: 200 }, { borderColor: colorTask.primary, }, ], };
+    return { fieldGroup: [ { width: fieldWidth }, { borderColor: colorTask.primary, }, ], };
 }
 
 private buildTaskFields(isVisible: boolean) {
 
-    let status = this._createDropdownField(this.props.projectFields.StatusTMT, this._updateStatusChange.bind(this), this.getTaskStyles );
+    let status = this._createDropdownField(this.props.projectFields.StatusTMT, statusChoices, this._updateStatusChange.bind(this), this.getTaskStyles );
     let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), this.getTaskStyles );
     let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), this.getTaskStyles );
     let completedBy = this.createPeopleField(this.props.projectFields.CompletedByTMT, 1, this._updateCompletedBy.bind(this), this.getPeopleStyles );
 
     let fields =
     <div style={{ backgroundColor: colorTask.light, padding: 10, paddingBottom: 20 }}>
-    <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-        { status }
-        { dueDate }
-        { completedDate }
-        { completedBy }
+    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+      <Stack horizontal={false} wrap={false} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+          { status }
+          { dueDate }
+        </Stack>
+        <Stack horizontal={false} wrap={false} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+          { completedDate }
+          { completedBy }
+        </Stack>
     </Stack></div>;  {/* Stack for Buttons and Fields */}
 
     return fields;
@@ -567,7 +822,7 @@ private buildTaskFields(isVisible: boolean) {
     //let newUserFilter = this.state.userFilter;
     //NOTE:  This is a duplicate call under componentDidUpdate but is required to redraw charts on story change.
     //this.processChartData(newUserFilter,['what??'],10,'string',item, null);
-}
+  }
 
   private _updateCompletedBy(newValue){
     let selectedProject = this.state.selectedProject;
@@ -603,7 +858,7 @@ private buildTaskFields(isVisible: boolean) {
     //Format copied from:  https://developer.microsoft.com/en-us/fluentui#/controls/web/textfield
     private getAdvancedStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles> {
         const { required } = props;
-        return { fieldGroup: [ { width: 200 }, { borderColor: colorAdvanced.primary, }, ], };
+        return { fieldGroup: [ { width: fieldWidth }, { borderColor: colorAdvanced.primary, }, ], };
     }
 
   private buildAdvancedFields(isVisible: boolean) {
@@ -616,12 +871,16 @@ private buildTaskFields(isVisible: boolean) {
 
     let fields =
     <div style={{ backgroundColor: colorAdvanced.light, padding: 10, paddingBottom: 20 }}>
-    <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-    { email }
-    { list }
-    { options }
-    { timetarget }
-    { sort }
+    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+      <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+        { email }
+        { list }
+      </Stack>
+      <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+        { options }
+        { timetarget }
+        { sort }
+      </Stack>
     </Stack></div>;  {/* Stack for Buttons and Fields */}
 
     return fields;
@@ -696,9 +955,9 @@ private buildTaskFields(isVisible: boolean) {
     else if ( fieldName === "projOptions" )  { selectedProject[fieldName].optionString = fieldVal; }
     else if (this.props.projectFields[fieldID].type === 'Text') { selectedProject[fieldName] = fieldVal; }
     else if (this.props.projectFields[fieldID].type === 'Date') { selectedProject[fieldName] = fieldVal; }
-    //else if (field.type === 'Smart') { defaultValue = this.props.selectedProject[fieldID].value; }
-    //else if (field.type === 'Time') { defaultValue = this.props.selectedProject[fieldID].value; }
-    //else if (field.type === 'Link') { defaultValue = this.props.selectedProject[fieldID].value; }
+    //else if (field.type === 'Smart') { defaultValue = this.state.selectedProject[fieldID].value; }
+    //else if (field.type === 'Time') { defaultValue = this.state.selectedProject[fieldID].value; }
+    //else if (field.type === 'Link') { defaultValue = this.state.selectedProject[fieldID].value; }
 
     this.setState({ selectedProject: selectedProject });
 

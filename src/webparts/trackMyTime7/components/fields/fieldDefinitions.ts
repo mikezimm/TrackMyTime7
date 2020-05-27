@@ -49,6 +49,7 @@ export interface IProjectFormFields {
     Leader: IFieldDef;
     Team: IFieldDef;
     
+    ProjectEditOptions: IFieldDef;
     ActivityType: IFieldDef;
     ActivityTMT: IFieldDef;
 
@@ -122,6 +123,8 @@ export function buildProjectFormFields(parentProps:ITrackMyTime7Props , parentSt
         Leader: createEntryField("leader","Leader","Leader","User", true),
         Team: createEntryField("team","Team","Team","Users", true),
         
+        ProjectEditOptions: createEntryField("projectEditOptions","ProjectEditOptions","ProjectEditOptions","Text", true),
+
         ActivityType: createEntryField("activityType","ActivityType","ActivityType","Choice", true),
         ActivityTMT: createEntryField("activity","Activity","ActivityTMT","Text", true),
     
@@ -132,7 +135,7 @@ export function buildProjectFormFields(parentProps:ITrackMyTime7Props , parentSt
     
         CCEmail: createEntryField("ccEmail","Email","CCEmail","Text", true),
         CCList: createEntryField("ccList","List","CCList","Text", true),
-        OptionsTMT: createEntryField("projOptions","Options","OptionsTMT","Text", true),
+        OptionsTMT: createEntryField("optionString","Options","OptionsTMT","Text", true),
         TimeTarget: createEntryField("timeTarget","TimeTarget","TimeTarget","Text", true),
         SortOrder: createEntryField("sortOrder","SortOrder","SortOrder","Text", true),
 
