@@ -154,6 +154,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       stateProject.projOptions.activity = null;
     } 
 
+    stateProject.projOptions.projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions;
+
     return stateProject;
 
   }
@@ -262,7 +264,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         console.log('state:', this.state);
         console.log('state.selectedProject:', this.state.selectedProject);
 
-        let isSaveButtonDisabled = false;
+        let isSaveButtonDisabled = !this.checkEnableSave();
         let saveLabel = "Save";
         if (this.props.showProjectScreen === ProjectMode.New) { saveLabel = "Create New"; }
         if (this.props.showProjectScreen === ProjectMode.Edit) { saveLabel = "Update"; }
@@ -272,7 +274,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         [{  disabled: false,  checked: true, primary: false,
             label: "Cancel", buttonOnClick: this.cancelForm.bind(this),
         },{ 
-            disabled: false,  checked: true, primary: false,
+            disabled: isSaveButtonDisabled,  checked: true, primary: false,
             label: "Reset form", buttonOnClick: this.clearForm.bind(this),
         },{
             disabled: isSaveButtonDisabled, checked: true, primary: true,
@@ -353,45 +355,65 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     private clearForm() {
         console.log('cleared form');
         let selectedProject = this.createStateProject(this.props.showProjectScreen, this.props.selectedProject);
-        this.setState({ selectedProject: selectedProject });
+
+        let projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions.split(';');
+
+        this.setState({ 
+          selectedProject: selectedProject,
+          showTask: projectEditOptions.indexOf('task') > -1 ? true : false,
+          showActivity: projectEditOptions.indexOf('activity') > -1 ? true : false,
+          showReporting: projectEditOptions.indexOf('reporting') > -1 ? true : false,
+          showPeople: projectEditOptions.indexOf('people') > -1 ? true : false,
+          showAdvanced: projectEditOptions.indexOf('advanced') > -1 ? true : false,
+          projectEditOptions: projectEditOptions,
+        });
+
         alert('Project form has been reset to how it started.');
         //this.props._closeProjectEdit();
+    }
+
+    private checkEnableSave() {
+
+      let saveTest: any = false;
+      let didProjectChange = false;
+      let didTogglesChange = false;
+      let currentProjOptions = '';
+
+      //This should always be in alphabetical order to work because we sort the items when read in from project list.
+      if ( this.state.showActivity) {currentProjOptions += 'activity;'; }
+      if ( this.state.showAdvanced) {currentProjOptions += 'advanced;'; }
+      if ( this.state.showPeople) {currentProjOptions += 'people;'; }
+      if ( this.state.showReporting) {currentProjOptions += 'reporting;'; }
+      if ( this.state.showTask) {currentProjOptions += 'task;'; }
+
+      if ( currentProjOptions.length > 0 ) { currentProjOptions = currentProjOptions.substring(0,currentProjOptions.length -1) ; }
+
+      if ( currentProjOptions !== this.props.selectedProject.projOptions.projectEditOptions ) {
+        didTogglesChange = true;
+        //alert('Project Edit Options have changed!');
+      }
+
+      if (JSON.stringify(this.props.selectedProject) !== JSON.stringify(this.state.selectedProject) ) { 
+        didProjectChange = true;
+        //alert('Something has changed!  Not saving anything.');
+      } 
+
+      if ( didProjectChange || didTogglesChange ) { saveTest = true; }
+
+      return saveTest;
+
     }
 
     private saveProject() {
         console.log('saved form');
 
-        let saveTest: any = false;
-        let didProjectChange = false;
-        let didTogglesChange = false;
-        let currentProjOptions = '';
-        if ( this.state.showActivity) {currentProjOptions += 'activity;'; }
-        if ( this.state.showAdvanced) {currentProjOptions += 'advanced;'; }
-        if ( this.state.showPeople) {currentProjOptions += 'people;'; }
-        if ( this.state.showReporting) {currentProjOptions += 'reporting;'; }
-        if ( this.state.showTask) {currentProjOptions += 'task;'; }
-
-        if ( currentProjOptions.length > 0 ) { currentProjOptions = currentProjOptions.substring(0,currentProjOptions.length -1) ; }
-
-        if ( currentProjOptions !== this.props.selectedProject.projOptions.projectEditOptions ) {
-          didTogglesChange = true;
-          alert('Project Edit Options have changed!');
-
-        }
-
-        if (JSON.stringify(this.props.selectedProject) !== JSON.stringify(this.state.selectedProject) ) { 
-          didProjectChange = true;
-          alert('Something has changed!  Not saving anything.');
-
-        } 
-        
-        if ( saveTest ) {
+        if ( this.checkEnableSave() ) {
 
           let saveProject = this.buildProjectToSave(this.props.selectedProject, this.state.selectedProject, this.props.showProjectScreen );
           /*
           const projectWeb = Web(this.props.projectListWeb);
   
-          projectWeb.lists.getByTitle(this.props.projectListTitle).items.add().then((response) => {
+          projectWeb.lists.getByTitle(this.props.projectListTitle).items.add( saveProject ).then((response) => {
   
           });
   
@@ -405,12 +427,75 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     private buildProjectToSave( oldProject: IProject, newProject: IProject, mode: ProjectMode ){
 
       let saveItem: any = { };
-      saveItem = this.saveThisField( this.props.projectFields.Title, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Title, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CCEmail, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CCList, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.StatusTMT, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.ActivityTMT, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.ActivityType, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Story, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Chapter, oldProject, newProject, mode);
+
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.ProjectEditOptions, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Category1, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Category2, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.ProjectID1, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.ProjectID2, oldProject, newProject, mode);
+
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Everyone, oldProject, newProject, mode);
+
+
+      console.log('Will save this object to ID ' + this.props.selectedProject.id , saveItem);
+
+    }
+
+    private updateSaveObjectTitle(saveItem, field:  IFieldDef, oldProject: IProject, newProject: IProject, mode: ProjectMode){
+
+      let origVal = this.getProbjectValue(field, oldProject);
+      let newVal = this.getProbjectValue(field, newProject);
+
+      if (origVal !== newVal ) {
+        //Add column and value to object
+        console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
+        saveItem[field.column] = newVal;
+      }
+
+      return saveItem;
+    }
+
+    private getProbjectValue(field: IFieldDef, project:IProject ) {
+      let fieldName = field.name;
+      let objVal = project[fieldName];
+      let val = null;
+      if (fieldName === "category1" || fieldName === "category2" )  { val = objVal == null ? null : objVal.join(';'); }
+      else if (fieldName === "projectID1" || fieldName === "projectID2" || fieldName === "timeTarget" )  { val = objVal.value == null ? null : objVal.value ; }
+      else if ( fieldName === "projOptions" )  { val = objVal.optionString == null ? null : objVal.optionString; }
+      else if ( fieldName === "activityType" )  { val = project.projOptions.type == null ? null : project.projOptions.type;  }
+      else if ( fieldName === "activity" )  { val = project.projOptions.activity == null ? null : project.projOptions.activity;  }
+      else if ( fieldName === "projectEditOptions" )  { val = project.projOptions.projectEditOptions == null ? null : project.projOptions.projectEditOptions;  }
+
+      else if (field.type === 'Boolean') { val = objVal == null ? null : objVal; }
+      else if (field.type === 'Text') { val = objVal == null ? null : objVal; }
+      else if (field.type === 'Choice') { val = objVal == null ? null : objVal; }
+      else if (field.type === 'Date') { val = objVal == null ? null : objVal; }
+
+      return val;
 
     }
 
     private saveThisField( field:  IFieldDef, oldProject: IProject, newProject: IProject, mode: ProjectMode ) {
 
+      let fieldName = field.name;
+
+      /*
+
+      if (fieldName === "category1" || fieldName === "category2" )  { selectedProject[fieldName] = fieldVal == null ? null : fieldVal.split(';'); }
+      else if (fieldName === "projectID1" || fieldName === "projectID2" )  { selectedProject[fieldName].value = fieldVal; }
+      else if ( fieldName === "timeTarget" )  { selectedProject[fieldName].value = fieldVal; }
+      else if ( fieldName === "projOptions" )  { selectedProject[fieldName].optionString = fieldVal; }
+      else if (this.props.projectFields[fieldID].type === 'Text') { selectedProject[fieldName] = fieldVal; }
+      else if (this.props.projectFields[fieldID].type === 'Date') { selectedProject[fieldName] = fieldVal; }
+*/
 
     }
 
