@@ -23,6 +23,7 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
 import MyProjectPage from './Project/ProjectEditPage';
+import { ProjectMode } from './Project/ProjectEditPage';
 import InfoPage from './HelpInfo/infoPages';
 
 import CenterPane from './Project/CenterPane';
@@ -70,7 +71,21 @@ const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
 };
 
-const defProjEditOptions = 'reporting;people';
+const defProjEditOptions = cleanProjEditOptions('people;reporting');
+
+export function cleanProjEditOptions( str : string ){
+
+  if (str == null ) { return null; }
+
+  let arr = str.split(';').sort();
+
+  let filteredProjectEditOptions = arr.filter( (el) => {
+    return el != null;
+  });
+
+  return filteredProjectEditOptions.join(';');
+
+}
 
 export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, ITrackMyTime7State> {
 
@@ -486,7 +501,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       //selectedProjectIndex: null,  Adding these 2 sets the default as the first project ever time, then the number of the selection stays between pivots.
       //lastSelectedProjectIndex: null,
 
-      showProjectScreen: false,
+      showProjectScreen: ProjectMode.False,
 
       loadOrder: "",
       projectsLoadStatus:"Loading",
@@ -698,14 +713,20 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                                                               
  */
 
-    if (showProjectScreen !== false ) {
+    if (showProjectScreen !== ProjectMode.False ) {
 
       let projectPage = <MyProjectPage 
+
         wpContext= {this.props.wpContext}
         showProjectScreen={ this.state.showProjectScreen }
         selectedProject={this.state.selectedProject}
         _closeProjectEdit={ this._closeProjectEdit.bind(this)}
         projectFields={this.state.projectFields}
+        
+        // 2 - Source and destination list information
+        projectListTitle= { this.props.projectListTitle}
+        projectListWeb= { this.props.projectListWeb}
+
       ></MyProjectPage>;
 
       return (
@@ -1180,19 +1201,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private _newProject(){
     console.log('Clicked _newProject!');
     this.setState({ 
-      showProjectScreen: 'new',
+      showProjectScreen: ProjectMode.New,
      });
   }
   private _editProject(){
     console.log('Clicked _editProject!');
     this.setState({ 
-      showProjectScreen: 'edit',
+      showProjectScreen: ProjectMode.Edit,
      });
   }
   private _copyProject(){
     console.log('Clicked _copyProject!');
     this.setState({ 
-      showProjectScreen: 'copy',
+      showProjectScreen: ProjectMode.Copy ,
      });
   }
 
@@ -1200,7 +1221,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     console.log('Clicked _closeProjectEdit!');
     //Update status field, Complete date and Completed by, then save, reload projects list
     this.setState({ 
-      showProjectScreen: false,
+      showProjectScreen: ProjectMode.False,
      });
   }
   
@@ -2764,7 +2785,7 @@ public toggleTips = (item: any): void => {
           font: getFontOptions(pOptions,'='),
           icon: getIconOptions(pOptions,'='),
 
-          projectEditOptions: p.ProjectEditOptions == null ? defProjEditOptions : p.ProjectEditOptions,
+          projectEditOptions: p.ProjectEditOptions == null ? defProjEditOptions : cleanProjEditOptions(p.ProjectEditOptions),
 
         };
 

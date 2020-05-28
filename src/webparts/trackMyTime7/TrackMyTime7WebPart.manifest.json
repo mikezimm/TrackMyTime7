@@ -53,7 +53,7 @@
       "syncProjectPivotsOnToggle": true,  //always keep pivots in sync when toggling projects/history
       "projectType":false, //Projects = 0 History = 1
 
-      "defProjEditOptions": "reporting;people",
+      "defProjEditOptions": "people;reporting",
 
       // 5 - UI Defaults
       "defaultProjectPicker": "your", //Recent, Your Projects, All Projects etc...

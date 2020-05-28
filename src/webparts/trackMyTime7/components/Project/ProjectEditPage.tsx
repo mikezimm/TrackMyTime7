@@ -32,7 +32,7 @@ import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/People
 
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
-
+import { Web } from "@pnp/sp/presets/all";
 
 // Initialize icons in case this example uses them
 initializeIcons();
@@ -40,17 +40,23 @@ initializeIcons();
 import styles from './ProjectPage.module.scss';
 import stylesT from '../TrackMyTime7.module.scss';
 
+export enum ProjectMode { False, Edit, Copy, New }
+
 export interface IProjectPageProps {
-    showProjectScreen: false | 'edit' | 'copy' | 'new';
+    showProjectScreen: ProjectMode;
     _closeProjectEdit: any;
     selectedProject: IProject;
     projectFields: IProjectFormFields;
     wpContext: WebPartContext;
-    // Valid ones "reporting;people;activity;task;advanced;layout1-5",
+
+    // 2 - Source and destination list information
+    projectListTitle: string;
+    projectListWeb: string;
+
 }
 
 export interface IProjectPageState {
-    showProjectScreen?: string;
+    showProjectScreen?: ProjectMode;
     selectedProject?: IProject;
     showTask?:boolean;
     showActivity?: boolean;
@@ -102,11 +108,11 @@ export function getChoiceKey(val: string) {
 export default class MyProjectPage extends React.Component<IProjectPageProps, IProjectPageState> {
 
 
-  private createStateProject(showProjectScreen: string, selectedProject: IProject) {
+  private createStateProject(showProjectScreen: ProjectMode, selectedProject: IProject) {
 
     let stateProject: IProject = JSON.parse(JSON.stringify(selectedProject));
     
-    if ( showProjectScreen === "NEW") {
+    if ( showProjectScreen === ProjectMode.New) {
 
       stateProject.titleProject = null;
 
@@ -139,7 +145,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       stateProject.projOptions.optionString = null;
       stateProject.sortOrder = null;
 
-    } else if ( showProjectScreen === "COPY") {
+    } else if ( showProjectScreen === ProjectMode.Copy) {
       stateProject.titleProject = "Copy of " + stateProject.titleProject;
       stateProject.status = null;
       stateProject.dueDate = null;
@@ -163,17 +169,14 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
  *                                                                                                       
  */ 
 
-
-
     constructor(props: IProjectPageProps) {
         super(props);
 
         let projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions.split(';');
-        let showProjectScreen = this.props.showProjectScreen === "edit" ? "EDIT": this.props.showProjectScreen === "new" ? "NEW": this.props.showProjectScreen === "copy" ? "COPY": "HELP!";
     
         this.state = {
-            selectedProject: this.createStateProject(showProjectScreen, this.props.selectedProject),
-            showProjectScreen : showProjectScreen,
+            selectedProject: this.createStateProject(this.props.showProjectScreen, this.props.selectedProject),
+            showProjectScreen : this.props.showProjectScreen,
             showTask: projectEditOptions.indexOf('task') > -1 ? true : false,
             showActivity: projectEditOptions.indexOf('activity') > -1 ? true : false,
             showReporting: projectEditOptions.indexOf('reporting') > -1 ? true : false,
@@ -226,11 +229,10 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     private _updateWebPart = (prevProps: IProjectPageProps) => {
 
       let projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions.split(';');
-      let showProjectScreen = this.props.showProjectScreen === "edit" ? "EDIT": this.props.showProjectScreen === "new" ? "NEW": this.props.showProjectScreen === "copy" ? "COPY": "HELP!";
 
         this.state = {
-          selectedProject: this.createStateProject(showProjectScreen, this.props.selectedProject),
-          showProjectScreen : showProjectScreen,
+          selectedProject: this.createStateProject(this.props.showProjectScreen, this.props.selectedProject),
+          showProjectScreen : this.props.showProjectScreen,
           showTask: projectEditOptions.indexOf('task') > -1 ? true : false,
           showActivity: projectEditOptions.indexOf('activity') > -1 ? true : false,
           showReporting: projectEditOptions.indexOf('reporting') > -1 ? true : false,
@@ -262,16 +264,16 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         let isSaveButtonDisabled = false;
         let saveLabel = "Save";
-        if (this.props.showProjectScreen === 'new') { saveLabel = "Create New"; }
-        if (this.props.showProjectScreen === 'edit') { saveLabel = "Update"; }
-        if (this.props.showProjectScreen === 'copy') { saveLabel = "Save Copy"; }
+        if (this.props.showProjectScreen === ProjectMode.New) { saveLabel = "Create New"; }
+        if (this.props.showProjectScreen === ProjectMode.Edit) { saveLabel = "Update"; }
+        if (this.props.showProjectScreen === ProjectMode.Copy) { saveLabel = "Save Copy"; }
 
         const buttons: ISingleButtonProps[] =
         [{  disabled: false,  checked: true, primary: false,
             label: "Cancel", buttonOnClick: this.cancelForm.bind(this),
         },{ 
             disabled: false,  checked: true, primary: false,
-            label: "Clear form", buttonOnClick: this.clearForm.bind(this),
+            label: "Reset form", buttonOnClick: this.clearForm.bind(this),
         },{
             disabled: isSaveButtonDisabled, checked: true, primary: true,
             label: saveLabel, buttonOnClick: this.saveProject.bind(this),
@@ -350,12 +352,66 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     private clearForm() {
         console.log('cleared form');
-        this.props._closeProjectEdit();
+        let selectedProject = this.createStateProject(this.props.showProjectScreen, this.props.selectedProject);
+        this.setState({ selectedProject: selectedProject });
+        alert('Project form has been reset to how it started.');
+        //this.props._closeProjectEdit();
     }
 
     private saveProject() {
         console.log('saved form');
-        this.props._closeProjectEdit();
+
+        let saveTest: any = false;
+        let didProjectChange = false;
+        let didTogglesChange = false;
+        let currentProjOptions = '';
+        if ( this.state.showActivity) {currentProjOptions += 'activity;'; }
+        if ( this.state.showAdvanced) {currentProjOptions += 'advanced;'; }
+        if ( this.state.showPeople) {currentProjOptions += 'people;'; }
+        if ( this.state.showReporting) {currentProjOptions += 'reporting;'; }
+        if ( this.state.showTask) {currentProjOptions += 'task;'; }
+
+        if ( currentProjOptions.length > 0 ) { currentProjOptions = currentProjOptions.substring(0,currentProjOptions.length -1) ; }
+
+        if ( currentProjOptions !== this.props.selectedProject.projOptions.projectEditOptions ) {
+          didTogglesChange = true;
+          alert('Project Edit Options have changed!');
+
+        }
+
+        if (JSON.stringify(this.props.selectedProject) !== JSON.stringify(this.state.selectedProject) ) { 
+          didProjectChange = true;
+          alert('Something has changed!  Not saving anything.');
+
+        } 
+        
+        if ( saveTest ) {
+
+          let saveProject = this.buildProjectToSave(this.props.selectedProject, this.state.selectedProject, this.props.showProjectScreen );
+          /*
+          const projectWeb = Web(this.props.projectListWeb);
+  
+          projectWeb.lists.getByTitle(this.props.projectListTitle).items.add().then((response) => {
+  
+          });
+  
+          this.props._closeProjectEdit();
+          */
+        }
+
+
+    }
+
+    private buildProjectToSave( oldProject: IProject, newProject: IProject, mode: ProjectMode ){
+
+      let saveItem: any = { };
+      saveItem = this.saveThisField( this.props.projectFields.Title, oldProject, newProject, mode);
+
+    }
+
+    private saveThisField( field:  IFieldDef, oldProject: IProject, newProject: IProject, mode: ProjectMode ) {
+
+
     }
 
 /***
@@ -588,6 +644,7 @@ private _updateToggleState(ev: EventTarget){
   private _updateProjectTitle(newValue: string){
     let ev = event.target;
     let selectedProject = this.state.selectedProject;
+    if ( newValue == '') { newValue = null; }
     selectedProject.titleProject = newValue;
     this.setState({ selectedProject: selectedProject });
   }
@@ -753,13 +810,14 @@ private buildActivityFields(isVisible: boolean) {
     console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
 
     let selectedProject = this.state.selectedProject;
-    selectedProject.projOptions.type = item.text;
+    selectedProject.projOptions.type = item.text === '' ? null : item.text;
     this.setState({ selectedProject: selectedProject });
   }
 
   private _updateActivityID ( ev: EventTarget )  {
     console.log(`_updateActivityID: ${ev}`);
     let fieldVal : any = ev;
+    if (fieldVal === '') {  fieldVal = null ; }
     let selectedProject = this.state.selectedProject;
     selectedProject.projOptions.activity = fieldVal;
     this.setState({ selectedProject: selectedProject });
@@ -809,7 +867,7 @@ private buildTaskFields(isVisible: boolean) {
     console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
 
     let selectedProject = this.state.selectedProject;
-    selectedProject.status = item.text;
+    selectedProject.status = item.text === '' ? null : item.text;
     this.setState({ selectedProject: selectedProject });
 
  //   let storyIndex = this.state.chartData.stories.titles.indexOf(item.text);
@@ -833,13 +891,13 @@ private buildTaskFields(isVisible: boolean) {
 
   private _updateDueDate(newValue: string){
     let selectedProject = this.state.selectedProject;
-    selectedProject.dueDate = new Date(newValue);
+    selectedProject.dueDate = newValue != null ? new Date(newValue) : null;
     this.setState({ selectedProject: selectedProject });
   }
 
   private _updateCompleteDate(newValue: string){
     let selectedProject = this.state.selectedProject;
-    selectedProject.completedDate = new Date(newValue);
+    selectedProject.completedDate = newValue != null ? new Date(newValue) : null;
     this.setState({ selectedProject: selectedProject });
   }  
 
@@ -947,9 +1005,10 @@ private buildTaskFields(isVisible: boolean) {
         console.log('_genericFieldUpdate error:', ev, element2);
     }
     let fieldVal : any = ev;
+    if (fieldVal === '') {  fieldVal = null ; }
     let selectedProject = this.state.selectedProject;
 
-    if (fieldName === "category1" || fieldName === "category2" )  { selectedProject[fieldName] = fieldVal.split(';'); }
+    if (fieldName === "category1" || fieldName === "category2" )  { selectedProject[fieldName] = fieldVal == null ? null : fieldVal.split(';'); }
     else if (fieldName === "projectID1" || fieldName === "projectID2" )  { selectedProject[fieldName].value = fieldVal; }
     else if ( fieldName === "timeTarget" )  { selectedProject[fieldName].value = fieldVal; }
     else if ( fieldName === "projOptions" )  { selectedProject[fieldName].optionString = fieldVal; }

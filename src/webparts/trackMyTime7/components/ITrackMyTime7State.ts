@@ -4,6 +4,8 @@ import { ITrackMyTime7Props } from './ITrackMyTime7Props';
 import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 import { ITheTime } from '../../../services/dateServices';
 
+import { ProjectMode } from './Project/ProjectEditPage';
+
 import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
 import { ISelectedStory, ISelectedUser, } from './Charts/chartsPage';
 import { string } from 'prop-types';
@@ -519,7 +521,7 @@ export interface ITrackMyTime7State {
 
   // 9 - Other web part options
 
-  showProjectScreen?: false | 'edit' | 'copy' | 'new';
+  showProjectScreen?: ProjectMode;
 
   selectedProjectIndex?: number;  //Index of selected project
   selectedProject: IProject;      //2020-05-22:  Copying into separate object to pass to Project Edit screen.
