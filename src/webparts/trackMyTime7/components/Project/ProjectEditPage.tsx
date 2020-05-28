@@ -444,6 +444,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Everyone, oldProject, newProject, mode);
 
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.DueDateTMT, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CompletedDateTMT, oldProject, newProject, mode);
 
       console.log('Will save this object to ID ' + this.props.selectedProject.id , saveItem);
 
@@ -454,7 +456,16 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       let origVal = this.getProbjectValue(field, oldProject);
       let newVal = this.getProbjectValue(field, newProject);
 
-      if (origVal !== newVal ) {
+      if (field.type === "Date"  ) {
+        //Add column and value to object
+        //For some reason, dates need to be compared on string level.
+        let origStr = new Date(origVal).toLocaleDateString();
+        let newStr = new Date(newVal).toLocaleDateString();
+        if (origStr !== newStr ) {
+          console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
+          saveItem[field.column] = newVal;
+        }
+      } else if (origVal !== newVal ) {
         //Add column and value to object
         console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
         saveItem[field.column] = newVal;
@@ -477,7 +488,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       else if (field.type === 'Boolean') { val = objVal == null ? null : objVal; }
       else if (field.type === 'Text') { val = objVal == null ? null : objVal; }
       else if (field.type === 'Choice') { val = objVal == null ? null : objVal; }
-      else if (field.type === 'Date') { val = objVal == null ? null : objVal; }
+      else if (field.type === 'Date') { val = objVal == null ? null : new Date(objVal); }
 
       return val;
 
@@ -674,26 +685,56 @@ private buildToggles(isVisible: boolean) {
 
 }
 
+private removeStringFromArray(str: string, arr: string[]) {
+
+  let filteredProjectEditOptions = arr.filter( (el) => {
+    return el != str;
+  });
+
+  return filteredProjectEditOptions;
+}
 
 private _updateToggleState(ev: EventTarget){
   var element2 = event.target as HTMLElement;
   var element3 = event.currentTarget as HTMLElement;
   let fieldID = this._findNamedElementID(element2);
+  let selectedProject = this.state.selectedProject;
+
   if (fieldID == null ) { fieldID = this._findNamedElementID(element3); } 
   if( this.state['show' + fieldID] === null ) {
       alert('Had some kind of problem with this.props.projectFields[' + fieldID + ']'); 
       console.log('_genericFieldUpdate projectFields error:', fieldID, this.props.projectFields);
   }
-  let thisProp = !this.state['show' + fieldID];
+  let thisNewProp = !this.state['show' + fieldID];
   //selectedProject.titleProject = newValue;
-  console.log('_updateToggleTask: to ', fieldID, thisProp, ev);
-  if (fieldID === 'Reporting' && thisProp === false) {
-    this.setState({ ['show' + fieldID]: thisProp, showPeople: false });
+  console.log('_updateToggleTask: to ', fieldID, thisNewProp, ev);
 
-  } else if (fieldID === 'People'  && thisProp === true) {
-    this.setState({ ['show' + fieldID]: thisProp, showReporting: true });
+  let thisProjEditString : string = this.state.selectedProject.projOptions.projectEditOptions;
+  let thisProjEditArray : string[] = thisProjEditString.split(';');
+
+  if( thisNewProp === false ){
+    //Must be removed from project
+    thisProjEditString = this.removeStringFromArray( fieldID.toLowerCase(), thisProjEditArray ).join(';');
+
   } else {
-    this.setState({ ['show' + fieldID]: thisProp });
+    //Must be added to project
+    thisProjEditArray.push( fieldID.toLowerCase());
+    thisProjEditString = thisProjEditArray.sort().join(';');
+
+  }
+
+  selectedProject.projOptions.projectEditOptions = thisProjEditString;
+
+  //The purpose of this if loop is to sync Reporting and People columns since People are nested under Reporting element.
+  if (fieldID === 'Reporting' && thisNewProp === false) {
+    this.setState({ ['show' + fieldID]: thisNewProp, showPeople: false, selectedProject: selectedProject });
+
+  } else if (fieldID === 'People'  && thisNewProp === true) {
+    this.setState({ ['show' + fieldID]: thisNewProp, showReporting: true, selectedProject: selectedProject });
+
+  } else {
+    this.setState({ ['show' + fieldID]: thisNewProp, selectedProject: selectedProject });
+
   }
 
 }

@@ -73,6 +73,10 @@ const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
 
 const defProjEditOptions = cleanProjEditOptions('people;reporting');
 
+/**
+ * This function takes a string with ;, converts to array of strings and removes empty elements (like if ; is at the end.)
+ * @param str
+ */
 export function cleanProjEditOptions( str : string ){
 
   if (str == null ) { return null; }
