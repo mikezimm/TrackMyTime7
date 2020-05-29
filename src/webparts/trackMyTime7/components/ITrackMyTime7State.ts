@@ -23,8 +23,19 @@ export interface IUser {
   id?: any;
   Id?: any;
   ID?: any;
+
   isSiteAdmin?:boolean;
   LoginName?: string;
+  Name?: string;
+
+  //These optional props are from the React PeoplePicker control
+  imageInitials?: string; //same as Initials;         From React People Picker control
+  imageUrl?: string;  //Thumbnail URL;                From React People Picker control
+  loginName?: string;  //Same as LoginName and Name;  From React People Picker control
+  text?: string;   //Same as Title and title;         From React People Picker control
+  tertiaryText?: string; //                           From React People Picker control
+  secondaryText?: string; // same as email;           From React People Picker control
+
 }
 
 export interface IEntries {
@@ -100,7 +111,6 @@ export interface ISaveEntry {
     timeEntryTBD1?: string;
     timeEntryTBD2?: string;
     timeEntryTBD3?: string;  
-
 
     //Other settings and information
     location?: string; // Location
@@ -282,6 +292,7 @@ export interface IProject {
   dueDate?: Date;
   completedDate?: Date;
   completedBy?: IUser;
+  completedById?: number;
 
   created?: Date;
   modified?: Date;

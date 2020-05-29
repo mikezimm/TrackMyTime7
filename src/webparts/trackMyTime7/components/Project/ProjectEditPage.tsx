@@ -5,7 +5,7 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 //import * as links from './AllLinks';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
-import { ITrackMyTime7State, IProjectOptions, IProject } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IProjectOptions, IProject, IUser } from '../ITrackMyTime7State';
 
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 import {CommandBarButton,} from "office-ui-fabric-react/lib/Button";
@@ -33,6 +33,8 @@ import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/People
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Web } from "@pnp/sp/presets/all";
+
+import { statusChoices, activityTMTChoices} from '../TrackMyTime7';
 
 // Initialize icons in case this example uses them
 initializeIcons();
@@ -88,8 +90,6 @@ const stylesAdvancedToggle: IToggleStyles = { text: {color: colorAdvanced.primar
 const stylesActivityToggle: IToggleStyles = { text: {color: colorActivity.primary, fontWeight: 700 } , ...stylesToggleBase };
 const stylesCCToggle: IToggleStyles = { text: {color: colorCC.primary, fontWeight: 700 } , ...stylesToggleBase };
 
-const statusChoices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`,`9. Closed`];
-const activityTMTChoices = [`TMT Issue`, `Socialiis Issue`];
 
 export function getChoiceKey(val: string) {
 
@@ -108,58 +108,6 @@ export function getChoiceKey(val: string) {
 export default class MyProjectPage extends React.Component<IProjectPageProps, IProjectPageState> {
 
 
-  private createStateProject(showProjectScreen: ProjectMode, selectedProject: IProject) {
-
-    let stateProject: IProject = JSON.parse(JSON.stringify(selectedProject));
-    
-    if ( showProjectScreen === ProjectMode.New) {
-
-      stateProject.titleProject = null;
-
-      //Reporting columns
-      stateProject.category1 = null;
-      stateProject.category2 = null;
-      stateProject.projectID1.value = null;
-      stateProject.projectID2.value = null;
-      stateProject.story = null;
-      stateProject.chapter = null;
-
-      //Activity Columns
-      stateProject.projOptions.type = null;
-      stateProject.projOptions.activity = null;
-
-      //People Columns
-      stateProject.everyone = false;
-      stateProject.leader = null;
-      stateProject.team = null;
-
-      //Task Columns
-      stateProject.status = null;
-      stateProject.dueDate = null;
-      stateProject.completedDate = null;
-      stateProject.completedBy = null;
-      
-      //Advanced Columns
-      stateProject.ccEmail = null;
-      stateProject.ccList = null;
-      stateProject.projOptions.optionString = null;
-      stateProject.sortOrder = null;
-
-    } else if ( showProjectScreen === ProjectMode.Copy) {
-      stateProject.titleProject = "Copy of " + stateProject.titleProject;
-      stateProject.status = null;
-      stateProject.dueDate = null;
-      stateProject.completedDate = null;
-      stateProject.completedBy = null;
-      stateProject.projOptions.activity = null;
-    } 
-
-    stateProject.projOptions.projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions;
-
-    return stateProject;
-
-  }
-
     /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
@@ -175,9 +123,9 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         super(props);
 
         let projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions.split(';');
-    
+        let selectedProject : IProject = JSON.parse(JSON.stringify(this.props.selectedProject));
         this.state = {
-            selectedProject: this.createStateProject(this.props.showProjectScreen, this.props.selectedProject),
+            selectedProject:  selectedProject,
             showProjectScreen : this.props.showProjectScreen,
             showTask: projectEditOptions.indexOf('task') > -1 ? true : false,
             showActivity: projectEditOptions.indexOf('activity') > -1 ? true : false,
@@ -224,27 +172,6 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       //this._updateWebPart(prevProps);
     }
 
-
-      /**
-     * Set the current zone width
-     */
-    private _updateWebPart = (prevProps: IProjectPageProps) => {
-
-      let projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions.split(';');
-
-        this.state = {
-          selectedProject: this.createStateProject(this.props.showProjectScreen, this.props.selectedProject),
-          showProjectScreen : this.props.showProjectScreen,
-          showTask: projectEditOptions.indexOf('task') > -1 ? true : false,
-          showActivity: projectEditOptions.indexOf('activity') > -1 ? true : false,
-          showReporting: projectEditOptions.indexOf('reporting') > -1 ? true : false,
-          showPeople: projectEditOptions.indexOf('people') > -1 ? true : false,
-          showAdvanced: projectEditOptions.indexOf('advanced') > -1 ? true : false,
-          projectEditOptions: projectEditOptions,
-        };
-    }
-
-
     /***
      *         d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
      *         88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
@@ -256,6 +183,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
      *                                                          
      */
 
+    
     public render(): React.ReactElement<IProjectPageProps> {
         
         console.log('Rendering Project Edit Page');
@@ -281,9 +209,23 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             label: saveLabel, buttonOnClick: this.saveProject.bind(this),
           },];
 
+
+          let projectFields = this.props.projectFields;
+          let resetFields  = this.props.showProjectScreen !== ProjectMode.Copy ? null : 
+            <h3><mark>NOTE:</mark> These fields are cleared when creating a Copy: 
+            {[
+              projectFields.Title.title,
+              projectFields.CompletedByTMT.title,
+              projectFields.CompletedDateTMT.title,
+              projectFields.StatusTMT.title,
+              projectFields.ActivityTMT.title,
+              ].join('; ')}
+            </h3> ;
+
         let pageTitle = <div style={{ paddingTop: '0px' }}>
           <h2>{"Track My Time:  Project " + this.state.showProjectScreen }</h2>
           <h3>{ this.state.selectedProject === null ? 'New Project' : this.state.selectedProject.titleProject}</h3>
+          { resetFields }
         </div>;
 
         let saveButtons = 
@@ -354,8 +296,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     private clearForm() {
         console.log('cleared form');
-        let selectedProject = this.createStateProject(this.props.showProjectScreen, this.props.selectedProject);
-
+        let selectedProject : IProject = JSON.parse(JSON.stringify(this.props.selectedProject));
         let projectEditOptions = this.props.selectedProject.projOptions.projectEditOptions.split(';');
 
         this.setState({ 
@@ -447,6 +388,10 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.DueDateTMT, oldProject, newProject, mode);
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CompletedDateTMT, oldProject, newProject, mode);
 
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Team, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Leader, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CompletedByTMT, oldProject, newProject, mode);
+
       console.log('Will save this object to ID ' + this.props.selectedProject.id , saveItem);
 
     }
@@ -464,6 +409,20 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if (origStr !== newStr ) {
           console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
           saveItem[field.column] = newVal;
+        }
+
+      } else if (field.type === "User" ) {
+        //Add column and value to object
+        if (JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
+          console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
+          saveItem[field.column + "Id"] = newVal;
+        }
+
+      } else if (field.type === "MultiUser" ) {
+        //Add column and value to object
+        if ( JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
+          console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
+          saveItem[field.column + "Id"] = newVal;
         }
       } else if (origVal !== newVal ) {
         //Add column and value to object
@@ -485,6 +444,16 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       else if ( fieldName === "activity" )  { val = project.projOptions.activity == null ? null : project.projOptions.activity;  }
       else if ( fieldName === "projectEditOptions" )  { val = project.projOptions.projectEditOptions == null ? null : project.projOptions.projectEditOptions;  }
 
+      else if (field.type === 'User') { val = objVal == null ? null : { results: [objVal.ID] }; }      
+      else if (field.type === 'MultiUser') { 
+        if ( objVal == null ) {
+          val = null; }
+        else {
+          let peopleIDs = { results: [] };
+          if ( objVal ) { peopleIDs = { results: objVal.map( u => { return u.ID; } ) } ; }
+          val = peopleIDs;
+        }  
+      }
       else if (field.type === 'Boolean') { val = objVal == null ? null : objVal; }
       else if (field.type === 'Text') { val = objVal == null ? null : objVal; }
       else if (field.type === 'Choice') { val = objVal == null ? null : objVal; }
@@ -571,8 +540,6 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
                 showWeekNumbers={showWeekNumbers} timeConvention={timeConvention}
                 showGoToToday={showGoToToday} timeDisplayControlType={timeDisplayControlType}
                 showLabels={false}
-
-    
             /></div>
         );
 
@@ -580,12 +547,44 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     private createPeopleField(field: IFieldDef, maxCount: number, _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
 
+      let users: IUser[] = maxCount === 1 ? [this.state.selectedProject[field.name]] : this.state.selectedProject[field.name];
+
+      let emails: string[] = users == null ? [] : users.map( u => {
+        if ( u == null ) { 
+          console.log('Null User Structure for createPeopleField', users, u);
+          //alert('Unknown User Structure for createPeopleField: ' +  JSON.stringify(u));
+          return null;
+        }
+     
+        let uName = u.Name;
+
+        if ( uName == undefined ) { // Added because when you remove the person in react comp, the user still is there, the name just gets removed.
+          console.log('createPeopleField - did you remove a person from the array?', users, u);
+          alert('createPeopleField - did you remove a person from the array?' +  JSON.stringify(u));
+          return null;
+        }
+
+        if (uName.indexOf('|') > -1 && uName.indexOf('@') > 0 ) {
+          //This is an ID structure from reading in from the list:  "i:0#.f|membership|clicky.mcclickster@mcclickster.onmicrosoft.com"
+          let uProps = uName.split('|');
+          let expectedEmailIndex = 2;
+          if (uProps.length === 3 && uProps[expectedEmailIndex].indexOf('@') > -1) {
+            console.log('User ' + uProps[expectedEmailIndex] + ' is made up of :', this.state.selectedProject[field.name] );
+            return uProps[expectedEmailIndex];
+          }
+        }
+        console.log('Unknown User Structure for createPeopleField', u);
+        alert('Unknown User Structure for createPeopleField: ' +  JSON.stringify(u));
+
+        return null;
+      });
+
         return (
             // Uncontrolled
             <div id={ pageIDPref + field.column } style={{ width: fieldWidth }}>
                 <PeoplePicker
                     context={this.props.wpContext}
-                    //defaultSelectedUsers?: string[];
+                    defaultSelectedUsers={ emails }
                     titleText={ field.title }
                     personSelectionLimit={maxCount}
                     //groupName={"Team Site Owners"} // Leave this blank in case you want to filter from all users
@@ -606,8 +605,6 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         const dropdownStyles: Partial<IDropdownStyles> = {
             dropdown: { width: fieldWidth }
           };
-
-
 
           let sOptions: IDropdownOption[] = choices == null ? null : 
             choices.map(val => {
@@ -883,18 +880,70 @@ private buildPeopleFields(isVisible: boolean) {
   private _updateLeader(newValue){
     let selectedProject = this.state.selectedProject;
     //selectedProject.leader = newValue;
+    let newUsers: IUser[] = this.convertReactPPnewValueToIUser(newValue);
     console.log('_updateLeader:', newValue);
+    selectedProject.leader = newUsers[0];
+    selectedProject.leaderId = newUsers[0] != null ? newUsers[0].id : null;
     this.setState({ selectedProject: selectedProject });
   }
 
   private _updateTeam(newValue){
     let selectedProject = this.state.selectedProject;
     //selectedProject.team = newValue;
+    let newUsers: IUser[] = this.convertReactPPnewValueToIUser(newValue);
     console.log('_updateTeam:', newValue);
+    selectedProject.team = newUsers;
+    selectedProject.teamIds = newUsers != null ? newUsers.map( u => { return u.id; }) : null;    
     this.setState({ selectedProject: selectedProject });
   }  
 
- 
+
+  private convertReactPPnewValueToIUser(newValue) {
+
+    let newUsers : IUser[] = newValue.map( u => {
+
+      if ( u == null ) { 
+          console.log('Null User Structure for convertReactPPnewValueToIUser', newValue, u);
+          alert('Unknown User Structure for convertReactPPnewValueToIUser: ' +  JSON.stringify(u));
+          return null;
+        }
+        let uName = u.loginName;
+        let thisUser: IUser = null;
+        if (uName.indexOf('|') > -1 && uName.indexOf('@') > 0 ) {
+          //This is an ID structure from reading in from the list:  "i:0#.f|membership|clicky.mcclickster@mcclickster.onmicrosoft.com"
+          let uProps = uName.split('|');
+          let expectedEmailIndex = 2;
+          if (uProps.length === 3 && uProps[expectedEmailIndex].indexOf('@') > -1) {
+            console.log('User ' + uProps[expectedEmailIndex] + ' is made from :', newValue );
+
+            //This needs to match up with structure required in the this.createPeopleField
+            return {
+              id: u.id,
+              ID: u.id,
+              Id: u.id,
+              Title: u.text,
+              title: u.text,
+              email: uProps[expectedEmailIndex],
+              loginName: uName,
+              Name: uName,
+            }
+              ;
+          } else {
+            alert('Unknown User Structure for convertReactPPnewValueToIUser: (expecting @ symbol in array split by |.  ' +  JSON.stringify(u));
+            return null;
+          }
+
+        }
+        console.log('Unknown User Structure for convertReactPPnewValueToIUser', u);
+        alert('Unknown User Structure for convertReactPPnewValueToIUser: ' +  JSON.stringify(u));
+
+        return null;
+
+      });
+
+      return newUsers;
+    
+  }
 
  /***
  *     .d8b.   .o88b. d888888b d888888b db    db d888888b d888888b db    db      d88888b d888888b d88888b db      d8888b. .d8888. 
@@ -970,7 +1019,7 @@ private buildTaskFields(isVisible: boolean) {
     let status = this._createDropdownField(this.props.projectFields.StatusTMT, statusChoices, this._updateStatusChange.bind(this), this.getTaskStyles );
     let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), this.getTaskStyles );
     let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), this.getTaskStyles );
-    let completedBy = this.createPeopleField(this.props.projectFields.CompletedByTMT, 1, this._updateCompletedBy.bind(this), this.getPeopleStyles );
+    let completedBy = this.createPeopleField(this.props.projectFields.CompletedByTMT , 1, this._updateCompletedBy.bind(this), this.getPeopleStyles );
 
     let fields =
     <div style={{ backgroundColor: colorTask.light, padding: 10, paddingBottom: 20 }}>
@@ -1011,7 +1060,10 @@ private buildTaskFields(isVisible: boolean) {
   private _updateCompletedBy(newValue){
     let selectedProject = this.state.selectedProject;
     //selectedProject.team = newValue;
+    let newUsers: IUser[] = this.convertReactPPnewValueToIUser(newValue);
     console.log('_updateCompletedBy:', newValue);
+    selectedProject.completedBy = newUsers[0];
+    selectedProject.completedById = newUsers[0] != null ? newUsers[0].id : null;
     this.setState({ selectedProject: selectedProject });
   }  
 

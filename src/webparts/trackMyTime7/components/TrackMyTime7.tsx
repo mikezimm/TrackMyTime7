@@ -73,6 +73,11 @@ const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
 
 const defProjEditOptions = cleanProjEditOptions('people;reporting');
 
+
+export const statusChoices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`,`9. Closed`];
+export const defStatus = `0. Review`;
+export const activityTMTChoices = [`TMT Issue`, `Socialiis Issue`];
+
 /**
  * This function takes a string with ;, converts to array of strings and removes empty elements (like if ; is at the end.)
  * @param str
@@ -367,6 +372,69 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     return options[Math.floor(Math.random() * options.length)];
 
   }
+
+  private createProjOptionsObject() {
+
+    let projOptions: IProjectOptions =  {
+      showLink: null,
+      activity: null,
+      type: null,
+      href: null,
+      title: null,
+  
+      optionString: null,
+      optionArray: null,
+      bgColor: null,
+      font: null,
+      icon: null,
+      projectEditOptions: defProjEditOptions,
+    };
+
+    return projOptions;
+
+  }
+
+  private createEmptyProjectObject() {
+    let emptyProject : IProject =   {
+      titleProject : null,
+
+      //Reporting columns
+      category1 : null,
+      category2 : null,
+      projectID1 : this.buildSmartText(null),
+      projectID2 : this.buildSmartText(null),
+      comments: this.buildSmartText(null),
+
+      story : null,
+      chapter : null,
+
+      //Activity Columns
+      projOptions: this.createProjOptionsObject(),
+
+      //People Columns
+      everyone : false,
+      leader : null,
+      leaderId: null,
+      team : null,
+      teamIds: null,
+
+      //Task Columns
+      status : null,
+      dueDate : null,
+      completedDate : null,
+      completedBy : null,
+      completedById: null,
+      
+      //Advanced Columns
+      ccEmail : null,
+      ccList : null,
+      sortOrder : null,
+    };
+
+    return emptyProject;
+
+  }
+
 
   private createprojectInfo() {
 
@@ -719,11 +787,27 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     if (showProjectScreen !== ProjectMode.False ) {
 
+      let selectedProject: IProject = null;
+      
+      if ( showProjectScreen === ProjectMode.New ) { selectedProject = this.createEmptyProjectObject(); }
+      else if ( showProjectScreen === ProjectMode.Copy ) {
+        selectedProject = JSON.parse(JSON.stringify(this.state.selectedProject));
+        selectedProject.titleProject = "Copy of " + selectedProject.titleProject;
+        selectedProject.status = defStatus;
+        selectedProject.dueDate = null;
+        selectedProject.completedDate = null;
+        selectedProject.completedBy = null;
+        selectedProject.projOptions.activity = null;
+      
+      } else {
+        selectedProject = JSON.parse(JSON.stringify(this.state.selectedProject));        
+      }
+
       let projectPage = <MyProjectPage 
 
         wpContext= {this.props.wpContext}
         showProjectScreen={ this.state.showProjectScreen }
-        selectedProject={this.state.selectedProject}
+        selectedProject={ selectedProject }
         _closeProjectEdit={ this._closeProjectEdit.bind(this)}
         projectFields={this.state.projectFields}
         
@@ -2487,6 +2571,8 @@ public toggleTips = (item: any): void => {
 
     let selectCols: string = "*";
     let expandThese = "";
+
+    //These should only be columns COMMON to both lists
     let peopleColumns = ["Author","Editor","Team","Leader"];
     let peopleProps = ["Title","ID","Name"];
     let allColumns = [];
@@ -2504,7 +2590,10 @@ public toggleTips = (item: any): void => {
     if (expColumns.length > 0) { expandThese = expColumns.join(","); }
 
     let expandTheseTrack = expandThese + ',User';
-    let selectColsTrack = selectCols + ',User/Title,User/ID,User/Name';   
+    let selectColsTrack = selectCols + ',User/Title,User/ID,User/Name';
+
+    let expandTheseProj = expandThese + ',CompletedByTMT';
+    let selectColsProj = selectCols + ',CompletedByTMT/Title,CompletedByTMT/ID,CompletedByTMT/Name';   
 
     //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
     const projectWeb = Web(useProjectWeb);
@@ -2600,7 +2689,7 @@ public toggleTips = (item: any): void => {
  */
 
     projectWeb.lists.getByTitle(useProjectList).items
-    .select(selectCols).expand(expandThese).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
+    .select(selectColsProj).expand(expandTheseProj).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
     .then((response) => {
       //console.log('useProjectList', response);
       //console.log('fetched Project Info:', response);
@@ -2831,14 +2920,14 @@ public toggleTips = (item: any): void => {
           category1: p.Category1,
           category2: p.Category2,
 
-          leader: p.Leader ,
-          team: p.Team,
+          leader: p.Leader , // BE SURE TO ADD PEOPLE COLUMNS TO EXPANDED COLUMNS FIRST!
+          team: p.Team, // BE SURE TO ADD PEOPLE COLUMNS TO EXPANDED COLUMNS FIRST!
 
           story: p.Story,
           chapter: p.Chapter,
 
-          leaderId: p.LeaderId,
-          teamIds: p.TeamId,
+          leaderId: p.Leader == null ? null : p.LeaderId, // BE SURE TO ADD PEOPLE COLUMNS TO EXPANDED COLUMNS FIRST!
+          teamIds: p.Team == null ? null : p.TeamId, // BE SURE TO ADD PEOPLE COLUMNS TO EXPANDED COLUMNS FIRST!
 
           filterFlags: [],
 
@@ -2854,8 +2943,9 @@ public toggleTips = (item: any): void => {
           status: p.StatusTMT,
           dueDate: p.DueDateTMT,
           completedDate: p.CompletedDateTMT,
-          completedBy: p.CompletedByTMT,
-        
+          completedBy: p.CompletedByTMT == null ? null : p.CompletedByTMT, // BE SURE TO ADD PEOPLE COLUMNS TO EXPANDED COLUMNS FIRST!
+          completedById: p.CompletedByTMT == null ? null : p.CompletedByTMTId, // BE SURE TO ADD PEOPLE COLUMNS TO EXPANDED COLUMNS FIRST!
+
           //Values that relate to project list item
           // sourceProject: , //Add URL back to item
         };

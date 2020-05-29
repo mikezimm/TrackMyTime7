@@ -121,8 +121,8 @@ export function buildProjectFormFields(parentProps:ITrackMyTime7Props , parentSt
     
         Everyone: createEntryField("everyone","Everyone","Everyone","Boolean", true),
         Leader: createEntryField("leader","Leader","Leader","User", true),
-        Team: createEntryField("team","Team","Team","Users", true),
-        
+        Team: createEntryField("team","Team","Team","MultiUser", true),
+
         ProjectEditOptions: createEntryField("projectEditOptions","ProjectEditOptions","ProjectEditOptions","Text", true),
 
         ActivityType: createEntryField("activityType","ActivityType","ActivityType","Choice", true),
@@ -132,7 +132,7 @@ export function buildProjectFormFields(parentProps:ITrackMyTime7Props , parentSt
         DueDateTMT: createEntryField("dueDate","DueDate","DueDateTMT","Date", true),
         CompletedDateTMT: createEntryField("completedDate","CompletedDate","CompletedDateTMT","Date", true),
         CompletedByTMT: createEntryField("completedBy","CompletedBy","CompletedByTMT","User", true),
-    
+
         CCEmail: createEntryField("ccEmail","Email","CCEmail","Text", true),
         CCList: createEntryField("ccList","List","CCList","Text", true),
         OptionsTMT: createEntryField("optionString","Options","OptionsTMT","Text", true),
