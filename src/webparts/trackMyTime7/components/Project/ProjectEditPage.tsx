@@ -751,6 +751,35 @@ private _updateToggleState(ev: EventTarget){
 
   private buildProjectTtitle(isVisible: boolean) {
 
+
+    const getErrorMessage = (value: string): string => {
+      let mess = '';
+
+      if (value.length === 0){
+        mess = 'New Title is required!';
+
+      } else if (value.length < 5 ){
+        mess = 'Title is a little to short to be meaningful :)';
+
+      } else if (value.indexOf('Copy of') > -1){
+        mess = 'Remove the word Copy from Title and change the value';
+
+      } else if (this.props.showProjectScreen === ProjectMode.Copy || this.props.showProjectScreen === ProjectMode.New ){
+        if ( this.props.selectedProject.titleProject.replace('Copy of ','') === value ) { mess = 'Title is the same as the one you copied from!'; }
+        else if ( this.props.selectedProject.titleProject.replace('Copy of ','Copyof') === value ) { mess = 'Title is the same as the one you copied from!'; }
+        else if ( this.props.selectedProject.titleProject.replace('Copy of ','Copy of') === value ) { mess = 'Title is the same as the one you copied from!'; }
+        else if ( this.props.selectedProject.titleProject.replace('Copy of ','Copy') === value ) { mess = 'Title is the same as the one you copied from!'; } 
+        else if ( this.props.selectedProject.titleProject === value ) {
+          mess = 'Need to change the title to something new!';
+        }
+      } else if (this.props.showProjectScreen === ProjectMode.Edit){
+
+      }
+
+      return mess;
+    };
+
+
     let title = <div style= {{ paddingBottom: 20 }}>
       <TextField
         defaultValue={ this.state.selectedProject.titleProject }
@@ -758,7 +787,10 @@ private _updateToggleState(ev: EventTarget){
         placeholder={ "Enter " + this.props.projectFields.Title.title }
         autoComplete='off'
         onChanged={ this._updateProjectTitle.bind(this) }
+        onGetErrorMessage={getErrorMessage}
         required={ true }
+        validateOnFocusIn
+        validateOnFocusOut
     /></div>;
 
     return title;

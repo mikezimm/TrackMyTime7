@@ -71,6 +71,8 @@ const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
 };
 
+const allProjEditOptions = cleanProjEditOptions('activity;advanced;people;reporting;task');
+
 const defProjEditOptions = cleanProjEditOptions('people;reporting');
 
 
@@ -373,6 +375,38 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   }
 
+  private createProjectTimeTracking(pTimeTarget: any) {
+    let daily: any = false;
+    let weekly: any = false;
+    let total: any = false;
+
+    if (pTimeTarget) {
+      let ttOptions = pTimeTarget.split(';');
+      for (let opt of ttOptions) {
+        let thisOption = opt.split('=');
+        if (thisOption[1] && thisOption[0].toLowerCase() === 'daily') {
+          daily = parseInt(thisOption[1]);
+        } else if (thisOption[1] && thisOption[0].toLowerCase() === 'weekly') {
+          weekly = parseInt(thisOption[1]);
+        } else if (thisOption[1] && thisOption[0].toLowerCase() === 'total') {
+          total = parseInt(thisOption[1]);
+        }
+      }
+    }
+
+    let targetInfo : IProjectTarget = {
+      value: pTimeTarget,
+      daily: daily ? daily : 0,
+      weekly: weekly ? weekly : 0,
+      total: total ? total : 0,
+      dailyStatus: daily ? true : false,
+      weeklyStatus: weekly ? true : false,
+      totalStatus: total ? true : false,
+    };
+
+    return targetInfo;
+  }
+
   private createProjOptionsObject() {
 
     let projOptions: IProjectOptions =  {
@@ -429,6 +463,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ccEmail : null,
       ccList : null,
       sortOrder : null,
+
+      timeTarget: this.createProjectTimeTracking(null),
     };
 
     return emptyProject;
@@ -798,6 +834,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         selectedProject.completedDate = null;
         selectedProject.completedBy = null;
         selectedProject.projOptions.activity = null;
+        selectedProject.projOptions.projectEditOptions = allProjEditOptions;
       
       } else {
         selectedProject = JSON.parse(JSON.stringify(this.state.selectedProject));        
@@ -2695,33 +2732,8 @@ public toggleTips = (item: any): void => {
       //console.log('fetched Project Info:', response);
       trackMyProjectsInfo.projectData = response.map((p) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
-        let daily: any = false;
-        let weekly: any = false;
-        let total: any = false;
 
-        if (p.TimeTarget) {
-          let ttOptions = p.TimeTarget.split(';');
-          for (let opt of ttOptions) {
-            let thisOption = opt.split('=');
-            if (thisOption[1] && thisOption[0].toLowerCase() === 'daily') {
-              daily = parseInt(thisOption[1]);
-            } else if (thisOption[1] && thisOption[0].toLowerCase() === 'weekly') {
-              weekly = parseInt(thisOption[1]);
-            } else if (thisOption[1] && thisOption[0].toLowerCase() === 'total') {
-              total = parseInt(thisOption[1]);
-            }
-          }
-        }
-
-        let targetInfo : IProjectTarget = {
-          value: p.TimeTarget,
-          daily: daily ? daily : 0,
-          weekly: weekly ? weekly : 0,
-          total: total ? total : 0,
-          dailyStatus: daily ? true : false,
-          weeklyStatus: weekly ? true : false,
-          totalStatus: total ? true : false,
-        };
+        let targetInfo : IProjectTarget = this.createProjectTimeTracking(p.TimeTarget);
 
         let pOptions = [];
         if (p.OptionsTMT != null ) { pOptions = p.OptionsTMT.split(';'); }
