@@ -91,6 +91,8 @@ const stylesActivityToggle: IToggleStyles = { text: {color: colorActivity.primar
 const stylesCCToggle: IToggleStyles = { text: {color: colorCC.primary, fontWeight: 700 } , ...stylesToggleBase };
 
 
+const emptyString = (value: string | Date) : string => { return "";};
+
 const getErrorMessage = (value: string, testString: string, minLength: number, required: boolean, projectMode: ProjectMode): string => {
   let mess = '';
 
@@ -544,9 +546,6 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           return mess;
         };
 
-        const emptyString = (value: string) : string => {
-          return "";
-        };
 
         let thisField = <div id={ pageIDPref + field.column }><TextField
             className={ stylesT.textField }
@@ -556,12 +555,19 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             autoComplete='off'
             onChanged={ _onChange }
             onGetErrorMessage={ field.name !== "activity" ? emptyString : getTitleErrorMessage }
+            validateOnFocusIn
+            validateOnFocusOut
         /></div>;
 
         return thisField;
     }
 
-    private createDateField(field: IFieldDef, _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+    private createDateField(field: IFieldDef, _onChange: any, required: boolean, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+
+        const getDateErrorMessage = (value: Date): string => {
+          let mess = value == null ? "Don't forget Date!" : "Testing";
+          return mess;
+        };
 
         let timeStamp = this.state.selectedProject[field.name];
         if (timeStamp != null) { timeStamp = new Date(timeStamp); }
@@ -578,6 +584,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
                 showWeekNumbers={showWeekNumbers} timeConvention={timeConvention}
                 showGoToToday={showGoToToday} timeDisplayControlType={timeDisplayControlType}
                 showLabels={false}
+                //onGetErrorMessage={ required === true ? getDateErrorMessage : emptyString }
+                onGetErrorMessage={ required === true && timeStamp == null ? emptyString : getDateErrorMessage }
             /></div>
         );
 
@@ -1064,8 +1072,9 @@ private getTaskStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles> {
 private buildTaskFields(isVisible: boolean) {
 
     let status = this._createDropdownField(this.props.projectFields.StatusTMT, statusChoices, this._updateStatusChange.bind(this), this.getTaskStyles );
-    let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), this.getTaskStyles );
-    let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), this.getTaskStyles );
+    let isDueDateRequired: boolean = true;
+    let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), isDueDateRequired, this.getTaskStyles );
+    let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), false, this.getTaskStyles );
     let completedBy = this.createPeopleField(this.props.projectFields.CompletedByTMT , 1, this._updateCompletedBy.bind(this), this.getPeopleStyles );
 
     let fields =
