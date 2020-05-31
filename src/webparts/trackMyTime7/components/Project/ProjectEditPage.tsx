@@ -91,6 +91,35 @@ const stylesActivityToggle: IToggleStyles = { text: {color: colorActivity.primar
 const stylesCCToggle: IToggleStyles = { text: {color: colorCC.primary, fontWeight: 700 } , ...stylesToggleBase };
 
 
+const getErrorMessage = (value: string, testString: string, minLength: number, required: boolean, projectMode: ProjectMode): string => {
+  let mess = '';
+
+  if ( value == null ) {
+
+  } else if (required && value.length === 0){
+    mess = 'New Value is required!';
+
+  } else if (value.length < minLength ){
+    mess = 'Title is a little to short to be meaningful :)';
+
+  } else if (value.indexOf('Copy of') > -1){
+    mess = 'Remove the word Copy from value';
+
+  } else if ( projectMode === ProjectMode.Copy || projectMode === ProjectMode.New ){
+    if ( testString.replace('Copy of ','') === value ) { mess = "Value must be new"; }
+    else if ( testString.replace('Copy of ','Copyof') === value ) { mess = "Remove 'Copy'"; }
+    else if ( testString.replace('Copy of ','Copy of') === value ) { mess = "Remove 'Copy'"; }
+    else if ( testString.replace('Copy of ','Copy') === value ) { mess = "Remove 'Copy'"; } 
+    else if ( testString.replace('Copy of ','Copy ') === value ) { mess = "Remove 'Copy'"; } 
+    else if ( testString === value ) {
+      mess = 'Value must be new!';
+    }
+  } else if ( projectMode === ProjectMode.Edit ){
+
+  }
+  return mess;
+};
+
 export function getChoiceKey(val: string) {
 
     if (val === null) {  
@@ -214,11 +243,9 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           let resetFields  = this.props.showProjectScreen !== ProjectMode.Copy ? null : 
             <h3><mark>NOTE:</mark> These fields are cleared when creating a Copy: 
             {[
-              projectFields.Title.title,
               projectFields.CompletedByTMT.title,
               projectFields.CompletedDateTMT.title,
               projectFields.StatusTMT.title,
-              projectFields.ActivityTMT.title,
               ].join('; ')}
             </h3> ;
 
@@ -492,6 +519,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     private createTextField(field: IFieldDef, _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
         let defaultValue = null;
+
         if (field.name === "category1" || field.name === "category2" )  { defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject[field.name].join(';'); }
         else if (field.name === "projectID1" || field.name === "projectID2" )  { defaultValue = this.state.selectedProject[field.name].value; }
         else if (field.name === "timeTarget" )  { 
@@ -511,6 +539,15 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         else if (field.type === 'Time') { defaultValue = this.state.selectedProject[field.name].value; }
         else if (field.type === 'Link') { defaultValue = this.state.selectedProject[field.name].value; }
 
+        const getTitleErrorMessage =  (value: string) : string => {
+          let mess = getErrorMessage(value,this.props.selectedProject.projOptions.activity, 0, false, this.props.showProjectScreen);
+          return mess;
+        };
+
+        const emptyString = (value: string) : string => {
+          return "";
+        };
+
         let thisField = <div id={ pageIDPref + field.column }><TextField
             className={ stylesT.textField }
             styles={ getStyles  } //this.getReportingStyles
@@ -518,6 +555,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             label={ field.title }
             autoComplete='off'
             onChanged={ _onChange }
+            onGetErrorMessage={ field.name !== "activity" ? emptyString : getTitleErrorMessage }
         /></div>;
 
         return thisField;
@@ -751,34 +789,11 @@ private _updateToggleState(ev: EventTarget){
 
   private buildProjectTtitle(isVisible: boolean) {
 
-
-    const getErrorMessage = (value: string): string => {
-      let mess = '';
-
-      if (value.length === 0){
-        mess = 'New Title is required!';
-
-      } else if (value.length < 5 ){
-        mess = 'Title is a little to short to be meaningful :)';
-
-      } else if (value.indexOf('Copy of') > -1){
-        mess = 'Remove the word Copy from Title and change the value';
-
-      } else if (this.props.showProjectScreen === ProjectMode.Copy || this.props.showProjectScreen === ProjectMode.New ){
-        if ( this.props.selectedProject.titleProject.replace('Copy of ','') === value ) { mess = 'Title is the same as the one you copied from!'; }
-        else if ( this.props.selectedProject.titleProject.replace('Copy of ','Copyof') === value ) { mess = 'Title is the same as the one you copied from!'; }
-        else if ( this.props.selectedProject.titleProject.replace('Copy of ','Copy of') === value ) { mess = 'Title is the same as the one you copied from!'; }
-        else if ( this.props.selectedProject.titleProject.replace('Copy of ','Copy') === value ) { mess = 'Title is the same as the one you copied from!'; } 
-        else if ( this.props.selectedProject.titleProject === value ) {
-          mess = 'Need to change the title to something new!';
-        }
-      } else if (this.props.showProjectScreen === ProjectMode.Edit){
-
-      }
-
+    
+    const getTitleErrorMessage = (value: string): string => {
+      let mess = getErrorMessage(value,this.props.selectedProject.titleProject, 5, true, this.props.showProjectScreen);
       return mess;
     };
-
 
     let title = <div style= {{ paddingBottom: 20 }}>
       <TextField
@@ -787,7 +802,7 @@ private _updateToggleState(ev: EventTarget){
         placeholder={ "Enter " + this.props.projectFields.Title.title }
         autoComplete='off'
         onChanged={ this._updateProjectTitle.bind(this) }
-        onGetErrorMessage={getErrorMessage}
+        onGetErrorMessage={getTitleErrorMessage}
         required={ true }
         validateOnFocusIn
         validateOnFocusOut

@@ -829,11 +829,12 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       else if ( showProjectScreen === ProjectMode.Copy ) {
         selectedProject = JSON.parse(JSON.stringify(this.state.selectedProject));
         selectedProject.titleProject = "Copy of " + selectedProject.titleProject;
+        selectedProject.projOptions.activity = this.state.selectedProject.projOptions.activity == null ? 
+              null : "Copy of " + this.state.selectedProject.projOptions.activity;
         selectedProject.status = defStatus;
         selectedProject.dueDate = null;
         selectedProject.completedDate = null;
         selectedProject.completedBy = null;
-        selectedProject.projOptions.activity = null;
         selectedProject.projOptions.projectEditOptions = allProjEditOptions;
       
       } else {
