@@ -243,7 +243,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
           let projectFields = this.props.projectFields;
           let resetFields  = this.props.showProjectScreen !== ProjectMode.Copy ? null : 
-            <h3><mark>NOTE:</mark> These fields are cleared when creating a Copy: 
+            <h3><mark>NOTE:</mark> These fields are cleared when creating a Copy:<span>&ebsp;</span>
             {[
               projectFields.CompletedByTMT.title,
               projectFields.CompletedDateTMT.title,
@@ -370,6 +370,16 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
       if ( didProjectChange || didTogglesChange ) { saveTest = true; }
 
+      let titleMessage = getErrorMessage(this.state.selectedProject.titleProject,this.props.selectedProject.titleProject, 5, true, this.props.showProjectScreen);
+      let activityMessage = getErrorMessage(this.state.selectedProject.projOptions.activity,this.props.selectedProject.projOptions.activity, 0, false, this.props.showProjectScreen);
+
+      //Added this to change error message if both the old and new value of activity are empty.
+      //This way it does not give you message 'Value must be new' if there was not a value to begin with.
+      if ( this.props.showProjectScreen === ProjectMode.Copy ) {
+        if (this.state.selectedProject.projOptions.activity === '' && this.props.selectedProject.projOptions.activity === '' && activityMessage != '' ) { activityMessage = ''; }
+        if ( titleMessage !== '' || activityMessage !== '' ) { saveTest = false; }
+      }
+
       return saveTest;
 
     }
@@ -436,7 +446,9 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
       if ( mode === ProjectMode.Copy || mode === ProjectMode.New ) {
 
-        if (field.type === "User" || field.type === "MultiUser" ) {
+        if ( newVal === null ) {
+
+        } else if (field.type === "User" || field.type === "MultiUser" ) {
           saveItem[field.column + "Id"] = newVal;
 
         } else {
@@ -557,9 +569,13 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         const getTitleErrorMessage =  (value: string) : string => {
           let mess = getErrorMessage(value,this.props.selectedProject.projOptions.activity, 0, false, this.props.showProjectScreen);
+
+          //Add this only for activity in Copy mode so it does not show error message when it's blank.
+          if ( this.props.showProjectScreen === ProjectMode.Copy && field.name === "activity" ) {
+            if (defaultValue === '' && this.props.selectedProject.projOptions.activity === '')  { mess = ''; }
+          }
           return mess;
         };
-
 
         let thisField = <div id={ pageIDPref + field.column }><TextField
             className={ stylesT.textField }
@@ -571,7 +587,11 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             onGetErrorMessage={ field.name !== "activity" ? emptyString : getTitleErrorMessage }
             validateOnFocusIn
             validateOnFocusOut
+            multiline= { field.name === "activity" ? true : false }
+            autoAdjustHeight= { true }
+
         /></div>;
+      
 
         return thisField;
     }

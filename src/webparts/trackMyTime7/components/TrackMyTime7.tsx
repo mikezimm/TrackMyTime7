@@ -829,8 +829,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       else if ( showProjectScreen === ProjectMode.Copy ) {
         selectedProject = JSON.parse(JSON.stringify(this.state.selectedProject));
         selectedProject.titleProject = "Copy of " + selectedProject.titleProject;
-        selectedProject.projOptions.activity = this.state.selectedProject.projOptions.activity == null ? 
-              null : "Copy of " + this.state.selectedProject.projOptions.activity;
+        selectedProject.projOptions.activity = this.state.selectedProject.projOptions.activity == '' ? 
+              "" : "Copy of " + this.state.selectedProject.projOptions.activity;
         selectedProject.status = defStatus;
         selectedProject.dueDate = null;
         selectedProject.completedDate = null;
@@ -2795,7 +2795,8 @@ public toggleTips = (item: any): void => {
          * Get Project Pre-made Activity Link URL
          */
         let pActivityType = p.ActivityType;  //Label part of Activity Type ( before the | )
-        let pActivityID = p.ActivityTMT; //Test value from Activity Column in list
+        //Activity ID is later .split(;) so it's best to just make it empty string now.
+        let pActivityID = p.ActivityTMT === null ? '' : p.ActivityTMT; //Test value from Activity Column in list
         let pActivtyOptionsCalc = p.ActivtyOptionsCalc; //Options for formatting the Icon
 
         let pActivityURL = p.ActivtyURLCalc;
