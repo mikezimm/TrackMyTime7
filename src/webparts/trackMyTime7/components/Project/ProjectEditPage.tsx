@@ -421,6 +421,10 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Leader, oldProject, newProject, mode);
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CompletedByTMT, oldProject, newProject, mode);
 
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.OptionsTMT, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.TimeTarget, oldProject, newProject, mode);
+      saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.SortOrder, oldProject, newProject, mode);
+
       console.log('Will save this object to ID ' + this.props.selectedProject.id , saveItem);
 
     }
@@ -430,7 +434,17 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       let origVal = this.getProbjectValue(field, oldProject);
       let newVal = this.getProbjectValue(field, newProject);
 
-      if (field.type === "Date"  ) {
+      if ( mode === ProjectMode.Copy || mode === ProjectMode.New ) {
+
+        if (field.type === "User" || field.type === "MultiUser" ) {
+          saveItem[field.column + "Id"] = newVal;
+
+        } else {
+          saveItem[field.column] = newVal;
+
+        }
+
+      } else if (field.type === "Date"  ) {
         //Add column and value to object
         //For some reason, dates need to be compared on string level.
         let origStr = new Date(origVal).toLocaleDateString();
@@ -565,7 +579,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     private createDateField(field: IFieldDef, _onChange: any, required: boolean, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
 
         const getDateErrorMessage = (value: Date): string => {
-          let mess = value == null ? "Don't forget Date!" : "Testing";
+          let mess = value == null ? "Don't forget Date!" : "";
           return mess;
         };
 
