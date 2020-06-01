@@ -98,6 +98,22 @@ export function cleanProjEditOptions( str : string ){
 
 }
 
+export function getColumnProp( findProp: string, findMe : string, returnProp: string, arr: any ){
+
+  if (findProp == null ) { return null; }
+  if (returnProp == null ) { return null; }
+
+  let result = null;
+  for (let item of arr) {
+    if (item[findProp] === findMe ) { result = item[returnProp]; }
+  }
+
+  //console.log('columnProp ' + findMe + ' / ' + returnProp + ': ', result);
+
+  return result;
+
+}
+
 export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, ITrackMyTime7State> {
 
 /***
@@ -575,6 +591,21 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       syncProjectPivotsOnToggle: this.props.syncProjectPivotsOnToggle, //always keep pivots in sync when toggling projects/history
 
+      projColumns : {
+        statusChoices: [],
+        activityTMTChoices: [],
+        category1Choices: [],
+        category2Choices: [], 
+
+        statusDefault: '',
+        activityTMTDefault: '',
+        category1Default: '',
+        category2Default: '',
+
+        optionsTMTCalc: '',
+        activtyURLCalc: '',
+      },
+
       projActivityRule: this.createActURLRules(this.props.projActivityRule),
 
       // 5 - UI Defaults
@@ -843,6 +874,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       let projectPage = <MyProjectPage 
 
+        projColumns={ this.state.projColumns }
         wpContext= {this.props.wpContext}
         showProjectScreen={ this.state.showProjectScreen }
         selectedProject={ selectedProject }
@@ -2715,6 +2747,51 @@ public toggleTips = (item: any): void => {
       this.processCatch(e);
     });
 
+
+    // https://pnp.github.io/pnpjs/v1/sp/docs/fields/#filtering-fields
+    //const includeFields = [ 'Title', 'Author', 'Editor', 'Modified', 'Created' ];
+    //const filter3 = `Hidden eq false and (ReadOnlyField eq false or (${
+    //    includeFields.map(field => `InternalName eq '${field}'`).join(' or ')
+    //}))`;
+
+    const includeFields = [ 'ActivityType', 'Category1', 'Category2', 'StatusTMT', 'OptionsTMTCalc', 'ActivtyURLCalc'];
+    const filter3 = `(${
+        includeFields.map(field => `StaticName eq '${field}'`).join(' or ')
+    })`;
+
+    //projectWeb.lists.getByTitle(useProjectList).fields.filter(filter3).inBatch(batch).get().then((response) => {
+    projectWeb.lists.getByTitle(useProjectList).fields.filter(filter3).get().then((response) => {
+
+        console.log('Here are selected Project List Columns: ', response);
+        this.setState({  
+          loadOrder: (this.state.loadOrder === "") ? 'ProjColumns' : this.state.loadOrder + ' > ProjColumns',
+          projColumns : {
+
+            statusChoices: getColumnProp( 'StaticName', 'StatusTMT','Choices', response),
+            activityTMTChoices: getColumnProp( 'StaticName', 'ActivityType','Choices', response),
+            category1Choices: getColumnProp( 'StaticName', 'Category1','Choices', response),
+            category2Choices: getColumnProp( 'StaticName', 'Category2','Choices', response), 
+
+            statusDefault: getColumnProp( 'StaticName', 'StatusTMT','DefaultValue', response),
+            activityTMTDefault: getColumnProp( 'StaticName', 'ActivityType','DefaultValue', response),
+            category1Default: getColumnProp( 'StaticName', 'Category1','DefaultValue', response),
+            category2Default: getColumnProp( 'StaticName', 'Category2','DefaultValue', response),
+
+            optionsTMTCalc: getColumnProp( 'StaticName', 'OptionsTMTCalc','Formula', response),
+            activtyURLCalc: getColumnProp( 'StaticName', 'ActivtyURLCalc','Formula', response),
+
+          }});
+
+    }).catch((e) => {
+      console.log('ERROR:  projectWeb.lists.getByTitle(useProjectList).fields.filter(filter3)',useProjectList, e);
+      let projColumnsMessage = getHelpfullError(e);
+      this.setState({  
+        loadStatus: projColumnsMessage, 
+        loadError: this.state.loadError + '.  ' + projColumnsMessage, 
+        listError: true, //timeTrackerListError: true, 
+        timeTrackerLoadError: projColumnsMessage,});
+      this.processCatch(e);
+    });
 /***
  *                         d888b  d88888b d888888b      d8888b. d8888b.  .d88b.     d88b d88888b  .o88b. d888888b .d8888. 
  *                        88' Y8b 88'     `~~88~~'      88  `8D 88  `8D .8P  Y8.    `8P' 88'     d8P  Y8 `~~88~~' 88'  YP 

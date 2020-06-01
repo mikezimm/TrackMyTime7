@@ -441,6 +441,23 @@ export interface IPropsActivityURL {
 
 }
 
+export interface IProjectColumns {
+
+  statusChoices?: string[];
+  activityTMTChoices?: string[];
+  category1Choices?: string[];
+  category2Choices?: string[];  
+
+  statusDefault?: string;
+  activityTMTDefault?: string;
+  category1Default?: string;
+  category2Default?: string;  
+
+  
+  optionsTMTCalc?: string;
+  activtyURLCalc?: string;
+
+}
 
 export interface ITrackMyTime7State {
 
@@ -491,6 +508,8 @@ export interface ITrackMyTime7State {
   syncProjectPivotsOnToggle; //always keep pivots in sync when toggling projects/history
 
   projActivityRule?: IPropsActivityURL;
+
+  projColumns: IProjectColumns;
 
   // 5 - UI Defaults
   currentProjectPicker: string; //User selection of defaultProjectPicker:  Recent, Your Projects, All Projects etc...

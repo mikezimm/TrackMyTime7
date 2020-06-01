@@ -5,7 +5,7 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 //import * as links from './AllLinks';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
-import { ITrackMyTime7State, IProjectOptions, IProject, IUser } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IProjectOptions, IProject, IUser, IProjectColumns } from '../ITrackMyTime7State';
 
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 import {CommandBarButton,} from "office-ui-fabric-react/lib/Button";
@@ -54,6 +54,8 @@ export interface IProjectPageProps {
     // 2 - Source and destination list information
     projectListTitle: string;
     projectListWeb: string;
+
+    projColumns: IProjectColumns;
 
 }
 
@@ -109,10 +111,18 @@ const getErrorMessage = (value: string, testString: string, minLength: number, r
 
   } else if ( projectMode === ProjectMode.Copy || projectMode === ProjectMode.New ){
     if ( testString.replace('Copy of ','') === value ) { mess = "Value must be new"; }
-    else if ( testString.replace('Copy of ','Copyof') === value ) { mess = "Remove 'Copy'"; }
-    else if ( testString.replace('Copy of ','Copy of') === value ) { mess = "Remove 'Copy'"; }
+    else if ( testString.replace('Copy of ','Copyof') === value ) { mess = "Remove 'Copyof'"; }
+    else if ( testString.replace('Copy of ','Copy of') === value ) { mess = "Remove 'Copy of'"; }
     else if ( testString.replace('Copy of ','Copy') === value ) { mess = "Remove 'Copy'"; } 
-    else if ( testString.replace('Copy of ','Copy ') === value ) { mess = "Remove 'Copy'"; } 
+    else if ( testString.replace('Copy of ','Copy ') === value ) { mess = "Remove 'Copy '"; } 
+    else if ( testString.replace('Copy of ','of ') === value ) { mess = "Remove 'of '"; } 
+    else if ( testString.replace('Copy of ',' of ') === value ) { mess = "Remove ' of '"; } 
+    else if ( testString.replace('Copy of ','f ') === value ) { mess = "Remove 'f '"; } 
+    else if ( testString.replace('Copy of ',' ') === value ) { mess = "Remove leading spaces"; } 
+    else if ( testString.replace('Copy of ','  ') === value ) { mess = "Remove leading spaces"; } 
+    else if ( testString.replace('Copy of ','   ') === value ) { mess = "Remove leading spaces"; } 
+    else if ( testString.replace('Copy of ','    ') === value ) { mess = "Remove leading spaces"; } 
+    else if ( testString.replace('Copy of ','     ') === value ) { mess = "Your kidding right???"; } 
     else if ( testString === value ) {
       mess = 'Value must be new!';
     }
@@ -1051,7 +1061,8 @@ private getActivityStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyle
 }
 
 private buildActivityFields(isVisible: boolean) {
-    let activityType = this._createDropdownField(this.props.projectFields.ActivityType, activityTMTChoices, this._updateActivityType.bind(this), this.getActivityStyles );
+    let useActivityChoices = this.props.projColumns.activityTMTChoices != null ? this.props.projColumns.activityTMTChoices : activityTMTChoices;
+    let activityType = this._createDropdownField(this.props.projectFields.ActivityType, useActivityChoices, this._updateActivityType.bind(this), this.getActivityStyles );
     let activity = this.createTextField(this.props.projectFields.ActivityTMT, this._updateActivityID.bind(this), this.getActivityStyles );
 
     let fields =
@@ -1105,7 +1116,8 @@ private getTaskStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles> {
 
 private buildTaskFields(isVisible: boolean) {
 
-    let status = this._createDropdownField(this.props.projectFields.StatusTMT, statusChoices, this._updateStatusChange.bind(this), this.getTaskStyles );
+    let useStatusChoices = this.props.projColumns.statusChoices != null ? this.props.projColumns.statusChoices : activityTMTChoices;
+    let status = this._createDropdownField(this.props.projectFields.StatusTMT, useStatusChoices, this._updateStatusChange.bind(this), this.getTaskStyles );
     let isDueDateRequired: boolean = true;
     let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), isDueDateRequired, this.getTaskStyles );
     let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), false, this.getTaskStyles );
