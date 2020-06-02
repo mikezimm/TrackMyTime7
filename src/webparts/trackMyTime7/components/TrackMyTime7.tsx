@@ -2818,9 +2818,9 @@ public toggleTips = (item: any): void => {
         let targetInfo : IProjectTarget = this.createProjectTimeTracking(p.TimeTarget);
 
         //Capturing original values for use in Project Edit screen
-        let origProjectID1 = p.ProjectID1;
-        let origProjectID2 = p.ProjectID1;
-        let origComments = p.Comments;        
+        let origProjectID1 = p.ProjectID1 === null ? "" : p.ProjectID1 + "";
+        let origProjectID2 = p.ProjectID2 === null ? "" : p.ProjectID2 + "";
+        let origComments = p.Comments === null ? "" : p.Comments + "";       
 
         let pOptions = [];
         if (p.OptionsTMT != null ) { pOptions = p.OptionsTMT.split(';'); }

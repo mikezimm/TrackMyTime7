@@ -78,6 +78,7 @@ export interface IProjectPageState {
     showPeople?: boolean;
     showAdvanced?: boolean;
     projectEditOptions?: string[];
+    testItems?: any;
 }
 
 const pageIDPref = 'ProjectTMT';
@@ -184,6 +185,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             showPeople: projectEditOptions.indexOf('people') > -1 ? true : false,
             showAdvanced: projectEditOptions.indexOf('advanced') > -1 ? true : false,
             projectEditOptions: projectEditOptions,
+            testItems: null,
           };
 
         this._genericFieldUpdate = this._genericFieldUpdate.bind(this);
@@ -245,9 +247,12 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         let isSaveButtonDisabled = !this.checkEnableSave();
         let saveLabel = "Save";
+        let testLabel = "Test";
         if (this.props.showProjectScreen === ProjectMode.New) { saveLabel = "Create New"; }
         if (this.props.showProjectScreen === ProjectMode.Edit) { saveLabel = "Update"; }
         if (this.props.showProjectScreen === ProjectMode.Copy) { saveLabel = "Save Copy"; }
+
+        let testItems = this.state.testItems == null ? null : <div><div><h2>Here is the save object :)</h2></div><div>{ JSON.stringify(this.state.testItems) }</div></div>;
 
         const buttons: ISingleButtonProps[] =
         [{  disabled: false,  checked: true, primary: false,
@@ -256,9 +261,12 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             disabled: isSaveButtonDisabled,  checked: true, primary: false,
             label: "Reset form", buttonOnClick: this.clearForm.bind(this),
         },{
+          disabled: isSaveButtonDisabled, checked: true, primary: true,
+          label: testLabel, buttonOnClick: this.testSaveProject.bind(this),
+        },{
             disabled: isSaveButtonDisabled, checked: true, primary: true,
             label: saveLabel, buttonOnClick: this.saveProject.bind(this),
-          },];
+        }];
 
 
           let projectFields = this.props.projectFields;
@@ -320,6 +328,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
                 { advancedFields }   
             </Stack>    
             { saveButtons }
+            { testItems }
         </div>
         );
 
@@ -356,6 +365,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           showPeople: projectEditOptions.indexOf('people') > -1 ? true : false,
           showAdvanced: projectEditOptions.indexOf('advanced') > -1 ? true : false,
           projectEditOptions: projectEditOptions,
+          testItems: null,
         });
 
         alert('Project form has been reset to how it started.');
@@ -404,24 +414,52 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     }
 
-    private saveProject() {
-        console.log('saved form');
+    private testSaveProject() {
+      console.log('saved form');
 
-        if ( this.checkEnableSave() ) {
+      if ( this.checkEnableSave() ) {
 
-          let saveProject = this.buildProjectToSave(this.props.selectedProject, this.state.selectedProject, this.props.showProjectScreen );
-          /*
-          const projectWeb = Web(this.props.projectListWeb);
-  
-          projectWeb.lists.getByTitle(this.props.projectListTitle).items.add( saveProject ).then((response) => {
-  
-          });
-  
-          this.props._closeProjectEdit();
-          */
-        }
+        let saveProject = this.buildProjectToSave(this.props.selectedProject, this.state.selectedProject, this.props.showProjectScreen );
+
+        this.setState({ 
+          testItems: saveProject,
+        });
+
+        /*
+        const projectWeb = Web(this.props.projectListWeb);
+
+        projectWeb.lists.getByTitle(this.props.projectListTitle).items.add( saveProject ).then((response) => {
+
+        });
+
+        this.props._closeProjectEdit();
+        */
+      }
 
 
+  }
+
+  private saveProject() {
+      console.log('saved form');
+
+      if ( this.checkEnableSave() ) {
+
+        let saveProject = this.buildProjectToSave(this.props.selectedProject, this.state.selectedProject, this.props.showProjectScreen );
+
+        this.setState({ 
+          testItems: null,
+        });
+
+        /*
+        const projectWeb = Web(this.props.projectListWeb);
+
+        projectWeb.lists.getByTitle(this.props.projectListTitle).items.add( saveProject ).then((response) => {
+
+        });
+
+        this.props._closeProjectEdit();
+        */
+      }
     }
 
     private buildProjectToSave( oldProject: IProject, newProject: IProject, mode: ProjectMode ){
@@ -456,6 +494,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.SortOrder, oldProject, newProject, mode);
 
       console.log('Will save this object to ID ' + this.props.selectedProject.id , saveItem);
+
+      return saveItem;
 
     }
 
