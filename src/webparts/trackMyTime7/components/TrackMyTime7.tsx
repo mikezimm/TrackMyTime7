@@ -180,6 +180,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   private createSmartText(title, name) {
     let smart : ISmartText = {
+      projListValue: '',
       value: '',
       required: false,
       hidden: false,
@@ -395,6 +396,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     let daily: any = false;
     let weekly: any = false;
     let total: any = false;
+    let projListValue = pTimeTarget;
 
     if (pTimeTarget) {
       let ttOptions = pTimeTarget.split(';');
@@ -411,6 +413,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     }
 
     let targetInfo : IProjectTarget = {
+      projListValue: projListValue,
       value: pTimeTarget,
       daily: daily ? daily : 0,
       weekly: weekly ? weekly : 0,
@@ -451,9 +454,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       //Reporting columns
       category1 : null,
       category2 : null,
-      projectID1 : this.buildSmartText(null),
-      projectID2 : this.buildSmartText(null),
-      comments: this.buildSmartText(null),
+      projectID1 : this.buildSmartText(null, null),
+      projectID2 : this.buildSmartText(null, null),
+      comments: this.buildSmartText(null, null),
 
       story : null,
       chapter : null,
@@ -2563,7 +2566,7 @@ public toggleTips = (item: any): void => {
  *                                                                                                                         
  */
 
-  public buildSmartText (makeThisSmart) {
+  public buildSmartText (makeThisSmart: string, projListValue: string) {
 
     let projectText : string = makeThisSmart ;
     let isRequired : boolean = ( projectText && projectText.indexOf("\*") === 0 ) ? true : false ;
@@ -2582,6 +2585,7 @@ public toggleTips = (item: any): void => {
     let prefix : string = (projectString && lastIndexOfDots === projectString.length -3 ) ? projectString.substring(0,lastIndexOfDots) : null ;
     let mask : string = (makeThisSmart && makeThisSmart.indexOf('mask=')===0) ? makeThisSmart.replace('mask=','') : '';
     let thisProj : ISmartText = {
+      projListValue: projListValue,
       value: defaultIsPrefix ? "" : isHidden ? projectString : makeThisSmart,
       hidden: isHidden,
       required: isRequired,
@@ -2813,6 +2817,11 @@ public toggleTips = (item: any): void => {
 
         let targetInfo : IProjectTarget = this.createProjectTimeTracking(p.TimeTarget);
 
+        //Capturing original values for use in Project Edit screen
+        let origProjectID1 = p.ProjectID1;
+        let origProjectID2 = p.ProjectID1;
+        let origComments = p.Comments;        
+
         let pOptions = [];
         if (p.OptionsTMT != null ) { pOptions = p.OptionsTMT.split(';'); }
         else if ( p.OptionsTMTCalc != null && p.OptionsTMTCalc.length>0 ) { pOptions = p.OptionsTMTCalc.split(';'); }
@@ -3002,7 +3011,7 @@ public toggleTips = (item: any): void => {
           editLink: null , //Link to view/edit item link
           titleProject: thisProjectTitle,
 
-          comments: this.buildSmartText(p.Comments),
+          comments: this.buildSmartText(p.Comments, origComments),
           //2020-05-13:  Replace Active with StatusTMT  when Status = 9 then active = null, Status = 8 then active = false else true
           active: this.convertStatusToActive(p.StatusNumber),
           everyone: p.Everyone,
@@ -3021,9 +3030,9 @@ public toggleTips = (item: any): void => {
           teamIds: p.Team == null ? null : p.TeamId, // BE SURE TO ADD PEOPLE COLUMNS TO EXPANDED COLUMNS FIRST!
 
           filterFlags: [],
-
-          projectID1: this.buildSmartText(p.ProjectID1),
-          projectID2: this.buildSmartText(p.ProjectID2),
+          
+          projectID1: this.buildSmartText(p.ProjectID1, origProjectID1),
+          projectID2: this.buildSmartText(p.ProjectID2, origProjectID2),
 
           timeTarget: targetInfo,
           projOptions: projOptions,
@@ -3147,7 +3156,7 @@ public toggleTips = (item: any): void => {
           id: item.Id ,
           editLink: null , //Link to view/edit item link
           titleProject : item.Title ,
-          comments: this.buildSmartText(item.Comments),
+          comments: this.buildSmartText(item.Comments, item.Comments),
           
           //2020-05-13:  Replace Active with StatusTMT  when Status = 9 then active = null, Status = 8 then active = false else true
           active: this.convertStatusToActive(item.StatusNumber),
@@ -3165,8 +3174,8 @@ public toggleTips = (item: any): void => {
 
           filterFlags: [],
 
-          projectID1 : this.buildSmartText(item.ProjectID1) ,  //Example Project # - look for strings starting with * and ?
-          projectID2 : this.buildSmartText(item.ProjectID2) ,  //Example Cost Center # - look for strings starting with * and ?
+          projectID1 : this.buildSmartText(item.ProjectID1, item.ProjectID1) ,  //Example Project # - look for strings starting with * and ?
+          projectID2 : this.buildSmartText(item.ProjectID2, item.ProjectID2) ,  //Example Cost Center # - look for strings starting with * and ?
 
           //Values that relate to project list item
           sourceProject : item.SourceProject , //Link back to the source project list item.
@@ -4053,10 +4062,10 @@ public toggleTips = (item: any): void => {
         listProjects: listProjects,
         id: response.data.Id,
         entryType: response.data.EntryType,
-        comments: this.buildSmartText(response.data.Comments),
-        projectID1 : this.buildSmartText(response.data.ProjectID1) ,  //Example Project # - look for strings starting with * and ?
-        projectID2 : this.buildSmartText(response.data.ProjectID2) ,  //Example Cost Center # - look for strings starting with * and ?
-        thisTimeObj: makeTheTimeObject(response.data.StartTime),
+        comments: this.buildSmartText(response.data.Comments, response.data.Comments),
+        projectID1 : this.buildSmartText(response.data.ProjectID1, response.data.ProjectID1) ,  //Example Project # - look for strings starting with * and ?
+        projectID2 : this.buildSmartText(response.data.ProjectID2, response.data.ProjectID2) ,  //Example Cost Center # - look for strings starting with * and ?
+        thisTimeObj: makeTheTimeObject(response.data.StartTime, response.data.StartTime),
       
         hoursEarly : hoursEarly,
         hoursLate : hoursLate,

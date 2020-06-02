@@ -44,6 +44,16 @@ import stylesT from '../TrackMyTime7.module.scss';
 
 export enum ProjectMode { False, Edit, Copy, New }
 
+const getProjectModeLabel =  (mode: ProjectMode): string =>  {
+
+  if (mode === ProjectMode.New ) { return "New"; }
+  if (mode === ProjectMode.Edit ) { return "Edit"; }
+  if (mode === ProjectMode.Copy ) { return "Copy"; }
+
+  return "What?";
+
+};
+
 export interface IProjectPageProps {
     showProjectScreen: ProjectMode;
     _closeProjectEdit: any;
@@ -253,7 +263,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
           let projectFields = this.props.projectFields;
           let resetFields  = this.props.showProjectScreen !== ProjectMode.Copy ? null : 
-            <h3><mark>NOTE:</mark> These fields are cleared when creating a Copy:<span>&ebsp;</span>
+            <h3><mark>NOTE:</mark> These fields are cleared when creating a Copy:<span>&nbsp;</span>
             {[
               projectFields.CompletedByTMT.title,
               projectFields.CompletedDateTMT.title,
@@ -262,7 +272,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             </h3> ;
 
         let pageTitle = <div style={{ paddingTop: '0px' }}>
-          <h2>{"Track My Time:  Project " + this.state.showProjectScreen }</h2>
+          <h2>{"Track My Time:  Project " + getProjectModeLabel(this.state.showProjectScreen) }</h2>
           <h3>{ this.state.selectedProject === null ? 'New Project' : this.state.selectedProject.titleProject}</h3>
           { resetFields }
         </div>;
@@ -503,7 +513,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       let objVal = project[fieldName];
       let val = null;
       if (fieldName === "category1" || fieldName === "category2" )  { val = objVal == null ? null : objVal.join(';'); }
-      else if (fieldName === "projectID1" || fieldName === "projectID2" || fieldName === "timeTarget" )  { val = objVal.value == null ? null : objVal.value ; }
+      else if (fieldName === "projectID1" || fieldName === "projectID2" || fieldName === "timeTarget" )  { val = objVal.projListValue == null ? null : objVal.projListValue ; }
       else if ( fieldName === "projOptions" )  { val = objVal.optionString == null ? null : objVal.optionString; }
       else if ( fieldName === "activityType" )  { val = project.projOptions.type == null ? null : project.projOptions.type;  }
       else if ( fieldName === "activity" )  { val = project.projOptions.activity == null ? null : project.projOptions.activity;  }
@@ -559,7 +569,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         let defaultValue = null;
 
         if (field.name === "category1" || field.name === "category2" )  { defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject[field.name].join(';'); }
-        else if (field.name === "projectID1" || field.name === "projectID2" )  { defaultValue = this.state.selectedProject[field.name].value; }
+        else if (field.name === "projectID1" || field.name === "projectID2" )  { defaultValue = this.state.selectedProject[field.name].projListValue; }
         else if (field.name === "timeTarget" )  { 
             defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject[field.name].value;
             console.log('createTextField: ' + field.name,this.state.selectedProject );
@@ -1289,7 +1299,7 @@ private buildTaskFields(isVisible: boolean) {
     let selectedProject = this.state.selectedProject;
 
     if (fieldName === "category1" || fieldName === "category2" )  { selectedProject[fieldName] = fieldVal == null ? null : fieldVal.split(';'); }
-    else if (fieldName === "projectID1" || fieldName === "projectID2" )  { selectedProject[fieldName].value = fieldVal; }
+    else if (fieldName === "projectID1" || fieldName === "projectID2" )  { selectedProject[fieldName].projListValue = fieldVal; }
     else if ( fieldName === "timeTarget" )  { selectedProject[fieldName].value = fieldVal; }
     else if ( fieldName === "projOptions" )  { selectedProject[fieldName].optionString = fieldVal; }
     else if (this.props.projectFields[fieldID].type === 'Text') { selectedProject[fieldName] = fieldVal; }

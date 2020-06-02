@@ -183,6 +183,7 @@ export interface ITimeEntry extends ISaveEntry {
 
 export interface ISmartText {
   value: string;
+  projListValue: string;
   required: boolean;
   hidden: boolean;
   default: string;
@@ -194,6 +195,7 @@ export interface ISmartText {
 }
 
 export interface IProjectTarget {
+  projListValue: string;
   value: string; //value from field - ; separated options which could be parsed
   daily?: number; //Maybe have function see if something like daily=4 means 4 hours per day?
   weekly?: number; //Maybe have function see if something like weekly=8 means 8 hours per week?
