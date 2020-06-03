@@ -121,22 +121,23 @@ const getErrorMessage = (value: string, testString: string, minLength: number, r
     mess = 'Remove the word Copy from value';
 
   } else if ( projectMode === ProjectMode.Copy || projectMode === ProjectMode.New ){
-    if ( testString.replace('Copy of ','') === value ) { mess = "Value must be new"; }
+    
+    if ( testString == null ) { testString = ''}
+    if ( testString.indexOf(' ') === 0 ) { mess = "Remove leading spaces"; } 
+    else if ( testString.replace('Copy of ','') === value ) { mess = "Value must be new"; }
     else if ( testString.replace('Copy of ','Copyof') === value ) { mess = "Remove 'Copyof'"; }
     else if ( testString.replace('Copy of ','Copy of') === value ) { mess = "Remove 'Copy of'"; }
     else if ( testString.replace('Copy of ','Copy') === value ) { mess = "Remove 'Copy'"; } 
     else if ( testString.replace('Copy of ','Copy ') === value ) { mess = "Remove 'Copy '"; } 
     else if ( testString.replace('Copy of ','of ') === value ) { mess = "Remove 'of '"; } 
     else if ( testString.replace('Copy of ',' of ') === value ) { mess = "Remove ' of '"; } 
-    else if ( testString.replace('Copy of ','f ') === value ) { mess = "Remove 'f '"; } 
-    else if ( testString.replace('Copy of ',' ') === value ) { mess = "Remove leading spaces"; } 
-    else if ( testString.replace('Copy of ','  ') === value ) { mess = "Remove leading spaces"; } 
-    else if ( testString.replace('Copy of ','   ') === value ) { mess = "Remove leading spaces"; } 
-    else if ( testString.replace('Copy of ','    ') === value ) { mess = "Remove leading spaces"; } 
-    else if ( testString.replace('Copy of ','     ') === value ) { mess = "Your kidding right???"; } 
+    else if ( testString.replace('Copy of ','f ') === value ) { mess = "Remove 'f '"; }
+
     else if ( testString === value ) {
       mess = 'Value must be new!';
     }
+
+
   } else if ( projectMode === ProjectMode.Edit ){
 
   }
