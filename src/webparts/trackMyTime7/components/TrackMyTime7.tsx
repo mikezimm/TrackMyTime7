@@ -41,12 +41,13 @@ import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProject
         IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
         IChartData, IChartSeries,
         IMyIcons, IMyFonts, IProjectOptions, IStory, IStories,
-        IPropsActivityURL } from './ITrackMyTime7State';
+        IPropsActivityURL, IProjectHistory, IProjectAction } from './ITrackMyTime7State';
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
 import { camelize, } from '../../../services/stringServices';
 
+import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
 import { buildFormFields, buildProjectFormFields } from './fields/fieldDefinitions';
 
@@ -65,8 +66,12 @@ import * as dateBuilders from './fields/dateFieldBuilder';
 
 import  { ICommandBarState, ICommandBarProps} from './Project/ProjectCommandBar';
 import MyCommandBar from './Project/ProjectCommandBar';
-import MyCommandBarNew from './Project/ProjectCommandNew';
-  
+import { nominalTypeHack } from 'prop-types';
+
+import { createDialog } from './Project/ConfirmUpdate';
+
+export enum TMTDialogMode { False, Park, Cancel, Complete }
+
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
 };
@@ -75,10 +80,59 @@ const allProjEditOptions = cleanProjEditOptions('activity;advanced;people;report
 
 const defProjEditOptions = cleanProjEditOptions('people;reporting');
 
-
-export const statusChoices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`,`9. Closed`];
+export const statusChoices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`,`9. Complete`];
 export const defStatus = `0. Review`;
+export const cancelStatus = `9. Cancelled`;
+export const completeStatus = `9. Complete`;
+export const parkStatus = `8. Parking lot`;
 export const activityTMTChoices = [`TMT Issue`, `Socialiis Issue`];
+
+export const MyCons = {
+  cancel: "Cancel",
+  park: "Car",
+  complete: 'SkypeCheck',
+  inProcess: 'CompassNW',
+  inReview: 'CompassNW', 
+};
+
+
+const cancelSubText = 'This will set status to "9. Cancelled", set Completed Date to today and set Completed By to you.  You can then find it under the "Closed" heading';
+const completeSubText = 'This set status to "9. Complete", set Completed Date to today and set Completed By to you.  You can then find it under the "Closed" heading';
+const parkSubText = 'This will set the status to "8. Parking lot".  You can then find it under the "Closed" heading';
+
+const actionPark : IProjectAction = { 
+  icon: MyCons.park,  
+  status: parkStatus,  
+  verb: 'Parked Project',
+  prompt: 'Do you want to Park this project for now?',
+  subText: 'This will set the status to "8. Parking lot".  You can then find it under the "Closed" heading', 
+  details: 'Set Status to ' +  parkStatus +  ' and cleared Completed By and Completed Date',
+
+ };
+
+ const actionComplete : IProjectAction = { 
+  icon: MyCons.complete,  
+  status: completeStatus,  
+  verb: 'Completed Project',
+  prompt: 'Do you want to Complete this project?',
+  subText: 'This will set the status to "8. Parking lot".  You can then find it under the "Closed" heading', 
+  details: 'This set status to ' +  completeStatus +  ', set Completed Date to today and set Completed By to you.  You can then find it under the "Closed" heading',
+ };
+
+ const actionCancel : IProjectAction = { 
+  icon: MyCons.cancel,  
+  status: cancelStatus,  
+  verb: 'Cancelled Project',
+  prompt: 'Do you want to Cancel this?',
+  subText: 'This will set the status to "8. Parking lot".  You can then find it under the "Closed" heading', 
+  details: 'This set status to ' +  cancelStatus +  ', set Completed Date to today and set Completed By to you.  You can then find it under the "Closed" heading',
+ };
+
+const projActions = {
+  park: actionPark,
+  complete: actionComplete,
+  cancel: actionCancel,
+};
 
 /**
  * This function takes a string with ;, converts to array of strings and removes empty elements (like if ; is at the end.)
@@ -323,7 +377,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         { headerText: "Closed",
         filter: "closed",
         itemKey: "closed",
-        data: "Inactive or closed projects",
+        data: "Completed or Cancelled projects",
         lastIndex: null,
       }
       );
@@ -675,6 +729,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       searchCount: 0,
       searchWhere: '',
 
+      dialogMode: TMTDialogMode.False,
+
     };
 
     // because our event handler needs access to the component, bind 
@@ -705,9 +761,15 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._editProject = this._editProject.bind(this);
     this._copyProject = this._copyProject.bind(this);
     this._parkProject = this._parkProject.bind(this);
-    this._rejectProject = this._rejectProject.bind(this);
-    this._closeProject = this._closeProject.bind(this);   
-    this._closeProjectEdit = this._closeProjectEdit.bind(this);   
+    this._cancelProject = this._cancelProject.bind(this);
+    this._completeProject = this._completeProject.bind(this);   
+    this._closeProjectEdit = this._closeProjectEdit.bind(this); 
+
+    this._parkProjectDialog = this._parkProjectDialog.bind(this); 
+    this._cancelProjectDialog = this._cancelProjectDialog.bind(this); 
+    this._completeProjectDialog = this._completeProjectDialog.bind(this); 
+    this._closeDialog = this._closeDialog.bind(this); 
+
   }
 
 
@@ -1254,11 +1316,24 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           newProject={ this._newProject.bind(this) }
           editProject={ this._editProject.bind(this) }
           copyProject={ this._copyProject.bind(this) }
-          parkProject={ this._parkProject.bind(this) }
-          rejectProject={ this._rejectProject.bind(this) }
-          closeProject={ this._closeProject.bind(this) }
+          parkProject={ this._parkProjectDialog.bind(this) }
+          cancelProject={ this._cancelProjectDialog.bind(this) }
+          completeProject={ this._completeProjectDialog.bind(this) }
         ></MyCommandBar>
       </div>;
+
+      let makeDialog = null;
+      if ( this.state.dialogMode === TMTDialogMode.False ) {
+      } else if ( this.state.dialogMode === TMTDialogMode.Park ) {
+        makeDialog = createDialog( projActions.park.prompt,  projActions.park.subText, 'Yes', 'No', true, this._parkProject, this._closeDialog );
+
+      } else if ( this.state.dialogMode === TMTDialogMode.Complete ) {
+        makeDialog = createDialog( projActions.complete.prompt, projActions.complete.subText, 'Yes', 'No', true, this._completeProject, this._closeDialog );
+
+      } else if ( this.state.dialogMode === TMTDialogMode.Cancel ) {
+        makeDialog = createDialog( projActions.cancel.prompt,  projActions.cancel.subText, 'Yes', 'No', true, this._cancelProject, this._closeDialog );
+
+      } 
 
       const newProjCommands = null;
 
@@ -1328,6 +1403,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
                 </Stack>  {/* Stack for Buttons and Fields */}
   
               </Stack> {/* Stack for Projects and body */}
+              { makeDialog }
             </div>
   
             <div></div><div><br/><br/></div>
@@ -1386,25 +1462,78 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
      });
   }
   
+    
+  private _closeDialog(){  this.setState({    dialogMode: TMTDialogMode.False    });  }
+    
+  private _parkProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Park     });  }
+
+  private _cancelProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Cancel    });  }
+
+  private _completeProjectDialog(){  this.setState({    dialogMode: TMTDialogMode.Complete    });  }
+
+
   private _parkProject(){
-    alert('Clicked _parkProject!');
-    //Update status field, Complete date and Completed by, then save, reload projects list
-    this.setState({ 
-     });
-  }
-  private _rejectProject(){
-    alert('Clicked _rejectProject!');
-    //Update status field, Complete date and Completed by, then save, reload projects list
-    this.setState({ 
-     });
-  }
-  private _closeProject(){
-    alert('Clicked _closeProject!');
-    //Update status field, Complete date and Completed by, then save, reload projects list
-    this.setState({ 
-     });
+    let action : IProjectAction = projActions.park;
+    this._updateProject(action,false,false);
+    /*
+    let today: any = new Date().toUTCString();
+    let history: string = this.createHistory(this.state.selectedProject.history, today, action);
+    let saveItem = { StatusTMT: action.status, CompletedByTMTId: null , CompletedDateTMT : null, HistoryTMT: history };
+    this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
+    */
   }
 
+  private _cancelProject(){
+    let action : IProjectAction = projActions.cancel;
+    let today: any = new Date().toUTCString();
+    let history: string = this.createHistory(this.state.selectedProject.history, today, action);
+    let saveItem = { StatusTMT: action.status, CompletedByTMTId: this.state.currentUser.id , CompletedDateTMT : today, HistoryTMT: history };
+    this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
+  }
+
+  private _completeProject(){
+    let action : IProjectAction = projActions.complete;
+    let today: any = new Date().toUTCString();
+    let history: string = this.createHistory(this.state.selectedProject.history, today, action);
+    let saveItem = { StatusTMT: action.status, CompletedByTMTId: this.state.currentUser.id , CompletedDateTMT : today, HistoryTMT: history };
+    this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
+  }
+
+
+  private _updateProject(action: IProjectAction, saveDate: boolean, saveUser: boolean){
+    let today: any = saveDate === true ? new Date().toUTCString() : null;
+    let history: string = this.createHistory(this.state.selectedProject.history, today, action);
+    let user = saveUser === true ? this.state.currentUser.id : null;
+    let saveItem = { StatusTMT: action.status, CompletedByTMTId: user , CompletedDateTMT : today, HistoryTMT: history };
+    this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
+  }
+
+  private createHistory(prevHistory, today, action: IProjectAction) {
+    let history: IProjectHistory = {
+      details: action.details,
+      timeStamp: today,
+      userName: this.state.currentUser.Title,
+      verb: action.verb,
+      icon: action.icon,
+    };
+    let historyString = JSON.stringify(history);
+    if ( prevHistory != null ) { historyString = historyString += "," + prevHistory; }
+    return historyString;
+  }
+
+  private updateProjectListItem( id: number, saveThisItem ) {
+    let projListObject = this._getProjectList();
+    console.log('Attempting to save this Project:', id, saveThisItem );
+    projListObject.items.getById(id).update( saveThisItem ).then((response) => {
+        console.log('Project Saved', response);
+        this._getListItems();
+        }).catch((e) => {
+          alert(e);
+      });
+
+  }
+    /*
+*/
 
   /***
  *          d888b  d88888b d888888b      d8888b. d8888b.  .d88b.     d88b d88888b  .o88b. d888888b .d8888. 
@@ -2611,19 +2740,30 @@ public toggleTips = (item: any): void => {
  *                                                                                                                    
  */
 
+ private _getProjectListTitle() {
+  let useProjectList: string = strings.DefaultProjectListTitle;
+  if ( this.props.projectListTitle ) {
+    useProjectList = this.props.projectListTitle;
+  }
+  return useProjectList;
+ }
+
+ private _getProjectList  () {
+  let useProjectWeb: string = this.state.projectListWeb;
+  
+  let useProjectList:string = this._getProjectListTitle();
+
+  const projectWeb = Web(useProjectWeb);
+
+  return projectWeb.lists.getByTitle(useProjectList);
+
+ }
 
   //Added for Get List Data:  https://www.youtube.com/watch?v=b9Ymnicb1kc
   @autobind 
 
   //    private async loadListItems(): Promise<IPivotTileItemProps[]> {
   private _getListItems(): void {
-
-    let useProjectList: string = strings.DefaultProjectListTitle;
-    if ( this.props.projectListTitle ) {
-      useProjectList = this.props.projectListTitle;
-    }
-
-    let useProjectWeb: string = this.state.projectListWeb;
 
     let useTrackMyTimeList: string = strings.DefaultTrackMyTimeListTitle;
     if ( this.props.timeTrackListTitle ) {
@@ -2670,7 +2810,6 @@ public toggleTips = (item: any): void => {
     let selectColsProj = selectCols + ',CompletedByTMT/Title,CompletedByTMT/ID,CompletedByTMT/Name';   
 
     //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
-    const projectWeb = Web(useProjectWeb);
     const trackTimeWeb = Web(useTrackMyTimeWeb);
 
     let batch: any = sp.createBatch();
@@ -2764,7 +2903,9 @@ public toggleTips = (item: any): void => {
     })`;
 
     //projectWeb.lists.getByTitle(useProjectList).fields.filter(filter3).inBatch(batch).get().then((response) => {
-    projectWeb.lists.getByTitle(useProjectList).fields.filter(filter3).get().then((response) => {
+      let projListObject = this._getProjectList();
+    
+      projListObject.fields.filter(filter3).get().then((response) => {
 
         console.log('Here are selected Project List Columns: ', response);
         this.setState({  
@@ -2787,7 +2928,7 @@ public toggleTips = (item: any): void => {
           }});
 
     }).catch((e) => {
-      console.log('ERROR:  projectWeb.lists.getByTitle(useProjectList).fields.filter(filter3)',useProjectList, e);
+      console.log('ERROR:  projectWeb.lists.getByTitle(useProjectList).fields.filter(filter3)',this._getProjectListTitle(), e);
       let projColumnsMessage = getHelpfullError(e);
       this.setState({  
         loadStatus: projColumnsMessage, 
@@ -2807,7 +2948,8 @@ public toggleTips = (item: any): void => {
  *                                                                                                                        
  */
 
-    projectWeb.lists.getByTitle(useProjectList).items
+
+    projListObject.items
     .select(selectColsProj).expand(expandTheseProj).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
     .then((response) => {
       //console.log('useProjectList', response);
@@ -3046,6 +3188,7 @@ public toggleTips = (item: any): void => {
           completedBy: p.CompletedByTMT == null ? null : p.CompletedByTMT, // BE SURE TO ADD PEOPLE COLUMNS TO EXPANDED COLUMNS FIRST!
           completedById: p.CompletedByTMT == null ? null : p.CompletedByTMTId, // BE SURE TO ADD PEOPLE COLUMNS TO EXPANDED COLUMNS FIRST!
 
+          history: p.HistoryTMT,
           //Values that relate to project list item
           // sourceProject: , //Add URL back to item
         };
@@ -3073,7 +3216,7 @@ public toggleTips = (item: any): void => {
       }
 
     }).catch((e) => {
-      console.log('ERROR:  projectWeb.lists.getByTitle(useProjectList)',useProjectList, e);
+      console.log('ERROR:  projectWeb.lists.getByTitle(useProjectList)',this._getProjectListTitle(), e);
       let projErrMessage = getHelpfullError(e);
       this.setState({  loadStatus: projErrMessage, loadError: this.state.loadError + '.  ' + projErrMessage, listError: true, projectsListError: true, projectsLoadError: projErrMessage,});
       this.processCatch(e);
@@ -3385,6 +3528,7 @@ public toggleTips = (item: any): void => {
       projectsListError: false,
       projectsItemsError: false,
       allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.timeTrackerLoadStatus === 'Complete') ? true : false,
+      dialogMode: TMTDialogMode.False,
     });
   }
 

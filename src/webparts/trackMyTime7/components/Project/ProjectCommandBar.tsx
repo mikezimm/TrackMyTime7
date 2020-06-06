@@ -7,6 +7,8 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State, IProjectOptions } from '../ITrackMyTime7State';
 
+import { MyCons } from '../TrackMyTime7';
+
 import { Fabric, initializeIcons } from 'office-ui-fabric-react';
 import { CommandBar, ICommandBarItemProps } from 'office-ui-fabric-react/lib/CommandBar';
 import {CommandBarButton, IButtonProps,} from "office-ui-fabric-react/lib/Button";
@@ -25,8 +27,8 @@ export interface ICommandBarProps {
     editProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
     copyProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
     parkProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;  
-    rejectProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-    closeProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    cancelProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    completeProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
 
     commandClass?: string;
     setLayout?: string;
@@ -52,6 +54,7 @@ export const customButton = (props: IButtonProps) => {
             fontWeight: "bolder",
             margin: '0px 2px',
          },
+         
         }}
       />
     );
@@ -94,7 +97,6 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
         //2020-05-19:  Copied from Socialiis7/Master CommandBar.tsx
         console.log('ProjectCommandBar hasProject:', this.props.hasProject);
 
-
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
         const _new : ICommandBarItemProps = { key: 'new', text: 'New',  name: '',   ariaLabel: 'New', commandBarButtonAs: customButton,
             iconProps: {  iconName: 'Add', },
@@ -118,19 +120,19 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
 
         const _reject : ICommandBarItemProps = { key: 'reject', text: 'Cancel',  name: '',   ariaLabel: 'Cancel', commandBarButtonAs: customButton,
             iconProps: {  iconName: 'Cancel', },
-            onClick: () => this.props.rejectProject(),
+            onClick: () => this.props.cancelProject(),
         };
 
-        const _close : ICommandBarItemProps = { key: 'close', text: 'Close',  name: '',   ariaLabel: 'Close', commandBarButtonAs: customButton,
+        const _complete : ICommandBarItemProps = { key: 'complete', text: 'Complete',  name: '',   ariaLabel: 'Complete', commandBarButtonAs: customButton,
             iconProps: {  iconName: 'SkypeCheck', },
-            onClick: () => this.props.closeProject(),
+            onClick: () => this.props.completeProject(),
         };
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
         const _items: ICommandBarItemProps[] = [ _new, _edit, _copy ] ;
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
-        const _overFlowItems: ICommandBarItemProps[] = [  _park, _reject, _close  ] ;
+        const _overFlowItems: ICommandBarItemProps[] = [  _park, _reject, _complete  ] ;
 
         // <div className={ styles.container }></div>
         return (

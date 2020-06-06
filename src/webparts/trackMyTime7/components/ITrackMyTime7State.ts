@@ -10,6 +10,8 @@ import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
 import { ISelectedStory, ISelectedUser, } from './Charts/chartsPage';
 import { string } from 'prop-types';
 
+import { TMTDialogMode } from './TrackMyTime7';
+
 export interface ILink {
   Description: string;
   Url: string;
@@ -251,6 +253,20 @@ export interface IProjectOptions{
 
 }
 
+export interface IProjectAction {
+  verb?: string;
+  details?: string;
+  icon?: string;
+  status?: string;
+  subText?: string;
+  prompt?: string;
+}
+
+export interface IProjectHistory extends IProjectAction {
+  userName?: string;
+  timeStamp?: string;
+}
+
 export interface IProject {
   //Values that would come from Project item
   projectType?: string; //master or user
@@ -279,6 +295,8 @@ export interface IProject {
   timeTarget?: IProjectTarget;
   projOptions?: IProjectOptions;
   defProjEditOptions?: string;
+
+  history?: string;
 
   //This might be computed at the time page loads
   lastEntry?: any;  //Should be a time entry
@@ -590,5 +608,6 @@ export interface ITrackMyTime7State {
   searchCount?: number;
   searchWhere?: string;
 
+  dialogMode?: TMTDialogMode;
 
 }

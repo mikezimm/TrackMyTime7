@@ -5,7 +5,7 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 //import * as links from './AllLinks';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
-import { ITrackMyTime7State, IProjectOptions, IProject, IUser, IProjectColumns } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IProjectOptions, IProject, IUser, IProjectColumns, IProjectHistory } from '../ITrackMyTime7State';
 
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 import {CommandBarButton,} from "office-ui-fabric-react/lib/Button";
@@ -13,6 +13,7 @@ import {CommandBarButton,} from "office-ui-fabric-react/lib/Button";
 import ButtonCompound from '../createButtons/ICreateButtons';
 import { IButtonProps, ISingleButtonProps, IButtonState } from "../createButtons/ICreateButtons";
 import { createIconButton } from "../createButtons/IconButton";
+import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 
@@ -34,15 +35,27 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Web } from "@pnp/sp/presets/all";
 
-import { statusChoices, activityTMTChoices} from '../TrackMyTime7';
+import { statusChoices, activityTMTChoices, MyCons} from '../TrackMyTime7';
+import { getAge, getBestTimeDelta } from '../../../../services/dateServices';
+import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
 // Initialize icons in case this example uses them
 initializeIcons();
 
 import styles from './ProjectPage.module.scss';
 import stylesT from '../TrackMyTime7.module.scss';
+import stylesInfo from '../HelpInfo/InfoPane.module.scss';
 
 export enum ProjectMode { False, Edit, Copy, New }
+
+const iconClass = mergeStyles({
+  fontSize: 18,
+  fontWeight: "bolder",
+  color: "black",
+  //margin: '0px 2px',
+  paddingRight: '10px',
+  verticalAlign: 'bottom',
+});
 
 const getProjectModeLabel =  (mode: ProjectMode): string =>  {
 
@@ -122,7 +135,7 @@ const getErrorMessage = (value: string, testString: string, minLength: number, r
 
   } else if ( projectMode === ProjectMode.Copy || projectMode === ProjectMode.New ){
     
-    if ( testString == null ) { testString = ''}
+    if ( testString == null ) { testString = '';}
     if ( testString.indexOf(' ') === 0 ) { mess = "Remove leading spaces"; } 
     else if ( testString.replace('Copy of ','') === value ) { mess = "Value must be new"; }
     else if ( testString.replace('Copy of ','Copyof') === value ) { mess = "Remove 'Copyof'"; }
@@ -255,6 +268,24 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         let testItems = this.state.testItems == null ? null : <div><div><h2>Here is the save object :)</h2></div><div>{ JSON.stringify(this.state.testItems) }</div></div>;
 
+
+        let projHistory = null;
+        if (this.props.selectedProject.history != null) {
+          let historyItems : IProjectHistory[]= JSON.parse('[' + this.props.selectedProject.history + ']');
+          let letHistoryRows = historyItems.map( h => { 
+            return <tr><td>{h.timeStamp}</td>
+            <td>{ getBestTimeDelta(h.timeStamp,new Date().toUTCString()) }</td>
+            <td>{h.userName}</td>
+            <td><span><Icon iconName={h.icon} className={iconClass} /></span>{h.verb}</td>
+            </tr>; } );
+          projHistory = <div className={ stylesInfo.infoPane }><h2>Project History</h2>
+          <table className={stylesInfo.infoTable}>
+              <tr><th>TimeStamp</th><th>When</th><th>User</th><th>Action</th></tr>
+              { letHistoryRows }
+          </table></div>;
+
+        } 
+
         const buttons: ISingleButtonProps[] =
         [{  disabled: false,  checked: true, primary: false,
             label: "Cancel", buttonOnClick: this.cancelForm.bind(this),
@@ -330,6 +361,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             </Stack>    
             { saveButtons }
             { testItems }
+            { projHistory }
+
         </div>
         );
 
