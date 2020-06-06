@@ -100,14 +100,17 @@ const cancelSubText = 'This will set status to "9. Cancelled", set Completed Dat
 const completeSubText = 'This set status to "9. Complete", set Completed Date to today and set Completed By to you.  You can then find it under the "Closed" heading';
 const parkSubText = 'This will set the status to "8. Parking lot".  You can then find it under the "Closed" heading';
 
+export enum FieldChange { Clear, Set, Nothing }
+
 const actionPark : IProjectAction = { 
   icon: MyCons.park,  
   status: parkStatus,  
   verb: 'Parked Project',
   prompt: 'Do you want to Park this project for now?',
-  subText: 'This will set the status to "8. Parking lot".  You can then find it under the "Closed" heading', 
+  subText: 'This will set the status to ' +  parkStatus +  '.  You can then find it under the "Closed" heading', 
   details: 'Set Status to ' +  parkStatus +  ' and cleared Completed By and Completed Date',
-
+  setDate: false,
+  setUser: false,
  };
 
  const actionComplete : IProjectAction = { 
@@ -115,8 +118,10 @@ const actionPark : IProjectAction = {
   status: completeStatus,  
   verb: 'Completed Project',
   prompt: 'Do you want to Complete this project?',
-  subText: 'This will set the status to "8. Parking lot".  You can then find it under the "Closed" heading', 
-  details: 'This set status to ' +  completeStatus +  ', set Completed Date to today and set Completed By to you.  You can then find it under the "Closed" heading',
+  subText: 'This will set the status to ' +  completeStatus +  '.  You can then find it under the "Closed" heading', 
+  details: 'Set status to ' +  completeStatus +  ', set Completed Date the TimeStamp and set Completed By User.',
+  setDate: true,
+  setUser: true,
  };
 
  const actionCancel : IProjectAction = { 
@@ -124,8 +129,10 @@ const actionPark : IProjectAction = {
   status: cancelStatus,  
   verb: 'Cancelled Project',
   prompt: 'Do you want to Cancel this?',
-  subText: 'This will set the status to "8. Parking lot".  You can then find it under the "Closed" heading', 
-  details: 'This set status to ' +  cancelStatus +  ', set Completed Date to today and set Completed By to you.  You can then find it under the "Closed" heading',
+  subText: 'This will set the status to +  cancelStatus +.  You can then find it under the "Closed" heading', 
+  details: 'Set status to ' +  cancelStatus +  ', set Completed Date the TimeStamp and set Completed By User.',
+  setDate: true,
+  setUser: true,
  };
 
 const projActions = {
@@ -1474,37 +1481,26 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   private _parkProject(){
     let action : IProjectAction = projActions.park;
-    this._updateProject(action,false,false);
-    /*
-    let today: any = new Date().toUTCString();
-    let history: string = this.createHistory(this.state.selectedProject.history, today, action);
-    let saveItem = { StatusTMT: action.status, CompletedByTMTId: null , CompletedDateTMT : null, HistoryTMT: history };
-    this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
-    */
+    this._updateProject(action, action.setDate, action.setUser);
   }
 
   private _cancelProject(){
     let action : IProjectAction = projActions.cancel;
-    let today: any = new Date().toUTCString();
-    let history: string = this.createHistory(this.state.selectedProject.history, today, action);
-    let saveItem = { StatusTMT: action.status, CompletedByTMTId: this.state.currentUser.id , CompletedDateTMT : today, HistoryTMT: history };
-    this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
+    this._updateProject(action, action.setDate, action.setUser);
   }
 
   private _completeProject(){
     let action : IProjectAction = projActions.complete;
-    let today: any = new Date().toUTCString();
-    let history: string = this.createHistory(this.state.selectedProject.history, today, action);
-    let saveItem = { StatusTMT: action.status, CompletedByTMTId: this.state.currentUser.id , CompletedDateTMT : today, HistoryTMT: history };
-    this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
+    this._updateProject(action, action.setDate, action.setUser);
   }
 
-
-  private _updateProject(action: IProjectAction, saveDate: boolean, saveUser: boolean){
-    let today: any = saveDate === true ? new Date().toUTCString() : null;
+  private _updateProject(action: IProjectAction, saveDate: boolean, saveUser: boolean ){
+    let today: any = new Date().toISOString();
+    //let today: any = new Date().toISOString();
     let history: string = this.createHistory(this.state.selectedProject.history, today, action);
-    let user = saveUser === true ? this.state.currentUser.id : null;
-    let saveItem = { StatusTMT: action.status, CompletedByTMTId: user , CompletedDateTMT : today, HistoryTMT: history };
+    let user: any = saveUser === true ? this.state.currentUser.id : null;
+    //let saveItem = { StatusTMT: action.status, CompletedByTMTId: user , CompletedDateTMT : today, HistoryTMT: history };
+    let saveItem = { StatusTMT: action.status, CompletedByTMTId: user , CompletedDateTMT : saveDate ? today : null, HistoryTMT: history };
     this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
   }
 

@@ -10,7 +10,7 @@ import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
 import { ISelectedStory, ISelectedUser, } from './Charts/chartsPage';
 import { string } from 'prop-types';
 
-import { TMTDialogMode } from './TrackMyTime7';
+import { TMTDialogMode, FieldChange } from './TrackMyTime7';
 
 export interface ILink {
   Description: string;
@@ -260,6 +260,8 @@ export interface IProjectAction {
   status?: string;
   subText?: string;
   prompt?: string;
+  setDate?: boolean; //FieldChange;
+  setUser?: boolean; //FieldChange;
 }
 
 export interface IProjectHistory extends IProjectAction {

@@ -273,14 +273,15 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if (this.props.selectedProject.history != null) {
           let historyItems : IProjectHistory[]= JSON.parse('[' + this.props.selectedProject.history + ']');
           let letHistoryRows = historyItems.map( h => { 
-            return <tr><td>{h.timeStamp}</td>
-            <td>{ getBestTimeDelta(h.timeStamp,new Date().toUTCString()) }</td>
-            <td>{h.userName}</td>
-            <td><span><Icon iconName={h.icon} className={iconClass} /></span>{h.verb}</td>
+            return <tr><td className={ styles.nowWrapping }>{new Date(h.timeStamp).toLocaleString()}</td>
+            <td className={ styles.nowWrapping }>{ getBestTimeDelta(h.timeStamp,new Date().toUTCString()) }</td>
+            <td className={ styles.nowWrapping }>{h.userName}</td>
+            <td className={ styles.nowWrapping }><span><Icon iconName={h.icon} className={iconClass} /></span>{h.verb}</td>
+            <td>{h.details}</td>
             </tr>; } );
           projHistory = <div className={ stylesInfo.infoPane }><h2>Project History</h2>
           <table className={stylesInfo.infoTable}>
-              <tr><th>TimeStamp</th><th>When</th><th>User</th><th>Action</th></tr>
+              <tr><th>TimeStamp</th><th>When</th><th>User</th><th>Action</th><th>Details</th></tr>
               { letHistoryRows }
           </table></div>;
 
