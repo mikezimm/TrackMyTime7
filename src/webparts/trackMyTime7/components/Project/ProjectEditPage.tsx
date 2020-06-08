@@ -1,5 +1,8 @@
 import * as React from 'react';
 
+//https://webdevbythebay.com/create-a-sharepoint-app-with-react-styling/
+import { getTheme, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
+
 import * as strings from 'TrackMyTime7WebPartStrings';
 
 //import * as links from './AllLinks';
@@ -13,6 +16,7 @@ import {CommandBarButton,} from "office-ui-fabric-react/lib/Button";
 import ButtonCompound from '../createButtons/ICreateButtons';
 import { IButtonProps, ISingleButtonProps, IButtonState } from "../createButtons/ICreateButtons";
 import { createIconButton } from "../createButtons/IconButton";
+import { IconButton, Button, ButtonType } from 'office-ui-fabric-react/lib/Button';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
@@ -45,6 +49,9 @@ initializeIcons();
 import styles from './ProjectPage.module.scss';
 import stylesT from '../TrackMyTime7.module.scss';
 import stylesInfo from '../HelpInfo/InfoPane.module.scss';
+
+import { HoverCard, IExpandingCardProps } from 'office-ui-fabric-react/lib/HoverCard';
+import ProjectHistoryHoverCard, { IProjectHistoryHoverCardProps } from './History/ProjectHistoryPanel';
 
 export enum ProjectMode { False, Edit, Copy, New }
 
@@ -273,12 +280,82 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if (this.props.selectedProject.history != null) {
           let historyItems : IProjectHistory[]= JSON.parse('[' + this.props.selectedProject.history + ']');
           let letHistoryRows = historyItems.map( h => { 
+
+            let details = h.details;
+
+            const expandingCardProps: IExpandingCardProps = { };
+
+            const cssProps={ background: '#f00' };
+
+            const hoverCardProps: IProjectHistoryHoverCardProps = {
+              expandingCardProps: expandingCardProps,
+              history: [details],
+              cssProps: cssProps
+            };
+
+            let histbutton = <IconButton iconProps={{ iconName: 'Emoji2' }} title={'Emoji'} />;
+            //let histCard = <ProjectHistoryHoverCard {...hoverCardProps} />;
+            let histCard =  null;
+
+            const classNames = mergeStyleSets({
+              compactCard: {
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+              },
+              expandedCard: {
+                padding: '16px 24px',
+              },
+              item: {
+                selectors: {
+                  '&:hover': {
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                  },
+                },
+              },
+            });
+
+            const onRenderCompactCard = (item: string[]): JSX.Element => {
+              return (
+                <div className={classNames.compactCard}>
+                  <a target="_blank" href={`http://wikipedia.org/wiki/`}>
+                    {item[0]}
+                  </a>
+                </div>
+              );
+            };
+                       
+            const onRenderExpandedCard = (item: any): JSX.Element => {
+              return null;
+            };
+            
+            const onRenderItemColumn = (item: any): JSX.Element | React.ReactText => {
+              const expandingCardProps: IExpandingCardProps = {
+                onRenderCompactCard: onRenderCompactCard,
+                //onRenderExpandedCard: onRenderExpandedCard,
+                renderData: item,
+              };
+              return (
+                <HoverCard expandingCardProps={expandingCardProps} instantOpenOnClick={true}>
+                  <div >{item}</div>
+                </HoverCard>
+              );
+            };
+
+            let iconButton = <IconButton iconProps={{ iconName: 'Emoji2' }} title={'Emoji'} />;
+
             return <tr><td className={ styles.nowWrapping }>{new Date(h.timeStamp).toLocaleString()}</td>
             <td className={ styles.nowWrapping }>{ getBestTimeDelta(h.timeStamp,new Date().toUTCString()) }</td>
             <td className={ styles.nowWrapping }>{h.userName}</td>
             <td className={ styles.nowWrapping }><span><Icon iconName={h.icon} className={iconClass} /></span>{h.verb}</td>
-            <td>{h.details}</td>
-            </tr>; } );
+            { /* <td>{h.details}</td> */ }
+            <td> {onRenderItemColumn(iconButton)}</td>     
+
+            </tr>; });//Edn mapping of rows
+
+
           projHistory = <div className={ stylesInfo.infoPane }><h2>Project History</h2>
           <table className={stylesInfo.infoTable}>
               <tr><th>TimeStamp</th><th>When</th><th>User</th><th>Action</th><th>Details</th></tr>
