@@ -317,25 +317,20 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
               },
             });
 
-            const onRenderCompactCard = (item: string[]): JSX.Element => {
+            const onRenderCompactCard = (item: string): JSX.Element => {
               return (
                 <div className={classNames.compactCard}>
-                  <a target="_blank" href={`http://wikipedia.org/wiki/`}>
-                    {item[0]}
-                  </a>
+                    {item}
                 </div>
               );
             };
                        
-            const onRenderExpandedCard = (item: any): JSX.Element => {
-              return null;
-            };
-            
-            const onRenderItemColumn = (item: any): JSX.Element | React.ReactText => {
+            const onRenderItemColumn = (item: any, hoverText: string): JSX.Element | React.ReactText => {
+              let e = <span>{hoverText}</span>
               const expandingCardProps: IExpandingCardProps = {
                 onRenderCompactCard: onRenderCompactCard,
                 //onRenderExpandedCard: onRenderExpandedCard,
-                renderData: item,
+                renderData: hoverText,
               };
               return (
                 <HoverCard expandingCardProps={expandingCardProps} instantOpenOnClick={true}>
@@ -345,13 +340,17 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             };
 
             let iconButton = <IconButton iconProps={{ iconName: 'Emoji2' }} title={'Emoji'} />;
+            let actionCell = <div>
+              <span><Icon iconName={h.icon} className={iconClass} /></span>
+              {onRenderItemColumn(h.verb, h.details)}
+            </div>;
 
             return <tr><td className={ styles.nowWrapping }>{new Date(h.timeStamp).toLocaleString()}</td>
             <td className={ styles.nowWrapping }>{ getBestTimeDelta(h.timeStamp,new Date().toUTCString()) }</td>
             <td className={ styles.nowWrapping }>{h.userName}</td>
-            <td className={ styles.nowWrapping }><span><Icon iconName={h.icon} className={iconClass} /></span>{h.verb}</td>
+            <td className={ styles.nowWrapping }> { actionCell }</td>
             { /* <td>{h.details}</td> */ }
-            <td> {onRenderItemColumn(iconButton)}</td>     
+            <td>xyz</td>
 
             </tr>; });//Edn mapping of rows
 
