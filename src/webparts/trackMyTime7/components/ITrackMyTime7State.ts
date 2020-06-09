@@ -256,6 +256,7 @@ export interface IProjectOptions{
 export interface IProjectAction {
   verb?: string;
   details?: string;
+  commandLabel?: string;
   icon?: string;
   status?: string;
   subText?: string;

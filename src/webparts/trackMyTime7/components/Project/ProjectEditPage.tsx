@@ -15,8 +15,6 @@ import {CommandBarButton,} from "office-ui-fabric-react/lib/Button";
 
 import ButtonCompound from '../createButtons/ICreateButtons';
 import { IButtonProps, ISingleButtonProps, IButtonState } from "../createButtons/ICreateButtons";
-import { createIconButton } from "../createButtons/IconButton";
-import { IconButton, Button, ButtonType } from 'office-ui-fabric-react/lib/Button';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
@@ -26,11 +24,6 @@ import { dateConvention ,showMonthPickerAsOverlay,showWeekNumbers,timeConvention
 import { DateTimePicker, DateConvention, TimeConvention, TimeDisplayControlType } from '@pnp/spfx-controls-react/lib/dateTimePicker';
 import { Toggle, IToggleStyleProps, IToggleStyles } from 'office-ui-fabric-react/lib/Toggle';
 
-import * as formBuilders from '../fields/textFieldBuilder';
-import * as choiceBuilders from '../fields/choiceFieldBuilder';
-import * as sliderBuilders from '../fields/sliderFieldBuilder';
-import * as smartLinks from '../ActivityURL/ActivityURLMasks';
-import * as dateBuilders from '../fields/dateFieldBuilder';
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
 import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
@@ -50,15 +43,22 @@ import styles from './ProjectPage.module.scss';
 import stylesT from '../TrackMyTime7.module.scss';
 import stylesInfo from '../HelpInfo/InfoPane.module.scss';
 
-import { HoverCard, IExpandingCardProps } from 'office-ui-fabric-react/lib/HoverCard';
-import ProjectHistoryHoverCard, { IProjectHistoryHoverCardProps } from './History/ProjectHistoryPanel';
+import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 
 export enum ProjectMode { False, Edit, Copy, New }
 
-const iconClass = mergeStyles({
+const iconClassAction = mergeStyles({
   fontSize: 18,
   fontWeight: "bolder",
   color: "black",
+  //margin: '0px 2px',
+  paddingRight: '10px',
+  verticalAlign: 'bottom',
+});
+
+const iconClassInfo = mergeStyles({
+  fontSize: 18,
+  color: "blue",
   //margin: '0px 2px',
   paddingRight: '10px',
   verticalAlign: 'bottom',
@@ -275,85 +275,55 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         let testItems = this.state.testItems == null ? null : <div><div><h2>Here is the save object :)</h2></div><div>{ JSON.stringify(this.state.testItems) }</div></div>;
 
-
         let projHistory = null;
         if (this.props.selectedProject.history != null) {
           let historyItems : IProjectHistory[]= JSON.parse('[' + this.props.selectedProject.history + ']');
           let letHistoryRows = historyItems.map( h => { 
 
-            let details = h.details;
+            let actionCell = <div><span className={ styles.nowWrapping }>
+              <Icon iconName={h.icon} className={iconClassAction} />
+              { h.verb }</span>              
+            </div>;
 
-            const expandingCardProps: IExpandingCardProps = { };
+            let normalIcon = <Icon iconName="Info" className={iconClassInfo} />;
+        
+            let detailLines = h.details.split('|');
 
-            const cssProps={ background: '#f00' };
+            let detail = <div>
+              <h3>Changes</h3>
+              <ul> 
+                { detailLines.map( i => { return <li>{i}</li>;  }) } 
+              </ul>
+            </div>;
 
-            const hoverCardProps: IProjectHistoryHoverCardProps = {
-              expandingCardProps: expandingCardProps,
-              history: [details],
-              cssProps: cssProps
+            const onRenderHoverCard = (item: any): JSX.Element => {
+              return <div className={styles.hoverCard} style={{padding: 30}}>
+                <div>{ detail }</div>
+              </div>;
             };
 
-            let histbutton = <IconButton iconProps={{ iconName: 'Emoji2' }} title={'Emoji'} />;
-            //let histCard = <ProjectHistoryHoverCard {...hoverCardProps} />;
-            let histCard =  null;
-
-            const classNames = mergeStyleSets({
-              compactCard: {
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-              },
-              expandedCard: {
-                padding: '16px 24px',
-              },
-              item: {
-                selectors: {
-                  '&:hover': {
-                    textDecoration: 'underline',
-                    cursor: 'pointer',
-                  },
-                },
-              },
-            });
-
-            const onRenderCompactCard = (item: string): JSX.Element => {
-              return (
-                <div className={classNames.compactCard}>
-                    {item}
-                </div>
-              );
-            };
-                       
-            const onRenderItemColumn = (item: any, hoverText: string): JSX.Element | React.ReactText => {
-              let e = <span>{hoverText}</span>
-              const expandingCardProps: IExpandingCardProps = {
-                onRenderCompactCard: onRenderCompactCard,
-                //onRenderExpandedCard: onRenderExpandedCard,
-                renderData: hoverText,
-              };
-              return (
-                <HoverCard expandingCardProps={expandingCardProps} instantOpenOnClick={true}>
-                  <div >{item}</div>
-                </HoverCard>
-              );
-            };
-
-            let iconButton = <IconButton iconProps={{ iconName: 'Emoji2' }} title={'Emoji'} />;
-            let actionCell = <div>
-              <span><Icon iconName={h.icon} className={iconClass} /></span>
-              {onRenderItemColumn(h.verb, h.details)}
+            let detailsCard = <div>
+              <HoverCard
+                cardDismissDelay={300}
+                type={HoverCardType.plain}
+                plainCardProps={{
+                  onRenderPlainCard: onRenderHoverCard,
+                  renderData: 'testRenderData'
+                }}>
+                { normalIcon }
+              </HoverCard>
             </div>;
 
             return <tr><td className={ styles.nowWrapping }>{new Date(h.timeStamp).toLocaleString()}</td>
             <td className={ styles.nowWrapping }>{ getBestTimeDelta(h.timeStamp,new Date().toUTCString()) }</td>
             <td className={ styles.nowWrapping }>{h.userName}</td>
-            <td className={ styles.nowWrapping }> { actionCell }</td>
-            { /* <td>{h.details}</td> */ }
-            <td>xyz</td>
+            <td className={ styles.nowWrapping }> {  actionCell  }</td>
+            { /* <td>{h.details }</td> */ }
+            { <td>{detailsCard}</td> }
+            { /*  <td>xyz</td> */ }
 
-            </tr>; });//Edn mapping of rows
-
+            </tr>; 
+          }); //Edn mapping of rows
 
           projHistory = <div className={ stylesInfo.infoPane }><h2>Project History</h2>
           <table className={stylesInfo.infoTable}>

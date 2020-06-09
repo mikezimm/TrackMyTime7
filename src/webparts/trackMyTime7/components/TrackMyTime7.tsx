@@ -70,7 +70,7 @@ import { nominalTypeHack } from 'prop-types';
 
 import { createDialog } from './Project/ConfirmUpdate';
 
-export enum TMTDialogMode { False, Park, Cancel, Complete }
+export enum TMTDialogMode { False, inReview, Plan, inProcess, Park, Cancel, Complete }
 
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
@@ -82,23 +82,21 @@ const defProjEditOptions = cleanProjEditOptions('people;reporting');
 
 export const statusChoices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`,`9. Complete`];
 export const defStatus = `0. Review`;
+export const planStatus = `1. Plan`;
+export const inProcessStatus = `2. In Process`;
 export const cancelStatus = `9. Cancelled`;
 export const completeStatus = `9. Complete`;
 export const parkStatus = `8. Parking lot`;
 export const activityTMTChoices = [`TMT Issue`, `Socialiis Issue`];
 
 export const MyCons = {
+  inReview: 'Rewind',  //ExportMirrored
+  plan: 'BranchCompare', 
+  inProcess: 'Processing',
   cancel: "Cancel",
-  park: "Car",
+  park: "Car", //Snooze
   complete: 'SkypeCheck',
-  inProcess: 'CompassNW',
-  inReview: 'CompassNW', 
 };
-
-
-const cancelSubText = 'This will set status to "9. Cancelled", set Completed Date to today and set Completed By to you.  You can then find it under the "Closed" heading';
-const completeSubText = 'This set status to "9. Complete", set Completed Date to today and set Completed By to you.  You can then find it under the "Closed" heading';
-const parkSubText = 'This will set the status to "8. Parking lot".  You can then find it under the "Closed" heading';
 
 export enum FieldChange { Clear, Set, Nothing }
 
@@ -108,7 +106,7 @@ const actionPark : IProjectAction = {
   verb: 'Parked Project',
   prompt: 'Do you want to Park this project for now?',
   subText: 'This will set the status to ' +  parkStatus +  '.  You can then find it under the "Closed" heading', 
-  details: 'Set Status to ' +  parkStatus +  ' and cleared Completed By and Completed Date',
+  details: 'Set Status: ' +  parkStatus +  '|Cleared Completed By|Cleared Completed Date',
   setDate: false,
   setUser: false,
  };
@@ -119,23 +117,59 @@ const actionPark : IProjectAction = {
   verb: 'Completed Project',
   prompt: 'Do you want to Complete this project?',
   subText: 'This will set the status to ' +  completeStatus +  '.  You can then find it under the "Closed" heading', 
-  details: 'Set status to ' +  completeStatus +  ', set Completed Date the TimeStamp and set Completed By User.',
+  details: 'Set Status: ' +  completeStatus +  '|Set Completed Date:  TimeStamp|Set Completed By: User.',
   setDate: true,
   setUser: true,
  };
-
+ 
  const actionCancel : IProjectAction = { 
   icon: MyCons.cancel,  
   status: cancelStatus,  
   verb: 'Cancelled Project',
   prompt: 'Do you want to Cancel this?',
-  subText: 'This will set the status to +  cancelStatus +.  You can then find it under the "Closed" heading', 
-  details: 'Set status to ' +  cancelStatus +  ', set Completed Date the TimeStamp and set Completed By User.',
+  subText: 'This will set the status to ' +  cancelStatus + '.  You can then find it under the "Closed" heading', 
+  details: 'Set Status: ' +  cancelStatus +  '|Set Completed Date:  TimeStamp|Set Completed By: User.',
   setDate: true,
   setUser: true,
  };
 
-const projActions = {
+ const actionPlan : IProjectAction = { 
+  icon: MyCons.plan,  
+  status: planStatus,  
+  verb: 'Sent to Plan',
+  prompt: 'Do you want to set the status to ' +  planStatus + '?',
+  subText: 'This will set the status to ' +  planStatus + '.', 
+  details: 'Set Status: ' +  planStatus +  '|Cleared Completed By|Cleared Completed Date',
+  setDate: false,
+  setUser: false,
+ };
+
+ const actionInProcess : IProjectAction = { 
+  icon: MyCons.inProcess,  
+  status: inProcessStatus,  
+  verb: 'Sent to In Process',
+  prompt: 'Do you want to set the status to ' +  inProcessStatus + '?',
+  subText: 'This will set the status to ' +  inProcessStatus + '.', 
+  details: 'Set Status: ' +  inProcessStatus +  '|Cleared Completed By|Cleared Completed Date',
+  setDate: false,
+  setUser: false,
+ };
+
+ const actionInReview : IProjectAction = { 
+  icon: MyCons.cancel,  
+  status: defStatus,  
+  verb: 'Sent back to Review',
+  prompt: 'Do you want to Review this?',
+  subText: 'This will set the status to ' +  defStatus + '.', 
+  details: 'Set Status: ' +  defStatus +  '|Cleared Completed By|Cleared Completed Date',
+  setDate: false,
+  setUser: false,
+ };
+
+export const projActions = {
+  inReview: actionInReview,
+  plan: actionPlan,
+  inProcess: actionInProcess,
   park: actionPark,
   complete: actionComplete,
   cancel: actionCancel,
@@ -767,10 +801,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._newProject = this._newProject.bind(this);
     this._editProject = this._editProject.bind(this);
     this._copyProject = this._copyProject.bind(this);
+
+    this._inReviewProject = this._inReviewProject.bind(this);
+    this._planProject = this._planProject.bind(this);
+    this._inProcessProject = this._inProcessProject.bind(this);
+
     this._parkProject = this._parkProject.bind(this);
     this._cancelProject = this._cancelProject.bind(this);
     this._completeProject = this._completeProject.bind(this);   
     this._closeProjectEdit = this._closeProjectEdit.bind(this); 
+
+    this._inReviewProjectDialog = this._inReviewProjectDialog.bind(this); 
+    this._planProjectDialog = this._planProjectDialog.bind(this); 
+    this._inProcessProjectDialog = this._inProcessProjectDialog.bind(this); 
 
     this._parkProjectDialog = this._parkProjectDialog.bind(this); 
     this._cancelProjectDialog = this._cancelProjectDialog.bind(this); 
@@ -1326,11 +1369,25 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           parkProject={ this._parkProjectDialog.bind(this) }
           cancelProject={ this._cancelProjectDialog.bind(this) }
           completeProject={ this._completeProjectDialog.bind(this) }
+
+          inReviewProject={ this._inReviewProjectDialog.bind(this) }
+          planProject={ this._planProjectDialog.bind(this) }
+          inProcessProject={ this._inProcessProjectDialog.bind(this) }
+
         ></MyCommandBar>
       </div>;
 
       let makeDialog = null;
       if ( this.state.dialogMode === TMTDialogMode.False ) {
+      } else if ( this.state.dialogMode === TMTDialogMode.inReview ) {
+        makeDialog = createDialog( projActions.inReview.prompt,  projActions.inReview.subText, 'Yes', 'No', true, this._inReviewProject, this._closeDialog );
+
+      } else if ( this.state.dialogMode === TMTDialogMode.Plan ) {
+        makeDialog = createDialog( projActions.plan.prompt,  projActions.plan.subText, 'Yes', 'No', true, this._planProject, this._closeDialog );
+
+      } else if ( this.state.dialogMode === TMTDialogMode.inProcess ) {
+        makeDialog = createDialog( projActions.inProcess.prompt,  projActions.inProcess.subText, 'Yes', 'No', true, this._inProcessProject, this._closeDialog );
+
       } else if ( this.state.dialogMode === TMTDialogMode.Park ) {
         makeDialog = createDialog( projActions.park.prompt,  projActions.park.subText, 'Yes', 'No', true, this._parkProject, this._closeDialog );
 
@@ -1472,12 +1529,32 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     
   private _closeDialog(){  this.setState({    dialogMode: TMTDialogMode.False    });  }
     
+
+  private _inReviewProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.inReview     });  }
+  private _planProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Plan     });  }
+  private _inProcessProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.inProcess     });  }
+
+
   private _parkProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Park     });  }
 
   private _cancelProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Cancel    });  }
 
   private _completeProjectDialog(){  this.setState({    dialogMode: TMTDialogMode.Complete    });  }
 
+  private _inReviewProject(){
+    let action : IProjectAction = projActions.inReview;
+    this._updateProject(action, action.setDate, action.setUser);
+  }
+  
+  private _planProject(){
+    let action : IProjectAction = projActions.plan;
+    this._updateProject(action, action.setDate, action.setUser);
+  }
+
+  private _inProcessProject(){
+    let action : IProjectAction = projActions.inProcess;
+    this._updateProject(action, action.setDate, action.setUser);
+  }
 
   private _parkProject(){
     let action : IProjectAction = projActions.park;
@@ -1504,9 +1581,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
   }
 
+  
   private createHistory(prevHistory, today, action: IProjectAction) {
     let history: IProjectHistory = {
-      details: action.details,
+      details: action.details.replace('User',this.state.currentUser.title).replace("TimeStamp", today),
       timeStamp: today,
       userName: this.state.currentUser.Title,
       verb: action.verb,

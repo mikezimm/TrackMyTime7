@@ -7,7 +7,7 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import { ITrackMyTime7State, IProjectOptions } from '../ITrackMyTime7State';
 
-import { MyCons } from '../TrackMyTime7';
+import { MyCons, projActions } from '../TrackMyTime7';
 
 import { Fabric, initializeIcons } from 'office-ui-fabric-react';
 import { CommandBar, ICommandBarItemProps } from 'office-ui-fabric-react/lib/CommandBar';
@@ -30,6 +30,10 @@ export interface ICommandBarProps {
     cancelProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
     completeProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
 
+    inReviewProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    planProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    inProcessProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    
     commandClass?: string;
     setLayout?: string;
 
@@ -113,26 +117,46 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
             onClick: () => this.props.copyProject(),
         };
 
-        const _park : ICommandBarItemProps = { key: 'park', text: 'Park',  name: '',   ariaLabel: 'Park', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Car', },
+        let action =  projActions.park;
+        const _park : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
+            iconProps: {  iconName: action.icon, },
             onClick: () => this.props.parkProject(),
         };
 
-        const _reject : ICommandBarItemProps = { key: 'reject', text: 'Cancel',  name: '',   ariaLabel: 'Cancel', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Cancel', },
+        action =  projActions.cancel;
+        const _reject : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
+            iconProps: {  iconName: action.icon, },
             onClick: () => this.props.cancelProject(),
         };
 
-        const _complete : ICommandBarItemProps = { key: 'complete', text: 'Complete',  name: '',   ariaLabel: 'Complete', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'SkypeCheck', },
+        action =  projActions.complete;
+        const _complete : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
+            iconProps: {  iconName: action.icon, },
             onClick: () => this.props.completeProject(),
         };
 
+        action =  projActions.inReview;
+        const _review : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
+            iconProps: {  iconName: action.icon, },
+            onClick: () => this.props.inReviewProject(),
+        };
+
+        action =  projActions.plan;
+        const _plan : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
+            iconProps: {  iconName: action.icon, },
+            onClick: () => this.props.planProject(),
+        };
+
+        action =  projActions.inProcess;
+        const _inProcess : ICommandBarItemProps = { key: projActions.inProcess.status, text: projActions.inProcess.status,  name: '',   ariaLabel: projActions.inProcess.status, commandBarButtonAs: customButton,
+            iconProps: {  iconName: projActions.inProcess.icon, },
+            onClick: () => this.props.inProcessProject(),
+        };
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
         const _items: ICommandBarItemProps[] = [ _new, _edit, _copy ] ;
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
-        const _overFlowItems: ICommandBarItemProps[] = [  _park, _reject, _complete  ] ;
+        const _overFlowItems: ICommandBarItemProps[] = [  _review, _plan, _inProcess, _park, _reject, _complete  ] ;
 
         // <div className={ styles.container }></div>
         return (
