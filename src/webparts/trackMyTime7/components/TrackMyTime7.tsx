@@ -97,7 +97,7 @@ export const MyCons = {
   edit: 'Edit',
   copy: 'Copy',
   review: 'Rewind',  //ExportMirrored
-  plan: 'BranchCompare', 
+  plan: 'BranchCompare',
   process: 'Processing',
   cancel: "Cancel",
   park: "Car", //Snooze
@@ -107,8 +107,8 @@ export const MyCons = {
 export enum FieldChange { Clear, Set, Nothing }
 
 const actionPark : IProjectAction = { 
-  icon: MyCons.park,  
-  status: parkStatus,  
+  icon: MyCons.park,
+  status: parkStatus,
   verb: 'Parked Project',
   prompt: 'Do you want to Park this project for now?',
   subText: 'This will set the status to ' +  parkStatus +  '.  You can then find it under the "Closed" heading', 
@@ -119,8 +119,8 @@ const actionPark : IProjectAction = {
  };
 
  const actionComplete : IProjectAction = { 
-  icon: MyCons.complete,  
-  status: completeStatus,  
+  icon: MyCons.complete,
+  status: completeStatus,
   verb: 'Completed Project',
   prompt: 'Do you want to Complete this project?',
   subText: 'This will set the status to ' +  completeStatus +  '.  You can then find it under the "Closed" heading', 
@@ -131,8 +131,8 @@ const actionPark : IProjectAction = {
  };
  
  const actionCancel : IProjectAction = { 
-  icon: MyCons.cancel,  
-  status: cancelStatus,  
+  icon: MyCons.cancel,
+  status: cancelStatus,
   verb: 'Cancelled Project',
   prompt: 'Do you want to Cancel this?',
   subText: 'This will set the status to ' +  cancelStatus + '.  You can then find it under the "Closed" heading', 
@@ -143,11 +143,11 @@ const actionPark : IProjectAction = {
  };
 
  const actionPlan : IProjectAction = { 
-  icon: MyCons.plan,  
-  status: planStatus,  
+  icon: MyCons.plan,
+  status: planStatus,
   verb: 'Sent to Plan',
   prompt: 'Do you want to set the status to ' +  planStatus + '?',
-  subText: 'This will set the status to ' +  planStatus + '.', 
+  subText: 'This will set the status to ' +  planStatus + '.',
   details: 'Set Status: ' +  planStatus +  '|Cleared Completed By|Cleared Completed Date',
   setDate: false,
   setUser: false,
@@ -155,11 +155,11 @@ const actionPark : IProjectAction = {
  };
 
  const actionProcess : IProjectAction = { 
-  icon: MyCons.process,  
-  status: processStatus,  
+  icon: MyCons.process,
+  status: processStatus,
   verb: 'Sent to In Process',
   prompt: 'Do you want to set the status to ' +  processStatus + '?',
-  subText: 'This will set the status to ' +  processStatus + '.', 
+  subText: 'This will set the status to ' +  processStatus + '.',
   details: 'Set Status: ' +  processStatus +  '|Cleared Completed By|Cleared Completed Date',
   setDate: false,
   setUser: false,
@@ -167,31 +167,31 @@ const actionPark : IProjectAction = {
  };
 
  const actionReview : IProjectAction = { 
-  icon: MyCons.review,  
-  status: defStatus,  
+  icon: MyCons.review,
+  status: defStatus,
   verb: 'Sent back to Review',
   prompt: 'Do you want to Review this?',
-  subText: 'This will set the status to ' +  defStatus + '.', 
+  subText: 'This will set the status to ' +  defStatus + '.',
   details: 'Set Status: ' +  defStatus +  '|Cleared Completed By|Cleared Completed Date',
   setDate: false,
   setUser: false,
   dialog: TMTDialogMode.Review,
  };
 
- const actionNew : IProjectAction = { 
-  icon: MyCons.new,  
-  status: 'New',  
+ const actionNew : IProjectAction = {
+  icon: MyCons.new,
+  status: 'New',
   dialog: TMTDialogMode.New,
  };
 
- const actionEdit : IProjectAction = { 
-  icon: MyCons.edit,  
-  status: 'Edit', 
+ const actionEdit : IProjectAction = {
+  icon: MyCons.edit,
+  status: 'Edit',
   dialog: TMTDialogMode.Edit,
  };
 
- const actionCopy : IProjectAction = { 
-  icon: MyCons.copy,  
+ const actionCopy : IProjectAction = {
+  icon: MyCons.copy,
   status: 'Copy',
   dialog: TMTDialogMode.Copy,  
  };
@@ -1532,85 +1532,34 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                                                                  
  */
 
-  private _newProject(){
-    console.log('Clicked _newProject!');
-    this.setState({ 
-      showProjectScreen: ProjectMode.New,
-     });
-  }
-  private _editProject(){
-    console.log('Clicked _editProject!');
-    this.setState({ 
-      showProjectScreen: ProjectMode.Edit,
-     });
-  }
-  private _copyProject(){
-    console.log('Clicked _copyProject!');
-    this.setState({ 
-      showProjectScreen: ProjectMode.Copy ,
-     });
-  }
+  private _newProject(){   this.setState({  showProjectScreen: ProjectMode.New,   }); }
+  private _editProject(){   this.setState({  showProjectScreen: ProjectMode.Edit,   }); }
+  private _copyProject(){   this.setState({  showProjectScreen: ProjectMode.Copy,  }); }
 
-  private _closeProjectEdit(){
-    console.log('Clicked _closeProjectEdit!');
-    //Update status field, Complete date and Completed by, then save, reload projects list
-    this.setState({ 
-      showProjectScreen: ProjectMode.False,
-     });
-  }
-  
+  private _closeProjectEdit(){   this.setState({  showProjectScreen: ProjectMode.False,    }); }
+  private _closeDialog(){  this.setState({   dialogMode: TMTDialogMode.False    });  }
     
-  private _closeDialog(){  this.setState({    dialogMode: TMTDialogMode.False    });  }
-    
-
-  private _reviewProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Review     });  }
-  private _planProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Plan     });  }
-  private _processProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Process     });  }
-
+  private _reviewProjectDialog(){  this.setState({  dialogMode: TMTDialogMode.Review     });  }
+  private _planProjectDialog(){  this.setState({  dialogMode: TMTDialogMode.Plan     });  }
+  private _processProjectDialog(){  this.setState({  dialogMode: TMTDialogMode.Process     });  }
 
   private _parkProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Park     });  }
-
   private _cancelProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Cancel    });  }
+  private _completeProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Complete    });  }
 
-  private _completeProjectDialog(){  this.setState({    dialogMode: TMTDialogMode.Complete    });  }
+  private _reviewProject(){    this._updateProject(projActions.review);  }
+  private _planProject(){    this._updateProject(projActions.plan);  }
+  private _processProject(){    this._updateProject(projActions.process);  }
 
-  private _reviewProject(){
-    let action : IProjectAction = projActions.review;
-    this._updateProject(action, action.setDate, action.setUser);
-  }
-  
-  private _planProject(){
-    let action : IProjectAction = projActions.plan;
-    this._updateProject(action, action.setDate, action.setUser);
-  }
+  private _parkProject(){    this._updateProject(projActions.park);  }
+  private _cancelProject(){    this._updateProject(projActions.cancel);  }
+  private _completeProject(){    this._updateProject(projActions.complete);  }
 
-  private _processProject(){
-    let action : IProjectAction = projActions.process;
-    this._updateProject(action, action.setDate, action.setUser);
-  }
-
-  private _parkProject(){
-    let action : IProjectAction = projActions.park;
-    this._updateProject(action, action.setDate, action.setUser);
-  }
-
-  private _cancelProject(){
-    let action : IProjectAction = projActions.cancel;
-    this._updateProject(action, action.setDate, action.setUser);
-  }
-
-  private _completeProject(){
-    let action : IProjectAction = projActions.complete;
-    this._updateProject(action, action.setDate, action.setUser);
-  }
-
-  private _updateProject(action: IProjectAction, saveDate: boolean, saveUser: boolean ){
+  private _updateProject(action: IProjectAction ){
     let today: any = new Date().toISOString();
-    //let today: any = new Date().toISOString();
     let history: string = this.createHistory(this.state.selectedProject.history, today, action);
-    let user: any = saveUser === true ? this.state.currentUser.id : null;
-    //let saveItem = { StatusTMT: action.status, CompletedByTMTId: user , CompletedDateTMT : today, HistoryTMT: history };
-    let saveItem = { StatusTMT: action.status, CompletedByTMTId: user , CompletedDateTMT : saveDate ? today : null, HistoryTMT: history };
+    let user: any = action.setUser === true ? this.state.currentUser.id : null;
+    let saveItem = { StatusTMT: action.status, CompletedByTMTId: user , CompletedDateTMT : action.setDate ? today : null, HistoryTMT: history };
     this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
   }
 
@@ -1983,18 +1932,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  */
 
   private _updateStart(newValue){
-    console.log('_updateStart:', typeof newValue, newValue);
     let formEntry = this.state.formEntry;
     formEntry.startTime = newValue.toLocaleString();
-    console.log('_updateStart:', formEntry.startTime);   
     this.setState({ formEntry:formEntry, blinkOnProject: 0,});
   }
 
   private _updateEnd(newValue){
-    console.log('_updateEnd:', typeof newValue, newValue);
     let formEntry = this.state.formEntry;
     formEntry.endTime = newValue.toLocaleString();
-    console.log('_updateEnd:', formEntry.endTime);   
     this.setState({ formEntry:formEntry, blinkOnProject: 0,});
   }
 
