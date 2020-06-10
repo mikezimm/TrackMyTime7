@@ -589,8 +589,13 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         if ( newVal === null ) {
 
-        } else if (field.type === "User" || field.type === "MultiUser" ) {
+        } else if (field.type === "MultiUser" ) {
           saveItem[field.column + "Id"] = newVal;
+
+        } else if (field.type === "User" ) { //Single User, can't be an array
+          let saveUser = newVal ? newVal[0] : null;
+          let origValX = origVal ? origVal[0] : null;
+          saveItem[field.column + "Id"] = saveUser;
 
         } else {
           saveItem[field.column] = newVal;
@@ -610,8 +615,10 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       } else if (field.type === "User" ) {
         //Add column and value to object
         if (JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
-          console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
-          saveItem[field.column + "Id"] = newVal;
+          let saveUser = newVal ? newVal[0] : null;
+          let origValX = origVal ? origVal[0] : null;
+          console.log('updating ' + field.title + ' from ' + origValX + ' to ' + saveUser);
+          saveItem[field.column + "Id"] = saveUser;
         }
 
       } else if (field.type === "MultiUser" ) {
@@ -693,11 +700,9 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         else if (field.name === "projectID1" || field.name === "projectID2" )  { defaultValue = this.state.selectedProject[field.name].projListValue; }
         else if (field.name === "timeTarget" )  { 
             defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject[field.name].value;
-            console.log('createTextField: ' + field.name,this.state.selectedProject );
          }
          else if (field.name === "optionString")  { 
             defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject.projOptions.optionString;
-            console.log('createTextField: ' + field.name,this.state.selectedProject );
 
          } else if (field.name === "activity") {
             defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject.projOptions.activity;
@@ -772,7 +777,6 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
       let emails: string[] = users == null ? [] : users.map( u => {
         if ( u == null ) { 
-          console.log('Null User Structure for createPeopleField', users, u);
           //alert('Unknown User Structure for createPeopleField: ' +  JSON.stringify(u));
           return null;
         }
@@ -790,7 +794,6 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           let uProps = uName.split('|');
           let expectedEmailIndex = 2;
           if (uProps.length === 3 && uProps[expectedEmailIndex].indexOf('@') > -1) {
-            console.log('User ' + uProps[expectedEmailIndex] + ' is made up of :', this.state.selectedProject[field.name] );
             return uProps[expectedEmailIndex];
           }
         }
@@ -1144,7 +1147,6 @@ private buildPeopleFields(isVisible: boolean) {
           let uProps = uName.split('|');
           let expectedEmailIndex = 2;
           if (uProps.length === 3 && uProps[expectedEmailIndex].indexOf('@') > -1) {
-            console.log('User ' + uProps[expectedEmailIndex] + ' is made from :', newValue );
 
             //This needs to match up with structure required in the this.createPeopleField
             return {
