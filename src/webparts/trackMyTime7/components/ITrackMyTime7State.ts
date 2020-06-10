@@ -263,6 +263,7 @@ export interface IProjectAction {
   prompt?: string;
   setDate?: boolean; //FieldChange;
   setUser?: boolean; //FieldChange;
+  dialog?: TMTDialogMode;
 }
 
 export interface IProjectHistory extends IProjectAction {

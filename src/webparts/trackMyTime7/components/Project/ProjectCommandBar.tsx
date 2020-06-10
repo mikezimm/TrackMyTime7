@@ -5,7 +5,7 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 //import * as links from './AllLinks';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
-import { ITrackMyTime7State, IProjectOptions } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IProjectOptions, IProjectAction  } from '../ITrackMyTime7State';
 
 import { MyCons, projActions } from '../TrackMyTime7';
 
@@ -30,9 +30,9 @@ export interface ICommandBarProps {
     cancelProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
     completeProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
 
-    inReviewProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    reviewProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
     planProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
-    inProcessProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
+    processProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
     
     commandClass?: string;
     setLayout?: string;
@@ -96,67 +96,37 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
         }
     }
     
+    private buildCommandBarProps ( thisAction: IProjectAction , onClick: any ) {
+
+        const newProps: ICommandBarItemProps = { key: thisAction.status, text: thisAction.status,  name: '',   ariaLabel: thisAction.status, commandBarButtonAs: customButton,
+            iconProps: {  iconName: thisAction.icon, },
+            onClick: () => onClick(),
+        };
+
+        return newProps;
+    }
+    
     //public render(): JSX.Element {
     public render(): React.ReactElement<ICommandBarProps> {
         //2020-05-19:  Copied from Socialiis7/Master CommandBar.tsx
         console.log('ProjectCommandBar hasProject:', this.props.hasProject);
 
-        //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
-        const _new : ICommandBarItemProps = { key: 'new', text: 'New',  name: '',   ariaLabel: 'New', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Add', },
-            onClick: () => this.props.newProject(),
-        };
+        const _new : ICommandBarItemProps = this.buildCommandBarProps(projActions.new, this.props.newProject);
+        const _edit : ICommandBarItemProps = this.buildCommandBarProps(projActions.edit, this.props.editProject);
+        const _copy : ICommandBarItemProps = this.buildCommandBarProps(projActions.copy, this.props.copyProject);
 
-        const _edit : ICommandBarItemProps = { key: 'edit', text: 'Edit',  name: '',   ariaLabel: 'Edit', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Edit', },
-            onClick: () => this.props.editProject(),
-        };
+        const _park : ICommandBarItemProps = this.buildCommandBarProps(projActions.park, this.props.parkProject);
+        const _cancel : ICommandBarItemProps = this.buildCommandBarProps(projActions.cancel, this.props.cancelProject);
+        const _complete : ICommandBarItemProps = this.buildCommandBarProps(projActions.complete, this.props.completeProject);
+        const _review : ICommandBarItemProps = this.buildCommandBarProps(projActions.review, this.props.reviewProject);
+        const _plan : ICommandBarItemProps = this.buildCommandBarProps(projActions.plan, this.props.planProject);
+        const _process : ICommandBarItemProps = this.buildCommandBarProps(projActions.process, this.props.processProject);
 
-        const _copy : ICommandBarItemProps = { key: 'copy', text: 'Copy',  name: '',   ariaLabel: 'Copy', commandBarButtonAs: customButton,
-            iconProps: {  iconName: 'Copy', },
-            onClick: () => this.props.copyProject(),
-        };
-
-        let action =  projActions.park;
-        const _park : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
-            iconProps: {  iconName: action.icon, },
-            onClick: () => this.props.parkProject(),
-        };
-
-        action =  projActions.cancel;
-        const _reject : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
-            iconProps: {  iconName: action.icon, },
-            onClick: () => this.props.cancelProject(),
-        };
-
-        action =  projActions.complete;
-        const _complete : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
-            iconProps: {  iconName: action.icon, },
-            onClick: () => this.props.completeProject(),
-        };
-
-        action =  projActions.inReview;
-        const _review : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
-            iconProps: {  iconName: action.icon, },
-            onClick: () => this.props.inReviewProject(),
-        };
-
-        action =  projActions.plan;
-        const _plan : ICommandBarItemProps = { key: action.status, text: action.status,  name: '',   ariaLabel: action.status, commandBarButtonAs: customButton,
-            iconProps: {  iconName: action.icon, },
-            onClick: () => this.props.planProject(),
-        };
-
-        action =  projActions.inProcess;
-        const _inProcess : ICommandBarItemProps = { key: projActions.inProcess.status, text: projActions.inProcess.status,  name: '',   ariaLabel: projActions.inProcess.status, commandBarButtonAs: customButton,
-            iconProps: {  iconName: projActions.inProcess.icon, },
-            onClick: () => this.props.inProcessProject(),
-        };
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
         const _items: ICommandBarItemProps[] = [ _new, _edit, _copy ] ;
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
-        const _overFlowItems: ICommandBarItemProps[] = [  _review, _plan, _inProcess, _park, _reject, _complete  ] ;
+        const _overFlowItems: ICommandBarItemProps[] = [  _review, _plan, _process, _park, _cancel, _complete  ] ;
 
         // <div className={ styles.container }></div>
         return (

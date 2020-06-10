@@ -10,7 +10,9 @@ import {
 } from '@microsoft/sp-property-pane';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
-import TrackMyTime7 from './components/TrackMyTime7';
+import TrackMyTime7  from './components/TrackMyTime7';
+import { statusChoices }  from './components/TrackMyTime7';
+
 import { ITrackMyTime7Props } from './components/ITrackMyTime7Props';
 
 // npm install @pnp/logging @pnp/common @pnp/odata @pnp/sp --save
@@ -414,10 +416,9 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
            * Choices from current smile list
            * 0. Not Started;1. Under Review;2. In Process;3. Verify;4. Complete;5. Cancelled;9. Cancelled;
            */
-          const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`, `9. Cancelled`,`9. Closed`];
           
           //NOTE that allow user fill in is determined by isProject
-          const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", choices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription, DefaultFormula:'="0. Review"' });
+          const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", statusChoices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription, DefaultFormula:'="0. Review"' });
           const statusTMT2 = await ensureResult.list.fields.getByTitle("StatusTMT").update({Title: 'Status'});
 
           fieldDescription = "Used in various places to track status.";
