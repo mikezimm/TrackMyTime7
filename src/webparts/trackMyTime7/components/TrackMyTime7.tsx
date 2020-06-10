@@ -23,7 +23,6 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import ChartsPage from './Charts/chartsPage';
 import MyProjectPage from './Project/ProjectEditPage';
-import { ProjectMode } from './Project/ProjectEditPage';
 import InfoPage from './HelpInfo/infoPages';
 
 import CenterPane from './Project/CenterPane';
@@ -70,7 +69,7 @@ import { nominalTypeHack } from 'prop-types';
 
 import { createDialog } from './Project/ConfirmUpdate';
 
-export enum TMTDialogMode { False, inReview, Plan, inProcess, Park, Cancel, Complete }
+export enum TMTDialogMode { False, New, Edit, Copy, Review, Plan, Process, Park, Cancel, Complete }
 
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
@@ -80,19 +79,24 @@ const allProjEditOptions = cleanProjEditOptions('activity;advanced;people;report
 
 const defProjEditOptions = cleanProjEditOptions('people;reporting');
 
-export const statusChoices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Cancelled`,`9. Complete`];
 export const defStatus = `0. Review`;
 export const planStatus = `1. Plan`;
-export const inProcessStatus = `2. In Process`;
+export const processStatus = `2. Process`;
 export const cancelStatus = `9. Cancelled`;
 export const completeStatus = `9. Complete`;
 export const parkStatus = `8. Parking lot`;
+
+export const statusChoices = [defStatus, planStatus, processStatus, `3. Verify`, parkStatus, cancelStatus, completeStatus];
+
 export const activityTMTChoices = [`TMT Issue`, `Socialiis Issue`];
 
 export const MyCons = {
-  inReview: 'Rewind',  //ExportMirrored
+  new: 'Add',
+  edit: 'Edit',
+  copy: 'Copy',
+  review: 'Rewind',  //ExportMirrored
   plan: 'BranchCompare', 
-  inProcess: 'Processing',
+  process: 'Processing',
   cancel: "Cancel",
   park: "Car", //Snooze
   complete: 'SkypeCheck',
@@ -109,6 +113,7 @@ const actionPark : IProjectAction = {
   details: 'Set Status: ' +  parkStatus +  '|Cleared Completed By|Cleared Completed Date',
   setDate: false,
   setUser: false,
+  dialog: TMTDialogMode.Park,
  };
 
  const actionComplete : IProjectAction = { 
@@ -120,6 +125,7 @@ const actionPark : IProjectAction = {
   details: 'Set Status: ' +  completeStatus +  '|Set Completed Date:  TimeStamp|Set Completed By: User.',
   setDate: true,
   setUser: true,
+  dialog: TMTDialogMode.Complete,
  };
  
  const actionCancel : IProjectAction = { 
@@ -131,6 +137,7 @@ const actionPark : IProjectAction = {
   details: 'Set Status: ' +  cancelStatus +  '|Set Completed Date:  TimeStamp|Set Completed By: User.',
   setDate: true,
   setUser: true,
+  dialog: TMTDialogMode.Cancel,
  };
 
  const actionPlan : IProjectAction = { 
@@ -142,20 +149,22 @@ const actionPark : IProjectAction = {
   details: 'Set Status: ' +  planStatus +  '|Cleared Completed By|Cleared Completed Date',
   setDate: false,
   setUser: false,
+  dialog: TMTDialogMode.Plan,
  };
 
- const actionInProcess : IProjectAction = { 
-  icon: MyCons.inProcess,  
-  status: inProcessStatus,  
+ const actionProcess : IProjectAction = { 
+  icon: MyCons.process,  
+  status: processStatus,  
   verb: 'Sent to In Process',
-  prompt: 'Do you want to set the status to ' +  inProcessStatus + '?',
-  subText: 'This will set the status to ' +  inProcessStatus + '.', 
-  details: 'Set Status: ' +  inProcessStatus +  '|Cleared Completed By|Cleared Completed Date',
+  prompt: 'Do you want to set the status to ' +  processStatus + '?',
+  subText: 'This will set the status to ' +  processStatus + '.', 
+  details: 'Set Status: ' +  processStatus +  '|Cleared Completed By|Cleared Completed Date',
   setDate: false,
   setUser: false,
+  dialog: TMTDialogMode.Process,
  };
 
- const actionInReview : IProjectAction = { 
+ const actionReview : IProjectAction = { 
   icon: MyCons.cancel,  
   status: defStatus,  
   verb: 'Sent back to Review',
@@ -164,12 +173,34 @@ const actionPark : IProjectAction = {
   details: 'Set Status: ' +  defStatus +  '|Cleared Completed By|Cleared Completed Date',
   setDate: false,
   setUser: false,
+  dialog: TMTDialogMode.Review,
+ };
+
+ const actionNew : IProjectAction = { 
+  icon: MyCons.new,  
+  status: 'New',  
+  dialog: TMTDialogMode.New,
+ };
+
+ const actionEdit : IProjectAction = { 
+  icon: MyCons.edit,  
+  status: 'Edit', 
+  dialog: TMTDialogMode.Edit,
+ };
+
+ const actionCopy : IProjectAction = { 
+  icon: MyCons.copy,  
+  status: 'Copy',
+  dialog: TMTDialogMode.Copy,  
  };
 
 export const projActions = {
-  inReview: actionInReview,
+  new: actionNew,
+  edit: actionEdit,
+  copy: actionCopy,
+  review: actionReview,
   plan: actionPlan,
-  inProcess: actionInProcess,
+  process: actionProcess,
   park: actionPark,
   complete: actionComplete,
   cancel: actionCancel,
@@ -738,8 +769,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       //selectedProjectIndex: null,  Adding these 2 sets the default as the first project ever time, then the number of the selection stays between pivots.
       //lastSelectedProjectIndex: null,
 
-      showProjectScreen: ProjectMode.False,
-
       loadOrder: "",
       projectsLoadStatus:"Loading",
       projectsLoadError: "",
@@ -802,18 +831,18 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._editProject = this._editProject.bind(this);
     this._copyProject = this._copyProject.bind(this);
 
-    this._inReviewProject = this._inReviewProject.bind(this);
+    this._reviewProject = this._reviewProject.bind(this);
     this._planProject = this._planProject.bind(this);
-    this._inProcessProject = this._inProcessProject.bind(this);
+    this._processProject = this._processProject.bind(this);
 
     this._parkProject = this._parkProject.bind(this);
     this._cancelProject = this._cancelProject.bind(this);
     this._completeProject = this._completeProject.bind(this);   
     this._closeProjectEdit = this._closeProjectEdit.bind(this); 
 
-    this._inReviewProjectDialog = this._inReviewProjectDialog.bind(this); 
+    this._reviewProjectDialog = this._reviewProjectDialog.bind(this); 
     this._planProjectDialog = this._planProjectDialog.bind(this); 
-    this._inProcessProjectDialog = this._inProcessProjectDialog.bind(this); 
+    this._processProjectDialog = this._processProjectDialog.bind(this); 
 
     this._parkProjectDialog = this._parkProjectDialog.bind(this); 
     this._cancelProjectDialog = this._cancelProjectDialog.bind(this); 
@@ -954,7 +983,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   public render(): React.ReactElement<ITrackMyTime7Props> {
 
-    const showProjectScreen = this.state.showProjectScreen ;
+    const showProjectScreen = this.state.dialogMode ;
 
 /***
  *              d88888b d8888b. d888888b d888888b      d8888b. d8888b.  .d88b.     d88b d88888b  .o88b. d888888b 
@@ -967,12 +996,12 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                                                               
  */
 
-    if (showProjectScreen !== ProjectMode.False ) {
+    if (showProjectScreen == TMTDialogMode.New  || showProjectScreen == TMTDialogMode.Edit  || showProjectScreen == TMTDialogMode.Copy ) {
 
       let selectedProject: IProject = null;
       
-      if ( showProjectScreen === ProjectMode.New ) { selectedProject = this.createEmptyProjectObject(); }
-      else if ( showProjectScreen === ProjectMode.Copy ) {
+      if ( showProjectScreen === TMTDialogMode.New ) { selectedProject = this.createEmptyProjectObject(); }
+      else if ( showProjectScreen === TMTDialogMode.Copy ) {
         selectedProject = JSON.parse(JSON.stringify(this.state.selectedProject));
         selectedProject.titleProject = "Copy of " + selectedProject.titleProject;
         selectedProject.projOptions.activity = this.state.selectedProject.projOptions.activity == '' ? 
@@ -991,7 +1020,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
         projColumns={ this.state.projColumns }
         wpContext= {this.props.wpContext}
-        showProjectScreen={ this.state.showProjectScreen }
+        showProjectScreen={ this.state.dialogMode }
         selectedProject={ selectedProject }
         _closeProjectEdit={ this._closeProjectEdit.bind(this)}
         projectFields={this.state.projectFields}
@@ -1370,31 +1399,34 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           cancelProject={ this._cancelProjectDialog.bind(this) }
           completeProject={ this._completeProjectDialog.bind(this) }
 
-          inReviewProject={ this._inReviewProjectDialog.bind(this) }
+          reviewProject={ this._reviewProjectDialog.bind(this) }
           planProject={ this._planProjectDialog.bind(this) }
-          inProcessProject={ this._inProcessProjectDialog.bind(this) }
+          processProject={ this._processProjectDialog.bind(this) }
 
         ></MyCommandBar>
       </div>;
 
       let makeDialog = null;
-      if ( this.state.dialogMode === TMTDialogMode.False ) {
-      } else if ( this.state.dialogMode === TMTDialogMode.inReview ) {
-        makeDialog = createDialog( projActions.inReview.prompt,  projActions.inReview.subText, 'Yes', 'No', true, this._inReviewProject, this._closeDialog );
+      if ( this.state.dialogMode == TMTDialogMode.False ) {
 
-      } else if ( this.state.dialogMode === TMTDialogMode.Plan ) {
+      } else if ( this.state.dialogMode == TMTDialogMode.New || this.state.dialogMode == TMTDialogMode.Copy || this.state.dialogMode == TMTDialogMode.Edit ) {
+
+      } else if ( this.state.dialogMode == TMTDialogMode.Review ) {
+        makeDialog = createDialog( projActions.review.prompt,  projActions.review.subText, 'Yes', 'No', true, this._reviewProject, this._closeDialog );
+
+      } else if ( this.state.dialogMode == TMTDialogMode.Plan ) {
         makeDialog = createDialog( projActions.plan.prompt,  projActions.plan.subText, 'Yes', 'No', true, this._planProject, this._closeDialog );
 
-      } else if ( this.state.dialogMode === TMTDialogMode.inProcess ) {
-        makeDialog = createDialog( projActions.inProcess.prompt,  projActions.inProcess.subText, 'Yes', 'No', true, this._inProcessProject, this._closeDialog );
+      } else if ( this.state.dialogMode == TMTDialogMode.Process ) {
+        makeDialog = createDialog( projActions.process.prompt,  projActions.process.subText, 'Yes', 'No', true, this._processProject, this._closeDialog );
 
-      } else if ( this.state.dialogMode === TMTDialogMode.Park ) {
+      } else if ( this.state.dialogMode == TMTDialogMode.Park ) {
         makeDialog = createDialog( projActions.park.prompt,  projActions.park.subText, 'Yes', 'No', true, this._parkProject, this._closeDialog );
 
-      } else if ( this.state.dialogMode === TMTDialogMode.Complete ) {
+      } else if ( this.state.dialogMode == TMTDialogMode.Complete ) {
         makeDialog = createDialog( projActions.complete.prompt, projActions.complete.subText, 'Yes', 'No', true, this._completeProject, this._closeDialog );
 
-      } else if ( this.state.dialogMode === TMTDialogMode.Cancel ) {
+      } else if ( this.state.dialogMode == TMTDialogMode.Cancel ) {
         makeDialog = createDialog( projActions.cancel.prompt,  projActions.cancel.subText, 'Yes', 'No', true, this._cancelProject, this._closeDialog );
 
       } 
@@ -1502,19 +1534,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private _newProject(){
     console.log('Clicked _newProject!');
     this.setState({ 
-      showProjectScreen: ProjectMode.New,
+      dialogMode: TMTDialogMode.New,
      });
   }
   private _editProject(){
     console.log('Clicked _editProject!');
     this.setState({ 
-      showProjectScreen: ProjectMode.Edit,
+      dialogMode: TMTDialogMode.Edit,
      });
   }
   private _copyProject(){
     console.log('Clicked _copyProject!');
     this.setState({ 
-      showProjectScreen: ProjectMode.Copy ,
+      dialogMode: TMTDialogMode.Copy ,
      });
   }
 
@@ -1522,7 +1554,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     console.log('Clicked _closeProjectEdit!');
     //Update status field, Complete date and Completed by, then save, reload projects list
     this.setState({ 
-      showProjectScreen: ProjectMode.False,
+      dialogMode: TMTDialogMode.False,
      });
   }
   
@@ -1530,9 +1562,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private _closeDialog(){  this.setState({    dialogMode: TMTDialogMode.False    });  }
     
 
-  private _inReviewProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.inReview     });  }
+  private _reviewProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Review     });  }
   private _planProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Plan     });  }
-  private _inProcessProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.inProcess     });  }
+  private _processProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Process     });  }
 
 
   private _parkProjectDialog(){  this.setState({   dialogMode: TMTDialogMode.Park     });  }
@@ -1541,8 +1573,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   private _completeProjectDialog(){  this.setState({    dialogMode: TMTDialogMode.Complete    });  }
 
-  private _inReviewProject(){
-    let action : IProjectAction = projActions.inReview;
+  private _reviewProject(){
+    let action : IProjectAction = projActions.review;
     this._updateProject(action, action.setDate, action.setUser);
   }
   
@@ -1551,8 +1583,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._updateProject(action, action.setDate, action.setUser);
   }
 
-  private _inProcessProject(){
-    let action : IProjectAction = projActions.inProcess;
+  private _processProject(){
+    let action : IProjectAction = projActions.process;
     this._updateProject(action, action.setDate, action.setUser);
   }
 

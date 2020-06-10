@@ -32,7 +32,7 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Web } from "@pnp/sp/presets/all";
 
-import { statusChoices, activityTMTChoices, MyCons} from '../TrackMyTime7';
+import { statusChoices, activityTMTChoices, MyCons, TMTDialogMode} from '../TrackMyTime7';
 import { getAge, getBestTimeDelta } from '../../../../services/dateServices';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
@@ -44,8 +44,6 @@ import stylesT from '../TrackMyTime7.module.scss';
 import stylesInfo from '../HelpInfo/InfoPane.module.scss';
 
 import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
-
-export enum ProjectMode { False, Edit, Copy, New }
 
 const iconClassAction = mergeStyles({
   fontSize: 18,
@@ -64,18 +62,21 @@ const iconClassInfo = mergeStyles({
   verticalAlign: 'bottom',
 });
 
-const getProjectModeLabel =  (mode: ProjectMode): string =>  {
+const getTMTDialogModeLabel =  (mode: TMTDialogMode): string =>  {
 
-  if (mode === ProjectMode.New ) { return "New"; }
-  if (mode === ProjectMode.Edit ) { return "Edit"; }
-  if (mode === ProjectMode.Copy ) { return "Copy"; }
+  if (mode === TMTDialogMode.New ) { return "New"; }
+  if (mode === TMTDialogMode.Edit ) { return "Edit"; }
+  if (mode === TMTDialogMode.Copy ) { return "Copy"; }
+  if (mode === TMTDialogMode.Review ) { return "Copy"; }
+  if (mode === TMTDialogMode.Plan ) { return "Copy"; }
+  if (mode === TMTDialogMode.Process ) { return "Copy"; }
 
   return "What?";
 
 };
 
 export interface IProjectPageProps {
-    showProjectScreen: ProjectMode;
+    showProjectScreen: TMTDialogMode;
     _closeProjectEdit: any;
     selectedProject: IProject;
     projectFields: IProjectFormFields;
@@ -90,7 +91,7 @@ export interface IProjectPageProps {
 }
 
 export interface IProjectPageState {
-    showProjectScreen?: ProjectMode;
+    showProjectScreen?: TMTDialogMode;
     selectedProject?: IProject;
     showTask?:boolean;
     showActivity?: boolean;
@@ -126,7 +127,7 @@ const stylesCCToggle: IToggleStyles = { text: {color: colorCC.primary, fontWeigh
 
 const emptyString = (value: string | Date) : string => { return "";};
 
-const getErrorMessage = (value: string, testString: string, minLength: number, required: boolean, projectMode: ProjectMode): string => {
+const getErrorMessage = (value: string, testString: string, minLength: number, required: boolean, projectMode: TMTDialogMode): string => {
   let mess = '';
 
   if ( value == null ) {
@@ -140,7 +141,7 @@ const getErrorMessage = (value: string, testString: string, minLength: number, r
   } else if (value.indexOf('Copy of') > -1){
     mess = 'Remove the word Copy from value';
 
-  } else if ( projectMode === ProjectMode.Copy || projectMode === ProjectMode.New ){
+  } else if ( projectMode === TMTDialogMode.Copy || projectMode === TMTDialogMode.New ){
     
     if ( testString == null ) { testString = '';}
     if ( testString.indexOf(' ') === 0 ) { mess = "Remove leading spaces"; } 
@@ -158,7 +159,7 @@ const getErrorMessage = (value: string, testString: string, minLength: number, r
     }
 
 
-  } else if ( projectMode === ProjectMode.Edit ){
+  } else if ( projectMode === TMTDialogMode.Edit ){
 
   }
   return mess;
@@ -269,9 +270,9 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         let isSaveButtonDisabled = !this.checkEnableSave();
         let saveLabel = "Save";
         let testLabel = "Test";
-        if (this.props.showProjectScreen === ProjectMode.New) { saveLabel = "Create New"; }
-        if (this.props.showProjectScreen === ProjectMode.Edit) { saveLabel = "Update"; }
-        if (this.props.showProjectScreen === ProjectMode.Copy) { saveLabel = "Save Copy"; }
+        if (this.props.showProjectScreen === TMTDialogMode.New) { saveLabel = "Create New"; }
+        if (this.props.showProjectScreen === TMTDialogMode.Edit) { saveLabel = "Update"; }
+        if (this.props.showProjectScreen === TMTDialogMode.Copy) { saveLabel = "Save Copy"; }
 
         let testItems = this.state.testItems == null ? null : <div><div><h2>Here is the save object :)</h2></div><div>{ JSON.stringify(this.state.testItems) }</div></div>;
 
@@ -349,7 +350,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
 
           let projectFields = this.props.projectFields;
-          let resetFields  = this.props.showProjectScreen !== ProjectMode.Copy ? null : 
+          let resetFields  = this.props.showProjectScreen !== TMTDialogMode.Copy ? null : 
             <h3><mark>NOTE:</mark> These fields are cleared when creating a Copy:<span>&nbsp;</span>
             {[
               projectFields.CompletedByTMT.title,
@@ -359,7 +360,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             </h3> ;
 
         let pageTitle = <div style={{ paddingTop: '0px' }}>
-          <h2>{"Track My Time:  Project " + getProjectModeLabel(this.state.showProjectScreen) }</h2>
+          <h2>{"Track My Time:  Project " + getTMTDialogModeLabel(this.state.showProjectScreen) }</h2>
           <h3>{ this.state.selectedProject === null ? 'New Project' : this.state.selectedProject.titleProject}</h3>
           { resetFields }
         </div>;
@@ -486,7 +487,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
       //Added this to change error message if both the old and new value of activity are empty.
       //This way it does not give you message 'Value must be new' if there was not a value to begin with.
-      if ( this.props.showProjectScreen === ProjectMode.Copy ) {
+      if ( this.props.showProjectScreen === TMTDialogMode.Copy ) {
         if (this.state.selectedProject.projOptions.activity === '' && this.props.selectedProject.projOptions.activity === '' && activityMessage != '' ) { activityMessage = ''; }
         if ( titleMessage !== '' || activityMessage !== '' ) { saveTest = false; }
       }
@@ -543,7 +544,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       }
     }
 
-    private buildProjectToSave( oldProject: IProject, newProject: IProject, mode: ProjectMode ){
+    private buildProjectToSave( oldProject: IProject, newProject: IProject, mode: TMTDialogMode ){
 
       let saveItem: any = { };
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Title, oldProject, newProject, mode);
@@ -580,12 +581,12 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     }
 
-    private updateSaveObjectTitle(saveItem, field:  IFieldDef, oldProject: IProject, newProject: IProject, mode: ProjectMode){
+    private updateSaveObjectTitle(saveItem, field:  IFieldDef, oldProject: IProject, newProject: IProject, mode: TMTDialogMode){
 
       let origVal = this.getProbjectValue(field, oldProject);
       let newVal = this.getProbjectValue(field, newProject);
 
-      if ( mode === ProjectMode.Copy || mode === ProjectMode.New ) {
+      if ( mode === TMTDialogMode.Copy || mode === TMTDialogMode.New ) {
 
         if ( newVal === null ) {
 
@@ -659,7 +660,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     }
 
-    private saveThisField( field:  IFieldDef, oldProject: IProject, newProject: IProject, mode: ProjectMode ) {
+    private saveThisField( field:  IFieldDef, oldProject: IProject, newProject: IProject, mode: TMTDialogMode ) {
 
       let fieldName = field.name;
 
@@ -712,7 +713,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           let mess = getErrorMessage(value,this.props.selectedProject.projOptions.activity, 0, false, this.props.showProjectScreen);
 
           //Add this only for activity in Copy mode so it does not show error message when it's blank.
-          if ( this.props.showProjectScreen === ProjectMode.Copy && field.name === "activity" ) {
+          if ( this.props.showProjectScreen === TMTDialogMode.Copy && field.name === "activity" ) {
             if (defaultValue === '' && this.props.selectedProject.projOptions.activity === '')  { mess = ''; }
           }
           return mess;
