@@ -1027,6 +1027,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         showProjectScreen={ this.state.showProjectScreen }
         selectedProject={ selectedProject }
         _closeProjectEdit={ this._closeProjectEdit.bind(this)}
+        _closeProjectReload={ this._closeProjectReload.bind(this)}
         projectFields={this.state.projectFields}
         
         // 2 - Source and destination list information
@@ -1537,6 +1538,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private _copyProject(){   this.setState({  showProjectScreen: ProjectMode.Copy,  }); }
 
   private _closeProjectEdit(){   this.setState({  showProjectScreen: ProjectMode.False,    }); }
+  private _closeProjectReload(){   this._getListItems(); }
   private _closeDialog(){  this.setState({   dialogMode: TMTDialogMode.False    });  }
     
   private _reviewProjectDialog(){  this.setState({  dialogMode: TMTDialogMode.Review     });  }
@@ -2926,7 +2928,8 @@ public toggleTips = (item: any): void => {
         formEntry: formEntry,
         loadOrder: (this.state.loadOrder === "") ? 'User' : this.state.loadOrder + ' > User',
         currentUser: currentUser,
-        userLoadStatus: "Complete"
+        userLoadStatus: "Complete",
+        showProjectScreen: ProjectMode.False,
       });
 
       if (this.state.projectsLoadStatus === "Pending") {
@@ -3262,6 +3265,7 @@ public toggleTips = (item: any): void => {
           loadOrder: (this.state.loadOrder === "") ? 'Project' : this.state.loadOrder + ' > Project',
           loadData:loadData,
           projectsLoadStatus: "Pending",
+          showProjectScreen: ProjectMode.False,
         });
 
         loadData = null;
@@ -3270,7 +3274,13 @@ public toggleTips = (item: any): void => {
     }).catch((e) => {
       console.log('ERROR:  projectWeb.lists.getByTitle(useProjectList)',this._getProjectListTitle(), e);
       let projErrMessage = getHelpfullError(e);
-      this.setState({  loadStatus: projErrMessage, loadError: this.state.loadError + '.  ' + projErrMessage, listError: true, projectsListError: true, projectsLoadError: projErrMessage,});
+      this.setState({  
+        loadStatus: projErrMessage, 
+        loadError: this.state.loadError + '.  ' + projErrMessage, 
+        listError: true, projectsListError: true, 
+        projectsLoadError: projErrMessage,
+        showProjectScreen: ProjectMode.False,
+      });
       this.processCatch(e);
     });
 
@@ -3449,7 +3459,13 @@ public toggleTips = (item: any): void => {
     }).catch((e) => {
       console.log('ERROR:  trackTimeWeb.lists.getByTitle(useTrackMyTimeList)',useTrackMyTimeList, e);
       let projTimeMessage = getHelpfullError(e);
-      this.setState({  loadStatus: projTimeMessage, loadError: this.state.loadError + '.  ' + projTimeMessage, listError: true, timeTrackerListError: true, timeTrackerLoadError: projTimeMessage,});
+      this.setState({  
+        loadStatus: projTimeMessage, 
+        loadError: this.state.loadError + '.  ' + projTimeMessage, 
+        listError: true, timeTrackerListError: true, 
+        timeTrackerLoadError: projTimeMessage,
+        showProjectScreen: ProjectMode.False,
+      });
       this.processCatch(e);
     });
 
@@ -3581,6 +3597,7 @@ public toggleTips = (item: any): void => {
       projectsItemsError: false,
       allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.timeTrackerLoadStatus === 'Complete') ? true : false,
       dialogMode: TMTDialogMode.False,
+      showProjectScreen: ProjectMode.False,
     });
   }
 

@@ -77,6 +77,7 @@ const getProjectModeLabel =  (mode: ProjectMode): string =>  {
 export interface IProjectPageProps {
     showProjectScreen: ProjectMode;
     _closeProjectEdit: any;
+    _closeProjectReload: any;
     selectedProject: IProject;
     projectFields: IProjectFormFields;
     wpContext: WebPartContext;
@@ -333,6 +334,11 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         } 
 
+        let saveFunction : any = null;
+        if (this.props.showProjectScreen === ProjectMode.New) { saveFunction = this.createNewProject.bind(this); }
+        if (this.props.showProjectScreen === ProjectMode.Edit) { saveFunction = this.saveExistingProject.bind(this); }
+        if (this.props.showProjectScreen === ProjectMode.Copy) { saveFunction = this.createNewProject.bind(this); }
+        
         const buttons: ISingleButtonProps[] =
         [{  disabled: false,  checked: true, primary: false,
             label: "Cancel", buttonOnClick: this.cancelForm.bind(this),
@@ -344,7 +350,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           label: testLabel, buttonOnClick: this.testSaveProject.bind(this),
         },{
             disabled: isSaveButtonDisabled, checked: true, primary: true,
-            label: saveLabel, buttonOnClick: this.saveProject.bind(this),
+            label: saveLabel, buttonOnClick: saveFunction,
         }];
 
 
@@ -497,49 +503,48 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     private testSaveProject() {
       console.log('saved form');
-
       if ( this.checkEnableSave() ) {
-
         let saveProject = this.buildProjectToSave(this.props.selectedProject, this.state.selectedProject, this.props.showProjectScreen );
-
         this.setState({ 
           testItems: saveProject,
         });
-
-        /*
-        const projectWeb = Web(this.props.projectListWeb);
-
-        projectWeb.lists.getByTitle(this.props.projectListTitle).items.add( saveProject ).then((response) => {
-
-        });
-
-        this.props._closeProjectEdit();
-        */
       }
+    }
 
-
-  }
-
-  private saveProject() {
+    private createNewProject() {
       console.log('saved form');
 
       if ( this.checkEnableSave() ) {
 
         let saveProject = this.buildProjectToSave(this.props.selectedProject, this.state.selectedProject, this.props.showProjectScreen );
 
-        this.setState({ 
-          testItems: null,
-        });
-
-        /*
         const projectWeb = Web(this.props.projectListWeb);
-
         projectWeb.lists.getByTitle(this.props.projectListTitle).items.add( saveProject ).then((response) => {
-
+          console.log('Heres the NEW Project:', response);
+          this.props._closeProjectReload();
+        }).catch((e) => {
+          alert(e);
         });
 
-        this.props._closeProjectEdit();
-        */
+      }
+    }
+
+    private saveExistingProject() {
+      console.log('saved form');
+
+      if ( this.checkEnableSave() ) {
+
+        let saveProject = this.buildProjectToSave(this.props.selectedProject, this.state.selectedProject, this.props.showProjectScreen );
+
+        const projectWebList = Web(this.props.projectListWeb).lists.getByTitle(this.props.projectListTitle);
+        console.log('List title to add to:', projectWebList.length);
+        projectWebList.items.getById(this.props.selectedProject.id).update( saveProject ).then((response) => {
+          console.log('Heres the saved Project:', response);
+          this.props._closeProjectReload();
+        }).catch((e) => {
+          alert(e);
+        });
+
       }
     }
 
@@ -586,6 +591,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       let newVal = this.getProbjectValue(field, newProject);
 
       if ( mode === ProjectMode.Copy || mode === ProjectMode.New ) {
+        //Why do I have this separate loop for Copy and New??????
 
         if ( newVal === null ) {
 
@@ -593,9 +599,12 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           saveItem[field.column + "Id"] = newVal;
 
         } else if (field.type === "User" ) { //Single User, can't be an array
-          let saveUser = newVal ? newVal[0] : null;
-          let origValX = origVal ? origVal[0] : null;
+          let saveUser = newVal ? newVal.results[0] : null;
+          let origValX = origVal ? origVal.results[0] : null;
           saveItem[field.column + "Id"] = saveUser;
+
+        } else if (field.name === "category1" || field.name === "category2" ) { //Single User, can't be an array
+          saveItem[field.column] = { results: [newVal] };
 
         } else {
           saveItem[field.column] = newVal;
@@ -615,8 +624,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       } else if (field.type === "User" ) {
         //Add column and value to object
         if (JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
-          let saveUser = newVal ? newVal[0] : null;
-          let origValX = origVal ? origVal[0] : null;
+          let saveUser = newVal ? newVal.results[0] : null;
+          let origValX = origVal ? origVal.results[0] : null;
           console.log('updating ' + field.title + ' from ' + origValX + ' to ' + saveUser);
           saveItem[field.column + "Id"] = saveUser;
         }
@@ -627,6 +636,15 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
           saveItem[field.column + "Id"] = newVal;
         }
+      
+      } else if (field.name === "category1" || field.name === "category2" ) { //Single User, can't be an array
+
+        if ( JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
+          console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
+          saveItem[field.column] = { results: [newVal] };
+        }
+
+
       } else if (origVal !== newVal ) {
         //Add column and value to object
         console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
