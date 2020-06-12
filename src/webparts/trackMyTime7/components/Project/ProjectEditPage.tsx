@@ -823,7 +823,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         return (
             // Uncontrolled
-            <div id={ pageIDPref + field.column } style={{ width: fieldWidth }}>
+            <div id={ pageIDPref + field.column } style={{ width: fieldWidth }} className={ styles.peopleBlock}>
+              <div className={styles.addMeButton}>xyz</div>
                 <PeoplePicker
                     context={this.props.wpContext}
                     defaultSelectedUsers={ emails }
