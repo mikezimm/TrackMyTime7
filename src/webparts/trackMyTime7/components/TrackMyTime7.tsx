@@ -1022,6 +1022,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       let projectPage = <MyProjectPage 
 
+        currentUser= {this.state.currentUser}
         projColumns={ this.state.projColumns }
         wpContext= {this.props.wpContext}
         showProjectScreen={ this.state.showProjectScreen }
@@ -2920,6 +2921,7 @@ public toggleTips = (item: any): void => {
         ID: r['Id'] , //        
         isSiteAdmin: r['IsSiteAdmin'],
         LoginName: r['LoginName'],
+        Name: r['LoginName'],
       };
 
       let formEntry =this.createFormEntry();

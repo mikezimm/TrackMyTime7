@@ -8,15 +8,17 @@
   .peopleBlock {
     display: inline-block;
   }
+  
   .addMeButton {
     width: 32px;
     height: 32px;
     position: relative;
-    top: 0;
-    right: 0;
-  }
-  .addMeButton {
+    float: right;
     z-index: 10;
+  }
+
+  .fieldWithIconButton{
+    position: relative;
   }
 
   .hoverCard {

@@ -36,6 +36,8 @@ import { statusChoices, activityTMTChoices, MyCons} from '../TrackMyTime7';
 import { getAge, getBestTimeDelta } from '../../../../services/dateServices';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
+import { createIconButton } from '../createButtons/IconButton';
+
 // Initialize icons in case this example uses them
 initializeIcons();
 
@@ -81,6 +83,7 @@ export interface IProjectPageProps {
     selectedProject: IProject;
     projectFields: IProjectFormFields;
     wpContext: WebPartContext;
+    currentUser: IUser;
 
     // 2 - Source and destination list information
     projectListTitle: string;
@@ -223,6 +226,9 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         this._updateActivityID = this._updateActivityID.bind(this);   
         this._updateActivityType = this._updateActivityType.bind(this);   
+
+        this._addUserToField = this._addUserToField.bind(this);   
+       
         
     }
         
@@ -266,6 +272,11 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         console.log('props.selectedProject:', this.props.selectedProject);
         console.log('state:', this.state);
         console.log('state.selectedProject:', this.state.selectedProject);
+
+        console.log('TEAM:', this.state.selectedProject.team);
+        console.log('TEAMIds:', this.state.selectedProject.teamIds);
+        console.log('LEADER:', this.state.selectedProject.leader);
+        console.log('LEADERId:', this.state.selectedProject.leaderId);
 
         let isSaveButtonDisabled = !this.checkEnableSave();
         let saveLabel = "Save";
@@ -789,7 +800,45 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     }
 
-    private createPeopleField(field: IFieldDef, maxCount: number, _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+
+    private _addUserToField(ev: EventTarget){
+      var element2 = event.target as HTMLElement;
+      var element3 = event.currentTarget as HTMLElement;
+      let fieldID = this._findNamedElementID(element2);
+      let selectedProject = this.state.selectedProject;
+      alert(`Adding you to ${fieldID}`);
+      let projObjectName = this.props.projectFields[fieldID].name;
+      let projObjectType = this.props.projectFields[fieldID].type;
+      let okToUpdateUser: boolean = true;
+      let stateProject = this.state.selectedProject;
+      if ( projObjectType === 'User') {
+        stateProject[projObjectName + 'Id'] = this.props.currentUser.id;
+        stateProject[projObjectName] = this.props.currentUser;
+
+      } else if ( projObjectType === 'MultiUser'){
+
+        if (stateProject[projObjectName + 'Ids'] == null ) {
+          stateProject[projObjectName + 'Ids'] = [this.props.currentUser.id];
+          stateProject[projObjectName] = [this.props.currentUser];
+
+        } else if (stateProject[projObjectName + 'Ids'].indexOf(this.props.currentUser.id) < 0 ) { 
+          stateProject[projObjectName + 'Ids'].push(this.props.currentUser.id);
+          stateProject[projObjectName].push(this.props.currentUser);
+
+        } else { alert('You are already here :)'); okToUpdateUser = false; }
+
+      } else {
+        okToUpdateUser = false;
+        alert ('Encountered strange error in _addUserToField... unexpected field type!');
+      }
+      if (  okToUpdateUser === true) {
+        this.setState({ selectedProject: stateProject });
+        this.render();
+      } 
+
+    }
+
+    private createPeopleField(field: IFieldDef, maxCount: number, _onChange: any, addYouToField: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
 
       let users: IUser[] = maxCount === 1 ? [this.state.selectedProject[field.name]] : this.state.selectedProject[field.name];
 
@@ -821,10 +870,12 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         return null;
       });
 
+      let addUserButton = createIconButton('FollowUser','Add you',addYouToField, null, null );
+
         return (
             // Uncontrolled
             <div id={ pageIDPref + field.column } style={{ width: fieldWidth }} className={ styles.peopleBlock}>
-              <div className={styles.addMeButton}>xyz</div>
+              <div className={styles.addMeButton}>{ addUserButton } </div>
                 <PeoplePicker
                     context={this.props.wpContext}
                     defaultSelectedUsers={ emails }
@@ -839,6 +890,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
                     principalTypes={[PrincipalType.User]}
                     resolveDelay={1000} 
                     ensureUser={true}
+                    peoplePickerWPclassName={styles.fieldWithIconButton}
                 /></div>
         );
 
@@ -994,7 +1046,6 @@ private _updateToggleState(ev: EventTarget){
 
   private buildProjectTtitle(isVisible: boolean) {
 
-    
     const getTitleErrorMessage = (value: string): string => {
       let mess = getErrorMessage(value,this.props.selectedProject.titleProject, 5, true, this.props.showProjectScreen);
       return mess;
@@ -1102,8 +1153,8 @@ private buildPeopleFields(isVisible: boolean) {
   />;
 
     //let everyone = this.createTextField(this.props.projectFields.Everyone, this._genericFieldUpdate.bind(this), this.getPeopleStyles );
-    let leader = this.createPeopleField(this.props.projectFields.Leader, 1, this._updateLeader.bind(this), this.getPeopleStyles );
-    let team = this.createPeopleField(this.props.projectFields.Team, 5, this._updateTeam.bind(this), this.getPeopleStyles );
+    let leader = this.createPeopleField(this.props.projectFields.Leader, 1, this._updateLeader.bind(this), this._addUserToField.bind(this), this.getPeopleStyles );
+    let team = this.createPeopleField(this.props.projectFields.Team, 5, this._updateTeam.bind(this), this._addUserToField.bind(this), this.getPeopleStyles );
 
     let fields =
     <div 
@@ -1273,7 +1324,7 @@ private buildTaskFields(isVisible: boolean) {
     let isDueDateRequired: boolean = true;
     let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), isDueDateRequired, this.getTaskStyles );
     let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), false, this.getTaskStyles );
-    let completedBy = this.createPeopleField(this.props.projectFields.CompletedByTMT , 1, this._updateCompletedBy.bind(this), this.getPeopleStyles );
+    let completedBy = this.createPeopleField(this.props.projectFields.CompletedByTMT , 1, this._updateCompletedBy.bind(this),  this._addUserToField.bind(this), this.getPeopleStyles );
 
     let fields =
     <div style={{ backgroundColor: colorTask.light, padding: 10, paddingBottom: 20 }}>
