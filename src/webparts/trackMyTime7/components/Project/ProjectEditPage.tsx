@@ -36,7 +36,7 @@ import { statusChoices, activityTMTChoices, MyCons} from '../TrackMyTime7';
 import { getAge, getBestTimeDelta } from '../../../../services/dateServices';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
-import { createIconButton } from '../createButtons/IconButton';
+import { createIconButton, defCommandIconStyles } from '../createButtons/IconButton';
 
 // Initialize icons in case this example uses them
 initializeIcons();
@@ -215,6 +215,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         this._genericFieldUpdate = this._genericFieldUpdate.bind(this);
         this._updateDueDate = this._updateDueDate.bind(this);
+        this._clearDateField = this._clearDateField.bind(this);
+        
         this._updateCompleteDate = this._updateCompleteDate.bind(this);        
 
         this._updateLeader = this._updateLeader.bind(this);    
@@ -771,7 +773,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         return thisField;
     }
 
-    private createDateField(field: IFieldDef, _onChange: any, required: boolean, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+    private createDateField(field: IFieldDef, _onChange: any, _clearDate: any, required: boolean, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
 
         const getDateErrorMessage = (value: Date): string => {
           let mess = value == null ? "Don't forget Date!" : "";
@@ -780,22 +782,29 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         let timeStamp = this.state.selectedProject[field.name];
         if (timeStamp != null) { timeStamp = new Date(timeStamp); }
+        let myIconStyles = defCommandIconStyles;
+        myIconStyles.icon.fontSize = 14;
+        myIconStyles.icon.fontWeight = "900";
+        let clearThisDate = _clearDate === null ? null : createIconButton('Clear','ClearDate',_clearDate, null, myIconStyles );
 
         return (
             // Uncontrolled
-            <div id={ pageIDPref + field.column } style={{ width: fieldWidth }}>
-            
-            <DateTimePicker 
-                label={field.title}
-                value={timeStamp}
-                onChange={_onChange}
-                dateConvention={DateConvention.Date} showMonthPickerAsOverlay={showMonthPickerAsOverlay}
-                showWeekNumbers={showWeekNumbers} timeConvention={timeConvention}
-                showGoToToday={showGoToToday} timeDisplayControlType={timeDisplayControlType}
-                showLabels={false}
-                //onGetErrorMessage={ required === true ? getDateErrorMessage : emptyString }
-                onGetErrorMessage={ required === true && timeStamp == null ? emptyString : getDateErrorMessage }
-            /></div>
+            <div id={ pageIDPref + field.column } style={{ width: fieldWidth }}  className={ styles.peopleBlock}>
+            <div className={styles.addMeButton}>{ clearThisDate } </div>
+            <div  className={styles.fieldWithIconButton}>
+              <DateTimePicker 
+                  label={field.title}
+                  value={timeStamp}
+                  onChange={_onChange}
+                  dateConvention={DateConvention.Date} showMonthPickerAsOverlay={showMonthPickerAsOverlay}
+                  showWeekNumbers={showWeekNumbers} timeConvention={timeConvention}
+                  showGoToToday={showGoToToday} timeDisplayControlType={timeDisplayControlType}
+                  showLabels={false}
+                  //onGetErrorMessage={ required === true ? getDateErrorMessage : emptyString }
+                  onGetErrorMessage={ required === true && timeStamp == null ? emptyString : getDateErrorMessage }
+              /></div>
+            </div>
+
         );
 
     }
@@ -805,8 +814,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       var element2 = event.target as HTMLElement;
       var element3 = event.currentTarget as HTMLElement;
       let fieldID = this._findNamedElementID(element2);
-      let selectedProject = this.state.selectedProject;
-      alert(`Adding you to ${fieldID}`);
+      //alert(`Adding you to ${fieldID}`);
       let projObjectName = this.props.projectFields[fieldID].name;
       let projObjectType = this.props.projectFields[fieldID].type;
       let okToUpdateUser: boolean = true;
@@ -833,9 +841,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       }
       if (  okToUpdateUser === true) {
         this.setState({ selectedProject: stateProject });
-        this.render();
       } 
-
     }
 
     private createPeopleField(field: IFieldDef, maxCount: number, _onChange: any, addYouToField: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
@@ -1322,8 +1328,8 @@ private buildTaskFields(isVisible: boolean) {
     let useStatusChoices = this.props.projColumns.statusChoices != null ? this.props.projColumns.statusChoices : activityTMTChoices;
     let status = this._createDropdownField(this.props.projectFields.StatusTMT, useStatusChoices, this._updateStatusChange.bind(this), this.getTaskStyles );
     let isDueDateRequired: boolean = true;
-    let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), isDueDateRequired, this.getTaskStyles );
-    let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), false, this.getTaskStyles );
+    let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), this._clearDateField.bind(this), isDueDateRequired, this.getTaskStyles );
+    let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), this._clearDateField.bind(this), false, this.getTaskStyles );
     let completedBy = this.createPeopleField(this.props.projectFields.CompletedByTMT , 1, this._updateCompletedBy.bind(this),  this._addUserToField.bind(this), this.getPeopleStyles );
 
     let fields =
@@ -1371,6 +1377,22 @@ private buildTaskFields(isVisible: boolean) {
     selectedProject.completedById = newUsers[0] != null ? newUsers[0].id : null;
     this.setState({ selectedProject: selectedProject });
   }  
+
+
+  private _clearDateField(){
+    var element2 = event.target as HTMLElement;
+    let fieldID = this._findNamedElementID(element2);
+    //alert(`Clearing Date ${fieldID}`);
+    let projObjectName = this.props.projectFields[fieldID].name;
+    let projObjectType = this.props.projectFields[fieldID].type;
+    let okToClearDate: boolean = true;
+    let stateProject = this.state.selectedProject;
+    stateProject[projObjectName] = null;
+
+    if (  okToClearDate === true) {
+      this.setState({ selectedProject: stateProject });
+    } 
+  }
 
   private _updateDueDate(newValue: string){
     let selectedProject = this.state.selectedProject;
