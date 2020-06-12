@@ -10,7 +10,9 @@ import {
 } from '@microsoft/sp-property-pane';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
-import TrackMyTime7 from './components/TrackMyTime7';
+import TrackMyTime7  from './components/TrackMyTime7';
+import { statusChoices }  from './components/TrackMyTime7';
+
 import { ITrackMyTime7Props } from './components/ITrackMyTime7Props';
 
 // npm install @pnp/logging @pnp/common @pnp/odata @pnp/sp --save
@@ -23,6 +25,7 @@ import { makeTheTimeObject } from '../../services/dateServices';
 import { getHelpfullError, } from '../../services/ErrorHandler';
 
 import { PageContext } from '@microsoft/sp-page-context';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 //  >>>> ADD import additional controls/components
 import { UrlFieldFormatType, Field } from "@pnp/sp/presets/all";
@@ -85,6 +88,8 @@ export interface ITrackMyTimeWebPartProps {
   syncProjectPivotsOnToggle: boolean;  //always keep pivots in sync when toggling projects/history
 
   projectType?:boolean; //Projects = 0 History = 1
+  defProjEditOptions?: string;
+
   projActivityRule?: string;  //title=NoTitleType-Activity
 
   // 5 - UI Defaults
@@ -186,6 +191,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
         // 0 - Context
         pageContext: this.context.pageContext,
+        wpContext: this.context,
         tenant: this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,""),
         urlVars: this.getUrlVars(),
         today: makeTheTimeObject(''),
@@ -220,6 +226,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
         syncProjectPivotsOnToggle: this.properties.syncProjectPivotsOnToggle, //always keep pivots in sync when toggling projects/history
 
         projectType: this.properties.projectType, //Projects = 0 History = 1
+        defProjEditOptions : this.properties.defProjEditOptions ,
 
         projActivityRule: this.properties.projActivityRule ? this.properties.projActivityRule : 'title=Replace...<Title>: <Type>-<Activity>',  // is same as 'title=<Type>-<Activity>'
 
@@ -407,12 +414,11 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           /**
            * Status related fields - Only on Projects list
            * Choices from current smile list
-           * 0. Not Started;1. Under Review;2. In Process;3. Verify;4. Complete;5. Rejected;9. Cancelled;
+           * 0. Not Started;1. Under Review;2. In Process;3. Verify;4. Complete;5. Cancelled;9. Cancelled;
            */
-          const choices = [`0. Review`, `1. Plan`, `2. In Process`, `3. Verify`, `4. Complete`, `8. Parking lot`, `9. Rejected`, `9. Cancelled`];
           
           //NOTE that allow user fill in is determined by isProject
-          const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", choices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription, DefaultFormula:'="0. Review"' });
+          const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", statusChoices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription, DefaultFormula:'="0. Review"' });
           const statusTMT2 = await ensureResult.list.fields.getByTitle("StatusTMT").update({Title: 'Status'});
 
           fieldDescription = "Used in various places to track status.";
@@ -447,6 +453,13 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const dueDate: IFieldAddResult = await ensureResult.list.fields.addDateTime("DueDateTMT", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Description: fieldDescription });
             const completeDate: IFieldAddResult = await ensureResult.list.fields.addDateTime("CompletedDateTMT", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Description: fieldDescription });
             const completedBy: IFieldAddResult = await ensureResult.list.fields.addUser("CompletedByTMT", FieldUserSelectionMode.PeopleOnly, { Group: columnGroup, Description: fieldDescription, Indexed: true });
+
+
+            fieldDescription = "Hidden field used to remember settings on Project Edit page for this project.";
+            const projectEditOptions: IFieldAddResult = await ensureResult.list.fields.addText("ProjectEditOptions", 255, { Group: columnGroup, Description: fieldDescription });
+            
+            const projectEditOption2= await ensureResult.list.fields.getByTitle("OriginalHours").update({ Hidden: true });
+
             const dueDate2= await ensureResult.list.fields.getByTitle("DueDateTMT").update({ Title: 'Due Date' });
             const completeDate2= await ensureResult.list.fields.getByTitle("CompletedDateTMT").update({ Title: 'Completed' });
             const completedBy2= await ensureResult.list.fields.getByTitle("CompletedByTMT").update({ Title: 'Completed By' });

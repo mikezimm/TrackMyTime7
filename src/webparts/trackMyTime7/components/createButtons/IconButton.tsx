@@ -34,7 +34,7 @@ export function createIconButton(iconName, titleText, _onClick, thisID,  iconSty
       thisID = thisID.replace(/[^\w\s|-]/gi, '');
     }
 
-    console.log('createIconButton:', iconStyles);
+    //console.log('createIconButton:', iconStyles);
 
     return (
       <div className= {styles.buttons} id={ thisID }>

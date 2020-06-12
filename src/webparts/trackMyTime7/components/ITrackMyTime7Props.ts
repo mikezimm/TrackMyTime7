@@ -1,12 +1,15 @@
 import { string } from "prop-types";
 import { ITheTime } from '../../../services/dateServices';
 import { PageContext } from '@microsoft/sp-page-context';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 export interface ITrackMyTime7Props {
   description: string;
 
   // 0 - Context
   pageContext: PageContext;
+  wpContext: WebPartContext;
+
   tenant: string;
   urlVars: {};
   today: ITheTime;
@@ -39,6 +42,9 @@ export interface ITrackMyTime7Props {
   syncProjectPivotsOnToggle; //always keep pivots in sync when toggling projects/history
 
   projectType:boolean; //Projects = 0 History = 1
+
+  defProjEditOptions: string;  // Semi-colon separated edit options which determine default toggles in project edit screen... 
+                               // Valid ones "reporting;people;activity;task;advanced;layout1-5",
 
   // To be used for if Project Activity URL is used. Syntax:  title=Title Type Activity;
   // title special words:  Replace..., IgnoreTitle, Derive

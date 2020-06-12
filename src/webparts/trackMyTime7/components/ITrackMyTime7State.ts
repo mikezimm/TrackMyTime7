@@ -1,12 +1,16 @@
 
 import { ITrackMyTime7Props } from './ITrackMyTime7Props';
 
-import { IFormFields } from './fields/fieldDefinitions';
+import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 import { ITheTime } from '../../../services/dateServices';
+
+import { ProjectMode } from './Project/ProjectEditPage';
 
 import { ISmartLinkDef } from './ActivityURL/ActivityURLMasks';
 import { ISelectedStory, ISelectedUser, } from './Charts/chartsPage';
 import { string } from 'prop-types';
+
+import { TMTDialogMode, FieldChange } from './TrackMyTime7';
 
 export interface ILink {
   Description: string;
@@ -21,8 +25,19 @@ export interface IUser {
   id?: any;
   Id?: any;
   ID?: any;
+
   isSiteAdmin?:boolean;
   LoginName?: string;
+  Name?: string;
+
+  //These optional props are from the React PeoplePicker control
+  imageInitials?: string; //same as Initials;         From React People Picker control
+  imageUrl?: string;  //Thumbnail URL;                From React People Picker control
+  loginName?: string;  //Same as LoginName and Name;  From React People Picker control
+  text?: string;   //Same as Title and title;         From React People Picker control
+  tertiaryText?: string; //                           From React People Picker control
+  secondaryText?: string; // same as email;           From React People Picker control
+
 }
 
 export interface IEntries {
@@ -99,7 +114,6 @@ export interface ISaveEntry {
     timeEntryTBD2?: string;
     timeEntryTBD3?: string;  
 
-
     //Other settings and information
     location?: string; // Location
     settings?: string;
@@ -171,6 +185,7 @@ export interface ITimeEntry extends ISaveEntry {
 
 export interface ISmartText {
   value: string;
+  projListValue: string;
   required: boolean;
   hidden: boolean;
   default: string;
@@ -182,6 +197,7 @@ export interface ISmartText {
 }
 
 export interface IProjectTarget {
+  projListValue: string;
   value: string; //value from field - ; separated options which could be parsed
   daily?: number; //Maybe have function see if something like daily=4 means 4 hours per day?
   weekly?: number; //Maybe have function see if something like weekly=8 means 8 hours per week?
@@ -233,7 +249,26 @@ export interface IProjectOptions{
   bgColor?: string;
   font?: IMyFonts;
   icon?: IMyIcons;
+  projectEditOptions?: string;
 
+}
+
+export interface IProjectAction {
+  verb?: string;
+  details?: string;
+  commandLabel?: string;
+  icon?: string;
+  status?: string;
+  subText?: string;
+  prompt?: string;
+  setDate?: boolean; //FieldChange;
+  setUser?: boolean; //FieldChange;
+  dialog?: TMTDialogMode;
+}
+
+export interface IProjectHistory extends IProjectAction {
+  userName?: string;
+  timeStamp?: string;
 }
 
 export interface IProject {
@@ -245,7 +280,7 @@ export interface IProject {
   comments?: ISmartText; // syntax similar to ProjID?
   active?: boolean;  //Used to indicate inactive projects
   everyone?: boolean; //Used to designate this option should be available to everyone.
-  sort?: number; //Used to prioritize in choices.... ones with number go first in order, followed by empty
+  sortOrder?: number; //Used to prioritize in choices.... ones with number go first in order, followed by empty
   key?: string;
   category1?: string[];
   category2?: string[];
@@ -263,6 +298,9 @@ export interface IProject {
 
   timeTarget?: IProjectTarget;
   projOptions?: IProjectOptions;
+  defProjEditOptions?: string;
+
+  history?: string;
 
   //This might be computed at the time page loads
   lastEntry?: any;  //Should be a time entry
@@ -272,6 +310,13 @@ export interface IProject {
   sourceProjectRef?: string; //Link back to the source project list item.
   ccList?: ILink; //Link to CC List to copy item
   ccEmail?: string; //Email to CC List to copy item 
+
+  //Task related fields:
+  status?: string;
+  dueDate?: Date;
+  completedDate?: Date;
+  completedBy?: IUser;
+  completedById?: number;
 
   created?: Date;
   modified?: Date;
@@ -420,6 +465,24 @@ export interface IPropsActivityURL {
 
 }
 
+export interface IProjectColumns {
+
+  statusChoices?: string[];
+  activityTMTChoices?: string[];
+  category1Choices?: string[];
+  category2Choices?: string[];  
+
+  statusDefault?: string;
+  activityTMTDefault?: string;
+  category1Default?: string;
+  category2Default?: string;  
+
+  
+  optionsTMTCalc?: string;
+  activtyURLCalc?: string;
+
+}
+
 export interface ITrackMyTime7State {
 
   // 0 - Context
@@ -433,7 +496,8 @@ export interface ITrackMyTime7State {
   projects?: IProjectInfo;
   entries?: IEntryInfo;
   fields?: IFormFields; //List of field defininitions for making form fields
-
+  projectFields?: IProjectFormFields;
+  
   // 1 - Analytics options
   endTime?: ITheTime;
 
@@ -468,6 +532,8 @@ export interface ITrackMyTime7State {
   syncProjectPivotsOnToggle; //always keep pivots in sync when toggling projects/history
 
   projActivityRule?: IPropsActivityURL;
+
+  projColumns: IProjectColumns;
 
   // 5 - UI Defaults
   currentProjectPicker: string; //User selection of defaultProjectPicker:  Recent, Your Projects, All Projects etc...
@@ -509,7 +575,10 @@ export interface ITrackMyTime7State {
 
   // 9 - Other web part options
 
+  showProjectScreen?: ProjectMode;
+
   selectedProjectIndex?: number;  //Index of selected project
+  selectedProject: IProject;      //2020-05-22:  Copying into separate object to pass to Project Edit screen.
   lastSelectedProjectIndex?: number;  //Index of selected project
   lastTrackedClick?: string;  //Added to trap the bug where you change pivots after you click and unclick a project.
   clickHistory?: string[];
@@ -543,5 +612,6 @@ export interface ITrackMyTime7State {
   searchCount?: number;
   searchWhere?: string;
 
+  dialogMode?: TMTDialogMode;
 
 }

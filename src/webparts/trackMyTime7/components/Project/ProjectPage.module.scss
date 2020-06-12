@@ -1,0 +1,91 @@
+
+@import '../../../../../node_modules/office-ui-fabric-react/dist/sass/_References';
+
+//2020-05-19:  Copied from Socialiis7/Master CommandBar.tsx
+
+.projectPage {
+
+  .hoverCard {
+    margin: 10px;
+    width: 200;
+    height: '100%';
+    display: 'flex';
+    align-items: 'center';
+    justify-content: 'center';
+    
+    .assignedTo {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+  }
+
+  .toggleRow {
+    label {
+      font-weight: bold;
+    }
+  }
+
+  .nowWrapping {
+    white-space: 'nowrap',
+  }
+  
+  .icon {
+    height: 18px;
+    line-height: 18px;
+  }
+
+  .dateTimePicker {
+
+    label {
+      font-weight: bold;
+    }
+
+    .root {
+      font-weight: bold;
+    }
+
+    input {
+      //height: 32px;
+      min-width: 80px;
+    }
+  }
+
+  .container {
+    max-width: 1200px;
+    //padding-left: 0px;
+    //background-color: white;
+    //display:inline-block;
+    //float: right;
+    //display:flex;
+    //align-items: center;
+    //top:  -50px;
+
+    //margin: 0px auto;
+    //box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .projectField {
+    label {
+      font-weight: bold;
+    }
+  }
+  
+  .reportField {
+    display: table-cell;
+    width: 100%;
+
+    .fieldGroup {
+      border-color: red;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input {
+      //height: 32px;
+      min-width: 80px;
+    }
+  }
+
+}

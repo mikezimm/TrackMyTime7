@@ -1,0 +1,59 @@
+
+@import '../../../../../node_modules/office-ui-fabric-react/dist/sass/_References';
+
+//2020-05-19:  Copied from Socialiis7/Master CommandBar.tsx
+.cmdBar {
+
+    //does nothting
+    .container *[class="ms-CommandBar"] {
+        //padding-left: 0px;
+        //background-color: rgb(243, 242, 241);
+        background-color: red;
+    }
+
+  .commandIcons {
+    font-size: '18';
+    font-weight: bolder;
+    margin: '0px 2px';
+  }
+  
+  .container {
+    max-width: 1200px;
+    //padding-left: 0px;
+    //background-color: white;
+    //display:inline-block;
+    //float: right;
+    //display:flex;
+    //align-items: center;
+    //top:  -50px;
+
+    //margin: 0px auto;
+    //box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .button {
+    color: $ms-color-themePrimary;
+
+    .label {
+      font-weight: $ms-font-weight-semibold;
+    }
+
+    //2020-05-19:  Copied from CreateButtons.module.scss
+    // VVVVVV
+    padding-right: 10px;
+    -webkit-font-smoothing: antialiased;
+    transition:all 0.3s ease;
+    border-radius: 5px;
+    :hover{
+      background-color: lightgray;
+      transition:all 0.3s ease;
+      border-radius: 5px;
+    }
+    // ^^^^^^^^^^^
+
+  }
+  
+  .buttonWarning {
+    background-color: yellow !important;
+  }
+}
