@@ -32,7 +32,7 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Web } from "@pnp/sp/presets/all";
 
-import { statusChoices, activityTMTChoices, MyCons} from '../TrackMyTime7';
+import { statusChoices, activityTMTChoices, MyCons, projActions} from '../TrackMyTime7';
 import { getAge, getBestTimeDelta } from '../../../../services/dateServices';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
@@ -80,6 +80,7 @@ export interface IProjectPageProps {
     showProjectScreen: ProjectMode;
     _closeProjectEdit: any;
     _closeProjectReload: any;
+    _createHistoryObjectNoDetails: any;
     selectedProject: IProject;
     projectFields: IProjectFormFields;
     wpContext: WebPartContext;
@@ -273,12 +274,12 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         console.log('projectFields:', this.props.projectFields);
         console.log('props.selectedProject:', this.props.selectedProject);
         console.log('state:', this.state);
-        console.log('state.selectedProject:', this.state.selectedProject);
+//        console.log('state.selectedProject:', this.state.selectedProject);
 
-        console.log('TEAM:', this.state.selectedProject.team);
-        console.log('TEAMIds:', this.state.selectedProject.teamIds);
-        console.log('LEADER:', this.state.selectedProject.leader);
-        console.log('LEADERId:', this.state.selectedProject.leaderId);
+//        console.log('TEAM:', this.state.selectedProject.team);
+//        console.log('TEAMIds:', this.state.selectedProject.teamIds);
+//        console.log('LEADER:', this.state.selectedProject.leader);
+//        console.log('LEADERId:', this.state.selectedProject.leaderId);
 
         let isSaveButtonDisabled = !this.checkEnableSave();
         let saveLabel = "Save";
@@ -564,6 +565,25 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     private buildProjectToSave( oldProject: IProject, newProject: IProject, mode: ProjectMode ){
 
       let saveItem: any = { };
+
+      let historyObject : IProjectHistory = null;
+
+      if (mode === ProjectMode.Copy ) {
+        saveItem.HistoryTMT = "Source project: " + this.props.selectedProject.titleProject;
+        historyObject = this.props._createHistoryObjectNoDetails( projActions.copy );
+
+      } else if (mode === ProjectMode.New ) {
+        saveItem.HistoryTMT = "NEW project";
+        historyObject = this.props._createHistoryObjectNoDetails( projActions.new );
+
+      } else if (mode === ProjectMode.Edit ) {
+        historyObject = this.props._createHistoryObjectNoDetails( projActions.edit );
+
+      } else {
+        alert('buildProjectToSave:  Had a problem!  Not expecting to save from this screen :)');
+
+      }
+      
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Title, oldProject, newProject, mode);
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CCEmail, oldProject, newProject, mode);
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CCList, oldProject, newProject, mode);
@@ -592,12 +612,44 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.TimeTarget, oldProject, newProject, mode);
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.SortOrder, oldProject, newProject, mode);
 
+      console.log('saveItem ', saveItem);
+
+      historyObject.details = saveItem.HistoryTMT;
+      console.log('historyObject ', historyObject);
+
+      
+      let historyString = JSON.stringify(historyObject);
+      console.log('historyString ', historyString);
+
+      let prevHistory = this.props.selectedProject.history;
+      if (mode === ProjectMode.New || mode === ProjectMode.Copy ) { prevHistory = '';}
+      console.log('prevHistory ', prevHistory);
+
+      //Only copy previous history if this is in the Edit Mode
+      if (mode === ProjectMode.Edit && prevHistory != null ) { historyString = historyString += "," + prevHistory; }
+
+      console.log('historyString ', historyString);
+
+      saveItem.HistoryTMT = historyString;
+
       console.log('Will save this object to ID ' + this.props.selectedProject.id , saveItem);
 
       return saveItem;
 
     }
 
+    private updateSaveHistory(thisHistory, field:  IFieldDef, newVal){
+
+      let history = thisHistory;
+      if ( history && history.length > 0 ) { history += '|'; }
+      if ( !history ) { history = '';}
+      let theNewValue = field.name === 'projectEditOptions' ? 'Toggles' :  JSON.stringify(newVal) ;
+      if ( theNewValue === null ) { theNewValue = 'Empty'; }
+      history += field.title + ': ' + theNewValue;
+      
+      return history;
+
+    }
     private updateSaveObjectTitle(saveItem, field:  IFieldDef, oldProject: IProject, newProject: IProject, mode: ProjectMode){
 
       let origVal = this.getProbjectValue(field, oldProject);
@@ -610,17 +662,22 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         } else if (field.type === "MultiUser" ) {
           saveItem[field.column + "Id"] = newVal;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
+
 
         } else if (field.type === "User" ) { //Single User, can't be an array
           let saveUser = newVal ? newVal.results[0] : null;
           let origValX = origVal ? origVal.results[0] : null;
           saveItem[field.column + "Id"] = saveUser;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
         } else if (field.name === "category1" || field.name === "category2" ) { //Single User, can't be an array
           saveItem[field.column] = { results: [newVal] };
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
         } else {
           saveItem[field.column] = newVal;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
         }
 
@@ -632,6 +689,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if (origStr !== newStr ) {
           console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
           saveItem[field.column] = newVal;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
 
       } else if (field.type === "User" ) {
@@ -641,6 +699,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           let origValX = origVal ? origVal.results[0] : null;
           console.log('updating ' + field.title + ' from ' + origValX + ' to ' + saveUser);
           saveItem[field.column + "Id"] = saveUser;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
 
       } else if (field.type === "MultiUser" ) {
@@ -648,6 +707,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if ( JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
           console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
           saveItem[field.column + "Id"] = newVal;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
       
       } else if (field.name === "category1" || field.name === "category2" ) { //Single User, can't be an array
@@ -655,6 +715,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if ( JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
           console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
           saveItem[field.column] = { results: [newVal] };
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
 
 
@@ -662,6 +723,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         //Add column and value to object
         console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
         saveItem[field.column] = newVal;
+        saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
       }
 
       return saveItem;
@@ -1340,8 +1402,8 @@ private buildTaskFields(isVisible: boolean) {
           { dueDate }
         </Stack>
         <Stack horizontal={false} wrap={false} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-          { completedDate }
           { completedBy }
+          { completedDate }
         </Stack>
     </Stack></div>;  {/* Stack for Buttons and Fields */}
 

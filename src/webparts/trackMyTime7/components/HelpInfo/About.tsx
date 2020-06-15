@@ -130,6 +130,7 @@ public constructor(props:IInfoAboutMeProps){
                 {/* 3 files to update version number:  package-solution.json, package-lock.json, package.json*/}
                 <table className={styles.infoTable}>
                     <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td>2020-04-01</td><td>{'1.0.0.12'}</td><td>Project Edit</td><td>Add Project Edit screen, Project quick actions, requires 2 ne Project List columns.</td></tr>
                     <tr><td>2020-04-01</td><td>{'1.0.0.11'}</td><td>Activity URL</td><td>Add Activity URL based on Project Task.  ActivityType, Activity, ActivityURL^</td></tr>
                     <tr><td>2020-03-18</td><td>{'1.0.0.10'}</td><td>Charts</td><td>Add Core Time, Revise Story charts, Add Chapter charts, Search to chart data.</td></tr>
                     <tr><td>2020-03-11</td><td>{'1.0.0.9'}</td><td>Charts</td><td>Fix user summary Hours, Add Last Entry.  Fix Time display error.</td></tr>
