@@ -181,18 +181,21 @@ const actionPark : IProjectAction = {
  const actionNew : IProjectAction = {
   icon: MyCons.new,
   status: 'New',
+  verb: 'Created project',
   dialog: TMTDialogMode.New,
  };
 
  const actionEdit : IProjectAction = {
   icon: MyCons.edit,
   status: 'Edit',
+  verb: 'Updated project',
   dialog: TMTDialogMode.Edit,
  };
 
  const actionCopy : IProjectAction = {
   icon: MyCons.copy,
   status: 'Copy',
+  verb: 'Copied project',
   dialog: TMTDialogMode.Copy,  
  };
 
@@ -853,6 +856,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._completeProjectDialog = this._completeProjectDialog.bind(this); 
     this._closeDialog = this._closeDialog.bind(this); 
 
+    this._createHistoryObjectNoDetails = this._createHistoryObjectNoDetails.bind(this); 
+    
+
   }
 
 
@@ -1004,7 +1010,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       let selectedProject: IProject = null;
       
-      if ( showProjectScreen === ProjectMode.New ) { selectedProject = this.createEmptyProjectObject(); }
+      if ( showProjectScreen === ProjectMode.New ) { 
+        selectedProject = this.createEmptyProjectObject();
+      }
       else if ( showProjectScreen === ProjectMode.Copy ) {
         selectedProject = JSON.parse(JSON.stringify(this.state.selectedProject));
         selectedProject.titleProject = "Copy of " + selectedProject.titleProject;
@@ -1029,6 +1037,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         selectedProject={ selectedProject }
         _closeProjectEdit={ this._closeProjectEdit.bind(this)}
         _closeProjectReload={ this._closeProjectReload.bind(this)}
+        _createHistoryObjectNoDetails={ this._createHistoryObjectNoDetails.bind(this)}
         projectFields={this.state.projectFields}
         
         // 2 - Source and destination list information
@@ -1560,24 +1569,30 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   private _updateProject(action: IProjectAction ){
     let today: any = new Date().toISOString();
-    let history: string = this.createHistory(this.state.selectedProject.history, today, action);
+    let history: string = this._createHistory(this.state.selectedProject.history, action);
     let user: any = action.setUser === true ? this.state.currentUser.id : null;
     let saveItem = { StatusTMT: action.status, CompletedByTMTId: user , CompletedDateTMT : action.setDate ? today : null, HistoryTMT: history };
     this.updateProjectListItem ( this.state.selectedProject.id, saveItem );
   }
-
   
-  private createHistory(prevHistory, today, action: IProjectAction) {
-    let history: IProjectHistory = {
-      details: action.details.replace('User',this.state.currentUser.title).replace("TimeStamp", today),
+  private _createHistory(prevHistory, action: IProjectAction) {
+    let history: IProjectHistory = this._createHistoryObjectNoDetails(action);
+    let historyString = JSON.stringify(history);
+    if ( prevHistory != null ) { historyString = historyString += "," + prevHistory; }
+    return historyString;
+  }
+    
+  private _createHistoryObjectNoDetails(action: IProjectAction) {
+    let today: any = new Date().toISOString();
+    let historyObject: IProjectHistory = {
+      details: null,
       timeStamp: today,
       userName: this.state.currentUser.Title,
       verb: action.verb,
       icon: action.icon,
     };
-    let historyString = JSON.stringify(history);
-    if ( prevHistory != null ) { historyString = historyString += "," + prevHistory; }
-    return historyString;
+
+    return historyObject;
   }
 
   private updateProjectListItem( id: number, saveThisItem ) {
@@ -1727,7 +1742,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     if ( splitActivity != null && splitActivity[0] != null ) { 
       splitActivity[0] = splitActivity[0].trim();
-      activityURL = activityURL = null ? null : activityURL.replace('[Activity]',splitActivity[0]) ;
+      activityURL = activityURL === null ? null : activityURL.replace('[Activity]',splitActivity[0]) ;
      }
 
     formEntry.sourceProject = {
@@ -2332,7 +2347,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       //2020-05-22:  Copying into separate object to pass to Project Edit screen.
       let selectedProject: IProject = null;
-      if (lastIndex != null) {
+      if (projects.newFiltered.length > 0 ) {
+        selectedProject = null;
+      } else if (lastIndex != null ) {
         selectedProject = JSON.parse(JSON.stringify(projects.newFiltered[lastIndex]));
       }
 
@@ -2350,6 +2367,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         lastTrackedClick: lastTrackedClick,
         clickHistory: clickHistory,
         selectedProjectIndex: lastIndex,
+        
 
       });
 
@@ -2860,9 +2878,14 @@ public toggleTips = (item: any): void => {
 
     let expandTheseTrack = expandThese + ',User';
     let selectColsTrack = selectCols + ',User/Title,User/ID,User/Name';
+    //Add all hidden columns on list to read
+    selectColsTrack += ',OriginalHours,OriginalStart,OriginalEnd,SourceProject,SourceProjectRef';
 
     let expandTheseProj = expandThese + ',CompletedByTMT';
-    let selectColsProj = selectCols + ',CompletedByTMT/Title,CompletedByTMT/ID,CompletedByTMT/Name';   
+    let selectColsProj = selectCols + ',CompletedByTMT/Title,CompletedByTMT/ID,CompletedByTMT/Name';
+
+    //Add all hidden columns on list to read
+    selectColsProj += ',HistoryTMT,ProjectEditOptions';
 
     //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
     const trackTimeWeb = Web(useTrackMyTimeWeb);
@@ -3010,7 +3033,7 @@ public toggleTips = (item: any): void => {
     .select(selectColsProj).expand(expandTheseProj).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
     .then((response) => {
       //console.log('useProjectList', response);
-      //console.log('fetched Project Info:', response);
+      console.log('fetched Project Info:', response);
       trackMyProjectsInfo.projectData = response.map((p) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
 

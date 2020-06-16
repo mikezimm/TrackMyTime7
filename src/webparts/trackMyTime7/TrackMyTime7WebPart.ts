@@ -325,6 +325,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
           //Add this after creating field to change title:  //await field1.field.update({ Title: "My Text"});
 
+          //2020-06-15:  Need to add columns for:  HistoryTMT & ProjectEditOptions to Project List
 
           let columnGroup = 'TrackTimeProject';
 
@@ -454,11 +455,13 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             const completeDate: IFieldAddResult = await ensureResult.list.fields.addDateTime("CompletedDateTMT", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Description: fieldDescription });
             const completedBy: IFieldAddResult = await ensureResult.list.fields.addUser("CompletedByTMT", FieldUserSelectionMode.PeopleOnly, { Group: columnGroup, Description: fieldDescription, Indexed: true });
 
+            fieldDescription = "Special field for change history from webpart.";
+            const HistoryTMT: IFieldAddResult = await ensureResult.list.fields.addMultilineText("HistoryTMT", 6, false, false, false, false, { Group: columnGroup, Description: fieldDescription  });
+            const HistoryTMT2= await ensureResult.list.fields.getByTitle("HistoryTMT").update({ Hidden: true });
 
             fieldDescription = "Hidden field used to remember settings on Project Edit page for this project.";
             const projectEditOptions: IFieldAddResult = await ensureResult.list.fields.addText("ProjectEditOptions", 255, { Group: columnGroup, Description: fieldDescription });
-            
-            const projectEditOption2= await ensureResult.list.fields.getByTitle("OriginalHours").update({ Hidden: true });
+            const projectEditOption2= await ensureResult.list.fields.getByTitle("ProjectEditOptions").update({ Hidden: true });
 
             const dueDate2= await ensureResult.list.fields.getByTitle("DueDateTMT").update({ Title: 'Due Date' });
             const completeDate2= await ensureResult.list.fields.getByTitle("CompletedDateTMT").update({ Title: 'Completed' });
@@ -705,6 +708,9 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
               const field68 = await ensureResult.list.fields.getByInternalNameOrTitle("Step3Check").get();
               const field69 = await ensureResult.list.fields.getByInternalNameOrTitle("Step4Check").get();
               const field70 = await ensureResult.list.fields.getByInternalNameOrTitle("Step5Check").get();
+
+              const field81 = await ensureResult.list.fields.getByInternalNameOrTitle("HistoryTMT").get();
+              const field82 = await ensureResult.list.fields.getByInternalNameOrTitle("ProjectEditOptions").get();
               
             }
             const field23 = await ensureResult.list.fields.getByInternalNameOrTitle("CCList").get();

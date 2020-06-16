@@ -32,11 +32,11 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Web } from "@pnp/sp/presets/all";
 
-import { statusChoices, activityTMTChoices, MyCons} from '../TrackMyTime7';
+import { statusChoices, activityTMTChoices, MyCons, projActions} from '../TrackMyTime7';
 import { getAge, getBestTimeDelta } from '../../../../services/dateServices';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
-import { createIconButton } from '../createButtons/IconButton';
+import { createIconButton, defCommandIconStyles } from '../createButtons/IconButton';
 
 // Initialize icons in case this example uses them
 initializeIcons();
@@ -80,6 +80,7 @@ export interface IProjectPageProps {
     showProjectScreen: ProjectMode;
     _closeProjectEdit: any;
     _closeProjectReload: any;
+    _createHistoryObjectNoDetails: any;
     selectedProject: IProject;
     projectFields: IProjectFormFields;
     wpContext: WebPartContext;
@@ -215,6 +216,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         this._genericFieldUpdate = this._genericFieldUpdate.bind(this);
         this._updateDueDate = this._updateDueDate.bind(this);
+        this._clearDateField = this._clearDateField.bind(this);
+        
         this._updateCompleteDate = this._updateCompleteDate.bind(this);        
 
         this._updateLeader = this._updateLeader.bind(this);    
@@ -271,12 +274,12 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         console.log('projectFields:', this.props.projectFields);
         console.log('props.selectedProject:', this.props.selectedProject);
         console.log('state:', this.state);
-        console.log('state.selectedProject:', this.state.selectedProject);
+//        console.log('state.selectedProject:', this.state.selectedProject);
 
-        console.log('TEAM:', this.state.selectedProject.team);
-        console.log('TEAMIds:', this.state.selectedProject.teamIds);
-        console.log('LEADER:', this.state.selectedProject.leader);
-        console.log('LEADERId:', this.state.selectedProject.leaderId);
+//        console.log('TEAM:', this.state.selectedProject.team);
+//        console.log('TEAMIds:', this.state.selectedProject.teamIds);
+//        console.log('LEADER:', this.state.selectedProject.leader);
+//        console.log('LEADERId:', this.state.selectedProject.leaderId);
 
         let isSaveButtonDisabled = !this.checkEnableSave();
         let saveLabel = "Save";
@@ -562,6 +565,25 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
     private buildProjectToSave( oldProject: IProject, newProject: IProject, mode: ProjectMode ){
 
       let saveItem: any = { };
+
+      let historyObject : IProjectHistory = null;
+
+      if (mode === ProjectMode.Copy ) {
+        saveItem.HistoryTMT = "Source project: " + this.props.selectedProject.titleProject;
+        historyObject = this.props._createHistoryObjectNoDetails( projActions.copy );
+
+      } else if (mode === ProjectMode.New ) {
+        saveItem.HistoryTMT = "NEW project";
+        historyObject = this.props._createHistoryObjectNoDetails( projActions.new );
+
+      } else if (mode === ProjectMode.Edit ) {
+        historyObject = this.props._createHistoryObjectNoDetails( projActions.edit );
+
+      } else {
+        alert('buildProjectToSave:  Had a problem!  Not expecting to save from this screen :)');
+
+      }
+      
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.Title, oldProject, newProject, mode);
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CCEmail, oldProject, newProject, mode);
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.CCList, oldProject, newProject, mode);
@@ -590,12 +612,44 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.TimeTarget, oldProject, newProject, mode);
       saveItem = this.updateSaveObjectTitle( saveItem, this.props.projectFields.SortOrder, oldProject, newProject, mode);
 
+      console.log('saveItem ', saveItem);
+
+      historyObject.details = saveItem.HistoryTMT;
+      console.log('historyObject ', historyObject);
+
+      
+      let historyString = JSON.stringify(historyObject);
+      console.log('historyString ', historyString);
+
+      let prevHistory = this.props.selectedProject.history;
+      if (mode === ProjectMode.New || mode === ProjectMode.Copy ) { prevHistory = '';}
+      console.log('prevHistory ', prevHistory);
+
+      //Only copy previous history if this is in the Edit Mode
+      if (mode === ProjectMode.Edit && prevHistory != null ) { historyString = historyString += "," + prevHistory; }
+
+      console.log('historyString ', historyString);
+
+      saveItem.HistoryTMT = historyString;
+
       console.log('Will save this object to ID ' + this.props.selectedProject.id , saveItem);
 
       return saveItem;
 
     }
 
+    private updateSaveHistory(thisHistory, field:  IFieldDef, newVal){
+
+      let history = thisHistory;
+      if ( history && history.length > 0 ) { history += '|'; }
+      if ( !history ) { history = '';}
+      let theNewValue = field.name === 'projectEditOptions' ? 'Toggles' :  JSON.stringify(newVal) ;
+      if ( theNewValue === null ) { theNewValue = 'Empty'; }
+      history += field.title + ': ' + theNewValue;
+      
+      return history;
+
+    }
     private updateSaveObjectTitle(saveItem, field:  IFieldDef, oldProject: IProject, newProject: IProject, mode: ProjectMode){
 
       let origVal = this.getProbjectValue(field, oldProject);
@@ -608,17 +662,22 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         } else if (field.type === "MultiUser" ) {
           saveItem[field.column + "Id"] = newVal;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
+
 
         } else if (field.type === "User" ) { //Single User, can't be an array
           let saveUser = newVal ? newVal.results[0] : null;
           let origValX = origVal ? origVal.results[0] : null;
           saveItem[field.column + "Id"] = saveUser;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
         } else if (field.name === "category1" || field.name === "category2" ) { //Single User, can't be an array
           saveItem[field.column] = { results: [newVal] };
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
         } else {
           saveItem[field.column] = newVal;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
         }
 
@@ -630,6 +689,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if (origStr !== newStr ) {
           console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
           saveItem[field.column] = newVal;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
 
       } else if (field.type === "User" ) {
@@ -639,6 +699,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           let origValX = origVal ? origVal.results[0] : null;
           console.log('updating ' + field.title + ' from ' + origValX + ' to ' + saveUser);
           saveItem[field.column + "Id"] = saveUser;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
 
       } else if (field.type === "MultiUser" ) {
@@ -646,6 +707,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if ( JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
           console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
           saveItem[field.column + "Id"] = newVal;
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
       
       } else if (field.name === "category1" || field.name === "category2" ) { //Single User, can't be an array
@@ -653,6 +715,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if ( JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
           console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
           saveItem[field.column] = { results: [newVal] };
+          saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
 
 
@@ -660,6 +723,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         //Add column and value to object
         console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
         saveItem[field.column] = newVal;
+        saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
       }
 
       return saveItem;
@@ -771,7 +835,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         return thisField;
     }
 
-    private createDateField(field: IFieldDef, _onChange: any, required: boolean, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+    private createDateField(field: IFieldDef, _onChange: any, _clearDate: any, required: boolean, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
 
         const getDateErrorMessage = (value: Date): string => {
           let mess = value == null ? "Don't forget Date!" : "";
@@ -780,22 +844,29 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         let timeStamp = this.state.selectedProject[field.name];
         if (timeStamp != null) { timeStamp = new Date(timeStamp); }
+        let myIconStyles = defCommandIconStyles;
+        myIconStyles.icon.fontSize = 14;
+        myIconStyles.icon.fontWeight = "900";
+        let clearThisDate = _clearDate === null ? null : createIconButton('Clear','ClearDate',_clearDate, null, myIconStyles );
 
         return (
             // Uncontrolled
-            <div id={ pageIDPref + field.column } style={{ width: fieldWidth }}>
-            
-            <DateTimePicker 
-                label={field.title}
-                value={timeStamp}
-                onChange={_onChange}
-                dateConvention={DateConvention.Date} showMonthPickerAsOverlay={showMonthPickerAsOverlay}
-                showWeekNumbers={showWeekNumbers} timeConvention={timeConvention}
-                showGoToToday={showGoToToday} timeDisplayControlType={timeDisplayControlType}
-                showLabels={false}
-                //onGetErrorMessage={ required === true ? getDateErrorMessage : emptyString }
-                onGetErrorMessage={ required === true && timeStamp == null ? emptyString : getDateErrorMessage }
-            /></div>
+            <div id={ pageIDPref + field.column } style={{ width: fieldWidth }}  className={ styles.peopleBlock}>
+            <div className={styles.addMeButton}>{ clearThisDate } </div>
+            <div  className={styles.fieldWithIconButton}>
+              <DateTimePicker 
+                  label={field.title}
+                  value={timeStamp}
+                  onChange={_onChange}
+                  dateConvention={DateConvention.Date} showMonthPickerAsOverlay={showMonthPickerAsOverlay}
+                  showWeekNumbers={showWeekNumbers} timeConvention={timeConvention}
+                  showGoToToday={showGoToToday} timeDisplayControlType={timeDisplayControlType}
+                  showLabels={false}
+                  //onGetErrorMessage={ required === true ? getDateErrorMessage : emptyString }
+                  onGetErrorMessage={ required === true && timeStamp == null ? emptyString : getDateErrorMessage }
+              /></div>
+            </div>
+
         );
 
     }
@@ -805,8 +876,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       var element2 = event.target as HTMLElement;
       var element3 = event.currentTarget as HTMLElement;
       let fieldID = this._findNamedElementID(element2);
-      let selectedProject = this.state.selectedProject;
-      alert(`Adding you to ${fieldID}`);
+      //alert(`Adding you to ${fieldID}`);
       let projObjectName = this.props.projectFields[fieldID].name;
       let projObjectType = this.props.projectFields[fieldID].type;
       let okToUpdateUser: boolean = true;
@@ -833,9 +903,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       }
       if (  okToUpdateUser === true) {
         this.setState({ selectedProject: stateProject });
-        this.render();
       } 
-
     }
 
     private createPeopleField(field: IFieldDef, maxCount: number, _onChange: any, addYouToField: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
@@ -1322,8 +1390,8 @@ private buildTaskFields(isVisible: boolean) {
     let useStatusChoices = this.props.projColumns.statusChoices != null ? this.props.projColumns.statusChoices : activityTMTChoices;
     let status = this._createDropdownField(this.props.projectFields.StatusTMT, useStatusChoices, this._updateStatusChange.bind(this), this.getTaskStyles );
     let isDueDateRequired: boolean = true;
-    let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), isDueDateRequired, this.getTaskStyles );
-    let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), false, this.getTaskStyles );
+    let dueDate = this.createDateField(this.props.projectFields.DueDateTMT, this._updateDueDate.bind(this), this._clearDateField.bind(this), isDueDateRequired, this.getTaskStyles );
+    let completedDate = this.createDateField(this.props.projectFields.CompletedDateTMT, this._updateCompleteDate.bind(this), this._clearDateField.bind(this), false, this.getTaskStyles );
     let completedBy = this.createPeopleField(this.props.projectFields.CompletedByTMT , 1, this._updateCompletedBy.bind(this),  this._addUserToField.bind(this), this.getPeopleStyles );
 
     let fields =
@@ -1334,8 +1402,8 @@ private buildTaskFields(isVisible: boolean) {
           { dueDate }
         </Stack>
         <Stack horizontal={false} wrap={false} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-          { completedDate }
           { completedBy }
+          { completedDate }
         </Stack>
     </Stack></div>;  {/* Stack for Buttons and Fields */}
 
@@ -1371,6 +1439,22 @@ private buildTaskFields(isVisible: boolean) {
     selectedProject.completedById = newUsers[0] != null ? newUsers[0].id : null;
     this.setState({ selectedProject: selectedProject });
   }  
+
+
+  private _clearDateField(){
+    var element2 = event.target as HTMLElement;
+    let fieldID = this._findNamedElementID(element2);
+    //alert(`Clearing Date ${fieldID}`);
+    let projObjectName = this.props.projectFields[fieldID].name;
+    let projObjectType = this.props.projectFields[fieldID].type;
+    let okToClearDate: boolean = true;
+    let stateProject = this.state.selectedProject;
+    stateProject[projObjectName] = null;
+
+    if (  okToClearDate === true) {
+      this.setState({ selectedProject: stateProject });
+    } 
+  }
 
   private _updateDueDate(newValue: string){
     let selectedProject = this.state.selectedProject;
