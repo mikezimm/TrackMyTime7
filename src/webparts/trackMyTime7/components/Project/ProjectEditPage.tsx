@@ -34,6 +34,7 @@ import { Web } from "@pnp/sp/presets/all";
 
 import { statusChoices, activityTMTChoices, MyCons, projActions} from '../TrackMyTime7';
 import { getAge, getBestTimeDelta } from '../../../../services/dateServices';
+import { getHelpfullError, } from '../../../../services/ErrorHandler';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
 import { createIconButton, defCommandIconStyles } from '../createButtons/IconButton';
@@ -81,6 +82,7 @@ export interface IProjectPageProps {
     _closeProjectEdit: any;
     _closeProjectReload: any;
     _createHistoryObjectNoDetails: any;
+    _processCatch: any;
     selectedProject: IProject;
     projectFields: IProjectFormFields;
     wpContext: WebPartContext;
@@ -302,7 +304,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
             let normalIcon = <Icon iconName="Info" className={iconClassInfo} />;
         
-            let detailLines = h.details.split('|');
+            let detailLines = (h!= null && h.details != null) ? h.details.split('|') : [];
 
             let detail = <div>
               <h3>Changes</h3>
@@ -537,7 +539,9 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           console.log('Heres the NEW Project:', response);
           this.props._closeProjectReload();
         }).catch((e) => {
-          alert(e);
+          let err = getHelpfullError(e);
+          console.log('Had problem saving existing project: ',err);
+          alert(err);
         });
 
       }
@@ -556,7 +560,9 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           console.log('Heres the saved Project:', response);
           this.props._closeProjectReload();
         }).catch((e) => {
-          alert(e);
+          let err = getHelpfullError(e);
+          console.log('Had problem saving existing project: ',err);
+          alert(err);
         });
 
       }
@@ -671,8 +677,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           saveItem[field.column + "Id"] = saveUser;
           saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
-        } else if (field.name === "category1" || field.name === "category2" ) { //Single User, can't be an array
-          saveItem[field.column] = { results: [newVal] };
+        } else if (field.name === "category1" || field.name === "category2" ) {
+          saveItem[field.column] = newVal == null ? { results: [] }: { results: [newVal] };  //2020-06-16:  Needed for Multi-select choice and people columns
           saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
         } else {
@@ -714,7 +720,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         if ( JSON.stringify(origVal) !== JSON.stringify(newVal) ) {
           console.log('updating ' + field.title + ' from ' + origVal + ' to ' + newVal);
-          saveItem[field.column] = { results: [newVal] };
+          saveItem[field.column] = newVal == null ? { results: [] }: { results: [newVal] };  //2020-06-16:  Needed for Multi-select choice and people columns
           saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
 

@@ -857,6 +857,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._closeDialog = this._closeDialog.bind(this); 
 
     this._createHistoryObjectNoDetails = this._createHistoryObjectNoDetails.bind(this); 
+
+    this._processCatch = this._processCatch.bind(this); 
+    
     
 
   }
@@ -1038,6 +1041,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         _closeProjectEdit={ this._closeProjectEdit.bind(this)}
         _closeProjectReload={ this._closeProjectReload.bind(this)}
         _createHistoryObjectNoDetails={ this._createHistoryObjectNoDetails.bind(this)}
+        _processCatch={ this._processCatch.bind(this)}
         projectFields={this.state.projectFields}
         
         // 2 - Source and destination list information
@@ -1577,6 +1581,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   
   private _createHistory(prevHistory, action: IProjectAction) {
     let history: IProjectHistory = this._createHistoryObjectNoDetails(action);
+    history.details = action.details.replace('User',this.state.currentUser.title).replace("TimeStamp", history.timeStamp);
     let historyString = JSON.stringify(history);
     if ( prevHistory != null ) { historyString = historyString += "," + prevHistory; }
     return historyString;
@@ -1602,7 +1607,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         console.log('Project Saved', response);
         this._getListItems();
         }).catch((e) => {
-          alert(e);
+          this._processCatch(e);
       });
 
   }
@@ -2967,7 +2972,7 @@ public toggleTips = (item: any): void => {
 
     }).catch((e) => {
       console.log('ERROR:  catch sp.web.currentUser');
-      this.processCatch(e);
+      this._processCatch(e);
     });
 
 
@@ -3015,7 +3020,7 @@ public toggleTips = (item: any): void => {
         loadError: this.state.loadError + '.  ' + projColumnsMessage, 
         listError: true, //timeTrackerListError: true, 
         timeTrackerLoadError: projColumnsMessage,});
-      this.processCatch(e);
+      this._processCatch(e);
     });
 /***
  *                         d888b  d88888b d888888b      d8888b. d8888b.  .d88b.     d88b d88888b  .o88b. d888888b .d8888. 
@@ -3306,7 +3311,7 @@ public toggleTips = (item: any): void => {
         projectsLoadError: projErrMessage,
         showProjectScreen: ProjectMode.False,
       });
-      this.processCatch(e);
+      this._processCatch(e);
     });
 
 
@@ -3491,7 +3496,7 @@ public toggleTips = (item: any): void => {
         timeTrackerLoadError: projTimeMessage,
         showProjectScreen: ProjectMode.False,
       });
-      this.processCatch(e);
+      this._processCatch(e);
     });
 
     return batch.execute().then(() => {
@@ -3514,7 +3519,7 @@ public toggleTips = (item: any): void => {
  *                                                  
  */
 
-  private processCatch(e) {
+  private _processCatch(e) {
     console.log("Can't load data");
     //var m = e.status === 404 ? "Tile List not found: " + useTileList : "Other message";
     //alert(m);
@@ -4159,7 +4164,7 @@ public toggleTips = (item: any): void => {
           alert('save successful');
         }).catch((e) => {
         //Throw Error
-          alert(e);
+        this._processCatch(e);
       });
     } else if (masterOrRemote === 'remote'){
       trackTimeWeb.getList("/sites/Templates/Tmt/Lists/TrackMyTime/").items.add( saveThisItem ).then((response) => {
@@ -4168,7 +4173,7 @@ public toggleTips = (item: any): void => {
           alert('save successful');
         }).catch((e) => {
         //Throw Error
-          alert(e);
+        this._processCatch(e);
       });
 
     }
