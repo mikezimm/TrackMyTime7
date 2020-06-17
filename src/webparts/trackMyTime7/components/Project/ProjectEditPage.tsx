@@ -294,7 +294,16 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
         let projHistory = null;
         if (this.props.selectedProject.history != null) {
-          let historyItems : IProjectHistory[]= JSON.parse('[' + this.props.selectedProject.history + ']');
+
+          let historyItems : IProjectHistory[]= [];
+          let historyError = null;
+          try {
+            historyItems = JSON.parse('[' + this.props.selectedProject.history + ']');
+          } catch(e) {
+            historyError = 'Unable to parse project history for some reason:  ' + getHelpfullError(e);
+            console.log('Had problem parsing history: ',historyError);
+          }
+
           let letHistoryRows = historyItems.map( h => { 
 
             let actionCell = <div><span className={ styles.nowWrapping }>
@@ -343,7 +352,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           }); //Edn mapping of rows
 
           projHistory = <div className={ stylesInfo.infoPane }><h2>Project History</h2>
-          <table className={stylesInfo.infoTable}>
+          <div style={{ display: historyError ? 'block' : 'none'}}><mark>{historyError}</mark></div>
+          <table style={{ display: historyError ? 'none' : 'block'}} className={stylesInfo.infoTable}>
               <tr><th>TimeStamp</th><th>When</th><th>User</th><th>Action</th><th>Details</th></tr>
               { letHistoryRows }
           </table></div>;
