@@ -31,7 +31,7 @@ import "@pnp/sp/fields/list";
 
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
-export async function addTheseFields( webURL, myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[]): Promise<boolean>{
+export async function addTheseFields( step: string, webURL, myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[]): Promise<boolean>{
 
     const thisWeb = Web(webURL);
     //const thisList = JSON.parse(JSON.stringify(myList));
@@ -39,10 +39,11 @@ export async function addTheseFields( webURL, myList: IMyListInfo, fieldsToAdd: 
     const ensuredList = await thisWeb.lists.ensure(myList.title);
     const listFields = ensuredList.list.fields;
 
+    //let returnArray: [] = [];
+
     for (let f of fieldsToAdd) {
         console.log('trying adding column:', f);
-        if (f.fieldType === cText) {
-            let thisField : ITextField = JSON.parse(JSON.stringify(f));
+
             /**
              * Adds a new SP.FieldText to the collection
              *
@@ -50,29 +51,91 @@ export async function addTheseFields( webURL, myList: IMyListInfo, fieldsToAdd: 
              * @param maxLength The maximum number of characters allowed in the value of the field.
              * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
              */
-            let foundField = false;
-            try {
-                const checkField = await listFields.getByInternalNameOrTitle(thisField.name).get();
-                alert('Checked for field ' + thisField.name + ' and found: ' + checkField);
-                foundField = true;
-            } catch (e) {
-                // if any of the fields does not exist, raise an exception in the console log
-                let errMessage = getHelpfullError(e);
-                alert(`The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  ` + errMessage);
-                console.log(`The ${myList.title} list had this error:`, errMessage);
+
+
+            if ( step === 'Create') {
+
+                let foundField = false;
+                try {
+                    const checkField = await listFields.getByInternalNameOrTitle(f.name).get();
+                    alert('Checked for field ' + f.name + ' and found: ' + checkField);
+                    foundField = true;
+
+                } catch (e) {
+                    // if any of the fields does not exist, raise an exception in the console log
+                    let errMessage = getHelpfullError(e);
+                    let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
+                    alert(err + errMessage);
+                    console.log(err, errMessage);
+                }
+
+                if (foundField === false) {
+                    //Have to do this in order for TS not to throw error
+                    let thisField = JSON.parse(JSON.stringify(f));
+                    //onCreateProps?: IFieldCreationProperties;  //Initial Properties at time of creating field
+                    //onCreateChanges?: IFieldCreationProperties;  //Properties you want changed right after creating field (like update Title so it's matches calculated column titles)
+                    switch ( f.fieldType.type ){
+                        case cText.type :
+                            const actualField: IFieldAddResult = await listFields.addText( thisField.name, thisField.maxLength, thisField.onCreateProps );
+                            break ;
+
+                        case cMText.type :
+
+                            break ;
+
+                        case cNumb.type :
+
+                            break ;
+
+                        case cNumb.type :
+
+                            break ;
+
+                        case cNumb.type :
+
+                            break ;
+
+                        case cNumb.type :
+
+                            break ;
+
+                        case cNumb.type :
+
+                            break ;
+
+                        default :   // stuff
+                                    break ; 
+                    }
+
+                    alert('Tried to add field :) ' + f.name);
+
+                    if ( thisField.showNew === false ) {
+                        const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
+                        alert('Updated ' + f.name + '  setShowInNewForm to: ' + thisField.showNew);                                      
+                    }
+
+                    if ( thisField.showEdit === false ) {
+                        const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
+                        alert('Updated ' + f.name + '  setShowInEditForm to: ' + thisField.showNew);                                      
+                    }
+
+                    if ( thisField.showDisplay === false ) {
+                        const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
+                        alert('Updated ' + f.name + '  setShowInDisplayForm to: ' + thisField.showNew);                                      
+                    }
+
+                    if (thisField.onCreateChanges) {
+                        const addTitle = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
+                        alert('Updated ' + f.name + ' to: ' + JSON.stringify(thisField.onCreateChanges));
+                    }
+
+
+
+                } else {
+                    alert('Field already existed... skipping: ' + f.name);
+                }
+
             }
-        
-
-
-            if (foundField === false) {
-                const actualField: IFieldAddResult = await listFields.addText( thisField.name, thisField.maxLength, thisField.properties );
-                alert('Tried to add field :) ' + thisField.name);
-            } else {
-                alert('Field already existed... skipping: ' + thisField.name);
-            }
-
-
-        }
 
     }
 

@@ -50,7 +50,7 @@ export const cUser =    {    kind : 20,    type : 'SP.FieldUser'  };
 
 export const cLocal =   {    kind : 33,    type : 'SP.FieldLocation'  };
 
-export type IMyFieldTypes = ITextField | IMultiLineTextField | INumberField;
+export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INumberField;
 
 /**
  * Adds a new SP.FieldText to the collection
@@ -60,12 +60,29 @@ export type IMyFieldTypes = ITextField | IMultiLineTextField | INumberField;
  * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
  */
 
-export interface ITextField extends Partial<IFieldInfo>{
+export interface IBaseField extends Partial<IFieldInfo>{
     fieldType: MyFieldDef;
     name: string;  //Will be Title of list unless title is specified
-    maxLength: number;
+
+    onCreateProps?: IFieldCreationProperties;  //Initial Properties at time of creating field
+
+    showNew?: boolean;
+    showEdit?: boolean;
+    showDisplay?: boolean;
+
     title?: string;
-    properties?: IFieldCreationProperties;
+
+    onCreateChanges?: IFieldCreationProperties;  //Properties you want changed right after creating field (like update Title so it's matches calculated column titles)
+    changes1?: IFieldCreationProperties;  //Properties you want changed any time in your code
+    changes2?: IFieldCreationProperties;  //Properties you want changed any time in your code
+    changes3?: IFieldCreationProperties;  //Properties you want changed any time in your code
+    changesFinal?: IFieldCreationProperties;  //Properties you want changed at the very end... like hiding fields once formula columns are created and views are also created (can't add to view if it's hidden)
+
+}
+
+
+export interface ITextField extends IBaseField{
+    maxLength: number;
 }
 
 /**
@@ -80,20 +97,14 @@ export interface ITextField extends Partial<IFieldInfo>{
  * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
  *
  */
-export interface IMultiLineTextField extends Partial<IFieldInfo> {
-    fieldType: MyFieldDef;
-    name: string;
-    title?: string;  //Will be Title of list unless title is specified
+export interface IMultiLineTextField extends IBaseField {
     numberOfLines?: number;
     richText?: boolean;
     restrictedMode?: boolean;
     appendOnly?: boolean;
     allowHyperlink?: boolean;
-    properties?: IFieldCreationProperties;
 }
 
-export interface INumberField extends Partial<IFieldInfo>{
-    fieldType: MyFieldDef;
-    name: string;
-    title?: string;  //Will be Title of list unless title is specified
+export interface INumberField extends IBaseField {
+
 }

@@ -22,18 +22,26 @@ const thisColumnGroup = 'TrackTimeProject';
 export const xyz : ITextField = {
     fieldType: cText,
     name: 'xyz',
+    title: 'xyz Title visible',
     maxLength: 255,
-    properties: {
+    onCreateProps: {
         Group: thisColumnGroup,
         Description: 'To be used by webpart to email this address for every entry.  Not yet used.',
-    }
+    },
+    onCreateChanges: {
+        Hidden: true,
+        Title: 'xyz Title hidden',
+    },
+    showNew: false,
+    showEdit: false,
+    showDisplay: false,
 };
 
 export const CCEmail : ITextField = {
     fieldType: cText,
     name: 'CCEmail',
     maxLength: 255,
-    properties: {
+    onCreateProps: {
         Group: thisColumnGroup,
         Description: 'To be used by webpart to email this address for every entry.  Not yet used.',
     }
@@ -48,7 +56,7 @@ export const HistoryTMT : IMultiLineTextField = {
     restrictedMode: false,
     appendOnly: false,
     allowHyperlink: false,
-    properties: {
+    onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Special field for change history from webpart.',
     }
@@ -66,8 +74,7 @@ export function TMTProjectFields() {
     //theseFields.push(HistoryTMT);
     //theseFields.push(CCEmail);
     theseFields.push(xyz);
-    theseFields.push(CCEmail);
-    theseFields.push(xyz);
+//    theseFields.push(CCEmail);
     return theseFields;
 }
 

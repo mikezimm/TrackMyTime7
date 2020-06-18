@@ -882,7 +882,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       additionalSettings: { EnableVersioning: true, MajorVersionLimit: 20, },
     };
     let testFields = TMTProjectFields();
-    let result = addTheseFields(webURL, theList, testFields);
+    let result = addTheseFields('Create',webURL, theList, testFields);
 
     this._getListItems();
     
