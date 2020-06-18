@@ -17,6 +17,8 @@ import { cBool, cCalc, cChoice,cMChoice, cCurr, cDate, cLocal, cLook, cMText, cT
 
 import { IListInfo, IMyListInfo } from './listTypes';
 
+import { getHelpfullError } from '../ErrorHandler';
+
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/fields";
@@ -29,17 +31,16 @@ import "@pnp/sp/fields/list";
 
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
-export async function addTheseFields( myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[]){
+export async function addTheseFields( webURL, myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[]): Promise<boolean>{
 
-    const thisWeb = Web(myList.webURL);
-    const thisList = JSON.parse(JSON.stringify(myList));
-    delete thisList.webURL;
+    const thisWeb = Web(webURL);
+    //const thisList = JSON.parse(JSON.stringify(myList));
 
-    const ensuredList = await thisWeb.lists.ensure(thisList);
+    const ensuredList = await thisWeb.lists.ensure(myList.title);
     const listFields = ensuredList.list.fields;
 
     for (let f of fieldsToAdd) {
-
+        console.log('trying adding column:', f);
         if (f.fieldType === cText) {
             let thisField : ITextField = JSON.parse(JSON.stringify(f));
             /**
@@ -49,13 +50,33 @@ export async function addTheseFields( myList: IMyListInfo, fieldsToAdd: IMyField
              * @param maxLength The maximum number of characters allowed in the value of the field.
              * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
              */
+            let foundField = false;
+            try {
+                const checkField = await listFields.getByInternalNameOrTitle(thisField.name).get();
+                alert('Checked for field ' + thisField.name + ' and found: ' + checkField);
+                foundField = true;
+            } catch (e) {
+                // if any of the fields does not exist, raise an exception in the console log
+                let errMessage = getHelpfullError(e);
+                alert(`The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  ` + errMessage);
+                console.log(`The ${myList.title} list had this error:`, errMessage);
+            }
+        
 
-            const actualField: IFieldAddResult = await listFields.addText( thisField.title, thisField.maxLength, thisField.properties );
-            alert('Tried to add field :) ' + thisField.name);
+
+            if (foundField === false) {
+                const actualField: IFieldAddResult = await listFields.addText( thisField.name, thisField.maxLength, thisField.properties );
+                alert('Tried to add field :) ' + thisField.name);
+            } else {
+                alert('Field already existed... skipping: ' + thisField.name);
+            }
+
 
         }
 
     }
+
+    return(true);
 
 }
 

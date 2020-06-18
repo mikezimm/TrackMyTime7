@@ -873,16 +873,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     //import { addTheseFields } from '../../../services/listServices/columnServices';
     //import { TMTProjectFields } from '../../../services/listServices/columnsAndViewsTMT';
 
+    let webURL = 'https://mcclickster.sharepoint.com/sites/Templates/Testing/';
     let theList = {
-      webURL: '',
       title: 'Projects',
       desc: 'Desc',
       template: 100,
       enableContentTypes: true,
       additionalSettings: { EnableVersioning: true, MajorVersionLimit: 20, },
-  }
-    let testFields = TMTProjectFields;
-    addTheseFields(theList, TMTProjectFields);
+    };
+    let testFields = TMTProjectFields();
+    let result = addTheseFields(webURL, theList, testFields);
 
     this._getListItems();
     

@@ -12,43 +12,43 @@ import { IListInfo } from './listTypes';
 
 
 export interface MyListDef {
-title: string, 
-desc?: string, 
-template?: number, 
-enableContentTypes?: boolean, 
-additionalSettings?: Partial<IListInfo>
+title: string;
+desc?: string; 
+template?: number;
+enableContentTypes?: boolean;
+additionalSettings?: Partial<IListInfo>;
 }
 
 export interface MyFieldDef {
-    kind: number,
-    type: string,
+    kind: number;
+    type: string;
 }
 
-export const cText =    {    kind : 2,    type : 'SP.FieldText' }
+export const cText =    {    kind : 2,    type : 'SP.FieldText' };
 
-export const cMText =   {    kind : 3,    type : 'SP.FieldMultiLineText' }
+export const cMText =   {    kind : 3,    type : 'SP.FieldMultiLineText' };
 
-export const cDate =    {    kind : 4,    type : 'SP.FieldDateTime' }
+export const cDate =    {    kind : 4,    type : 'SP.FieldDateTime' };
 
-export const cChoice =  {    kind :6 ,    type : 'SP.FieldChoice'  }
+export const cChoice =  {    kind :6 ,    type : 'SP.FieldChoice'  };
 
-export const cLook =    {    kind : 7,    type : 'SP.FieldCreationInformation'  }
+export const cLook =    {    kind : 7,    type : 'SP.FieldCreationInformation'  };
 
-export const cBool =    {    kind :8 ,    type : 'SP.Field'  }
+export const cBool =    {    kind :8 ,    type : 'SP.Field'  };
 
-export const cNumb =    {    kind : 9,    type : 'SP.FieldNumber'  }
+export const cNumb =    {    kind : 9,    type : 'SP.FieldNumber'  };
 
-export const cCurr =    {    kind : 10,    type : 'SP.FieldCurrency'  }
+export const cCurr =    {    kind : 10,    type : 'SP.FieldCurrency'  };
 
-export const cURL =     {    kind : 11,    type : 'SP.FieldUrl'  }
+export const cURL =     {    kind : 11,    type : 'SP.FieldUrl'  };
 
-export const cMChoice = {    kind :15 ,    type : 'SP.FieldMultiChoice'  }
+export const cMChoice = {    kind :15 ,    type : 'SP.FieldMultiChoice'  };
 
-export const cCalc =    {    kind : 17,    type : 'SP.FieldCalculated'  }
+export const cCalc =    {    kind : 17,    type : 'SP.FieldCalculated'  };
 
-export const cUser =    {    kind : 20,    type : 'SP.FieldUser'  }
+export const cUser =    {    kind : 20,    type : 'SP.FieldUser'  };
 
-export const cLocal =   {    kind : 33,    type : 'SP.FieldLocation'  }
+export const cLocal =   {    kind : 33,    type : 'SP.FieldLocation'  };
 
 export type IMyFieldTypes = ITextField | IMultiLineTextField | INumberField;
 
@@ -61,11 +61,11 @@ export type IMyFieldTypes = ITextField | IMultiLineTextField | INumberField;
  */
 
 export interface ITextField extends Partial<IFieldInfo>{
-    fieldType: MyFieldDef,
-    name: string,  //Will be Title of list unless title is specified
-    maxLength: number,
-    title?: string,
-    properties?: IFieldCreationProperties,
+    fieldType: MyFieldDef;
+    name: string;  //Will be Title of list unless title is specified
+    maxLength: number;
+    title?: string;
+    properties?: IFieldCreationProperties;
 }
 
 /**
@@ -81,19 +81,19 @@ export interface ITextField extends Partial<IFieldInfo>{
  *
  */
 export interface IMultiLineTextField extends Partial<IFieldInfo> {
-    fieldType: MyFieldDef,
-    name: string,
-    title?: string,  //Will be Title of list unless title is specified
-    numberOfLines?: number,
-    richText?: boolean,
-    restrictedMode?: boolean,
-    appendOnly?: boolean,
-    allowHyperlink?: boolean,
-    properties?: IFieldCreationProperties,
+    fieldType: MyFieldDef;
+    name: string;
+    title?: string;  //Will be Title of list unless title is specified
+    numberOfLines?: number;
+    richText?: boolean;
+    restrictedMode?: boolean;
+    appendOnly?: boolean;
+    allowHyperlink?: boolean;
+    properties?: IFieldCreationProperties;
 }
 
 export interface INumberField extends Partial<IFieldInfo>{
-    fieldType: MyFieldDef,
-    name: string,
-    title?: string,  //Will be Title of list unless title is specified
+    fieldType: MyFieldDef;
+    name: string;
+    title?: string;  //Will be Title of list unless title is specified
 }

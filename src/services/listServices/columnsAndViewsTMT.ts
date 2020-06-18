@@ -19,40 +19,25 @@ import "@pnp/sp/fields/list";
 
 const thisColumnGroup = 'TrackTimeProject';
 
-/**
- * This just creates an array of fields for the build/test sequence
- * Each list would have an array of field objects like this.
- */
-
-export function TMTProjectFields() {
-
-    let theseFields: [IMyFieldTypes] = null;
-    //theseFields.push(HistoryTMT);
-    //theseFields.push(CCEmail);
-    theseFields.push(xyz);
-
-    return theseFields;
-}
-
 export const xyz : ITextField = {
     fieldType: cText,
     name: 'xyz',
     maxLength: 255,
     properties: {
-        group: thisColumnGroup,
-        description: 'To be used by webpart to email this address for every entry.  Not yet used.',
+        Group: thisColumnGroup,
+        Description: 'To be used by webpart to email this address for every entry.  Not yet used.',
     }
-}
+};
 
 export const CCEmail : ITextField = {
     fieldType: cText,
     name: 'CCEmail',
     maxLength: 255,
     properties: {
-        group: thisColumnGroup,
-        description: 'To be used by webpart to email this address for every entry.  Not yet used.',
+        Group: thisColumnGroup,
+        Description: 'To be used by webpart to email this address for every entry.  Not yet used.',
     }
-}
+};
 
 export const HistoryTMT : IMultiLineTextField = {
     fieldType: cMText,
@@ -64,10 +49,26 @@ export const HistoryTMT : IMultiLineTextField = {
     appendOnly: false,
     allowHyperlink: false,
     properties: {
-        group: thisColumnGroup,
-        description: 'Special field for change history from webpart.',
+        Group: thisColumnGroup,
+        Description: 'Special field for change history from webpart.',
     }
-}
+};
 
+
+/**
+ * This just creates an array of fields for the build/test sequence
+ * Each list would have an array of field objects like this.
+ */
+
+export function TMTProjectFields() {
+
+    let theseFields: IMyFieldTypes[] = [];
+    //theseFields.push(HistoryTMT);
+    //theseFields.push(CCEmail);
+    theseFields.push(xyz);
+    theseFields.push(CCEmail);
+    theseFields.push(xyz);
+    return theseFields;
+}
 
 //const HistoryTMT: IFieldAddResult = await ensureResult.list.fields.addMultilineText("HistoryTMT", 6, false, false, false, false, { Group: columnGroup, Description: fieldDescription  });

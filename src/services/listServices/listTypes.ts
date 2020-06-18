@@ -15,12 +15,12 @@
 // ensure(title: string, desc?: string, template?: number, enableContentTypes?: boolean, additionalSettings?: Partial<IListInfo>): Promise<IListEnsureResult>;
 
 export interface IMyListInfo {
-    webURL?: string,
-    title: string,
-    desc?: string,
-    template?: number,
-    enableContentTypes?: boolean,
-    additionalSettings?: Partial<IListInfo>,
+    webURL?: string;
+    title: string;
+    desc?: string;
+    template?: number;
+    enableContentTypes?: boolean;
+    additionalSettings?: Partial<IListInfo>;
 }
 
 export interface IListInfo {
