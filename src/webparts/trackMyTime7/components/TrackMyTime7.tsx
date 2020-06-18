@@ -5,7 +5,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { sp } from '@pnp/sp';
 
 //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
-import { Web } from "@pnp/sp/presets/all";
+import { Web } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Pivot, PivotItem, PivotLinkSize, PivotLinkFormat, IPivotStyles, IPivotStyleProps } from 'office-ui-fabric-react/lib/Pivot';
@@ -69,6 +69,9 @@ import MyCommandBar from './Project/ProjectCommandBar';
 import { nominalTypeHack } from 'prop-types';
 
 import { createDialog } from './Project/ConfirmUpdate';
+
+import { addTheseFields } from '../../../services/listServices/columnServices';
+import { TMTProjectFields } from '../../../services/listServices/columnsAndViewsTMT';
 
 //export enum TMTDialogMode { False, review, Plan, process, Park, Cancel, Complete }
 export enum TMTDialogMode { False, New, Edit, Copy, Review, Plan, Process, Park, Cancel, Complete }
@@ -866,6 +869,21 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
 
   public componentDidMount() {
+
+    //import { addTheseFields } from '../../../services/listServices/columnServices';
+    //import { TMTProjectFields } from '../../../services/listServices/columnsAndViewsTMT';
+
+    let theList = {
+      webURL: '',
+      title: 'Projects',
+      desc: 'Desc',
+      template: 100,
+      enableContentTypes: true,
+      additionalSettings: { EnableVersioning: true, MajorVersionLimit: 20, },
+  }
+    let testFields = TMTProjectFields;
+    addTheseFields(theList, TMTProjectFields);
+
     this._getListItems();
     
   }

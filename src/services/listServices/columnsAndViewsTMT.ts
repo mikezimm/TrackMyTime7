@@ -27,17 +27,21 @@ const thisColumnGroup = 'TrackTimeProject';
 export function TMTProjectFields() {
 
     let theseFields: [IMyFieldTypes] = null;
-    theseFields.push(HistoryTMT);
-    theseFields.push(CCEmail);
+    //theseFields.push(HistoryTMT);
+    //theseFields.push(CCEmail);
     theseFields.push(xyz);
-    
 
     return theseFields;
 }
 
-export const xyz : INumberField = {
+export const xyz : ITextField = {
     fieldType: cText,
     name: 'xyz',
+    maxLength: 255,
+    properties: {
+        group: thisColumnGroup,
+        description: 'To be used by webpart to email this address for every entry.  Not yet used.',
+    }
 }
 
 export const CCEmail : ITextField = {

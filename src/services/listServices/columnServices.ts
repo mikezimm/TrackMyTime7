@@ -28,7 +28,8 @@ import "@pnp/sp/fields/list";
 // ensure(title: string, desc?: string, template?: number, enableContentTypes?: boolean, additionalSettings?: Partial<IListInfo>): Promise<IListEnsureResult>;
 
 
-export function addTheseFields( myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[]){
+//private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
+export async function addTheseFields( myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[]){
 
     const thisWeb = Web(myList.webURL);
     const thisList = JSON.parse(JSON.stringify(myList));
@@ -37,25 +38,22 @@ export function addTheseFields( myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[
     const ensuredList = await thisWeb.lists.ensure(thisList);
     const listFields = ensuredList.list.fields;
 
-    for (let i in fieldsToAdd) {
-        let f = fieldsToAdd[i];
+    for (let f of fieldsToAdd) {
 
         if (f.fieldType === cText) {
-                let thisField : ITextField = f;
-                /**
-                 * Adds a new SP.FieldText to the collection
-                 *
-                 * @param title The field title
-                 * @param maxLength The maximum number of characters allowed in the value of the field.
-                 * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
-                 */
+            let thisField : ITextField = JSON.parse(JSON.stringify(f));
+            /**
+             * Adds a new SP.FieldText to the collection
+             *
+             * @param title The field title
+             * @param maxLength The maximum number of characters allowed in the value of the field.
+             * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
+             */
 
-                const actualField: IFieldAddResult = await listFields.addText( thisField.title, thisField.maxLength, thisField.properties ): Promise<IFieldAddResult>;
-
-                break;
+            const actualField: IFieldAddResult = await listFields.addText( thisField.title, thisField.maxLength, thisField.properties );
+            alert('Tried to add field :) ' + thisField.name);
 
         }
-
 
     }
 

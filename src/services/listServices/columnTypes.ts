@@ -50,6 +50,7 @@ export const cUser =    {    kind : 20,    type : 'SP.FieldUser'  }
 
 export const cLocal =   {    kind : 33,    type : 'SP.FieldLocation'  }
 
+export type IMyFieldTypes = ITextField | IMultiLineTextField | INumberField;
 
 /**
  * Adds a new SP.FieldText to the collection
@@ -59,13 +60,11 @@ export const cLocal =   {    kind : 33,    type : 'SP.FieldLocation'  }
  * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
  */
 
-export type IMyFieldTypes = ITextField | IMultiLineTextField | INumberField;
-
 export interface ITextField extends Partial<IFieldInfo>{
     fieldType: MyFieldDef,
-    name: string,
-    title: string,
+    name: string,  //Will be Title of list unless title is specified
     maxLength: number,
+    title?: string,
     properties?: IFieldCreationProperties,
 }
 
@@ -84,7 +83,7 @@ export interface ITextField extends Partial<IFieldInfo>{
 export interface IMultiLineTextField extends Partial<IFieldInfo> {
     fieldType: MyFieldDef,
     name: string,
-    title?: string,
+    title?: string,  //Will be Title of list unless title is specified
     numberOfLines?: number,
     richText?: boolean,
     restrictedMode?: boolean,
@@ -96,5 +95,5 @@ export interface IMultiLineTextField extends Partial<IFieldInfo> {
 export interface INumberField extends Partial<IFieldInfo>{
     fieldType: MyFieldDef,
     name: string,
-    title?: string,
+    title?: string,  //Will be Title of list unless title is specified
 }
