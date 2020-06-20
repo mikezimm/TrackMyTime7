@@ -1,5 +1,5 @@
 
-  export function getHelpfullError(e){
+  export function getHelpfullError(e, alertMe = true){
     console.log('getHelpfullError:',e);
     let result = 'e';
     let errObj: {} = null;

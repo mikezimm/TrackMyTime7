@@ -34,6 +34,8 @@ export const cChoice =  {    kind :6 ,    type : 'SP.FieldChoice'  };
 
 export const cLook =    {    kind : 7,    type : 'SP.FieldCreationInformation'  };
 
+export const cDLook =    {    kind : 7,    type : 'SP.FieldCreationInformation'  };
+
 export const cBool =    {    kind :8 ,    type : 'SP.Field'  };
 
 export const cNumb =    {    kind : 9,    type : 'SP.FieldNumber'  };
@@ -50,7 +52,9 @@ export const cUser =    {    kind : 20,    type : 'SP.FieldUser'  };
 
 export const cLocal =   {    kind : 33,    type : 'SP.FieldLocation'  };
 
-export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INumberField;
+export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INumberField | IXMLField | 
+    IBooleanField | ICalculatedField | IDateTimeField | ICurrencyField | IUserField | ILookupField | IChoiceField | 
+    IMultiChoiceField | IDepLookupField | ILocationField;
 
 /**
  * Adds a new SP.FieldText to the collection
@@ -59,6 +63,8 @@ export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INum
  * @param maxLength The maximum number of characters allowed in the value of the field.
  * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
  */
+
+export type changes = 'create' | 'changes1' | 'changes2' | 'changes3' | 'changesFinal' | 'setForm';
 
 export interface IBaseField extends Partial<IFieldInfo>{
     fieldType: MyFieldDef;
@@ -80,9 +86,12 @@ export interface IBaseField extends Partial<IFieldInfo>{
 
 }
 
+export interface IXMLField extends IBaseField {
+    xml: string;
+}
 
 export interface ITextField extends IBaseField{
-    maxLength: number;
+    maxLength?: number;
 }
 
 /**
@@ -105,6 +114,157 @@ export interface IMultiLineTextField extends IBaseField {
     allowHyperlink?: boolean;
 }
 
+/**
+ * Adds a new SP.FieldNumber to the collection
+ *
+ * @param title The field title
+ * @param minValue The field's minimum value
+ * @param maxValue The field's maximum value
+ * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
+ */
+//    addNumber(title: string, minValue?: number, maxValue?: number, properties?: IFieldCreationProperties): Promise<IFieldAddResult>;
 export interface INumberField extends IBaseField {
+    minValue?: number; 
+    maxValue?: number; 
+}
+
+/**
+ * Adds a new SP.FieldBoolean to the collection
+ *
+ * @param title The field title.
+ * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
+ */
+export interface IBooleanField extends IBaseField {
 
 }
+
+/**
+ * Adds a new SP.FieldCalculated to the collection
+ *
+ * @param title The field title.
+ * @param formula The formula for the field.
+ * @param dateFormat The date and time format that is displayed in the field.
+ * @param outputType Specifies the output format for the field. Represents a FieldType value.
+ * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
+ */
+export interface ICalculatedField extends IBaseField {
+    formula: string;
+    dateFormat?: DateTimeFieldFormatType;
+    outputType?: FieldTypes;
+}
+
+/**
+ * Adds a new SP.FieldDateTime to the collection
+ *
+ * @param title The field title
+ * @param displayFormat The format of the date and time that is displayed in the field.
+ * @param calendarType Specifies the calendar type of the field.
+ * @param friendlyDisplayFormat The type of friendly display format that is used in the field.
+ * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
+ */
+export interface IDateTimeField extends IBaseField {
+    displayFormat?: DateTimeFieldFormatType;
+    calendarType?: CalendarType;
+    friendlyDisplayFormat?: DateTimeFieldFriendlyFormatType;
+}
+
+/**
+ * Adds a new SP.FieldCurrency to the collection
+ *
+ * @param title The field title
+ * @param minValue The field's minimum value
+ * @param maxValue The field's maximum value
+ * @param currencyLocalId Specifies the language code identifier (LCID) used to format the value of the field
+ * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
+ */
+export interface ICurrencyField extends IBaseField {
+    minValue?: number; 
+    maxValue?: number; 
+    currencyLocalId?: number; //This is technically available but 
+}
+
+/**
+ * Adds a new SP.FieldUrl to the collection
+ * @param title The field title
+ */
+export interface IURLField extends IBaseField {
+    displayFormat?: UrlFieldFormatType;
+}
+
+/** Adds a user field to the colleciton
+*
+* @param title The new field's title
+* @param selectionMode The selection mode of the field
+* @param selectionGroup Value that specifies the identifier of the SharePoint group whose members can be selected as values of the field
+* @param properties
+*/
+export interface IUserField extends IBaseField {
+    selectionMode: FieldUserSelectionMode;
+    //selectionGroup?: any; //This is not used in addUser function and not applicable in building webparts... User would need to fill in.
+}
+
+/**
+ * Adds a SP.FieldLookup to the collection
+ *
+ * @param title The new field's title
+ * @param lookupListId The guid id of the list where the source of the lookup is found
+ * @param lookupFieldName The internal name of the field in the source list
+ * @param properties Set of additional properties to set on the new field
+ */
+export interface ILookupField extends IBaseField {
+    lookupListId: string;
+    lookupFieldName: string;
+}
+
+/**
+ * Adds a new SP.FieldChoice to the collection
+ *
+ * @param title The field title.
+ * @param choices The choices for the field.
+ * @param format The display format of the available options for the field.
+ * @param fillIn Specifies whether the field allows fill-in values.
+ * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
+ */
+export interface IChoiceField extends IBaseField {
+    choices: string[]; 
+    format?: ChoiceFieldFormatType; 
+    fillIn?: boolean; 
+}
+
+/**
+ * Adds a new SP.FieldMultiChoice to the collection
+ *
+ * @param title The field title.
+ * @param choices The choices for the field.
+ * @param fillIn Specifies whether the field allows fill-in values.
+ * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
+ */
+export interface IMultiChoiceField extends IBaseField {
+    choices: string[]; 
+    fillIn?: boolean;
+}
+
+/**
+* Creates a secondary (dependent) lookup field, based on the Id of the primary lookup field.
+*
+* @param displayName The display name of the new field.
+* @param primaryLookupFieldId The guid of the primary Lookup Field.
+* @param showField Which field to show from the lookup list.
+*/
+export interface IDepLookupField extends IBaseField {
+    primaryLookupFieldId: string;
+    showField: string;
+}
+
+/**
+ * Adds a new SP.FieldLocation to the collection
+ *
+ * @param title The field title.
+ * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
+ */
+export interface ILocationField extends IBaseField {
+
+}
+
+
+

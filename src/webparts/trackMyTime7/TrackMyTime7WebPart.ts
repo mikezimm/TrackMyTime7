@@ -370,6 +370,19 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           fieldSchema = '<Field Type="Text" DisplayName="ProjectID2" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{432aeccc-6f3a-4bf0-b451-6970c0eb292d}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="ProjectID2" Name="ProjectID2" ColName="nvarchar5" RowOrdinal="0" />';
           const projectID2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
+
+/***
+ *    d8888b. d888888b  .o88b. db   dD db    db d8888b.      db   db d88888b d8888b. d88888b 
+ *    88  `8D   `88'   d8P  Y8 88 ,8P' 88    88 88  `8D      88   88 88'     88  `8D 88'     
+ *    88oodD'    88    8P      88,8P   88    88 88oodD'      88ooo88 88ooooo 88oobY' 88ooooo 
+ *    88~~~      88    8b      88`8b   88    88 88~~~        88~~~88 88~~~~~ 88`8b   88~~~~~ 
+ *    88        .88.   Y8b  d8 88 `88. 88b  d88 88           88   88 88.     88 `88. 88.     
+ *    88      Y888888P  `Y88P' YP   YD ~Y8888P' 88           YP   YP Y88888P 88   YD Y88888P 
+ *                                                                                           
+ *                                                                                           
+ */
+
+
           if ( isProject ) {
             fieldDescription = "Used by webpart to define targets for charting.";
             fieldSchema = '<Field Type="Text" DisplayName="TimeTarget" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{02c5c9a7-7690-4efe-8e75-404a90654946}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="TimeTarget" Name="TimeTarget" ColName="nvarchar6" RowOrdinal="0" />';
@@ -500,7 +513,7 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             fieldDescription = "Calculates if significant changes were made after item was created.";
             const keyChanges: IFieldAddResult = await ensureResult.list.fields.addCalculated("KeyChanges", '=IF(OriginalHours="","-NoOriginalHours",IF(ABS(Hours-OriginalHours)>0.05,"-HoursChanged",""))&IF(OriginalStart="","-NoOriginalStart",IF(StartTime<>OriginalStart,"-StartChanged",""))&IF(OriginalEnd="","-NoOriginalEnd",IF(EndTime<>OriginalEnd,"-EndChanged",""))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
-            //Hide these fields so they can't be seen.
+            //Hide these fields so they can't be seen (BUT ONLY AFTER KeyChanges Formula is created)
             const originalHours2= await ensureResult.list.fields.getByTitle("OriginalHours").update({ Hidden: true });
             const originalStart2= await ensureResult.list.fields.getByTitle("OriginalStart").update({ Hidden: true });
             const originalEnd2= await ensureResult.list.fields.getByTitle("OriginalEnd").update({ Hidden: true });
