@@ -1357,11 +1357,11 @@ private buildActivityFields(isVisible: boolean) {
     //    <div style={{ backgroundColor: colorTask.light, padding: 10, paddingBottom: 20 }}>
       style={{ backgroundColor: colorActivity.light, padding: 10, paddingBottom: 20 }}
     >
-    <Stack horizontal={false} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
-        { activityType }
-        { activity }
-        {  }
-        {  }
+    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+      <Stack horizontal={false} wrap={false} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
+          { activityType }
+          { activity }
+      </Stack>
     </Stack></div>;  {/* Stack for Buttons and Fields */}
 
     return fields;
