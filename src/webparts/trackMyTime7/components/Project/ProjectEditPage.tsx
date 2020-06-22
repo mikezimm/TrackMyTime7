@@ -409,7 +409,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         let advancedFields = this.state.showAdvanced ? this.buildAdvancedFields(true) : null;
         let taskFields = this.state.showTask ? this.buildTaskFields(true) : null;
         let activityFields = this.state.showActivity ? this.buildActivityFields(true) : null;
-        //let peopleFields = this.state.showPeople ? this.buildPeopleFields(true) : null;
+        let peopleFields = this.state.showPeople ? this.buildPeopleFields(true) : null;
 
   /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -430,7 +430,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
             { projectTitle }
             <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
               { reportingFields }
-              { /*peopleFields*/ }  
+              { peopleFields }  
             </Stack>
             <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
  
@@ -1203,7 +1203,7 @@ private _updateToggleState(ev: EventTarget){
         { story }
         { chapter }
       </Stack>
-      { peopleFields }
+      { /* peopleFields*/  }
     </Stack></div>;  {/* Stack for Buttons and Fields */}
 
     return fields;
@@ -1241,7 +1241,7 @@ private buildPeopleFields(isVisible: boolean) {
     let team = this.createPeopleField(this.props.projectFields.Team, 5, this._updateTeam.bind(this), this._addUserToField.bind(this), this.getPeopleStyles );
 
     let fields =
-    <div 
+    <div className={styles.peopleFields}
       style={{ backgroundColor: colorPeople.light, padding: 10, paddingBottom: 20 }}
     >
     <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackFormRowTokens}>{/* Stack for Buttons and Fields */}
