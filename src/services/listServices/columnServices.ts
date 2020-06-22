@@ -14,7 +14,7 @@ import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberF
     IMultiChoiceField , IDepLookupField , ILocationField } from './columnTypes';
 
 import { MyFieldDef, changes, cBool, cCalc, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
-    cMText, cText, cNumb, cURL, cUser, } from './columnTypes';
+    cMText, cText, cNumb, cURL, cUser, cMUser } from './columnTypes';
     
 import { IListInfo, IMyListInfo } from './listTypes';
 
@@ -162,6 +162,25 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
                             actualField = await listFields.addUser(thisField.name,
                                 thisField.selectionMode ?  thisField.selectionMode : FieldUserSelectionMode.PeopleOnly,
                                 thisField.onCreateProps);
+                            break ;
+
+                        case cMUser.type :
+                            let fieldName = thisField.name;
+                            let fieldTitle = thisField.title ? thisField.title : thisField.Title ? thisField.Title : thisField.onCreateProps.Title ? thisField.onCreateProps.Title : fieldName;
+                            let fieldGroup = thisField.onCreateProps.Group;
+                            let fieldDesc = thisField.onCreateProps.Description;
+                            let fieldSelectMode = thisField.selectionMode;
+                            let thisSchema = '<Field DisplayName="' + fieldTitle + '" Type="UserMulti"';
+                            thisSchema += ' Required="FALSE" StaticName="' + fieldName + '" Name="' + fieldName + '"';
+                            thisSchema += ' UserSelectionMode="' + fieldSelectMode + '"';
+                            thisSchema += ' Group="' + fieldGroup + '"';
+                            thisSchema += ' Description="' + fieldDesc + '"';
+                            thisSchema += ' EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionScope="0" Mult="TRUE" Sortable="FALSE"/>';
+                            // ^^^^ I think ShowField=ImnName shows field as skype jellybean; ShowField=Name shows account name ; ShowField="EMail" shows email address
+                            // ^^^^ EnforceUniqueValues & Sortable need to be false for Multi-select fields.
+
+                            actualField = await listFields.createFieldAsXml(thisSchema);
+
                             break ;
     
                         case cCalc.type :

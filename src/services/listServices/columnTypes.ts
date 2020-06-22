@@ -50,6 +50,8 @@ export const cCalc =    {    kind : 17,    type : 'SP.FieldCalculated'  };
 
 export const cUser =    {    kind : 20,    type : 'SP.FieldUser'  };
 
+export const cMUser =    {    kind : 20,    type : 'SP.FieldUserMulti'  }; //This may be SP.FieldUserMulti ????
+
 export const cLocal =   {    kind : 33,    type : 'SP.FieldLocation'  };
 
 export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INumberField | IXMLField | 
