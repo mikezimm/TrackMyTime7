@@ -50,7 +50,7 @@ export const cCalc =    {    kind : 17,    type : 'SP.FieldCalculated'  };
 
 export const cUser =    {    kind : 20,    type : 'SP.FieldUser'  };
 
-export const cMUser =    {    kind : 20,    type : 'SP.FieldUserMulti'  }; //This may be SP.FieldUserMulti ????
+export const cMUser =    {    kind : 20,    type : 'SP.FieldUserMulti'  }; //This may be SP.FieldUserMulti or may not ????... but this is required for the function in columnServices.ts to catch this option.
 
 export const cLocal =   {    kind : 33,    type : 'SP.FieldLocation'  };
 
