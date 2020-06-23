@@ -167,8 +167,8 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
                         case cMUser.type :
                             let fieldName = thisField.name;
                             let fieldTitle = thisField.title ? thisField.title : thisField.Title ? thisField.Title : thisField.onCreateProps.Title ? thisField.onCreateProps.Title : fieldName;
-                            let fieldGroup = thisField.onCreateProps.Group;
-                            let fieldDesc = thisField.onCreateProps.Description;
+                            let fieldGroup = thisField.onCreateProps.Group ? thisField.onCreateProps.Group : '';
+                            let fieldDesc = thisField.onCreateProps.Description ? thisField.onCreateProps.Description : '';
                             let fieldSelectMode = thisField.selectionMode;
                             let thisSchema = '<Field DisplayName="' + fieldTitle + '" Type="UserMulti"';
                             thisSchema += ' Required="FALSE" StaticName="' + fieldName + '" Name="' + fieldName + '"';

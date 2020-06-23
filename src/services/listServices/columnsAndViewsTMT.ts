@@ -110,8 +110,6 @@ export const Leader : IUserField = {
     }
 };
 
-export const TeamDesc = "Other Team Members for this project. Helps you find projects you are working on.";
-
 //export const Team : IXMLField = { 
 export const Team : IUserField = { //IXMLField    
     fieldType: cMUser,
@@ -120,7 +118,7 @@ export const Team : IUserField = { //IXMLField
 //    xml: '<Field DisplayName="Team" Description="' +  TeamDesc + '" Format="Dropdown" List="UserInfo" Mult="TRUE" Name="Team" Title="Team" Type="UserMulti" UserSelectionMode="0" UserSelectionScope="0" ID="{1614eec8-246a-4d63-9ce9-eb8c8a733af1}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + thisColumnGroup + '" StaticName="Team" ColName="int2" RowOrdinal="0" />',
     onCreateProps: {
         Group: thisColumnGroup,
-        Description: TeamDesc,
+        Description: "Other Team Members for this project. Helps you find projects you are working on.",
     },
 };
 
