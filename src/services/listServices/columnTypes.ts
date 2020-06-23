@@ -24,37 +24,42 @@ additionalSettings?: Partial<IListInfo>;
 export interface MyFieldDef {
     kind: number;
     type: string;
+    vType: string;
 }
 
-export const cText =    {    kind : 2,    type : 'SP.FieldText' };
+export const cCount : MyFieldDef =    {    kind : null,    type : null , vType: 'Counter'};
+export const cInt : MyFieldDef =    {    kind : null,    type : null , vType: 'Integer'};
 
-export const cMText =   {    kind : 3,    type : 'SP.FieldMultiLineText' };
+export const cText : MyFieldDef =    {    kind : 2,    type : 'SP.FieldText' , vType: 'Text'};
 
-export const cDate =    {    kind : 4,    type : 'SP.FieldDateTime' };
+export const cMText : MyFieldDef =   {    kind : 3,    type : 'SP.FieldMultiLineText' , vType: ''};
 
-export const cChoice =  {    kind :6 ,    type : 'SP.FieldChoice'  };
+export const cDate : MyFieldDef =    {    kind : 4,    type : 'SP.FieldDateTime' , vType: 'DateTime'};
 
-export const cLook =    {    kind : 7,    type : 'SP.FieldCreationInformation'  };
+export const cChoice : MyFieldDef =  {    kind :6 ,    type : 'SP.FieldChoice'  , vType: 'Text'};
 
-export const cDLook =    {    kind : 7,    type : 'SP.FieldCreationInformation'  };
+export const cLook : MyFieldDef =    {    kind : 7,    type : 'SP.FieldCreationInformation'  , vType: ''};
 
-export const cBool =    {    kind :8 ,    type : 'SP.Field'  };
+export const cDLook : MyFieldDef =    {    kind : 7,    type : 'SP.FieldCreationInformation'  , vType: ''};
 
-export const cNumb =    {    kind : 9,    type : 'SP.FieldNumber'  };
+export const cBool : MyFieldDef =    {    kind :8 ,    type : 'SP.Field'  , vType: 'Boolean'};
 
-export const cCurr =    {    kind : 10,    type : 'SP.FieldCurrency'  };
+export const cNumb : MyFieldDef =    {    kind : 9,    type : 'SP.FieldNumber'  , vType: 'Number'};
 
-export const cURL =     {    kind : 11,    type : 'SP.FieldUrl'  };
+export const cCurr : MyFieldDef =    {    kind : 10,    type : 'SP.FieldCurrency'  , vType: ''};
 
-export const cMChoice = {    kind :15 ,    type : 'SP.FieldMultiChoice'  };
+export const cURL : MyFieldDef =     {    kind : 11,    type : 'SP.FieldUrl'  , vType: ''};
 
-export const cCalc =    {    kind : 17,    type : 'SP.FieldCalculated'  };
+export const cMChoice : MyFieldDef = {    kind :15 ,    type : 'SP.FieldMultiChoice'  , vType: ''};
 
-export const cUser =    {    kind : 20,    type : 'SP.FieldUser'  };
+export const cCalcN : MyFieldDef =    {    kind : 17,    type : 'SP.FieldCalculated'  , vType: 'Number'};
+export const cCalcT : MyFieldDef =    {    kind : 17,    type : 'SP.FieldCalculated'  , vType: 'Text'};
 
-export const cMUser =    {    kind : 20,    type : 'SP.FieldUserMulti'  }; //This may be SP.FieldUserMulti or may not ????... but this is required for the function in columnServices.ts to catch this option.
+export const cUser : MyFieldDef =    {    kind : 20,    type : 'SP.FieldUser'  , vType: 'Integer'};
 
-export const cLocal =   {    kind : 33,    type : 'SP.FieldLocation'  };
+export const cMUser : MyFieldDef =    {    kind : 20,    type : 'SP.FieldUserMulti'  , vType: ''}; //This may be SP.FieldUserMulti or may not ????... but this is required for the function in columnServices.ts to catch this option.
+
+export const cLocal : MyFieldDef =   {    kind : 33,    type : 'SP.FieldLocation'  , vType: ''};
 
 export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INumberField | IXMLField | 
     IBooleanField | ICalculatedField | IDateTimeField | ICurrencyField | IUserField | ILookupField | IChoiceField | 
@@ -154,7 +159,6 @@ export interface IBooleanField extends IBaseField {
 export interface ICalculatedField extends IBaseField {
     formula: string;
     dateFormat?: DateTimeFieldFormatType;
-    outputType?: FieldTypes;
 }
 
 /**

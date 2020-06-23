@@ -71,7 +71,7 @@ import { nominalTypeHack } from 'prop-types';
 import { createDialog } from './Project/ConfirmUpdate';
 
 import { addTheseFields } from '../../../services/listServices/columnServices';
-import { TMTProjectFields } from '../../../services/listServices/columnsAndViewsTMT';
+import { TMTProjectFields } from '../../../services/listServices/columnsTMT';
 
 //export enum TMTDialogMode { False, review, Plan, process, Park, Cancel, Complete }
 export enum TMTDialogMode { False, New, Edit, Copy, Review, Plan, Process, Park, Cancel, Complete }

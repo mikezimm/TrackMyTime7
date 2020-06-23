@@ -9,11 +9,13 @@ import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberF
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
     IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from './columnTypes';
 
-import { cBool, cCalc, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
+import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
     cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from './columnTypes';
 
 import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
 
+//Imported but not used so that intellisense can prevent duplicate named columns.
+import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from './columnsOOTB';
 
 /***
  *     .d8b.  d8888b. d8888b.       d888b  d8888b.  .d88b.  db    db d8888b.      d8b   db  .d8b.  .88b  d88. d88888b 
@@ -220,11 +222,10 @@ export const StatusTMT : IChoiceField = {
 };
 
 export const StatusNumber : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcN,
     name: 'StatusNumber',
     formula: '=VALUE(LEFT(Status,1))',
     dateFormat: DateTimeFieldFormatType.DateOnly,
-    outputType: FieldTypes.Number,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Used in various places to track status.',
@@ -232,10 +233,9 @@ export const StatusNumber : ICalculatedField = {
 };
 
 export const StatusText : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcT,
     name: 'StatusText',
     formula: '=TRIM(MID(Status,FIND(".",Status)+1,100))',
-    outputType: FieldTypes.Text,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Used in various places to track status.',
@@ -263,6 +263,16 @@ export const SortOrder : INumberField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Used by webpart to sort list of projects.',
+    }
+};
+
+
+export const Active : IBooleanField = {
+    fieldType: cBool,
+    name: 'Active',
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used by webpart to filter out old items that should not be loaded (archived).',
     }
 };
 
@@ -309,11 +319,10 @@ export const ActivityTMT : ITextField = {
 };
 
 export const ActivtyURLCalc : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcN,
     name: 'ActivtyURLCalc',
     formula: '=IF(ActivityType="Build","https://plm. ..... /enovia/common/emxNavigator.jsp?type=GEOBuildOrder&name=[Activity]&rev=-&return=specific",IF(ActivityType="Ship","https://alvweb.alv.autoliv.int/PRISM/SalesOrder_List.aspx?Order=[Activity]",IF(ActivityType="TMT Issue","https://github.com/mikezimm/TrackMyTime7/issues/[Activity]",IF(ActivityType="Socialiis Issue","https://github.com/mikezimm/Social-iis-7/issues/[Activity]",IF(ActivityType="Pivot Tiles Issue","https://github.com/mikezimm/Pivot-Tiles/issues/[Activity]","")))))',
     dateFormat: DateTimeFieldFormatType.DateOnly,
-    outputType: FieldTypes.Number,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Used to build goto links for Activity and Activity Choice.  See docs for syntax.',
@@ -337,10 +346,9 @@ export const OptionsTMT : ITextField = {
 };
 
 export const OptionsTMTCalc : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcT,
     name: 'OptionsTMTCalc',
     dateFormat: DateTimeFieldFormatType.DateOnly,
-    outputType: FieldTypes.Text,
     formula: '=IF(ISNUMBER(FIND("JIRA",ActivityType)),"icon=Info;","")&IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")&IF(ISNUMBER(FIND("Test",Title)),"icon=TestAutoSolid;","")',
     onCreateProps: {
         Group: thisColumnGroup,
@@ -358,10 +366,9 @@ export function StepChecks(min: number, max: number) {
         : '=IF(AND(Step' + (i - 1) + 'Check="Yes",[StatusNumber]>' + i + '),"Yes","No")';
 
         const thisField : ICalculatedField = {
-            fieldType: cCalc,
+            fieldType: cCalcN,
             name: 'Step' + i + 'Check',
             dateFormat: DateTimeFieldFormatType.DateOnly,
-            outputType: FieldTypes.Number,
             formula: thisCheck,
             onCreateProps: {
                 Group: thisColumnGroup,
@@ -375,10 +382,9 @@ export function StepChecks(min: number, max: number) {
 
 
 export const EffectiveStatus : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcN,
     name: 'EffectiveStatus',
     dateFormat: DateTimeFieldFormatType.DateOnly,
-    outputType: FieldTypes.Number,
     formula: '=(IF([StatusNumber]=9,9,IF([StatusNumber]=8,8,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0))))))))',
     onCreateProps: {
         Group: thisColumnGroup,
@@ -387,10 +393,9 @@ export const EffectiveStatus : ICalculatedField = {
 };
 
 export const IsOpen : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcN,
     name: 'IsOpen',
     dateFormat: DateTimeFieldFormatType.DateOnly,
-    outputType: FieldTypes.Number,
     formula: '=IF(EffectiveStatus<9,"Yes","No")',
     onCreateProps: {
         Group: thisColumnGroup,
@@ -574,11 +579,10 @@ export const OriginalEnd : IDateTimeField = {
 };
 
 export const Hours : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcN,
     name: 'Hours',
     formula: '=IFERROR(24*(EndTime-StartTime),"")',
     dateFormat: DateTimeFieldFormatType.DateOnly,
-    outputType: FieldTypes.Number,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Calculates Start to End time in Hours.',
@@ -586,11 +590,10 @@ export const Hours : ICalculatedField = {
 };
 
 export const Days : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcN,
     name: 'Days',
     formula: '=IFERROR((EndTime-StartTime),"")',
     dateFormat: DateTimeFieldFormatType.DateOnly,
-    outputType: FieldTypes.Number,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Calculates Start to End time in Days.',
@@ -598,11 +601,10 @@ export const Days : ICalculatedField = {
 };
 
 export const Minutes : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcN,
     name: 'Minutes',
     formula: '=IFERROR(24*60*(EndTime-StartTime),"")',
     dateFormat: DateTimeFieldFormatType.DateOnly,
-    outputType: FieldTypes.Number,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Calculates Start to End time in Minutes.',
@@ -610,11 +612,10 @@ export const Minutes : ICalculatedField = {
 };
 
 export const KeyChanges : ICalculatedField = {
-    fieldType: cCalc,
+    fieldType: cCalcN,
     name: 'KeyChanges',
     formula: '=IF(OriginalHours="","-NoOriginalHours",IF(ABS(Hours-OriginalHours)>0.05,"-HoursChanged",""))&IF(OriginalStart="","-NoOriginalStart",IF(StartTime<>OriginalStart,"-StartChanged",""))&IF(OriginalEnd="","-NoOriginalEnd",IF(EndTime<>OriginalEnd,"-EndChanged",""))',
     dateFormat: DateTimeFieldFormatType.DateOnly,
-    outputType: FieldTypes.Number,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Calculates if significant changes were made after item was created.',
@@ -754,7 +755,8 @@ export function TMTFields(listName: 'Project' | 'Time') {
     let theseFields: IMyFieldTypes[] = [];
     if (listName === 'Project' ) { theseFields.push(SortOrder); }  //Project
     if (listName === 'Project' ) { theseFields.push(Everyone); }  //Project
-
+    if (listName === 'Project' ) { theseFields.push(Active); }  //Project
+    
     theseFields.push(Leader);  //BOTH
     theseFields.push(Team);  //BOTH
 

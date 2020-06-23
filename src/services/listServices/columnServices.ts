@@ -13,7 +13,7 @@ import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberF
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
     IMultiChoiceField , IDepLookupField , ILocationField } from './columnTypes';
 
-import { MyFieldDef, changes, cBool, cCalc, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
+import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
     cMText, cText, cNumb, cURL, cUser, cMUser } from './columnTypes';
     
 import { IListInfo, IMyListInfo } from './listTypes';
@@ -23,7 +23,6 @@ import { getHelpfullError } from '../ErrorHandler';
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/fields";
-import "@pnp/sp/views";
 import "@pnp/sp/fields/list";
 
 export interface IFieldLog {
@@ -183,11 +182,11 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
 
                             break ;
     
-                        case cCalc.type :
+                        case cCalcN.type || cCalcT.type :
                             actualField = await listFields.addCalculated(thisField.name, 
                                 thisField.formula, 
                                 thisField.dateFormat ? thisField.dateFormat : DateTimeFieldFormatType.DateOnly, 
-                                thisField.outputType ? thisField.outputType : FieldTypes.Text,  //FieldTypes.Number is used for Calculated Link columns
+                                cCalcN.vType === 'Number'? FieldTypes.Number : FieldTypes.Text,  //FieldTypes.Number is used for Calculated Link columns
                                 thisField.onCreateProps);
                             break ;
     
