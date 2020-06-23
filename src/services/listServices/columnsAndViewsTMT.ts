@@ -7,11 +7,12 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
-    IMultiChoiceField , IDepLookupField , ILocationField } from './columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from './columnTypes';
 
 import { cBool, cCalc, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
-    cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef } from './columnTypes';
+    cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from './columnTypes';
 
+import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
 
 
 /***
@@ -148,7 +149,7 @@ export const ProjectID1 : ITextField = {
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
-        Description: '"Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation.',
+        Description: 'Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation.',
     }
 };
 
@@ -158,8 +159,87 @@ export const ProjectID2 : ITextField = {
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
-        Description: '"Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation.',
+        Description: 'Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation.',
     }
+};
+
+export const CCList : IURLField = {
+    fieldType: cURL,
+    name: 'CCList',
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used by web part to create Time Entry on secondary list at the same time... aka like Cc in email.',
+    }
+};
+
+export const CCEmail : ITextField = {
+    fieldType: cText,
+    name: 'CCEmail',
+    maxLength: 255,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'To be used by webpart to email this address for every entry.  Not yet used.',
+    }
+};
+
+export const Story : ITextField = {
+    fieldType: cText,
+    name: 'Story',
+    maxLength: 255,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Indexed: true,
+        Description: 'Special field in Project list used create a Story in Charts. This is the primary filter for the Chart Story page.',
+    }
+};
+
+export const Chapter : ITextField = {
+    fieldType: cText,
+    name: 'Chapter',
+    maxLength: 255,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Indexed: true,
+        Description: 'Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation.',
+    }
+};
+
+export const StatusTMT : IChoiceField = {
+    fieldType: cChoice,
+    name: 'StatusTMT',
+    choices: statusChoices,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used as rule to apply to Project Activy Text to build Activity URL.',
+        DefaultFormula:'="' + defStatus + '"',
+        Indexed: true,
+    },
+    onCreateChanges: {
+        Title: 'Status',
+    }
+};
+
+export const StatusNumber : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'StatusNumber',
+    formula: '=VALUE(LEFT(Status,1))',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    outputType: FieldTypes.Number,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used in various places to track status.',
+    },
+};
+
+export const StatusText : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'StatusText',
+    formula: '=TRIM(MID(Status,FIND(".",Status)+1,100))',
+    outputType: FieldTypes.Text,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used in various places to track status.',
+    },
 };
 
  /***
@@ -186,8 +266,6 @@ export const SortOrder : INumberField = {
     }
 };
 
-
-
 export const Everyone : IBooleanField = {
     fieldType: cBool,
     name: 'Everyone',
@@ -197,6 +275,167 @@ export const Everyone : IBooleanField = {
     }
 };
 
+export const TimeTarget : ITextField = {
+    fieldType: cText,
+    name: 'TimeTarget',
+    maxLength: 255,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used by webpart to define targets for charting.',
+    }
+};
+
+export const ActivityType : IChoiceField = {
+    fieldType: cChoice,
+    name: 'ActivityType',
+    choices: [`Build`, `Test`, `Ship`, `Verify`, `Order`],
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used as rule to apply to Project Activy Text to build Activity URL.',
+    }
+};
+
+export const ActivityTMT : ITextField = {
+    fieldType: cText,
+    name: 'ActivityTMT',
+    maxLength: 255,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used to complete Activity URL based on the selected choice.  Auto Builds Activity Link in TrackMyTime form.',
+    },
+    onCreateChanges: {
+        Title: 'Activity',
+    }
+};
+
+export const ActivtyURLCalc : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'ActivtyURLCalc',
+    formula: '=IF(ActivityType="Build","https://plm. ..... /enovia/common/emxNavigator.jsp?type=GEOBuildOrder&name=[Activity]&rev=-&return=specific",IF(ActivityType="Ship","https://alvweb.alv.autoliv.int/PRISM/SalesOrder_List.aspx?Order=[Activity]",IF(ActivityType="TMT Issue","https://github.com/mikezimm/TrackMyTime7/issues/[Activity]",IF(ActivityType="Socialiis Issue","https://github.com/mikezimm/Social-iis-7/issues/[Activity]",IF(ActivityType="Pivot Tiles Issue","https://github.com/mikezimm/Pivot-Tiles/issues/[Activity]","")))))',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    outputType: FieldTypes.Number,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used to build goto links for Activity and Activity Choice.  See docs for syntax.',
+    },
+    onCreateChanges: {
+        Title: 'ActivityURL^',
+    }
+};
+
+export const OptionsTMT : ITextField = {
+    fieldType: cText,
+    name: 'OptionsTMT',
+    maxLength: 255,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Special field for enabling special project level options in the webpart.',
+    },
+    onCreateChanges: {
+        Title: 'Options',
+    }
+};
+
+export const OptionsTMTCalc : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'OptionsTMTCalc',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    outputType: FieldTypes.Text,
+    formula: '=IF(ISNUMBER(FIND("JIRA",ActivityType)),"icon=Info;","")&IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")&IF(ISNUMBER(FIND("Test",Title)),"icon=TestAutoSolid;","")',
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used to create Project settings like Icons, font color etc.  See docs for syntax.',
+    },
+    onCreateChanges: {
+        Title: 'Options^',
+    }
+};
+
+export function StepChecks(min: number, max: number) {
+    let checkFields: IMyFieldTypes[] = [];
+    for (let i = min; i = max; i++) {
+        let thisCheck = i === 0 ? '=IF(AND([StatusNumber]>' + i + ',[StatusNumber]>' + i + '),"Yes","No")'
+        : '=IF(AND(Step' + (i - 1) + 'Check="Yes",[StatusNumber]>' + i + '),"Yes","No")';
+
+        const thisField : ICalculatedField = {
+            fieldType: cCalc,
+            name: 'Step' + i + 'Check',
+            dateFormat: DateTimeFieldFormatType.DateOnly,
+            outputType: FieldTypes.Number,
+            formula: thisCheck,
+            onCreateProps: {
+                Group: thisColumnGroup,
+                Description: 'Can be used to have checks at different status to impact Effective Status instead of just a number.',
+            },
+        };
+        checkFields.push(thisField);  //Project
+    }
+    return checkFields;
+}
+
+
+export const EffectiveStatus : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'EffectiveStatus',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    outputType: FieldTypes.Number,
+    formula: '=(IF([StatusNumber]=9,9,IF([StatusNumber]=8,8,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0))))))))',
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Can be used to have checks at different status to impact Effective Status instead of just a number.',
+    },
+};
+
+export const IsOpen : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'IsOpen',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    outputType: FieldTypes.Number,
+    formula: '=IF(EffectiveStatus<9,"Yes","No")',
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Can be used to have checks at different status to impact Effective Status instead of just a number.',
+    },
+};
+
+export const DueDateTMT : IDateTimeField = {
+    fieldType: cDate,
+    name: 'DueDateTMT',
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'For use when using Project List for Task tracking.',
+    },
+    onCreateChanges: {
+        Title: 'Due Date',
+    }
+};
+
+export const CompletedDateTMT : IDateTimeField = {
+    fieldType: cDate,
+    name: 'CompletedDateTMT',
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'For use when using Project List for Task tracking.',
+        Indexed: true,
+    },
+    onCreateChanges: {
+        Title: 'Completed',
+    }
+};
+
+export const CompletedByTMT : IUserField = {
+    fieldType: cUser,
+    name: 'CompletedDateTMT',
+    selectionMode: FieldUserSelectionMode.PeopleOnly,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'For use when using Project List for Task tracking.',
+        Indexed: true,
+    },
+    onCreateChanges: {
+        Title: 'Completed By',
+    }
+};
 
 export const HistoryTMT : IMultiLineTextField = {
     fieldType: cMText,
@@ -210,8 +449,21 @@ export const HistoryTMT : IMultiLineTextField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Special field for change history from webpart.',
+        Hidden: true,
     }
 };
+
+export const ProjectEditOptions : ITextField = {
+    fieldType: cText,
+    name: 'ProjectEditOptions',
+    maxLength: 255,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Hidden field used to remember settings on Project Edit page for this project.',
+        Hidden: true,
+    },
+};
+
 
 /***
  *    d888888b d888888b .88b  d88. d88888b       .d88b.  d8b   db db      db    db 
@@ -224,13 +476,210 @@ export const HistoryTMT : IMultiLineTextField = {
  *                                                                                 
  */
 
-export const CCEmail : ITextField = {
+
+export const Activity : IURLField = {
+    fieldType: cURL,
+    name: 'Activity',
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Link to the activity you are working on.',
+    }
+};
+
+export const DeltaT : INumberField = {
+    fieldType: cNumb,
+    name: 'DeltaT',
+    minValue: minInfinity,
+    maxValue: maxInfinity,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'May be used to indicate difference between when an entry is created and the actual time of the entry.',
+    }
+};
+
+export const Comments : ITextField = {
     fieldType: cText,
-    name: 'CCEmail',
+    name: 'Comments',
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
-        Description: 'To be used by webpart to email this address for every entry.  Not yet used.',
+    },
+};
+
+export const DescriptionSaveAtTime = 'Saved at time of creation for comparison of changes.';
+export const OriginalHours : INumberField = {
+    fieldType: cNumb,
+    name: 'OriginalHours',
+    minValue: minInfinity,
+    maxValue: maxInfinity,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: DescriptionSaveAtTime,
+    },
+    changesFinal: {
+        Hidden: true,
+    },
+};
+
+export const StartTime : IDateTimeField = {
+    fieldType: cDate,
+    name: 'StartTime',
+    displayFormat:  DateTimeFieldFormatType.DateTime,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Start Time for this entry.',
+        Indexed: true,
+        Required: true,
+    },
+};
+
+export const EndTime : IDateTimeField = {
+    fieldType: cDate,
+    name: 'EndTime',
+    displayFormat:  DateTimeFieldFormatType.DateTime,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'End Time for this entry.',
+        Required: true,
+    },
+};
+
+export const OriginalStart : IDateTimeField = {
+    fieldType: cDate,
+    name: 'OriginalStart',
+    displayFormat:  DateTimeFieldFormatType.DateTime,
+    onCreateProps: {
+        Group: thisColumnGroup,        
+        Description: DescriptionSaveAtTime,
+        Indexed: true,
+        Required: true,
+    },
+    changesFinal: {
+        Hidden: true,
+    },
+};
+
+export const OriginalEnd : IDateTimeField = {
+    fieldType: cDate,
+    name: 'OriginalEnd',
+    displayFormat:  DateTimeFieldFormatType.DateTime,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: DescriptionSaveAtTime,
+        Required: true,
+    },
+    changesFinal: {
+        Hidden: true,
+    },
+};
+
+export const Hours : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'Hours',
+    formula: '=IFERROR(24*(EndTime-StartTime),"")',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    outputType: FieldTypes.Number,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Calculates Start to End time in Hours.',
+    },
+};
+
+export const Days : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'Days',
+    formula: '=IFERROR((EndTime-StartTime),"")',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    outputType: FieldTypes.Number,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Calculates Start to End time in Days.',
+    },
+};
+
+export const Minutes : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'Minutes',
+    formula: '=IFERROR(24*60*(EndTime-StartTime),"")',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    outputType: FieldTypes.Number,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Calculates Start to End time in Minutes.',
+    },
+};
+
+export const KeyChanges : ICalculatedField = {
+    fieldType: cCalc,
+    name: 'KeyChanges',
+    formula: '=IF(OriginalHours="","-NoOriginalHours",IF(ABS(Hours-OriginalHours)>0.05,"-HoursChanged",""))&IF(OriginalStart="","-NoOriginalStart",IF(StartTime<>OriginalStart,"-StartChanged",""))&IF(OriginalEnd="","-NoOriginalEnd",IF(EndTime<>OriginalEnd,"-EndChanged",""))',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    outputType: FieldTypes.Number,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Calculates if significant changes were made after item was created.',
+    },
+};
+
+export const SourceProject : IURLField = {
+    fieldType: cURL,
+    name: 'SourceProject',
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Link to the Project List item used to create this entry.',
+    }
+};
+
+export const SourceProjectRef : ITextField = {
+    fieldType: cText,
+    name: 'SourceProjectRef',
+    maxLength: 255,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Used by webpart to get source project information.',
+        Hidden: true,
+        Indexed: true,
+    },
+};
+
+export const Settings : ITextField = {
+    fieldType: cText,
+    name: 'Settings',
+    maxLength: 255,
+    onCreateProps: {
+        Description: 'For internal use of webpart',
+        Group: thisColumnGroup,
+    },
+};
+
+export const Location : ITextField = {
+    fieldType: cText,
+    name: 'Location',
+    maxLength: 255,
+    onCreateProps: {
+        Description: 'Optional category to indicate where time was spent.  Such as Office, Customer, Home, Traveling etc.',
+        Group: thisColumnGroup,
+    },
+};
+
+export const EntryType : ITextField = {
+    fieldType: cText,
+    name: 'EntryType',
+    maxLength: 255,
+    onCreateProps: {
+        Description: 'Shows what entry type was used, used in Charting.',
+        Group: thisColumnGroup,
+    },
+};
+
+export const User : IUserField = {
+    fieldType: cUser,
+    name: 'User',
+    selectionMode: FieldUserSelectionMode.PeopleOnly,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'The person this time entry applies to.',
+        Indexed: true
     }
 };
 
@@ -289,11 +738,23 @@ export const CCEmail : ITextField = {
  * Each list would have an array of field objects like this.
  */
 
+
 export function TMTProjectFields() {
+    let theseFields: IMyFieldTypes[] = TMTFields('Project');
+    return theseFields;
+}
+
+export function TMTTimeFields() {
+    let theseFields: IMyFieldTypes[] = TMTFields('Time');
+    return theseFields;
+}
+
+export function TMTFields(listName: 'Project' | 'Time') {
 
     let theseFields: IMyFieldTypes[] = [];
-    theseFields.push(SortOrder);  //Project
-    theseFields.push(Everyone);  //Project
+    if (listName === 'Project' ) { theseFields.push(SortOrder); }  //Project
+    if (listName === 'Project' ) { theseFields.push(Everyone); }  //Project
+
     theseFields.push(Leader);  //BOTH
     theseFields.push(Team);  //BOTH
 
@@ -302,16 +763,61 @@ export function TMTProjectFields() {
     
     theseFields.push(ProjectID1);  //BOTH
     theseFields.push(ProjectID1);  //BOTH
+    theseFields.push(Story);  //BOTH
+    theseFields.push(Chapter);  //BOTH
 
-    theseFields.push(HistoryTMT);  //Project
+    if (listName === 'Project' ) { theseFields.push(ActivityType); }  //Project
+    if (listName === 'Project' ) { theseFields.push(ActivityTMT); }  //Project
+    if (listName === 'Project' ) { theseFields.push(ActivtyURLCalc); }  //Project
+    if (listName === 'Project' ) { theseFields.push(OptionsTMT); }  //Project
+    if (listName === 'Project' ) { theseFields.push(OptionsTMTCalc); }  //Project
+
+    theseFields.push(StatusTMT);  //BOTH        - must be before StatusNumber, StatusText, StepChecks, EffectiveStatus, IsOpen
+    theseFields.push(StatusNumber);  //BOTH     - must be before StatusNumber, StatusText, StepChecks, EffectiveStatus, IsOpen
+    theseFields.push(StatusText);  //BOTH       - must be before StatusNumber, StatusText, StepChecks, EffectiveStatus, IsOpen
+
+    let checks = StepChecks(0,5);  //Project
+    theseFields.push(...checks);  //Project
+
+    if (listName === 'Project' ) { theseFields.push(EffectiveStatus); }  //Project
+    if (listName === 'Project' ) { theseFields.push(IsOpen); }  //Project
+
+    theseFields.push(DueDateTMT);  //BOTH
+    theseFields.push(CompletedDateTMT);  //BOTH
+    theseFields.push(CompletedByTMT);  //BOTH
+
+    if (listName === 'Project' ) { theseFields.push(ProjectEditOptions); }  //Project
+    if (listName === 'Project' ) { theseFields.push(HistoryTMT); }  //Project
+    if (listName === 'Project' ) { theseFields.push(TimeTarget); }  //Project
+
+    if (listName === 'Time' ) { theseFields.push(Activity); }  //Time
+    if (listName === 'Time' ) { theseFields.push(DeltaT); }  //Time
+    if (listName === 'Time' ) { theseFields.push(Comments); }  //Time
+
+    if (listName === 'Time' ) { theseFields.push(User); }  //Time
+    if (listName === 'Time' ) { theseFields.push(StartTime); }  //Time      - must be before Hours, Days, Minutes, KeyChanges
+    if (listName === 'Time' ) { theseFields.push(EndTime); }  //Time        - must be before Hours, Days, Minutes, KeyChanges
+    if (listName === 'Time' ) { theseFields.push(OriginalStart); }  //Time  - must be before Hours, Days, Minutes, KeyChanges
+    if (listName === 'Time' ) { theseFields.push(OriginalEnd); }  //Time    - must be before Hours, Days, Minutes, KeyChanges
+    if (listName === 'Time' ) { theseFields.push(OriginalHours); }  //Time  - must be before KeyChanges
+
+    if (listName === 'Time' ) { theseFields.push(Hours); }  //Time
+    if (listName === 'Time' ) { theseFields.push(Days); }  //Time
+    if (listName === 'Time' ) { theseFields.push(Minutes); }  //Time
+    if (listName === 'Time' ) { theseFields.push(KeyChanges); }  //Time
+
+    if (listName === 'Time' ) { theseFields.push(SourceProject); }  //Time
+    if (listName === 'Time' ) { theseFields.push(SourceProjectRef); }  //Time
+
+    if (listName === 'Time' ) { theseFields.push(Settings); }  //Time
+    if (listName === 'Time' ) { theseFields.push(Location); }  //Time
+    if (listName === 'Time' ) { theseFields.push(EntryType); }  //Time
+
+    theseFields.push(CCList);  //BOTH
+    theseFields.push(CCEmail);  //BOTH
 
     return theseFields;
+
 }
 
-export function TMTTimeFields() {
 
-    let theseFields: IMyFieldTypes[] = [];
-
-
-    return theseFields;
-}

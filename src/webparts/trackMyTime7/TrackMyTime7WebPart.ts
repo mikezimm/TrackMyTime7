@@ -337,38 +337,38 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
           let fieldSchema = '';
           if (isProject){
-            fieldDescription = "Used by webpart to sort list of projects";
-            fieldSchema = '<Field Type="Number" DisplayName="SortOrder" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Min="0" Max="1000" Decimals="1" ID="{a65f6333-dd5d-49af-acf9-68f1606052f2}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="SortOrder" Name="SortOrder" ColName="float1" RowOrdinal="0" />';
-            const sortOrder: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+//            fieldDescription = "Used by webpart to sort list of projects";
+//            fieldSchema = '<Field Type="Number" DisplayName="SortOrder" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Min="0" Max="1000" Decimals="1" ID="{a65f6333-dd5d-49af-acf9-68f1606052f2}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="SortOrder" Name="SortOrder" ColName="float1" RowOrdinal="0" />';
+//            const sortOrder: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
   
-            fieldDescription = "Used by webpart to easily find common or standard Project Items";
-            fieldSchema = '<Field Type="Boolean" DisplayName="Everyone" Description="' +  fieldDescription + '" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{67fa37c2-2ccf-4c30-b586-ce876955cb12}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Everyone" Name="Everyone" ColName="bit2" RowOrdinal="0"><Default>0</Default></Field>';
-            const everyone: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);   
+//            fieldDescription = "Used by webpart to easily find common or standard Project Items";
+//            fieldSchema = '<Field Type="Boolean" DisplayName="Everyone" Description="' +  fieldDescription + '" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{67fa37c2-2ccf-4c30-b586-ce876955cb12}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Everyone" Name="Everyone" ColName="bit2" RowOrdinal="0"><Default>0</Default></Field>';
+//            const everyone: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);   
 
           }
 
-          fieldDescription = "Leader of this Project Item.  Helps you find Projects you own";
-          fieldSchema = '<Field DisplayName="Leader" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Name="Leader" Title="Leader" Type="User" Indexed="TRUE" UserSelectionMode="1" UserSelectionScope="0" ID="{10e58bd6-3722-47a9-a34c-87c2dcade2aa}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Leader" ColName="int1" RowOrdinal="0" />';
-          const leader: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+//          fieldDescription = "Leader of this Project Item.  Helps you find Projects you own";
+//          fieldSchema = '<Field DisplayName="Leader" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Name="Leader" Title="Leader" Type="User" Indexed="TRUE" UserSelectionMode="1" UserSelectionScope="0" ID="{10e58bd6-3722-47a9-a34c-87c2dcade2aa}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Leader" ColName="int1" RowOrdinal="0" />';
+//          const leader: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldDescription = "Other Team Members for this project. Helps you find projects you are working on.";
-          fieldSchema = '<Field DisplayName="Team" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Mult="TRUE" Name="Team" Title="Team" Type="UserMulti" UserSelectionMode="0" UserSelectionScope="0" ID="{1614eec8-246a-4d63-9ce9-eb8c8a733af1}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Team" ColName="int2" RowOrdinal="0" />';
-          const team: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+//          fieldDescription = "Other Team Members for this project. Helps you find projects you are working on.";
+//          fieldSchema = '<Field DisplayName="Team" Description="' +  fieldDescription + '" Format="Dropdown" List="UserInfo" Mult="TRUE" Name="Team" Title="Team" Type="UserMulti" UserSelectionMode="0" UserSelectionScope="0" ID="{1614eec8-246a-4d63-9ce9-eb8c8a733af1}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="Team" ColName="int2" RowOrdinal="0" />';
+//          const team: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldDescription = "Project level choice category in entry form.";
-          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category1" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category1" Title="Category1" Type="MultiChoice" ID="{b04db900-ab45-415d-bb11-336704f82d31}" Version="4" Group="' + columnGroup + '" StaticName="Category1" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext3" RowOrdinal="0" CustomFormatter="" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>Daily</CHOICE><CHOICE>SPFx</CHOICE><CHOICE>Assistance</CHOICE><CHOICE>Team Meetings</CHOICE><CHOICE>Training</CHOICE><CHOICE>------</CHOICE><CHOICE>Other</CHOICE></CHOICES></Field>';
-          const category1: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+//          fieldDescription = "Project level choice category in entry form.";
+//          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category1" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category1" Title="Category1" Type="MultiChoice" ID="{b04db900-ab45-415d-bb11-336704f82d31}" Version="4" Group="' + columnGroup + '" StaticName="Category1" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext3" RowOrdinal="0" CustomFormatter="" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>Daily</CHOICE><CHOICE>SPFx</CHOICE><CHOICE>Assistance</CHOICE><CHOICE>Team Meetings</CHOICE><CHOICE>Training</CHOICE><CHOICE>------</CHOICE><CHOICE>Other</CHOICE></CHOICES></Field>';
+//          const category1: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
           
-          fieldDescription = "Project level choice category in entry form.";
-          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category2" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category2" Title="Category2" Type="MultiChoice" ID="{ee040745-8628-479a-b865-98e35c9b6617}" Version="3" Group="' + columnGroup + '" StaticName="Category2" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext2" RowOrdinal="0" CustomFormatter="" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>EU</CHOICE><CHOICE>NA</CHOICE><CHOICE>SA</CHOICE><CHOICE>Asia</CHOICE></CHOICES></Field>';
-          const category2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+//          fieldDescription = "Project level choice category in entry form.";
+//          fieldSchema = '<Field ClientSideComponentId="00000000-0000-0000-0000-000000000000" DisplayName="Category2" Description="' +  fieldDescription + '" FillInChoice="TRUE" Format="Dropdown" Name="Category2" Title="Category2" Type="MultiChoice" ID="{ee040745-8628-479a-b865-98e35c9b6617}" Version="3" Group="' + columnGroup + '" StaticName="Category2" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" ColName="ntext2" RowOrdinal="0" CustomFormatter="" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE"><CHOICES><CHOICE>EU</CHOICE><CHOICE>NA</CHOICE><CHOICE>SA</CHOICE><CHOICE>Asia</CHOICE></CHOICES></Field>';
+//          const category2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-          fieldDescription = "Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation";
-          fieldSchema = '<Field Type="Text" DisplayName="ProjectID1" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{f844fefd-8fde-4227-9707-5facc835c7ed}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="ProjectID1" Name="ProjectID1" ColName="nvarchar4" RowOrdinal="0" />';
-          const projectID1: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+//          fieldDescription = "Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation";
+//          fieldSchema = '<Field Type="Text" DisplayName="ProjectID1" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{f844fefd-8fde-4227-9707-5facc835c7ed}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="ProjectID1" Name="ProjectID1" ColName="nvarchar4" RowOrdinal="0" />';
+//          const projectID1: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
           
-          fieldSchema = '<Field Type="Text" DisplayName="ProjectID2" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{432aeccc-6f3a-4bf0-b451-6970c0eb292d}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="ProjectID2" Name="ProjectID2" ColName="nvarchar5" RowOrdinal="0" />';
-          const projectID2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+//          fieldSchema = '<Field Type="Text" DisplayName="ProjectID2" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{432aeccc-6f3a-4bf0-b451-6970c0eb292d}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="ProjectID2" Name="ProjectID2" ColName="nvarchar5" RowOrdinal="0" />';
+//          const projectID2: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
 
 /***
@@ -384,46 +384,46 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
 
 
           if ( isProject ) {
-            fieldDescription = "Used by webpart to define targets for charting.";
-            fieldSchema = '<Field Type="Text" DisplayName="TimeTarget" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{02c5c9a7-7690-4efe-8e75-404a90654946}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="TimeTarget" Name="TimeTarget" ColName="nvarchar6" RowOrdinal="0" />';
-            const timeTarget: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
+//            fieldDescription = "Used by webpart to define targets for charting.";
+//            fieldSchema = '<Field Type="Text" DisplayName="TimeTarget" Description="' +  fieldDescription + '" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{02c5c9a7-7690-4efe-8e75-404a90654946}" SourceID="{53db1cec-2e4f-4db9-b4be-8abbbae91ee7}" Group="' + columnGroup + '" StaticName="TimeTarget" Name="TimeTarget" ColName="nvarchar6" RowOrdinal="0" />';
+//            const timeTarget: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-            fieldDescription = "Used as rule to apply to Project Activy Text to build Activity URL";
-            const choicesA = [`Build`, `Test`, `Ship`, `Verify`, `Order`];
+//            fieldDescription = "Used as rule to apply to Project Activy Text to build Activity URL";
+//            const choicesA = [`Build`, `Test`, `Ship`, `Verify`, `Order`];
           
             //NOTE that allow user fill in is determined by isProject
-            const choicesA1 = await ensureResult.list.fields.addChoice("ActivityType", choicesA, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription });
+//            const choicesA1 = await ensureResult.list.fields.addChoice("ActivityType", choicesA, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription });
             //const choicesA2 = await ensureResult.list.fields.getByTitle("ActivityType").update({Title: 'ActivityType'});
 
-            fieldDescription = "Used to complete Activity URL based on the selected choice.  Auto Builds Activity Link in TrackMyTime form.";
-            const Activity1: IFieldAddResult = await ensureResult.list.fields.addText("ActivityTMT", 255, { Group: columnGroup, Description: fieldDescription });
-            const Activity1S = await ensureResult.list.fields.getByTitle("ActivityTMT").update({Title: 'Activity'});
+//            fieldDescription = "Used to complete Activity URL based on the selected choice.  Auto Builds Activity Link in TrackMyTime form.";
+//            const Activity1: IFieldAddResult = await ensureResult.list.fields.addText("ActivityTMT", 255, { Group: columnGroup, Description: fieldDescription });
+//            const Activity1S = await ensureResult.list.fields.getByTitle("ActivityTMT").update({Title: 'Activity'});
 
-            let formula1 = '=IF(ActivityType="Build","https://plm. ..... /enovia/common/emxNavigator.jsp?type=GEOBuildOrder&name=[Activity]&rev=-&return=specific",IF(ActivityType="Ship","https://alvweb.alv.autoliv.int/PRISM/SalesOrder_List.aspx?Order=[Activity]",IF(ActivityType="TMT Issue","https://github.com/mikezimm/TrackMyTime7/issues/[Activity]",IF(ActivityType="Socialiis Issue","https://github.com/mikezimm/Social-iis-7/issues/[Activity]",IF(ActivityType="Pivot Tiles Issue","https://github.com/mikezimm/Pivot-Tiles/issues/[Activity]","")))))';
-            const ActivtyURLCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated("ActivtyURLCalc", formula1, DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
-            const ActivtyURLCalc2 = await ensureResult.list.fields.getByTitle("ActivtyURLCalc").update({Title: 'ActivityURL^'});
+//            let formula1 = '=IF(ActivityType="Build","https://plm. ..... /enovia/common/emxNavigator.jsp?type=GEOBuildOrder&name=[Activity]&rev=-&return=specific",IF(ActivityType="Ship","https://alvweb.alv.autoliv.int/PRISM/SalesOrder_List.aspx?Order=[Activity]",IF(ActivityType="TMT Issue","https://github.com/mikezimm/TrackMyTime7/issues/[Activity]",IF(ActivityType="Socialiis Issue","https://github.com/mikezimm/Social-iis-7/issues/[Activity]",IF(ActivityType="Pivot Tiles Issue","https://github.com/mikezimm/Pivot-Tiles/issues/[Activity]","")))))';
+//            const ActivtyURLCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated("ActivtyURLCalc", formula1, DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//            const ActivtyURLCalc2 = await ensureResult.list.fields.getByTitle("ActivtyURLCalc").update({Title: 'ActivityURL^'});
 
-            fieldDescription = "Special field for enabling special project level options in the webpart.";
-            const OptionsTMT: IFieldAddResult = await ensureResult.list.fields.addText("OptionsTMT", 255, { Group: columnGroup, Description: fieldDescription });
-            const OptionsTMT2 = await ensureResult.list.fields.getByTitle("OptionsTMT").update({Title: 'Options'});
+ //           fieldDescription = "Special field for enabling special project level options in the webpart.";
+ //           const OptionsTMT: IFieldAddResult = await ensureResult.list.fields.addText("OptionsTMT", 255, { Group: columnGroup, Description: fieldDescription });
+ //           const OptionsTMT2 = await ensureResult.list.fields.getByTitle("OptionsTMT").update({Title: 'Options'});
 
-            let thisFormula = '=IF(ISNUMBER(FIND("JIRA",ActivityType)),"icon=Info;","")&IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")&IF(ISNUMBER(FIND("Test",Title)),"icon=TestAutoSolid;","")';
-            const OptionsTMTCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated('OptionsTMTCalc', thisFormula, DateTimeFieldFormatType.DateOnly, FieldTypes.Text, { Group: columnGroup, Description: fieldDescription });
-            const OptionsTMTCalc2 = await ensureResult.list.fields.getByTitle("OptionsTMTCalc").update({Title: 'Options^'});
+//            let thisFormula = '=IF(ISNUMBER(FIND("JIRA",ActivityType)),"icon=Info;","")&IF(OR(ISNUMBER(FIND("Lunch",Title)),ISNUMBER(FIND("Break",Title))),"icon=EatDrink;fColor=green","")&IF(ISNUMBER(FIND("Email",Title)),"icon=MailCheck;","")&IF(ISNUMBER(FIND("Training",Title)),"icon=BookAnswers;fColor=blue","")&IF(ISNUMBER(FIND("Meet",Title)),"icon=Group;","")&IF(ISNUMBER(FIND("Test",Title)),"icon=TestAutoSolid;","")';
+//            const OptionsTMTCalc: IFieldAddResult = await ensureResult.list.fields.addCalculated('OptionsTMTCalc', thisFormula, DateTimeFieldFormatType.DateOnly, FieldTypes.Text, { Group: columnGroup, Description: fieldDescription });
+//            const OptionsTMTCalc2 = await ensureResult.list.fields.getByTitle("OptionsTMTCalc").update({Title: 'Options^'});
 
           }
 
-          fieldDescription = "Used by web part to create Time Entry on secondary list at the same time... aka like Cc in email.";
-          const ccList: IFieldAddResult = await ensureResult.list.fields.addUrl("CCList", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
+//          fieldDescription = "Used by web part to create Time Entry on secondary list at the same time... aka like Cc in email.";
+//          const ccList: IFieldAddResult = await ensureResult.list.fields.addUrl("CCList", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
 
-          fieldDescription = "To be used by webpart to email this address for every entry.  Not yet used.";
-          const ccEmail: IFieldAddResult = await ensureResult.list.fields.addText("CCEmail", 255, { Group: columnGroup, Description: fieldDescription });
+//          fieldDescription = "To be used by webpart to email this address for every entry.  Not yet used.";
+//          const ccEmail: IFieldAddResult = await ensureResult.list.fields.addText("CCEmail", 255, { Group: columnGroup, Description: fieldDescription });
 
-          fieldDescription = "Special field in Project list used create a Story in Charts. This is the primary filter for the Chart Story page.";
-          const story: IFieldAddResult = await ensureResult.list.fields.addText("Story", 255, { Group: columnGroup, Description: fieldDescription, Indexed: true });
+//          fieldDescription = "Special field in Project list used create a Story in Charts. This is the primary filter for the Chart Story page.";
+//          const story: IFieldAddResult = await ensureResult.list.fields.addText("Story", 255, { Group: columnGroup, Description: fieldDescription, Indexed: true });
 
-          fieldDescription = "Special field in Project list used create a Story in Charts. Consider this the primary category for the Story Chart.";
-          const chapter: IFieldAddResult = await ensureResult.list.fields.addText("Chapter", 255, { Group: columnGroup, Description: fieldDescription, Indexed: true });
+//         fieldDescription = "Special field in Project list used create a Story in Charts. Consider this the primary category for the Story Chart.";
+//          const chapter: IFieldAddResult = await ensureResult.list.fields.addText("Chapter", 255, { Group: columnGroup, Description: fieldDescription, Indexed: true });
 
           /**
            * Status related fields - Only on Projects list
@@ -432,12 +432,12 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
            */
           
           //NOTE that allow user fill in is determined by isProject
-          const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", statusChoices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription, DefaultFormula:'="0. Review"' });
-          const statusTMT2 = await ensureResult.list.fields.getByTitle("StatusTMT").update({Title: 'Status'});
+//          const statusTMT = await ensureResult.list.fields.addChoice("StatusTMT", statusChoices, ChoiceFieldFormatType.Dropdown, isProject, { Group: columnGroup, Description: fieldDescription, DefaultFormula:'="0. Review"' });
+//          const statusTMT2 = await ensureResult.list.fields.getByTitle("StatusTMT").update({Title: 'Status'});
 
-          fieldDescription = "Used in various places to track status.";
-          const statNumber: IFieldAddResult = await ensureResult.list.fields.addCalculated("StatusNumber", '=VALUE(LEFT(Status,1))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
-          const statusText: IFieldAddResult = await ensureResult.list.fields.addCalculated("StatusText", '=TRIM(MID(Status,FIND(".",Status)+1,100))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//          fieldDescription = "Used in various places to track status.";
+//          const statNumber: IFieldAddResult = await ensureResult.list.fields.addCalculated("StatusNumber", '=VALUE(LEFT(Status,1))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//          const statusText: IFieldAddResult = await ensureResult.list.fields.addCalculated("StatusText", '=TRIM(MID(Status,FIND(".",Status)+1,100))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
           /**
            * Only have these on Project / Task list
@@ -446,39 +446,39 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
           //Create StepChecks
           if (isProject){
             fieldDescription = "Can be used to have checks at different status to impact Effective Status instead of just a number.";
-            for (let i = 0; i < 6; i++) {
-              let thisCheck = i === 0 ? '=IF(AND([StatusNumber]>' + i + ',[StatusNumber]>' + i + '),"Yes","No")'
-              : '=IF(AND(Step' + (i - 1) + 'Check="Yes",[StatusNumber]>' + i + '),"Yes","No")';
-              const stepCheck: IFieldAddResult = await ensureResult.list.fields.addCalculated('Step' + i + 'Check', thisCheck, DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//            for (let i = 0; i < 6; i++) {
+//              let thisCheck = i === 0 ? '=IF(AND([StatusNumber]>' + i + ',[StatusNumber]>' + i + '),"Yes","No")'
+//              : '=IF(AND(Step' + (i - 1) + 'Check="Yes",[StatusNumber]>' + i + '),"Yes","No")';
+//              const stepCheck: IFieldAddResult = await ensureResult.list.fields.addCalculated('Step' + i + 'Check', thisCheck, DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//  
+//            }
   
-            }
-  
-            const effectiveStatus: IFieldAddResult = await ensureResult.list.fields.addCalculated("EffectiveStatus", '=(IF([StatusNumber]=9,9,IF([StatusNumber]=8,8,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0))))))))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
-            const stepCheck2: IFieldAddResult = await ensureResult.list.fields.addCalculated('IsOpen', '=IF(EffectiveStatus<4,"Yes","No") ', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });  
+//            const effectiveStatus: IFieldAddResult = await ensureResult.list.fields.addCalculated("EffectiveStatus", '=(IF([StatusNumber]=9,9,IF([StatusNumber]=8,8,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0))))))))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//            const stepCheck2: IFieldAddResult = await ensureResult.list.fields.addCalculated('IsOpen', '=IF(EffectiveStatus<4,"Yes","No") ', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });  
 
             // Need to add DueDate column at some point.          
             //const dueDate: IField = await sp.web.fields.getByInternalNameOrTitle('TaskDueDate');
             //const dueDateField = await ensureResult.list.fields.addDateTime("TaskDueDate", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Indexed: true });
 
-            fieldSchema = '<Field ID="{cd21b4c2-6841-4f9e-a23a-738a65f99889}" Name="TaskDueDate" Group="Core Task and Issue Columns" Type="DateTime" DisplayName="Due Date" SourceID="http://schemas.microsoft.com/sharepoint/v3/fields" StaticName="TaskDueDate" Format="DateOnly" DelayActivateTemplateBinding="GROUP,SPSPERS,SITEPAGEPUBLISHING" AllowDeletion="TRUE" ColName="datetime2" RowOrdinal="0" />';
+//            fieldSchema = '<Field ID="{cd21b4c2-6841-4f9e-a23a-738a65f99889}" Name="TaskDueDate" Group="Core Task and Issue Columns" Type="DateTime" DisplayName="Due Date" SourceID="http://schemas.microsoft.com/sharepoint/v3/fields" StaticName="TaskDueDate" Format="DateOnly" DelayActivateTemplateBinding="GROUP,SPSPERS,SITEPAGEPUBLISHING" AllowDeletion="TRUE" ColName="datetime2" RowOrdinal="0" />';
 //            const dueDateField: IFieldAddResult = await ensureResult.list.fields.createFieldAsXml(fieldSchema);
 
-            fieldDescription = "For use when using Project List for Task tracking.";
-            const dueDate: IFieldAddResult = await ensureResult.list.fields.addDateTime("DueDateTMT", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Description: fieldDescription });
-            const completeDate: IFieldAddResult = await ensureResult.list.fields.addDateTime("CompletedDateTMT", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Description: fieldDescription });
-            const completedBy: IFieldAddResult = await ensureResult.list.fields.addUser("CompletedByTMT", FieldUserSelectionMode.PeopleOnly, { Group: columnGroup, Description: fieldDescription, Indexed: true });
+//            fieldDescription = "For use when using Project List for Task tracking.";
+//            const dueDate: IFieldAddResult = await ensureResult.list.fields.addDateTime("DueDateTMT", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Description: fieldDescription });
+//            const completeDate: IFieldAddResult = await ensureResult.list.fields.addDateTime("CompletedDateTMT", DateTimeFieldFormatType.DateOnly, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Description: fieldDescription });
+//            const completedBy: IFieldAddResult = await ensureResult.list.fields.addUser("CompletedByTMT", FieldUserSelectionMode.PeopleOnly, { Group: columnGroup, Description: fieldDescription, Indexed: true });
 
-            fieldDescription = "Special field for change history from webpart.";
-            const HistoryTMT: IFieldAddResult = await ensureResult.list.fields.addMultilineText("HistoryTMT", 6, false, false, false, false, { Group: columnGroup, Description: fieldDescription  });
-            const HistoryTMT2= await ensureResult.list.fields.getByTitle("HistoryTMT").update({ Hidden: true });
+//            fieldDescription = "Special field for change history from webpart.";
+//            const HistoryTMT: IFieldAddResult = await ensureResult.list.fields.addMultilineText("HistoryTMT", 6, false, false, false, false, { Group: columnGroup, Description: fieldDescription  });
+//            const HistoryTMT2= await ensureResult.list.fields.getByTitle("HistoryTMT").update({ Hidden: true });
 
-            fieldDescription = "Hidden field used to remember settings on Project Edit page for this project.";
-            const projectEditOptions: IFieldAddResult = await ensureResult.list.fields.addText("ProjectEditOptions", 255, { Group: columnGroup, Description: fieldDescription });
-            const projectEditOption2= await ensureResult.list.fields.getByTitle("ProjectEditOptions").update({ Hidden: true });
+//            fieldDescription = "Hidden field used to remember settings on Project Edit page for this project.";
+//            const projectEditOptions: IFieldAddResult = await ensureResult.list.fields.addText("ProjectEditOptions", 255, { Group: columnGroup, Description: fieldDescription });
+//            const projectEditOption2= await ensureResult.list.fields.getByTitle("ProjectEditOptions").update({ Hidden: true });
 
-            const dueDate2= await ensureResult.list.fields.getByTitle("DueDateTMT").update({ Title: 'Due Date' });
-            const completeDate2= await ensureResult.list.fields.getByTitle("CompletedDateTMT").update({ Title: 'Completed' });
-            const completedBy2= await ensureResult.list.fields.getByTitle("CompletedByTMT").update({ Title: 'Completed By' });
+//            const dueDate2= await ensureResult.list.fields.getByTitle("DueDateTMT").update({ Title: 'Due Date' });
+//            const completeDate2= await ensureResult.list.fields.getByTitle("CompletedDateTMT").update({ Title: 'Completed' });
+//            const completedBy2= await ensureResult.list.fields.getByTitle("CompletedByTMT").update({ Title: 'Completed By' });
 
           }
   
@@ -490,64 +490,65 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             let minInfinity: number = -1.7976931348623157e+308;
             let maxInfinity = -1 * minInfinity ;
 
-            fieldDescription = "Link to the activity you are working on";
-            const activity: IFieldAddResult = await ensureResult.list.fields.addUrl("Activity", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "Link to the activity you are working on";
+//            const activity: IFieldAddResult = await ensureResult.list.fields.addUrl("Activity", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
             
-            fieldDescription = "May be used to indicate difference between when an entry is created and the actual time of the entry.";
-            const deltaT: IFieldAddResult = await ensureResult.list.fields.addNumber("DeltaT", minInfinity, maxInfinity, { Group: columnGroup, Description: fieldDescription });
-            const comments: IFieldAddResult = await ensureResult.list.fields.addText("Comments", 255, { Group: columnGroup });
+//            fieldDescription = "May be used to indicate difference between when an entry is created and the actual time of the entry.";
+//            const deltaT: IFieldAddResult = await ensureResult.list.fields.addNumber("DeltaT", minInfinity, maxInfinity, { Group: columnGroup, Description: fieldDescription });
+//            const comments: IFieldAddResult = await ensureResult.list.fields.addText("Comments", 255, { Group: columnGroup });
 
-            fieldDescription = "Saved at time of creation for comparison of changes.";
-            const originalHours: IFieldAddResult = await ensureResult.list.fields.addNumber("OriginalHours", minInfinity, maxInfinity, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "Saved at time of creation for comparison of changes.";
+//            const originalHours: IFieldAddResult = await ensureResult.list.fields.addNumber("OriginalHours", minInfinity, maxInfinity, { Group: columnGroup, Description: fieldDescription });
 
-            const endTime: IFieldAddResult = await ensureResult.list.fields.addDateTime("EndTime", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Required: true });
-            const startTime: IFieldAddResult = await ensureResult.list.fields.addDateTime("StartTime", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Required: true, Indexed: true });
+//            const endTime: IFieldAddResult = await ensureResult.list.fields.addDateTime("EndTime", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Required: true });
+//            const startTime: IFieldAddResult = await ensureResult.list.fields.addDateTime("StartTime", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup, Required: true, Indexed: true });
 
-            fieldDescription = "Saved at time of creation for comparison of changes.";
-            const originalStart: IFieldAddResult = await ensureResult.list.fields.addDateTime("OriginalStart", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup });
-            const originalEnd: IFieldAddResult = await ensureResult.list.fields.addDateTime("OriginalEnd", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup });
+//            fieldDescription = "Saved at time of creation for comparison of changes.";
+//            const originalStart: IFieldAddResult = await ensureResult.list.fields.addDateTime("OriginalStart", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup });
+//            const originalEnd: IFieldAddResult = await ensureResult.list.fields.addDateTime("OriginalEnd", DateTimeFieldFormatType.DateTime, CalendarType.Gregorian, DateTimeFieldFriendlyFormatType.Disabled, { Group: columnGroup });
 
-            fieldDescription = "Calculates Start to End time in Hours.";
-            const hours: IFieldAddResult = await ensureResult.list.fields.addCalculated("Hours", '=IFERROR(24*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "Calculates Start to End time in Hours.";
+//            const hours: IFieldAddResult = await ensureResult.list.fields.addCalculated("Hours", '=IFERROR(24*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
-            fieldDescription = "Calculates if significant changes were made after item was created.";
-            const keyChanges: IFieldAddResult = await ensureResult.list.fields.addCalculated("KeyChanges", '=IF(OriginalHours="","-NoOriginalHours",IF(ABS(Hours-OriginalHours)>0.05,"-HoursChanged",""))&IF(OriginalStart="","-NoOriginalStart",IF(StartTime<>OriginalStart,"-StartChanged",""))&IF(OriginalEnd="","-NoOriginalEnd",IF(EndTime<>OriginalEnd,"-EndChanged",""))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "Calculates if significant changes were made after item was created.";
+//            const keyChanges: IFieldAddResult = await ensureResult.list.fields.addCalculated("KeyChanges", '=IF(OriginalHours="","-NoOriginalHours",IF(ABS(Hours-OriginalHours)>0.05,"-HoursChanged",""))&IF(OriginalStart="","-NoOriginalStart",IF(StartTime<>OriginalStart,"-StartChanged",""))&IF(OriginalEnd="","-NoOriginalEnd",IF(EndTime<>OriginalEnd,"-EndChanged",""))', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
             //Hide these fields so they can't be seen (BUT ONLY AFTER KeyChanges Formula is created)
-            const originalHours2= await ensureResult.list.fields.getByTitle("OriginalHours").update({ Hidden: true });
-            const originalStart2= await ensureResult.list.fields.getByTitle("OriginalStart").update({ Hidden: true });
-            const originalEnd2= await ensureResult.list.fields.getByTitle("OriginalEnd").update({ Hidden: true });
+//            const originalHours2= await ensureResult.list.fields.getByTitle("OriginalHours").update({ Hidden: true });
+//            const originalStart2= await ensureResult.list.fields.getByTitle("OriginalStart").update({ Hidden: true });
+//            const originalEnd2= await ensureResult.list.fields.getByTitle("OriginalEnd").update({ Hidden: true });
 
-            fieldDescription = "Link to the Project List item used to create this entry.";
-            const sourceProject: IFieldAddResult = await ensureResult.list.fields.addUrl("SourceProject", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "Link to the Project List item used to create this entry.";
+//            const sourceProject: IFieldAddResult = await ensureResult.list.fields.addUrl("SourceProject", UrlFieldFormatType.Hyperlink, { Group: columnGroup, Description: fieldDescription });
 
-            fieldDescription = "Used by webpart to get source project information.";
-            const sourceProjectRef: IFieldAddResult = await ensureResult.list.fields.addText("SourceProjectRef", 255, { Group: columnGroup, Hidden: true, Description: fieldDescription, Indexed: true });
+//            fieldDescription = "Used by webpart to get source project information.";
+//            const sourceProjectRef: IFieldAddResult = await ensureResult.list.fields.addText("SourceProjectRef", 255, { Group: columnGroup, Hidden: true, Description: fieldDescription, Indexed: true });
 
-            fieldDescription = "The person this time entry applies to.";
-            const user: IFieldAddResult = await ensureResult.list.fields.addUser("User", FieldUserSelectionMode.PeopleOnly, { Group: columnGroup, Description: fieldDescription, Indexed: true });
+//            fieldDescription = "The person this time entry applies to.";
+//            const user: IFieldAddResult = await ensureResult.list.fields.addUser("User", FieldUserSelectionMode.PeopleOnly, { Group: columnGroup, Description: fieldDescription, Indexed: true });
 
-            fieldDescription = "For internal use of webpart";
-            const settings: IFieldAddResult = await ensureResult.list.fields.addText("Settings", 255, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "For internal use of webpart";
+//            const settings: IFieldAddResult = await ensureResult.list.fields.addText("Settings", 255, { Group: columnGroup, Description: fieldDescription });
 
-            fieldDescription = "Optional category to indicate where time was spent.  Such as Office, Customer, Home, Traveling etc.";
-            const location: IFieldAddResult = await ensureResult.list.fields.addText("Location", 255, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "Optional category to indicate where time was spent.  Such as Office, Customer, Home, Traveling etc.";
+//            const location: IFieldAddResult = await ensureResult.list.fields.addText("Location", 255, { Group: columnGroup, Description: fieldDescription });
 
-            fieldDescription = "Shows what entry type was used, used in Charting";
-            const entryType: IFieldAddResult = await ensureResult.list.fields.addText("EntryType", 255, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "Shows what entry type was used, used in Charting";
+//            const entryType: IFieldAddResult = await ensureResult.list.fields.addText("EntryType", 255, { Group: columnGroup, Description: fieldDescription });
 
-            fieldDescription = "Calculates Start to End time in Days.";
-            const days: IFieldAddResult = await ensureResult.list.fields.addCalculated("Days", '=IFERROR((EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "Calculates Start to End time in Days.";
+//            const days: IFieldAddResult = await ensureResult.list.fields.addCalculated("Days", '=IFERROR((EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
             // let hoursWithFormatSchema = '<Field Type="Calculated" DisplayName="Hours" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateOnly" Decimals="1" LCID="1033" ResultType="Number" ReadOnly="TRUE" ID="{3aba8d94-68e5-4368-a322-1e513c660506}" SourceID="{148e3b00-e7d3-4c93-b584-6c0dd2f74015}" StaticName="Hours" Name="Hours" ColName="sql_variant2" RowOrdinal="0" CustomFormatter="{"elmType":"div","children":[{"elmType":"span","txtContent":"@currentField","style":{"position":"absolute","white-space":"nowrap","padding":"0 4px"}},{"elmType":"div","attributes":{"class":{"operator":"?","operands":[{"operator":"&&","operands":[{"operator":"<","operands":[-8304,0]},{"operator":">","operands":[549,0]},{"operator":">=","operands":["@currentField",0]}]},"sp-field-dashedBorderRight",""]}},"style":{"min-height":"inherit","box-sizing":"border-box","padding-left":{"operator":"?","operands":[{"operator":">","operands":[0,-8304]},{"operator":"+","operands":[{"operator":"*","operands":[{"operator":"/","operands":[{"operator":"-","operands":[{"operator":"abs","operands":[-8304]},{"operator":"?","operands":[{"operator":"<","operands":["@currentField",0]},{"operator":"abs","operands":[{"operator":"?","operands":[{"operator":"<=","operands":["@currentField",-8304]},-8304,"@currentField"]}]},0]}]},8853]},100]},"%"]},0]}}},{"elmType":"div","attributes":{"class":{"operator":"?","operands":[{"operator":"&&","operands":[{"operator":"<","operands":[-8304,0]},{"operator":"<","operands":["@currentField",0]}]},"sp-css-backgroundColor-errorBackground sp-css-borderTop-errorBorder","sp-css-backgroundColor-blueBackground07 sp-css-borderTop-blueBorder"]}},"style":{"min-height":"inherit","box-sizing":"border-box","width":{"operator":"?","operands":[{"operator":">","operands":[0,-8304]},{"operator":"+","operands":[{"operator":"*","operands":[{"operator":"/","operands":[{"operator":"?","operands":[{"operator":"<=","operands":["@currentField",-8304]},{"operator":"abs","operands":[-8304]},{"operator":"?","operands":[{"operator":">=","operands":["@currentField",549]},549,{"operator":"abs","operands":["@currentField"]}]}]},8853]},100]},"%"]},{"operator":"?","operands":[{"operator":">=","operands":["@currentField",549]},"100%",{"operator":"?","operands":[{"operator":"<=","operands":["@currentField",-8304]},"0%",{"operator":"+","operands":[{"operator":"*","operands":[{"operator":"/","operands":[{"operator":"-","operands":["@currentField",-8304]},8853]},100]},"%"]}]}]}]}}},{"elmType":"div","style":{"min-height":"inherit","box-sizing":"border-box"},"attributes":{"class":{"operator":"?","operands":[{"operator":"&&","operands":[{"operator":"<","operands":[-8304,0]},{"operator":">","operands":[549,0]},{"operator":"<","operands":["@currentField",0]}]},"sp-field-dashedBorderRight",""]}}}],"templateId":"DatabarNumber"}" Version="1"><Formula>=IFERROR(24*(EndTime-StartTime),"")</Formula><FieldRefs><FieldRef Name="StartTime" /><FieldRef Name="EndTime" /></FieldRefs></Field>';
 
-            fieldDescription = "Calculates Start to End time in Minutes.";
-            const minutes: IFieldAddResult = await ensureResult.list.fields.addCalculated("Minutes", '=IFERROR(24*60*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
+//            fieldDescription = "Calculates Start to End time in Minutes.";
+//            const minutes: IFieldAddResult = await ensureResult.list.fields.addCalculated("Minutes", '=IFERROR(24*60*(EndTime-StartTime),"")', DateTimeFieldFormatType.DateOnly, FieldTypes.Number, { Group: columnGroup, Description: fieldDescription });
 
           }
-                    
-          const tbdInfo1: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo1", 255, { Group: columnGroup, Hidden: true });
-          const tbdInfo2: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo2", 255, { Group: columnGroup, Hidden: true  });
+              
+          //2020-06-23:  Removing, will just add real columns if needed.
+//          const tbdInfo1: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo1", 255, { Group: columnGroup, Hidden: true });
+//          const tbdInfo2: IFieldAddResult = await ensureResult.list.fields.addText("zzzTBDInfo2", 255, { Group: columnGroup, Hidden: true  });
 
           let viewXml = '';
           if (isTime) { //View schema specific for Time

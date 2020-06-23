@@ -10,6 +10,8 @@ import { IItemAddResult } from "@pnp/sp/items";
 import "@pnp/sp/lists";
 import { IListInfo } from './listTypes';
 
+export const minInfinity: number = -1.7976931348623157e+308;
+export const maxInfinity = -1 * minInfinity ;
 
 export interface MyListDef {
 title: string;
