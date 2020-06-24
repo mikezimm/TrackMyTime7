@@ -16,7 +16,7 @@ import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberF
 import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
     cMText, cText, cNumb, cURL, cUser, cMUser } from './columnTypes';
     
-import { IListInfo, IMyListInfo } from './listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify } from './listTypes';
 
 import { getHelpfullError } from '../ErrorHandler';
 
@@ -25,12 +25,9 @@ import "@pnp/sp/lists";
 import "@pnp/sp/fields";
 import "@pnp/sp/fields/list";
 
-export interface IFieldLog {
-    time: string;
-    step: string;
-    field: string;
-    verb: string;
-    status: string;
+
+export interface IFieldLog extends IServiceLog {
+    field?: string;
 }
 
 export const minInfinity: number = -1.7976931348623157e+308;
@@ -38,22 +35,6 @@ export const maxInfinity: number = -1 * minInfinity ;
 
 // addText(title: string, maxLength?: number, properties?: IFieldCreationProperties)
 // ensure(title: string, desc?: string, template?: number, enableContentTypes?: boolean, additionalSettings?: Partial<IListInfo>): Promise<IListEnsureResult>;
-
-export function notify(statusLog, step , f, verb, status, returnField, noAlert = false) {
-
-    let thisNotify = {
-        time: (new Date()).toLocaleString() ,  
-        step: step, field: f.name,  
-        verb: verb,   
-        status: status,
-    };
-    //alert(verb + ' ' + f.name + ' ' + status );
-    statusLog.push(thisNotify);
-
-    return statusLog;
-}
-
-
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
 export async function addTheseFields( steps : changes[], webURL, myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[], skipTry = false): Promise<IFieldLog[]>{

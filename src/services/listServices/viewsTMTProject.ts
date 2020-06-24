@@ -72,85 +72,13 @@ export const testProjectView : IMyView = {
 					{f: Team, 		c:'OR', 	o: Eq, 		v: queryValueCurrentUser },
 				],
     orders: [ {f: ootbID, o: 'asc'}],
-    groups: { fields: [
-		{f: ootbAuthor, o: ''},
-		{f: ootbCreated, o: 'asc'},
-	],
-	collapse: false, limit: 25},
-
+    groups: { collapse: false, limit: 25,
+		fields: [
+			{f: ootbAuthor, o: ''},
+			{f: ootbCreated, o: 'asc'},
+		],
+	},
 };
 
 export const projectViews : IMyView[] = [ testProjectView ];
 
-
-
-
-
-
-/**  Sample schema
- * <Where>
-	<And>
-		<Or>
-			<Or>
-				<Eq>
-					<FieldRef Name="Author" />
-					<Value Type="Integer">
-						<UserID Type="Integer" />
-					</Value>
-				</Eq>
-				<Eq>
-					<FieldRef Name="zzzApprover1" />
-					<Value Type="Integer">
-						<UserID Type="Integer" />
-					</Value>
-				</Eq>
-			</Or>
-			<Eq>
-				<FieldRef Name="zzzApprover2" />
-				<Value Type="Integer">
-					<UserID Type="Integer" />
-				</Value>
-			</Eq>
-		</Or>
-		<Eq>
-			<FieldRef Name="zzzEffectiveStatus" />
-			<Value Type="Text">4</Value>
-		</Eq>
-	</And>
-</Where>
-<Where>
-	<Or>
-		<Or>
-			<Or>
-				<Or>
-					<Eq>
-						<FieldRef Name="ID" />
-						<Value Type="Counter">1</Value>
-					</Eq>
-					<Eq>
-						<FieldRef Name="Everyone" />
-						<Value Type="Boolean">1</Value>
-					</Eq>
-				</Or>
-				<IsNull>
-					<FieldRef Name="Author" />
-				</IsNull>
-			</Or>
-			<Eq>
-				<FieldRef Name="Leader" />
-				<Value Type="User">Clicky McClickster</Value>
-			</Eq>
-		</Or>
-		<Eq>
-			<FieldRef Name="Team" />
-			<Value Type="Integer">
-				<UserID Type="Integer" />
-			</Value>
-		</Eq>
-	</Or>
-</Where>
-<GroupBy Collapse="TRUE" GroupLimit="30">
-	<FieldRef Name="Author" />
-	<FieldRef Name="Created" Ascending="FALSE" />
-</GroupBy>
- */

@@ -14,6 +14,27 @@
  */
 // ensure(title: string, desc?: string, template?: number, enableContentTypes?: boolean, additionalSettings?: Partial<IListInfo>): Promise<IListEnsureResult>;
 
+export function notify(statusLog, step , f, verb, status, returnField, noAlert = false) {
+
+    let thisNotify = {
+        time: (new Date()).toLocaleString() ,  
+        step: step, field: f.name,  
+        verb: verb,   
+        status: status,
+    };
+    //alert(verb + ' ' + f.name + ' ' + status );
+    statusLog.push(thisNotify);
+
+    return statusLog;
+}
+
+export interface IServiceLog {
+    time: string;
+    step: string;
+    verb: string;
+    status: string;
+}
+
 export interface IMyListInfo {
     webURL?: string;
     title: string;

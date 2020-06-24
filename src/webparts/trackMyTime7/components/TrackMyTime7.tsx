@@ -70,8 +70,22 @@ import { nominalTypeHack } from 'prop-types';
 
 import { createDialog } from './Project/ConfirmUpdate';
 
+
+
+/**
+ * 
+ * 
+ * 
+ * THIS Section is for List Provisioning testing
+ * 
+ * 
+ * 
+ */
 import { addTheseFields } from '../../../services/listServices/columnServices';
 import { TMTProjectFields } from '../../../services/listServices/columnsTMT';
+
+import { projectViews, testProjectView } from '../../../services/listServices/viewsTMTProject';
+import { addTheseViews } from '../../../services/listServices/viewServices';
 
 //export enum TMTDialogMode { False, review, Plan, process, Park, Cancel, Complete }
 export enum TMTDialogMode { False, New, Edit, Copy, Review, Plan, Process, Park, Cancel, Complete }
@@ -883,6 +897,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     };
     let testFields = TMTProjectFields();
     let result = addTheseFields(['create','changesFinal'],webURL, theList, testFields);
+
+//    let testViews = projectViews;
+//    let result2 = addTheseViews(['create'], webURL, theList, projectViews, false);
+
 //    let result = addTheseFields(['setForm'],webURL, theList, testFields);
 
 
