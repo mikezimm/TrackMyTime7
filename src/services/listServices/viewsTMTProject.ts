@@ -15,7 +15,7 @@ import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, 
 import { IMyView, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains } from './viewTypes';
 
 //Standard Queries
-import { queryValueCurrentUser } from './viewTypes';
+import { queryValueCurrentUser, queryValueToday } from './viewTypes';
 
 
 import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
@@ -25,7 +25,7 @@ import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/component
  */
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
-import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from './columnsOOTB';
+import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from './columnsOOTB';
 
 //SHARED Columns
 import {Leader, Team, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, StatusTMT, StatusNumber, StatusText,
@@ -40,15 +40,15 @@ import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc,
 /**
  * 
 export interface IViewOrder {
-    f: string | IMyFieldTypes; //Static Name
-    o: '+' | '-';
+    field: string | IMyFieldTypes; //Static Name
+    order: '+' | '-';
 }
 
 export interface IViewWhere {
-    f: string | IMyFieldTypes; // Static Name
-    c: '||' | '&&'; //
-    o: MyOperator ; //Operator
-    v: string; //Value
+    field: string | IMyFieldTypes; // Static Name
+    clause: '||' | '&&'; //
+    oper: MyOperator ; //Operator
+    val: string; //Value
 }
 
 export interface IViewGroupBy {
@@ -59,25 +59,27 @@ export interface IViewGroupBy {
  */
 
 
-export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder,ootbTitle, Everyone, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team];
+export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder, ootbTitle, Everyone, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team];
 
-export const stdViewFieldsTest = ['Edit', 'Created', 'Author','Modified', 'Editor', 'Step5Check', ootbTitle ];
+export const stdViewFieldsTest = ['Edit', ootbVersion, ootbAuthor, ootbCreated, ootbEditor, ootbModified, 'Step5Check', ootbTitle ];
 
 export const testProjectView : IMyView = {
 
-    ServerRelativeUrl: 'TestQuery',
-	iFields: 	stdViewFieldsTest,
-	wheres: 	[ 	{f: StatusTMT, 	c:'OR', 	o: Eq, 		v: "1" },
-					{f: Everyone, 	c:'OR', 	o: Eq, 		v: "1" },
-					{f: ootbAuthor, c:'OR', 	o: IsNull, 	v: "1" },
-					{f: Leader, 	c:'OR', 	o: Eq, 		v: "1" },
-					{f: Team, 		c:'OR', 	o: Eq, 		v: queryValueCurrentUser },
+    Title: 'E94 fixedAuthor',
+    iFields: 	stdViewFieldsTest,
+    TabularView: true,
+    RowLimit: 22,
+	wheres: 	[ 	{field: StatusTMT, 	clause:'OR', 	oper: Eq, 		val: "1" },
+					{field: Everyone, 	clause:'OR', 	oper: Eq, 		val: "1" },
+					{field: ootbAuthor, clause:'OR', 	oper: IsNull, 	val: "1" },
+					{field: Leader, 	clause:'OR', 	oper: Eq, 		val: "1" },
+					{field: Team, 		clause:'OR', 	oper: Eq, 		val: queryValueCurrentUser },
 				],
-    orders: [ {f: ootbID, o: 'asc'}],
+    orders: [ {field: ootbID, asc: true}, {field: 'Step4Check', asc: false} ],
     groups: { collapse: false, limit: 25,
 		fields: [
-			{f: ootbAuthor, o: ''},
-			{f: ootbCreated, o: 'asc'},
+			{field: ootbAuthor, asc: false},
+			{field: ootbCreated, asc: true},
 		],
 	},
 };

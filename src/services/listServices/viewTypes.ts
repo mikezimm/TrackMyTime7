@@ -13,7 +13,12 @@ export interface MyOperator {
     o: string;
 }
 
+/**
+ * Standard query values
+ */
 export const queryValueCurrentUser = '<Value Type="Integer"><UserID Type="Integer" /></Value>';
+export const queryValueToday = '<Value Type="DateTime"><Today /></Value>';
+
 
 export const Eq : MyOperator = { q:'Eq' , o: '='};
 export const Ne : MyOperator = { q:'Ne' , o: '<>'};
@@ -26,19 +31,15 @@ export const IsNotNull : MyOperator = { q:'IsNotNull' , o: 'IsNotNull'};
 export const Contains : MyOperator = { q:'Contains' , o: 'Contains'};
 
 export interface IViewOrder {
-    f: string | IBaseField | ITextField | IMultiLineTextField | INumberField | IXMLField | 
-    IBooleanField | ICalculatedField | IDateTimeField | ICurrencyField | IUserField | ILookupField | IChoiceField | 
-    IMultiChoiceField | IDepLookupField | ILocationField;
-    o: 'asc' | 'dec' | '';
+    field: string | IMyFieldTypes;
+    asc: true | false;
 }
 
 export interface IViewWhere {
-    f: string | IBaseField | ITextField | IMultiLineTextField | INumberField | IXMLField | 
-    IBooleanField | ICalculatedField | IDateTimeField | ICurrencyField | IUserField | ILookupField | IChoiceField | 
-    IMultiChoiceField | IDepLookupField | ILocationField; // Static Name
-    c: 'OR' | 'AND'; //
-    o: MyOperator ; //Operator
-    v: string; //Value
+    field: string | IMyFieldTypes; // Static Name
+    clause: 'OR' | 'AND'; //clause
+    oper: MyOperator ; //Operator
+    val: string; //Value
 }
 
 export interface IViewGroupBy {
@@ -50,8 +51,9 @@ export interface IViewGroupBy {
 export type IViewField = IMyFieldTypes | string;
 
 export interface IMyView extends Partial<IViewInfo> {
-    Title?: string;
-    ServerRelativeUrl: string;  //For creating views, just partial URL with no .aspx
+    Title: string;
+    ServerRelativeUrl?: string;  //For creating views, just partial URL with no .aspx
+    RowLimit?: number; //Optional.  Default = 30
     sFields?: string[]; //Static Names of ViewFields in array
     iFields?: IViewField[]; //Interface Objects of ViewFields in array (from columnTypes)
     wheres?: IViewWhere[];

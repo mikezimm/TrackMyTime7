@@ -41,6 +41,13 @@ export const ootbID : ITextField = {
     onCreateProps: defGroup,
 };
 
+export const ootbVersion : ITextField = {
+    fieldType: cNumb,
+    name: '_UIVersionString',
+    title: 'UI Version',
+    onCreateProps: defGroup,
+};
+
 export const ootbTitle : ITextField = {
     fieldType: cText,
     name: 'Title',
@@ -50,14 +57,14 @@ export const ootbTitle : ITextField = {
 
 export const ootbEditor : ITextField = {
     fieldType: cInt,
-    name: 'Author',
+    name: 'Editor',
     title: 'Created By',
     onCreateProps: defGroup,
 };
 
 export const ootbAuthor : ITextField = {
     fieldType: cInt,
-    name: 'Editor',
+    name: 'Author',
     title: 'Modified By',
     onCreateProps: defGroup,
 };

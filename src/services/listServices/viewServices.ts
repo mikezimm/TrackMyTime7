@@ -46,6 +46,15 @@ export interface IViewLog extends IServiceLog {
 };
  */
 
+ 
+export function buildFieldOrderTag ( thisField ) {
+    let tempField = JSON.parse(JSON.stringify(thisField));
+    let fieldName = typeof tempField.field === 'object' ? tempField.field.name : tempField.field;
+    let thisXML = "<FieldRef Name='" + fieldName + "'"; // + '" />'
+    if ( thisField.asc === false ) { thisXML += " Ascending='FALSE'"; }
+    thisXML += ' />';
+    return thisXML;
+}
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
 export async function addTheseViews( steps : changes[], webURL, myList: IMyListInfo, viewsToAdd: IMyView[], skipTry = false): Promise<IViewLog[]>{
@@ -60,6 +69,8 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
     
     //let returnArray: [] = [];
 
+
+
     for (let v of viewsToAdd) {
 
         /**
@@ -72,8 +83,8 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
          */
 
         let viewFieldsSchema = v.iFields.map( thisField => { 
-            let copyField : IViewField = JSON.parse(JSON.stringify(thisField));
-            let fieldName = typeof copyField  === 'object' ? copyField.name : copyField;
+            let tempField : IViewField = JSON.parse(JSON.stringify(thisField));
+            let fieldName = typeof tempField  === 'object' ? tempField.name : tempField;
             return '<FieldRef Name="' + fieldName + '" />';
         });
 
@@ -85,11 +96,57 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
 
         console.log('addTheseViews', viewFieldsSchema, viewFieldsSchemaString);
 
-
-
          /**
-          * Build view Query schema
+          * Build view Query schema:  <GroupBy Stuff="Here"><OrderBy></OrderBy><Where></Where>
           */
+
+            let viewGroupByXML = '';
+            if (v.groups != null) {
+                if ( v.groups.fields.length > 2) {
+                    alert('You are trying to GroupBy more than 2 fields!');
+                } else if (v.groups.fields != null && v.groups.fields.length > 0 ) {
+                    if (v.groups.collapse === true ) { viewGroupByXML += " Collapse='TRUE'"; }
+                    if (v.groups.collapse === false ) { viewGroupByXML += " Collapse='FALSE'"; }
+                    if (v.groups.limit != null ) { viewGroupByXML += " GroupLimit='" + v.groups.limit + "'"; }
+
+                    viewGroupByXML = '<GroupBy' + viewGroupByXML + '>';
+
+                    viewGroupByXML += v.groups.fields.map( thisField => {
+                        return buildFieldOrderTag(thisField);
+                    }).join('');
+
+                    viewGroupByXML += '</GroupBy>';
+                    console.log("<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>");
+                    console.log('viewGroupByXML', viewGroupByXML);
+                }
+            }
+
+            let viewOrderByXML = '';
+            if (v.orders != null) {
+                if ( v.orders.length > 2 ) {
+                    alert('You are trying to OrderBy more than 2 fields!');
+
+                } else if ( v.orders.length === 0 ) {
+                    alert('You have view.orders object with no fields to order by!');
+
+                } else {
+
+                    viewOrderByXML += v.orders.map( thisField => {
+                        return buildFieldOrderTag(thisField);
+                    }).join('');
+                }
+
+            }
+
+            let viewWhereXML = '';
+            if (v.wheres != null) {
+
+            }
+
+            let viewQueryXML = '';
+            if (viewGroupByXML != '') { viewQueryXML += '' + viewGroupByXML + '';} //Tags included in initial build because of special props.
+            if (viewOrderByXML != '') { viewQueryXML += '<OrderBy>' + viewOrderByXML + '</OrderBy>';}
+            if (viewWhereXML != '') { viewQueryXML += '<Where>' + viewWhereXML + '</Where>';}
 
 
         /**
@@ -101,35 +158,40 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
           */
         //listViews.add(v.Title, false, {
 
-            try {
-                const result = await listViews.add('Title 1', false, {
-                    RowLimit: 10,
-                    ViewQuery: "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>",
-                    //ViewFields: viewFieldsSchemaString,
-                });
+        /**
+         * Available options:  https://github.com/koltyakov/sp-metadata/blob/baf1162394caba1222947f223ed78c76b4a72255/docs/SP/EntityTypes/View.md
+         */
+        try {
+            console.log('BEFORE CREATE VIEW:  viewQueryXML', viewQueryXML);
+            let createViewProps = { 
+                RowLimit: v.RowLimit == null ? 30 : v.RowLimit,
+                TabularView: v.TabularView !== false ? true : false,
+            };
 
-                let viewXML = result.data.ListViewXml;
+            if ( viewQueryXML != '' ) { createViewProps["ViewQuery"] = viewQueryXML; }
 
-                let ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
-                console.log('ViewFieldsXML', ViewFieldsXML);
-                viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
+            //createViewProps["ViewQuery"] = "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>";
+            const result = await listViews.add(v.Title, false, createViewProps );
 
-                result.view.setViewXml(viewXML);
-    
-            } catch (e) {
-                // if any of the fields does not exist, raise an exception in the console log
-                let errMessage = getHelpfullError(e);
-                if (errMessage.indexOf('missing a column') > -1) {
-                    let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
-                    statusLog = notify(statusLog, 'Create', v,  'Creating', err, null);
-                } else {
-                    let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
-                    statusLog = notify(statusLog, 'Create', v,  'Creating', err, null);
-                }
+            let viewXML = result.data.ListViewXml;
+
+            let ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
+            console.log('ViewFieldsXML', ViewFieldsXML);
+            viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
+
+            result.view.setViewXml(viewXML);
+
+        } catch (e) {
+            // if any of the fields does not exist, raise an exception in the console log
+            let errMessage = getHelpfullError(e);
+            if (errMessage.indexOf('missing a column') > -1) {
+                let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
+                statusLog = notify(statusLog, 'Create', v,  'Creating', err, null);
+            } else {
+                let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
+                statusLog = notify(statusLog, 'Create', v,  'Creating', err, null);
             }
-
-
-
+        }
 
         /**
          * Add response, comments, alerts
@@ -220,6 +282,7 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
 		</Eq>
 	</And>
 </Where>
+
 <Where>
 	<Or>
 		<Or>
