@@ -61,10 +61,12 @@ export interface IViewGroupBy {
 
 export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder,ootbTitle, Everyone, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team];
 
+export const stdViewFieldsTest = ['Edit', 'Created', 'Author','Modified', 'Editor', 'Step5Check', ootbTitle ];
+
 export const testProjectView : IMyView = {
 
     ServerRelativeUrl: 'TestQuery',
-	iFields: 	stdViewFields,
+	iFields: 	stdViewFieldsTest,
 	wheres: 	[ 	{f: StatusTMT, 	c:'OR', 	o: Eq, 		v: "1" },
 					{f: Everyone, 	c:'OR', 	o: Eq, 		v: "1" },
 					{f: ootbAuthor, c:'OR', 	o: IsNull, 	v: "1" },

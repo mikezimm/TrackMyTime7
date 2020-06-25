@@ -361,7 +361,7 @@ export const OptionsTMTCalc : ICalculatedField = {
 
 export function StepChecks(min: number, max: number) {
     let checkFields: IMyFieldTypes[] = [];
-    for (let i = min; i = max; i++) {
+    for (let i = min; i <= max; i++) {
         let thisCheck = i === 0 ? '=IF(AND([StatusNumber]>' + i + ',[StatusNumber]>' + i + '),"Yes","No")'
         : '=IF(AND(Step' + (i - 1) + 'Check="Yes",[StatusNumber]>' + i + '),"Yes","No")';
 
@@ -741,6 +741,9 @@ export const User : IUserField = {
 
 
 export function TMTProjectFields() {
+    console.log('helpme :)');
+    //return null;
+
     let theseFields: IMyFieldTypes[] = TMTFields('Project');
     return theseFields;
 }

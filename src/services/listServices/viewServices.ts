@@ -11,7 +11,7 @@ import { MyFieldDef, changes, cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, c
 
 import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains } from './viewTypes';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify } from './listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify, getXMLObjectFromString } from './listTypes';
 
 import { getHelpfullError } from '../ErrorHandler';
 
@@ -79,10 +79,12 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
 
         let viewFieldsSchemaString: string = '';
         if ( viewFieldsSchema.length > 0) {
-            viewFieldsSchemaString = '<ViewFields>' + viewFieldsSchema + '</ViewFields>';
+            //viewFieldsSchemaString = '<ViewFields>' + viewFieldsSchema.join('') + '</ViewFields>';
+            viewFieldsSchemaString = viewFieldsSchema.join('');            
         }
 
         console.log('addTheseViews', viewFieldsSchema, viewFieldsSchemaString);
+
 
 
          /**
@@ -97,6 +99,36 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
          /**
           * Do view creation
           */
+        //listViews.add(v.Title, false, {
+
+            try {
+                const result = await listViews.add('Title 1', false, {
+                    RowLimit: 10,
+                    ViewQuery: "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>",
+                    //ViewFields: viewFieldsSchemaString,
+                });
+
+                let viewXML = result.data.ListViewXml;
+
+                let ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
+                console.log('ViewFieldsXML', ViewFieldsXML);
+                viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
+
+                result.view.setViewXml(viewXML);
+    
+            } catch (e) {
+                // if any of the fields does not exist, raise an exception in the console log
+                let errMessage = getHelpfullError(e);
+                if (errMessage.indexOf('missing a column') > -1) {
+                    let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
+                    statusLog = notify(statusLog, 'Create', v,  'Creating', err, null);
+                } else {
+                    let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
+                    statusLog = notify(statusLog, 'Create', v,  'Creating', err, null);
+                }
+            }
+
+
 
 
         /**

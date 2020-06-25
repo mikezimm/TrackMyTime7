@@ -28,6 +28,44 @@ export function notify(statusLog, step , f, verb, status, returnField, noAlert =
     return statusLog;
 }
 
+export function getXMLObjectFromString(str, tag, toText, removeTag = false) {
+    // 2020-06-24:  Copied from Views_.aspx of Super Contents
+    // Gets tag from an XML string like pulling "Fields" out of a view schema
+    // toText will then also convertTagsToHTML for display on a page.
+
+      var fullTag = "";
+  
+      if (str == null) {
+        return "null viewQuery";
+      }
+  
+      var tagLength = tag.length;
+      var tag1 = "<" + tag;
+      var tag2 = "</" + tag + ">";
+      var IndexOf1 = str.indexOf(tag1);
+      var IndexOf2 = str.indexOf(tag2);
+  
+      if (IndexOf1 > -1 && IndexOf1 > -1) {
+        fullTag = str.substring(IndexOf1, IndexOf2 + tagLength + 3);
+  
+      }
+  
+      if (toText === true) { //Then convert <> to html valid
+  
+        fullTag = fullTag.replace(/[<]/g, "&lt;");
+        fullTag = fullTag.replace(/[>]/g, "&gt;");
+  
+      }
+
+      if (removeTag === true) { //Then convert <> to html valid
+        fullTag = fullTag.slice(tagLength + 2, fullTag.length - (tagLength + 3));
+      }
+
+  
+  
+      return fullTag;
+}
+
 export interface IServiceLog {
     time: string;
     step: string;
