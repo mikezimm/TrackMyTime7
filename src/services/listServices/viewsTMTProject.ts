@@ -12,7 +12,7 @@ import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberF
 import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
 	cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from './columnTypes';
 	
-import { IMyView, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains } from './viewTypes';
+import { IMyView, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from './viewTypes';
 
 //Standard Queries
 import { queryValueCurrentUser, queryValueToday } from './viewTypes';
@@ -63,17 +63,18 @@ export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder, ootbTitle, E
 
 export const stdViewFieldsTest = ['Edit', ootbVersion, ootbAuthor, ootbCreated, ootbEditor, ootbModified, 'Step5Check', ootbTitle ];
 
-export const testProjectView : IMyView = {
 
-    Title: 'E94 fixedAuthor',
+export const testAlertsView : IMyView = {
+
+    Title: 'E82 startWhere',
     iFields: 	stdViewFieldsTest,
     TabularView: true,
     RowLimit: 22,
-	wheres: 	[ 	{field: StatusTMT, 	clause:'OR', 	oper: Eq, 		val: "1" },
-					{field: Everyone, 	clause:'OR', 	oper: Eq, 		val: "1" },
-					{field: ootbAuthor, clause:'OR', 	oper: IsNull, 	val: "1" },
-					{field: Leader, 	clause:'OR', 	oper: Eq, 		val: "1" },
-					{field: Team, 		clause:'OR', 	oper: Eq, 		val: queryValueCurrentUser },
+	wheres: 	[ 	{field: Everyone, 	clause:'Or', 	oper: Contains, val: "4" },  //Error because Everyone should not be 4
+                    {field: Story, 	    clause:'Or', 	oper: Contains, 		val: "T" }, //Error because can't use BeginsWith on Indexed column
+                    {field: Leader, 	clause:'Or', 	oper: BeginsWith, 		val: "4" }, //Error because can't use BeginsWith on Person column
+					{field: Leader, 	clause:'And', 	oper: Eq, 		val: queryValueCurrentUser },
+					{field: Team, 		clause:'Or', 	oper: Eq, 		val: queryValueCurrentUser }, //Error because Or should not come after And
 				],
     orders: [ {field: ootbID, asc: true}, {field: 'Step4Check', asc: false} ],
     groups: { collapse: false, limit: 25,
@@ -84,5 +85,28 @@ export const testProjectView : IMyView = {
 	},
 };
 
-export const projectViews : IMyView[] = [ testProjectView ];
+export const testProjectView : IMyView = {
+
+    Title: 'E86 startWhere',
+    iFields: 	stdViewFieldsTest,
+    TabularView: true,
+    RowLimit: 22,
+	wheres: 	[ 	{field: StatusTMT, 	clause:'Or', 	oper: Eq, 		val: "1" },
+					{field: Everyone, 	clause:'Or', 	oper: Eq, 		val: "4" },
+                    {field: ootbAuthor, clause:'Or', 	oper: IsNull, 	val: "1" },
+                    {field: ootbModified, clause:'Or', 	oper: Geq, 	val: queryValueToday(-22) },
+					{field: Leader, 	clause:'Or', 	oper: IsNotNull,val: queryValueCurrentUser },
+					{field: Team, 		clause:'Or', 	oper: Eq, 		val: queryValueCurrentUser },
+				],
+    orders: [ {field: ootbID, asc: true}, {field: 'Step4Check', asc: false} ],
+    groups: { collapse: false, limit: 25,
+		fields: [
+			{field: ootbAuthor, asc: false},
+			{field: ootbCreated, asc: true},
+		],
+	},
+};
+
+export const projectViews : IMyView[] = [ testAlertsView ];
+
 

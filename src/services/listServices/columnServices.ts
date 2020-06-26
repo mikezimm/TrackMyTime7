@@ -167,7 +167,7 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
                             actualField = await listFields.addCalculated(thisField.name, 
                                 thisField.formula, 
                                 thisField.dateFormat ? thisField.dateFormat : DateTimeFieldFormatType.DateOnly, 
-                                cCalcN.vType === 'Number'? FieldTypes.Number : FieldTypes.Text,  //FieldTypes.Number is used for Calculated Link columns
+                                f.fieldType.type === 'Number'? FieldTypes.Number : FieldTypes.Text,  //FieldTypes.Number is used for Calculated Link columns
                                 thisField.onCreateProps);
                             break ;
     

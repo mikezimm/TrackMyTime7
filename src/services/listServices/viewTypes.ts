@@ -17,8 +17,16 @@ export interface MyOperator {
  * Standard query values
  */
 export const queryValueCurrentUser = '<Value Type="Integer"><UserID Type="Integer" /></Value>';
-export const queryValueToday = '<Value Type="DateTime"><Today /></Value>';
 
+export function queryValueToday(offSetDays: number = null){
+
+    if ( offSetDays == null || offSetDays === 0 ) {
+        return '<Value Type="DateTime"><Today /></Value>';
+    } else {
+        return '<Value Type="DateTime"><Today OffsetDays="' + offSetDays + '" /></Value>';
+    }
+
+}
 
 export const Eq : MyOperator = { q:'Eq' , o: '='};
 export const Ne : MyOperator = { q:'Ne' , o: '<>'};
@@ -29,6 +37,10 @@ export const Leq : MyOperator = { q:'Leq' , o: '<='};
 export const IsNull : MyOperator = { q:'IsNull' , o: 'IsNull'};
 export const IsNotNull : MyOperator = { q:'IsNotNull' , o: 'IsNotNull'};
 export const Contains : MyOperator = { q:'Contains' , o: 'Contains'};
+export const BeginsWith : MyOperator = { q:'BeginsWith' , o: 'BeginsWith'};
+
+
+
 
 export interface IViewOrder {
     field: string | IMyFieldTypes;
@@ -37,7 +49,7 @@ export interface IViewOrder {
 
 export interface IViewWhere {
     field: string | IMyFieldTypes; // Static Name
-    clause: 'OR' | 'AND'; //clause
+    clause: 'Or' | 'And'; //clause
     oper: MyOperator ; //Operator
     val: string; //Value
 }
