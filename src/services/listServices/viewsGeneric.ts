@@ -17,7 +17,6 @@ import { IMyView, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsW
 //Standard Queries
 import { queryValueCurrentUser, queryValueToday } from './viewTypes';
 
-import { testAlertsView } from './viewsGeneric';
 
 import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
 
@@ -41,6 +40,28 @@ import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc,
 export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder, ootbTitle, Everyone, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team];
 
 export const stdViewFieldsTest = ['Edit', ootbVersion, ootbAuthor, ootbCreated, ootbEditor, ootbModified, 'Step5Check', ootbTitle ];
+
+
+export const testAlertsView : IMyView = {
+
+    Title: 'E82 startWhere',
+    iFields: 	stdViewFieldsTest,
+    TabularView: true,
+    RowLimit: 22,
+	wheres: 	[ 	{field: Everyone, 	clause:'Or', 	oper: Contains, val: "4" },  //Error because Everyone should not be 4
+                    {field: Story, 	    clause:'Or', 	oper: Contains, 		val: "T" }, //Error because can't use BeginsWith on Indexed column
+                    {field: Leader, 	clause:'Or', 	oper: BeginsWith, 		val: "4" }, //Error because can't use BeginsWith on Person column
+					{field: Leader, 	clause:'And', 	oper: Eq, 		val: queryValueCurrentUser },
+					{field: Team, 		clause:'Or', 	oper: Eq, 		val: queryValueCurrentUser }, //Error because Or should not come after And
+				],
+    orders: [ {field: ootbID, asc: true}, {field: 'Step4Check', asc: false} ],
+    groups: { collapse: false, limit: 25,
+		fields: [
+			{field: ootbAuthor, asc: false},
+			{field: ootbCreated, asc: true},
+		],
+	},
+};
 
 export const testProjectView : IMyView = {
 

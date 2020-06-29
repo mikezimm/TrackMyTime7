@@ -311,18 +311,19 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
                     //You need to have something in here for it to work.
                     alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
 
-                } else if (hasPreviousAnd === true && thisClause === 'Or') {
+                } else if ( hasPreviousAnd === true && thisClause === 'Or' ) {
                     //In UI, you can't have an OR after an AND... , it works but will not work editing the view through UI then.
                     alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
 
                 } else {
-                    console.log('thisClause, thisFieldWhere', thisClause, thisFieldWhere);
+                    console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
                     // '<' + thisOper.q + '>'
 
                     if ( thisClause != '' && thisFieldWhere != '' ){ //Valid clause found... wrap entire string in it
                         if ( viewWhereXML != ''){
                             viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
                             viewWhereXML = '<' + thisClause + '>' + viewWhereXML + '</' + thisClause + '>';
+                            
                         } else {
                             alert('Can\'t wrap this in clause because there is not any existing field to compare to ' + thisFieldWhere );
                             viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
