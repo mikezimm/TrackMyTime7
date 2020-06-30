@@ -66,7 +66,6 @@ export interface IMyView extends Partial<IViewInfo> {
     Title: string;
     ServerRelativeUrl?: string;  //For creating views, just partial URL with no .aspx
     RowLimit?: number; //Optional.  Default = 30
-    sFields?: string[]; //Static Names of ViewFields in array
     iFields?: IViewField[]; //Interface Objects of ViewFields in array (from columnTypes)
     wheres?: IViewWhere[];
     orders?: IViewOrder[];

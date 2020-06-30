@@ -17,7 +17,7 @@ import { IMyView, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsW
 //Standard Queries
 import { queryValueCurrentUser, queryValueToday } from './viewTypes';
 
-import { testAlertsView } from './viewsGeneric';
+import { testAlertsView, spliceCopyArray, createRecentUpdatesView } from './viewsGeneric';
 
 import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
 
@@ -40,30 +40,19 @@ import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc,
 
 export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder, ootbTitle, Everyone, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team];
 
-export const stdViewFieldsTest = ['Edit', ootbVersion, ootbAuthor, ootbCreated, ootbEditor, ootbModified, 'Step5Check', ootbTitle ];
+export const stdProjectViewFields = ['Edit', ootbID, ootbTitle, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team, Everyone];
+export const ProjectRecentUpdatesFields = spliceCopyArray ( stdProjectViewFields, null, null, 2, [ootbModified, ootbEditor ] );
 
-export const testProjectView : IMyView = {
-
-    Title: 'E86 startWhere',
-    iFields: 	stdViewFieldsTest,
+export const ProjAllItemsView : IMyView = {
+    Title: 'All Items',
+    iFields: 	stdProjectViewFields,
     TabularView: true,
-    RowLimit: 22,
-	wheres: 	[ 	{field: StatusTMT, 	clause:'Or', 	oper: Eq, 		val: "1" },
-					{field: Everyone, 	clause:'Or', 	oper: Eq, 		val: "4" },
-                    {field: ootbAuthor, clause:'Or', 	oper: IsNull, 	val: "1" },
-                    {field: ootbModified, clause:'Or', 	oper: Geq, 	val: queryValueToday(-22) },
-					{field: Leader, 	clause:'Or', 	oper: IsNotNull,val: queryValueCurrentUser },
-					{field: Team, 		clause:'Or', 	oper: Eq, 		val: queryValueCurrentUser },
-				],
-    orders: [ {field: ootbID, asc: true}, {field: 'Step4Check', asc: false} ],
-    groups: { collapse: false, limit: 25,
-		fields: [
-			{field: ootbAuthor, asc: false},
-			{field: ootbCreated, asc: true},
-		],
-	},
+    RowLimit: 30,
+    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
+            ],
+    orders: [ {field: ootbModified, asc: false} ],
 };
 
-export const projectViews : IMyView[] = [ testAlertsView ];
+export const projectViews : IMyView[] = [ ProjAllItemsView, createRecentUpdatesView(ProjectRecentUpdatesFields) ];
 
 

@@ -58,14 +58,14 @@ export const ootbTitle : ITextField = {
 export const ootbEditor : ITextField = {
     fieldType: cInt,
     name: 'Editor',
-    title: 'Created By',
+    title: 'Modified By',
     onCreateProps: defGroup,
 };
 
 export const ootbAuthor : ITextField = {
     fieldType: cInt,
     name: 'Author',
-    title: 'Modified By',
+    title: 'Created By',
     onCreateProps: defGroup,
 };
 

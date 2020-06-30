@@ -37,10 +37,44 @@ import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc,
     ProjectEditOptions, HistoryTMT, TimeTarget} from './columnsTMT';
 //let checks = StepChecks(0,5);  //Project
 
-export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder, ootbTitle, Everyone, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team];
+/**
+ * Array splicer to remove elements, and add in  middle
+ * @param sourceArray 
+ * @param startDel - zero based index where you want to start deleting
+ * @param countDelete - # of elements to delete
+ * @param startAddOrigPos - starting position to add addArray to... NOTE:  Based on ORIGINAL sourceArray elements
+ *      The reason for startAddOrigPos is because you don't need to figure out the right position if you remove elements first.
+ * @param addArray 
+ */
+export function spliceCopyArray(sourceArray, startDel, countDelete, startAddOrigPos, addArray) {
 
-export const stdViewFieldsTest = ['Edit', ootbVersion, ootbAuthor, ootbCreated, ootbEditor, ootbModified, 'Step5Check', ootbTitle ];
+    let whole = [];
+    let skipMin = startDel === null ? "-1000" : startDel ;
+    let skipMax = startDel === null ? "-1000" : startDel + countDelete - 1 ; 
+    let addedArray = false;
+    
+    if ( startAddOrigPos <= 0 ) {
+      whole = whole.concat(addArray);
+      addedArray = true;
+    }
+    
+    for (let i in sourceArray){
+        let addedItem = false;
+        if ( i < skipMin ) {  
+            whole.push(sourceArray[i]); 
+            addedItem = true; }
+        if ( i == startAddOrigPos ) { 
+            whole = whole.concat(addArray) ; 
+            addedArray = true; }
+       if ( i > skipMax && addedItem === false ) {  whole.push(sourceArray[i])   }      
+    }
 
+    if ( addedArray === false ) {  whole = whole.concat(addArray)  }
+
+    return whole;
+  }
+
+export const stdViewFieldsTest = ['Edit', ootbAuthor, ootbCreated, ootbEditor, ootbModified, ootbTitle, ootbVersion, ];
 
 export const testAlertsView : IMyView = {
 
@@ -54,7 +88,10 @@ export const testAlertsView : IMyView = {
 					{field: Leader, 	clause:'And', 	oper: Eq, 		val: queryValueCurrentUser },
 					{field: Team, 		clause:'Or', 	oper: Eq, 		val: queryValueCurrentUser }, //Error because Or should not come after And
 				],
-    orders: [ {field: ootbID, asc: true}, {field: 'Step4Check', asc: false} ],
+    orders: [ 
+        {field: ootbID, asc: true}, 
+        {field: 'Step4Check', asc: false} 
+    ],
     groups: { collapse: false, limit: 25,
 		fields: [
 			{field: ootbAuthor, asc: false},
@@ -85,6 +122,19 @@ export const testProjectView : IMyView = {
 	},
 };
 
-export const projectViews : IMyView[] = [ testAlertsView ];
+export function createRecentUpdatesView(viewFields) {
+    let result : IMyView = {
+        Title: 'Recent Updates',
+        iFields: viewFields,
+        TabularView: true,
+        RowLimit: 30,
+        wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
+                    ],
+        orders: [ {field: ootbModified, asc: false} ],
+    }
+    return result;
+};
+
+export const genericViews : IMyView[] = [ createRecentUpdatesView(stdViewFieldsTest), testProjectView ];
 
 

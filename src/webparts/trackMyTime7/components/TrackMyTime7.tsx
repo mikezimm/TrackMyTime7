@@ -84,7 +84,7 @@ import { createDialog } from './Project/ConfirmUpdate';
 import { addTheseFields } from '../../../services/listServices/columnServices';
 import { TMTProjectFields } from '../../../services/listServices/columnsTMT';
 
-import { projectViews, testProjectView } from '../../../services/listServices/viewsTMTProject';
+import { projectViews,  } from '../../../services/listServices/viewsTMTProject';
 import { addTheseViews } from '../../../services/listServices/viewServices';
 
 //export enum TMTDialogMode { False, review, Plan, process, Park, Cancel, Complete }
