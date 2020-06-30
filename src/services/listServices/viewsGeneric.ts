@@ -14,6 +14,8 @@ import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, 
 	
 import { IMyView, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from './viewTypes';
 
+import { spliceCopyArray } from '../arrayServices';
+
 //Standard Queries
 import { queryValueCurrentUser, queryValueToday } from './viewTypes';
 
@@ -46,33 +48,7 @@ import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc,
  *      The reason for startAddOrigPos is because you don't need to figure out the right position if you remove elements first.
  * @param addArray 
  */
-export function spliceCopyArray(sourceArray, startDel, countDelete, startAddOrigPos, addArray) {
 
-    let whole = [];
-    let skipMin = startDel === null ? "-1000" : startDel ;
-    let skipMax = startDel === null ? "-1000" : startDel + countDelete - 1 ; 
-    let addedArray = false;
-    
-    if ( startAddOrigPos <= 0 ) {
-      whole = whole.concat(addArray);
-      addedArray = true;
-    }
-    
-    for (let i in sourceArray){
-        let addedItem = false;
-        if ( i < skipMin ) {  
-            whole.push(sourceArray[i]); 
-            addedItem = true; }
-        if ( i == startAddOrigPos ) { 
-            whole = whole.concat(addArray) ; 
-            addedArray = true; }
-       if ( i > skipMax && addedItem === false ) {  whole.push(sourceArray[i])   }      
-    }
-
-    if ( addedArray === false ) {  whole = whole.concat(addArray)  }
-
-    return whole;
-  }
 
 export const stdViewFieldsTest = ['Edit', ootbAuthor, ootbCreated, ootbEditor, ootbModified, ootbTitle, ootbVersion, ];
 
@@ -131,9 +107,9 @@ export function createRecentUpdatesView(viewFields) {
         wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
                     ],
         orders: [ {field: ootbModified, asc: false} ],
-    }
+    };
     return result;
-};
+}
 
 export const genericViews : IMyView[] = [ createRecentUpdatesView(stdViewFieldsTest), testProjectView ];
 
