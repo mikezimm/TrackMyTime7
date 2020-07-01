@@ -20,8 +20,6 @@ import { spliceCopyArray } from '../arrayServices';
 import { queryValueCurrentUser, queryValueToday } from './viewTypes';
 
 
-import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
-
 /**
  * For Importing columns, it's best to create one view file per list and only import the columns from that list :
  */

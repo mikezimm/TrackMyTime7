@@ -52,7 +52,7 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
     for ( let step of steps ) {
 
         for (let f of fieldsToAdd) {
-            console.log(step + ' trying adding column:', f);
+            //console.log(step + ' trying adding column:', f);
 
             let foundField = skipTry === true ? true : false;
             let skipTryField : boolean;
@@ -126,14 +126,14 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
                             break ;
     
                         case cChoice.type :
-                            actualField = await listFields.addChoice(thisField.name, thisField.Choices, 
+                            actualField = await listFields.addChoice(thisField.name, thisField.choices, 
                                 thisField.format ? thisField.format : ChoiceFieldFormatType.Dropdown, 
                                 thisField.fillIn ? thisField.fillIn : false, 
                                 thisField.onCreateProps);
                             break ;
     
                         case cMChoice.type :
-                                actualField = await listFields.addMultiChoice(thisField.name, thisField.Choices,
+                                actualField = await listFields.addMultiChoice(thisField.name, thisField.choices,
                                     thisField.fillIn ? thisField.fillIn : false, 
                                     thisField.onCreateProps);
                                 break ;
@@ -239,6 +239,7 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
         }  //END: for (let f of fieldsToAdd) {
     }  //END: for ( let step of steps ) {
 
+    alert('Added columns to list:' );
     console.log('addTheseFields', statusLog);
     return(statusLog);
 

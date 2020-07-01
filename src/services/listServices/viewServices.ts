@@ -175,8 +175,6 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
     
     //let returnArray: [] = [];
 
-
-
     for (let v of viewsToAdd) {
 
         /**
@@ -194,7 +192,7 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
  *                                                                                                  
  *                                                                                                  
  */
-        console.log('addTheseViews (v): ', v);
+        //console.log('addTheseViews (v): ', v);
         /**
          * Build VewFields schema
          */
@@ -298,7 +296,7 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
                 return buildFieldWhereTag(thisWhere);
 
             });
-            console.log('viewWhereArray', viewWhereArray);
+            //console.log('viewWhereArray', viewWhereArray);
 
             //Go through each item and add the <Or> or <And> Tags around them
             let hasPreviousAnd = false;
@@ -316,7 +314,7 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
                     alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
 
                 } else {
-                    console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
+                    //console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
                     // '<' + thisOper.q + '>'
 
                     if ( thisClause != '' && thisFieldWhere != '' ){ //Valid clause found... wrap entire string in it
@@ -379,7 +377,7 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
          * Available options:  https://github.com/koltyakov/sp-metadata/blob/baf1162394caba1222947f223ed78c76b4a72255/docs/SP/EntityTypes/View.md
          */
         try {
-            console.log('BEFORE CREATE VIEW:  viewQueryXML', viewQueryXML);
+            //console.log('BEFORE CREATE VIEW:  viewQueryXML', viewQueryXML);
             let createViewProps = { 
                 RowLimit: v.RowLimit == null ? 30 : v.RowLimit,
                 TabularView: v.TabularView !== false ? true : false,
@@ -393,7 +391,7 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
             let viewXML = result.data.ListViewXml;
 
             let ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
-            console.log('ViewFieldsXML', ViewFieldsXML);
+            //console.log('ViewFieldsXML', ViewFieldsXML);
             viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
 
             result.view.setViewXml(viewXML);
@@ -415,7 +413,7 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
          */
 
     }  //END: for (let f of fieldsToAdd) {
-
+    alert('Added views to list:' );
     console.log('addTheseViews', statusLog);
     return(statusLog);
 

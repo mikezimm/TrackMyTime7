@@ -12,7 +12,7 @@ import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberF
 import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
     cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from './columnTypes';
 
-import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
+//import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
 import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from './columnsOOTB';
@@ -205,6 +205,15 @@ export const Chapter : ITextField = {
         Description: 'Special field used by webpart which can change the entry format based on the value in the Project List field.  See documentation.',
     }
 };
+
+export const defStatus = '0. Review';
+export const planStatus = '1. Plan';
+export const processStatus = '2. Process';
+export const parkStatus = '8. Parking lot';
+export const cancelStatus = '9. Cancelled';
+export const completeStatus = '9. Complete';
+
+export const statusChoices : string[] = [defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus];
 
 export const StatusTMT : IChoiceField = {
     fieldType: cChoice,
@@ -745,6 +754,8 @@ export function TMTProjectFields() {
     //return null;
 
     let theseFields: IMyFieldTypes[] = TMTFields('Project');
+
+    console.log('theseFields', theseFields);
     return theseFields;
 }
 
@@ -767,7 +778,7 @@ export function TMTFields(listName: 'Project' | 'Time') {
     theseFields.push(Category2);  //BOTH
     
     theseFields.push(ProjectID1);  //BOTH
-    theseFields.push(ProjectID1);  //BOTH
+    theseFields.push(ProjectID2);  //BOTH
     theseFields.push(Story);  //BOTH
     theseFields.push(Chapter);  //BOTH
 

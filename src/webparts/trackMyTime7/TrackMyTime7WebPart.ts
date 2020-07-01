@@ -574,17 +574,17 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
             /**
              * These are Task related columns
              */
-            let orderBy = '<OrderBy><FieldRef Name="DueDateTMT" /></OrderBy>';     
+            //let orderBy = '<OrderBy><FieldRef Name="DueDateTMT" /></OrderBy>';     
 
-            for (let i = 0; i < 10; i++) {
-              if (i < 6 || i === 8 || i === 9) {
-                let stepLabel = 'Step' + i + '.All';
+            //for (let i = 0; i < 10; i++) {
+              //if (i < 6 || i === 8 || i === 9) {
+              //  let stepLabel = 'Step' + i + '.All';
                 //viewXml = '<View Name="{AC0C86EB-A3DA-4973-AFE1-BD9246F334' + i + i + '}" DefaultView="TRUE" MobileView="TRUE" Type="HTML" DisplayName="' + stepLabel + '" Url="/sites/Templates/ScriptTesting/Lists/Projects/' + stepLabel + '.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">' + orderBy + '<Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">' + i + '</Value></Eq></Where></Query><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="TaskDueDate" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><Toolbar Type="Standard" /><Aggregations Value="Off" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><RowLimit Paged="TRUE">30</RowLimit><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
-                viewXml = '<View Name="{331C141E-B5C3-4786-A5C6-FD1749A4A3' + i + i + '}" Type="HTML" DisplayName="' + stepLabel + '" Url="/sites/Templates/ScriptTesting/Lists/Projects/' + stepLabel + '.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="DueDateTMT" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><ViewData /><Query>' + orderBy + '<Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">' + i + '</Value></Eq></Where></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
-                const stepView = await ensureResult.list.views.add(stepLabel);
-                await stepView.view.setViewXml(viewXml);
-              }
-            }
+              //  viewXml = '<View Name="{331C141E-B5C3-4786-A5C6-FD1749A4A3' + i + i + '}" Type="HTML" DisplayName="' + stepLabel + '" Url="/sites/Templates/ScriptTesting/Lists/Projects/' + stepLabel + '.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47"><ViewFields><FieldRef Name="Edit" /><FieldRef Name="ID" /><FieldRef Name="StatusTMT" /><FieldRef Name="LinkTitle" /><FieldRef Name="DueDateTMT" /><FieldRef Name="Leader" /><FieldRef Name="Team" /><FieldRef Name="ActivityType" /><FieldRef Name="Activity" /><FieldRef Name="EffectiveStatus" /></ViewFields><ViewData /><Query>' + orderBy + '<Where><Eq><FieldRef Name="EffectiveStatus" /><Value Type="Number">' + i + '</Value></Eq></Where></Query><Aggregations Value="Off" /><RowLimit Paged="TRUE">30</RowLimit><Mobile MobileItemLimit="3" MobileSimpleViewField="ID" /><Toolbar Type="Standard" /><XslLink Default="TRUE">main.xsl</XslLink><JSLink>clienttemplates.js</JSLink><ParameterBindings><ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /><ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /></ParameterBindings></View>';
+              //  const stepView = await ensureResult.list.views.add(stepLabel);
+              //  await stepView.view.setViewXml(viewXml);
+              //}
+            //}
 
             /**ActivtyOptionsCalc
              * Build Activity View to verify those columns

@@ -21,8 +21,6 @@ import { queryValueCurrentUser, queryValueToday } from './viewTypes';
 
 import { testAlertsView, createRecentUpdatesView } from './viewsGeneric';
 
-import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
-
 /**
  * For Importing columns, it's best to create one view file per list and only import the columns from that list :
  */
@@ -99,7 +97,7 @@ export function ProjStepsViews(prefix : string, min: number, max: number, skip: 
                 Title: thisTitle,
                 iFields: 	spliceCopyArray( StepFields, null, null, 1000, [thisField] ),
                 orders: [ {field: DueDateTMT, asc: true} ],
-                wheres: 	[ 	{field: EffectiveStatus, clause:'And', 	oper: Eq, 	val: i.toString() }, ],
+                wheres: 	[  {field: EffectiveStatus, clause:'And', 	oper: Eq, 	val: i.toString() }, ],
             };
             StepViews.push(thisView);
         }

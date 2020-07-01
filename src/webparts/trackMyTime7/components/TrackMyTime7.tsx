@@ -84,7 +84,9 @@ import { createDialog } from './Project/ConfirmUpdate';
 import { addTheseFields } from '../../../services/listServices/columnServices';
 import { TMTProjectFields } from '../../../services/listServices/columnsTMT';
 
-import { projectViews,  } from '../../../services/listServices/viewsTMTProject';
+import { defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus, } from '../../../services/listServices/columnsTMT';
+
+import { projectViews, } from '../../../services/listServices/viewsTMTProject';
 import { addTheseViews } from '../../../services/listServices/viewServices';
 
 //export enum TMTDialogMode { False, review, Plan, process, Park, Cancel, Complete }
@@ -98,16 +100,9 @@ const allProjEditOptions = cleanProjEditOptions('activity;advanced;people;report
 
 const defProjEditOptions = cleanProjEditOptions('people;reporting');
 
-export const defStatus = `0. Review`;
-export const planStatus = `1. Plan`;
-export const processStatus = `2. Process`;
-export const parkStatus = `8. Parking lot`;
-export const cancelStatus = `9. Cancelled`;
-export const completeStatus = `9. Complete`;
+export const statusChoices : string[] = [defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus];
 
-export const statusChoices = [defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus];
-
-export const activityTMTChoices = [`TMT Issue`, `Socialiis Issue`];
+export const activityTMTChoices = ['TMT Issue', 'Socialiis Issue'];
 
 export const MyCons = {
   new: 'Add',
@@ -896,10 +891,11 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       additionalSettings: { EnableVersioning: true, MajorVersionLimit: 20, },
     };
     let testFields = TMTProjectFields();
-//    let result = addTheseFields(['create','changesFinal'],webURL, theList, testFields);
+    alert('adding Fields');
+    let result = addTheseFields(['create','changesFinal'],webURL, theList, testFields);
 
     let testViews = projectViews;
-    
+    alert('adding Views');
     let result2 = addTheseViews(['create'], webURL, theList, projectViews, false);
 
 //    let result = addTheseFields(['setForm'],webURL, theList, testFields);

@@ -1,6 +1,6 @@
 
-  export function getHelpfullError(e, alertMe = true){
-    console.log('getHelpfullError:',e);
+  export function getHelpfullError(e, alertMe = true, consoleLog = true){
+    if ( consoleLog === true ) { console.log('getHelpfullError:',e); }
     let result = 'e';
     let errObj: {} = null;
       if (e.message) {
@@ -26,8 +26,10 @@
 
     let returnMess = friendlyMessage === null ? result : 'Ohh Snap!  ' + friendlyMessage + ' -- FULL ERROR MESSAGE: ' + result;
     
-    console.log('errObj:',errObj);
-    console.log('result:',friendlyMessage);
+    if ( consoleLog === true ) { 
+      console.log('errObj:',errObj);
+      console.log('result:',friendlyMessage);
+    }
     return returnMess;
   }
 
