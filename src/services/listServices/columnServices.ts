@@ -46,7 +46,12 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
 
     const ensuredList = await thisWeb.lists.ensure(myList.title);
     const listFields = ensuredList.list.fields;
-    
+    //    .select(selectColsProj).expand(expandTheseProj).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
+
+    const  myFields = await listFields.select('StaticName,Title,Hidden,Formula,Required,TypeAsString').filter(`StaticName eq 'Title' or StaticName eq 'Editor'`).get();
+    console.log('listFields:', listFields);
+    console.log('myFields:', myFields);
+
     //let returnArray: [] = [];
 
     for ( let step of steps ) {

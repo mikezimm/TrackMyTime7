@@ -894,9 +894,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     alert('adding Fields');
     let result = addTheseFields(['create','changesFinal'],webURL, theList, testFields);
 
-    let testViews = projectViews;
-    alert('adding Views');
-    let result2 = addTheseViews(['create'], webURL, theList, projectViews, false);
+    //let testViews = projectViews;
+    //alert('adding Views');
+    //let result2 = addTheseViews(['create'], webURL, theList, projectViews, false);
 
 //    let result = addTheseFields(['setForm'],webURL, theList, testFields);
 
