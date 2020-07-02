@@ -7,26 +7,29 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
-    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from './columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '../../../../services/listServices/columnTypes';
 
+import { MyFieldDef, } from '../../../../services/listServices/columnTypes';
+    
 import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
-	cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from './columnTypes';
+	cMText, cText, cNumb, cURL, cUser, cMUser, minInfinity, maxInfinity } from '../../../../services/listServices/columnTypes';
 	
-import { IMyView, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from './viewTypes';
+import { IMyView, } from '../../../../services/listServices/viewTypes';
+import { Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from '../../../../services/listServices/viewTypes';
 
-import { spliceCopyArray } from '../arrayServices';
+import { spliceCopyArray } from '../../../../services/arrayServices';
 
 //Standard Queries
-import { queryValueCurrentUser, queryValueToday } from './viewTypes';
+import { queryValueCurrentUser, queryValueToday } from '../../../../services/listServices/viewTypes';
 
-import { testAlertsView, createRecentUpdatesView } from './viewsGeneric';
+import { testAlertsView, createRecentUpdatesView } from '../../../../services/listServices/viewsGeneric';
 
 /**
  * For Importing columns, it's best to create one view file per list and only import the columns from that list :
  */
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
-import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from './columnsOOTB';
+import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '../../../../services/listServices/columnsOOTB';
 
 //SHARED Columns
 import {Leader, Team, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, StatusTMT, StatusNumber, StatusText,
@@ -66,7 +69,7 @@ export const ProjActivityGroupView : IMyView = {
     iFields: 	ActivityFields,
     orders: [ {field: ActivityType, asc: false} ],
     groups: { collapse: true, limit: 30,
-		fields: [ {field: ActivityType, asc: false},  ],  },
+		fields: [ {field: ActivityType, asc: false}, ],  },
 };
 
 export const ProjActivityFlatView : IMyView = {

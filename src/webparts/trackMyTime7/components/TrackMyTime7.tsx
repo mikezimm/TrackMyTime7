@@ -82,12 +82,11 @@ import { createDialog } from './Project/ConfirmUpdate';
  * 
  */
 import { addTheseFields } from '../../../services/listServices/columnServices';
-import { TMTProjectFields } from '../../../services/listServices/columnsTMT';
+import { TMTProjectFields } from './ListProvisioningTMT/columnsTMT';
 
-import { defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus, } from '../../../services/listServices/columnsTMT';
+import { defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus, } from './ListProvisioningTMT/columnsTMT';
 
-import { projectViews, } from '../../../services/listServices/viewsTMTProject';
-import { addTheseViews } from '../../../services/listServices/viewServices';
+import { provisionTheList } from './ListProvisioningTMT/provisionTMT';
 
 //export enum TMTDialogMode { False, review, Plan, process, Park, Cancel, Complete }
 export enum TMTDialogMode { False, New, Edit, Copy, Review, Plan, Process, Park, Cancel, Complete }
@@ -879,27 +878,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   public componentDidMount() {
 
-    //import { addTheseFields } from '../../../services/listServices/columnServices';
-    //import { TMTProjectFields } from '../../../services/listServices/columnsAndViewsTMT';
-
     let webURL = 'https://mcclickster.sharepoint.com/sites/Templates/Testing/';
-    let theList = {
-      title: 'Projects',
-      desc: 'Desc',
-      template: 100,
-      enableContentTypes: true,
-      additionalSettings: { EnableVersioning: true, MajorVersionLimit: 20, },
-    };
-    let testFields = TMTProjectFields();
-    alert('adding Fields');
-    let result = addTheseFields(['create','changesFinal'],webURL, theList, testFields);
-
-    //let testViews = projectViews;
-    //alert('adding Views');
-    //let result2 = addTheseViews(['create'], webURL, theList, projectViews, false);
-
-//    let result = addTheseFields(['setForm'],webURL, theList, testFields);
-
+    let result = provisionTheList( 'Projects', webURL);
 
     this._getListItems();
     

@@ -29,12 +29,12 @@ import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, oo
 
 //SHARED Columns
 import {Leader, Team, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, StatusTMT, StatusNumber, StatusText,
-    DueDateTMT, CompletedDateTMT, CompletedByTMT, CCList, CCEmail} from './columnsTMT';
+    DueDateTMT, CompletedDateTMT, CompletedByTMT, CCList, CCEmail} from '../../webparts/trackMyTime7/components/ListProvisioningTMT/columnsTMT';
 
 //PROJECT columns
 import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
     EffectiveStatus, IsOpen,
-    ProjectEditOptions, HistoryTMT, TimeTarget} from './columnsTMT';
+    ProjectEditOptions, HistoryTMT, TimeTarget} from '../../webparts/trackMyTime7/components/ListProvisioningTMT/columnsTMT';
 //let checks = StepChecks(0,5);  //Project
 
 /**

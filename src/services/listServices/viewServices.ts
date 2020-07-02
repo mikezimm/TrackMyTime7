@@ -163,14 +163,11 @@ export function buildFieldWhereTag ( thisWhere ) {
  */
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
-export async function addTheseViews( steps : changes[], webURL, myList: IMyListInfo, viewsToAdd: IMyView[], skipTry = false): Promise<IViewLog[]>{
+
+export async function addTheseViews( steps : changes[], myList: IMyListInfo, ensuredList, currentViews , viewsToAdd: IMyView[], alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IViewLog[]>{
 
     let statusLog : IViewLog[] = [];
-    
-    const thisWeb = Web(webURL);
-    //const thisList = JSON.parse(JSON.stringify(myList));
 
-    const ensuredList = await thisWeb.lists.ensure(myList.title);
     const listViews = ensuredList.list.views;
     
     //let returnArray: [] = [];
@@ -209,7 +206,7 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
             viewFieldsSchemaString = viewFieldsSchema.join('');            
         }
 
-        console.log('addTheseViews', viewFieldsSchema, viewFieldsSchemaString);
+        //console.log('addTheseViews', viewFieldsSchema, viewFieldsSchemaString);
 
 
 /***
@@ -388,13 +385,17 @@ export async function addTheseViews( steps : changes[], webURL, myList: IMyListI
             //createViewProps["ViewQuery"] = "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>";
             const result = await listViews.add(v.Title, false, createViewProps );
 
+            statusLog = notify(statusLog, 'Create', v,  'Creating', null, null);
+
             let viewXML = result.data.ListViewXml;
 
             let ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
             //console.log('ViewFieldsXML', ViewFieldsXML);
             viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
 
-            result.view.setViewXml(viewXML);
+            await result.view.setViewXml(viewXML);
+
+            statusLog = notify(statusLog, 'Create', v,  'Updating', null, null);
 
         } catch (e) {
             // if any of the fields does not exist, raise an exception in the console log

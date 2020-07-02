@@ -37,7 +37,10 @@ export const maxInfinity: number = -1 * minInfinity ;
 // ensure(title: string, desc?: string, template?: number, enableContentTypes?: boolean, additionalSettings?: Partial<IListInfo>): Promise<IListEnsureResult>;
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
-export async function addTheseFields( steps : changes[], webURL, myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[], skipTry = false): Promise<IFieldLog[]>{
+
+
+
+export async function addTheseFieldsOriginal( steps : changes[], webURL, myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[], skipTry = false): Promise<IFieldLog[]>{
 
     let statusLog : IFieldLog[] = [];
     
@@ -53,6 +56,16 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
     console.log('myFields:', myFields);
 
     //let returnArray: [] = [];
+
+    return statusLog;
+}
+
+
+export async function addTheseFields( steps : changes[], myList: IMyListInfo, ensuredList, currentFields , fieldsToAdd: IMyFieldTypes[], alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IFieldLog[]>{
+
+    let statusLog : IFieldLog[] = [];
+    
+    const listFields = ensuredList.list.fields;
 
     for ( let step of steps ) {
 
@@ -76,7 +89,7 @@ export async function addTheseFields( steps : changes[], webURL, myList: IMyList
         
                 } catch (e) {
                     // if any of the fields does not exist, raise an exception in the console log
-                    let errMessage = getHelpfullError(e);
+                    let errMessage = getHelpfullError(e, alertMe, consoleLog);
                     if (errMessage.indexOf('missing a column') > -1) {
                         let err = `The ${myList.title} list does not have this column yet:  ${f.name}`;
                         statusLog = notify(statusLog, step, f,  'Checked', err, null);

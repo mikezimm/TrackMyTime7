@@ -7,15 +7,15 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
-    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from './columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '../../../../services/listServices/columnTypes';
 
 import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
-    cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from './columnTypes';
+    cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from '../../../../services/listServices/columnTypes';
 
 //import { statusChoices, defStatus }  from '../../webparts/trackMyTime7/components/TrackMyTime7';
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
-import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from './columnsOOTB';
+import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '../../../../services/listServices/columnsOOTB';
 
 /***
  *     .d8b.  d8888b. d8888b.       d888b  d8888b.  .d88b.  db    db d8888b.      d8b   db  .d8b.  .88b  d88. d88888b 
@@ -750,26 +750,25 @@ export const User : IUserField = {
 
 
 export function TMTProjectFields() {
-    console.log('helpme :)');
     //return null;
 
-    let theseFields: IMyFieldTypes[] = TMTFields('Project');
+    let theseFields: IMyFieldTypes[] = TMTFields('Projects');
 
     console.log('theseFields', theseFields);
     return theseFields;
 }
 
 export function TMTTimeFields() {
-    let theseFields: IMyFieldTypes[] = TMTFields('Time');
+    let theseFields: IMyFieldTypes[] = TMTFields('TrackMyTime');
     return theseFields;
 }
 
-export function TMTFields(listName: 'Project' | 'Time') {
+export function TMTFields(listName: 'Projects' | 'TrackMyTime') {
 
     let theseFields: IMyFieldTypes[] = [];
-    if (listName === 'Project' ) { theseFields.push(SortOrder); }  //Project
-    if (listName === 'Project' ) { theseFields.push(Everyone); }  //Project
-    if (listName === 'Project' ) { theseFields.push(Active); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(SortOrder); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(Everyone); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(Active); }  //Project
     
     theseFields.push(Leader);  //BOTH
     theseFields.push(Team);  //BOTH
@@ -782,11 +781,11 @@ export function TMTFields(listName: 'Project' | 'Time') {
     theseFields.push(Story);  //BOTH
     theseFields.push(Chapter);  //BOTH
 
-    if (listName === 'Project' ) { theseFields.push(ActivityType); }  //Project
-    if (listName === 'Project' ) { theseFields.push(ActivityTMT); }  //Project
-    if (listName === 'Project' ) { theseFields.push(ActivtyURLCalc); }  //Project
-    if (listName === 'Project' ) { theseFields.push(OptionsTMT); }  //Project
-    if (listName === 'Project' ) { theseFields.push(OptionsTMTCalc); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(ActivityType); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(ActivityTMT); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(ActivtyURLCalc); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(OptionsTMT); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(OptionsTMTCalc); }  //Project
 
     theseFields.push(StatusTMT);  //BOTH        - must be before StatusNumber, StatusText, StepChecks, EffectiveStatus, IsOpen
     theseFields.push(StatusNumber);  //BOTH     - must be before StatusNumber, StatusText, StepChecks, EffectiveStatus, IsOpen
@@ -795,39 +794,39 @@ export function TMTFields(listName: 'Project' | 'Time') {
     let checks = StepChecks(0,5);  //Project
     theseFields.push(...checks);  //Project
 
-    if (listName === 'Project' ) { theseFields.push(EffectiveStatus); }  //Project
-    if (listName === 'Project' ) { theseFields.push(IsOpen); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(EffectiveStatus); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(IsOpen); }  //Project
 
     theseFields.push(DueDateTMT);  //BOTH
     theseFields.push(CompletedDateTMT);  //BOTH
     theseFields.push(CompletedByTMT);  //BOTH
 
-    if (listName === 'Project' ) { theseFields.push(ProjectEditOptions); }  //Project
-    if (listName === 'Project' ) { theseFields.push(HistoryTMT); }  //Project
-    if (listName === 'Project' ) { theseFields.push(TimeTarget); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(ProjectEditOptions); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(HistoryTMT); }  //Project
+    if (listName === 'Projects' ) { theseFields.push(TimeTarget); }  //Project
 
-    if (listName === 'Time' ) { theseFields.push(Activity); }  //Time
-    if (listName === 'Time' ) { theseFields.push(DeltaT); }  //Time
-    if (listName === 'Time' ) { theseFields.push(Comments); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(Activity); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(DeltaT); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(Comments); }  //Time
 
-    if (listName === 'Time' ) { theseFields.push(User); }  //Time
-    if (listName === 'Time' ) { theseFields.push(StartTime); }  //Time      - must be before Hours, Days, Minutes, KeyChanges
-    if (listName === 'Time' ) { theseFields.push(EndTime); }  //Time        - must be before Hours, Days, Minutes, KeyChanges
-    if (listName === 'Time' ) { theseFields.push(OriginalStart); }  //Time  - must be before Hours, Days, Minutes, KeyChanges
-    if (listName === 'Time' ) { theseFields.push(OriginalEnd); }  //Time    - must be before Hours, Days, Minutes, KeyChanges
-    if (listName === 'Time' ) { theseFields.push(OriginalHours); }  //Time  - must be before KeyChanges
+    if (listName === 'TrackMyTime' ) { theseFields.push(User); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(StartTime); }  //Time      - must be before Hours, Days, Minutes, KeyChanges
+    if (listName === 'TrackMyTime' ) { theseFields.push(EndTime); }  //Time        - must be before Hours, Days, Minutes, KeyChanges
+    if (listName === 'TrackMyTime' ) { theseFields.push(OriginalStart); }  //Time  - must be before Hours, Days, Minutes, KeyChanges
+    if (listName === 'TrackMyTime' ) { theseFields.push(OriginalEnd); }  //Time    - must be before Hours, Days, Minutes, KeyChanges
+    if (listName === 'TrackMyTime' ) { theseFields.push(OriginalHours); }  //Time  - must be before KeyChanges
 
-    if (listName === 'Time' ) { theseFields.push(Hours); }  //Time
-    if (listName === 'Time' ) { theseFields.push(Days); }  //Time
-    if (listName === 'Time' ) { theseFields.push(Minutes); }  //Time
-    if (listName === 'Time' ) { theseFields.push(KeyChanges); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(Hours); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(Days); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(Minutes); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(KeyChanges); }  //Time
 
-    if (listName === 'Time' ) { theseFields.push(SourceProject); }  //Time
-    if (listName === 'Time' ) { theseFields.push(SourceProjectRef); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(SourceProject); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(SourceProjectRef); }  //Time
 
-    if (listName === 'Time' ) { theseFields.push(Settings); }  //Time
-    if (listName === 'Time' ) { theseFields.push(Location); }  //Time
-    if (listName === 'Time' ) { theseFields.push(EntryType); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(Settings); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(Location); }  //Time
+    if (listName === 'TrackMyTime' ) { theseFields.push(EntryType); }  //Time
 
     theseFields.push(CCList);  //BOTH
     theseFields.push(CCEmail);  //BOTH
