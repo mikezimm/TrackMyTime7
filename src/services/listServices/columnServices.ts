@@ -9,13 +9,15 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField, IFields,
 
 import { IItemAddResult } from "@pnp/sp/items";
 
-import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
-    IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
+import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField ,
+    IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField ,
     IMultiChoiceField , IDepLookupField , ILocationField } from './columnTypes';
 
-import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
+import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
     cMText, cText, cNumb, cURL, cUser, cMUser } from './columnTypes';
-    
+
+import { doesObjectExistInArray } from '../arrayServices';
+
 import { IListInfo, IMyListInfo, IServiceLog, notify } from './listTypes';
 
 import { getHelpfullError } from '../ErrorHandler';
@@ -43,7 +45,7 @@ export const maxInfinity: number = -1 * minInfinity ;
 export async function addTheseFieldsOriginal( steps : changes[], webURL, myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[], skipTry = false): Promise<IFieldLog[]>{
 
     let statusLog : IFieldLog[] = [];
-    
+
     const thisWeb = Web(webURL);
     //const thisList = JSON.parse(JSON.stringify(myList));
 
@@ -64,7 +66,7 @@ export async function addTheseFieldsOriginal( steps : changes[], webURL, myList:
 export async function addTheseFields( steps : changes[], myList: IMyListInfo, ensuredList, currentFields , fieldsToAdd: IMyFieldTypes[], alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IFieldLog[]>{
 
     let statusLog : IFieldLog[] = [];
-    
+
     const listFields = ensuredList.list.fields;
 
     for ( let step of steps ) {
@@ -83,10 +85,22 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
 
             if ( skipTryField != true ) {
                 try {
-                    const checkField = await listFields.getByInternalNameOrTitle(f.name).get();
-                    statusLog = notify(statusLog, step, f,  'Checked', 'Found', checkField);
-                    foundField = true;
-        
+
+                    //const checkField = await listFields.getByInternalNameOrTitle(f.name).get();
+                    //statusLog = notify(statusLog, step, f,  'Checked', 'Found', checkField);
+
+                    //Assuming that if I'm creating a column, it's an object with .name value.
+                    let checkField = f.name ;
+                    if ( doesObjectExistInArray(currentFields, 'StaticName', checkField ) ) {
+                        foundField = true;
+                    } else {
+                        foundField = false;
+                        let err = `The ${myList.title} list does not have this column yet:  ${checkField}`;
+                        statusLog = notify(statusLog, step, f,  'Checked', err, null);
+                    }
+
+                    console.log('newTryField tested: ', foundField );
+
                 } catch (e) {
                     // if any of the fields does not exist, raise an exception in the console log
                     let errMessage = getHelpfullError(e, alertMe, consoleLog);
@@ -114,48 +128,48 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
 
                     switch ( f.fieldType.type ){
                         case cText.type :
-                            actualField = await listFields.addText( thisField.name, 
-                                thisField.maxLength ? thisField.maxLength : 255, 
+                            actualField = await listFields.addText( thisField.name,
+                                thisField.maxLength ? thisField.maxLength : 255,
                                 thisField.onCreateProps );
                             break ;
-    
+
                         case cMText.type :
-                            actualField = await listFields.addMultilineText(thisField.name, 
-                                thisField.numberOfLines ? thisField.numberOfLines : 6, 
-                                thisField.richText ? thisField.richText : false, 
-                                thisField.restrictedMode ? thisField.restrictedMode : false, 
-                                thisField.appendOnly ? thisField.appendOnly : false, 
+                            actualField = await listFields.addMultilineText(thisField.name,
+                                thisField.numberOfLines ? thisField.numberOfLines : 6,
+                                thisField.richText ? thisField.richText : false,
+                                thisField.restrictedMode ? thisField.restrictedMode : false,
+                                thisField.appendOnly ? thisField.appendOnly : false,
                                 thisField.allowHyperlink ? thisField.allowHyperlink : false,
                                 thisField.onCreateProps);
-    
+
                             break ;
-    
+
                         case cNumb.type :
-                            actualField = await listFields.addNumber(thisField.name, 
-                                thisField.minValue ? thisField.minValue : minInfinity, 
-                                thisField.maxValue ? thisField.maxValue : maxInfinity, 
+                            actualField = await listFields.addNumber(thisField.name,
+                                thisField.minValue ? thisField.minValue : minInfinity,
+                                thisField.maxValue ? thisField.maxValue : maxInfinity,
                                 thisField.onCreateProps);
                             break ;
-    
+
                         case cURL.type :
-                            actualField = await listFields.addUrl(thisField.name, 
+                            actualField = await listFields.addUrl(thisField.name,
                                 thisField.displayFormat ? thisField.displayFormat : UrlFieldFormatType.Hyperlink,
                                 thisField.onCreateProps);
                             break ;
-    
+
                         case cChoice.type :
-                            actualField = await listFields.addChoice(thisField.name, thisField.choices, 
-                                thisField.format ? thisField.format : ChoiceFieldFormatType.Dropdown, 
-                                thisField.fillIn ? thisField.fillIn : false, 
+                            actualField = await listFields.addChoice(thisField.name, thisField.choices,
+                                thisField.format ? thisField.format : ChoiceFieldFormatType.Dropdown,
+                                thisField.fillIn ? thisField.fillIn : false,
                                 thisField.onCreateProps);
                             break ;
-    
+
                         case cMChoice.type :
                                 actualField = await listFields.addMultiChoice(thisField.name, thisField.choices,
-                                    thisField.fillIn ? thisField.fillIn : false, 
+                                    thisField.fillIn ? thisField.fillIn : false,
                                     thisField.onCreateProps);
                                 break ;
-    
+
                         case cUser.type :
                             actualField = await listFields.addUser(thisField.name,
                                 thisField.selectionMode ?  thisField.selectionMode : FieldUserSelectionMode.PeopleOnly,
@@ -180,15 +194,15 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                             actualField = await listFields.createFieldAsXml(thisSchema);
 
                             break ;
-    
+
                         case cCalcN.type || cCalcT.type :
-                            actualField = await listFields.addCalculated(thisField.name, 
-                                thisField.formula, 
-                                thisField.dateFormat ? thisField.dateFormat : DateTimeFieldFormatType.DateOnly, 
+                            actualField = await listFields.addCalculated(thisField.name,
+                                thisField.formula,
+                                thisField.dateFormat ? thisField.dateFormat : DateTimeFieldFormatType.DateOnly,
                                 f.fieldType.type === 'Number'? FieldTypes.Number : FieldTypes.Text,  //FieldTypes.Number is used for Calculated Link columns
                                 thisField.onCreateProps);
                             break ;
-    
+
                         case cDate.type :
                             actualField = await listFields.addDateTime(thisField.name,
                                 thisField.displayFormat ? thisField.displayFormat : DateTimeFieldFormatType.DateOnly,
@@ -196,11 +210,11 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                                 thisField.friendlyDisplayFormat ? thisField.friendlyDisplayFormat : DateTimeFieldFriendlyFormatType.Disabled,
                                 thisField.onCreateProps);
                             break ;
-    
+
                         case cBool.type :
                             actualField = await listFields.addBoolean( thisField.name, thisField.onCreateProps );
                             break ;
-    
+
                         case cCurr.type :
                             actualField = await listFields.addCurrency(thisField.name,
                                 thisField.minValue ? thisField.minValue : minInfinity,
@@ -208,10 +222,10 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                                 thisField.currencyLocalId ? thisField.currencyLocalId : maxInfinity,
                                 thisField.onCreateProps);
                             break ;
-    
+
                         default :   // stuff
                             alert('Didn\'t find field type for ' + thisField.name + ':  ' + JSON.stringify(thisField.fieldType));
-                            break ; 
+                            break ;
                     }
                 }
                 foundField = true;
@@ -224,24 +238,24 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
                         statusLog = notify(statusLog, step, f,  'setShowNew', 'Complete',setDisp);
                     }
-            
+
                     if ( thisField.showEdit === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
                         statusLog = notify(statusLog, step, f,  'setShowEdit', 'Complete', setDisp);
                     }
-            
+
                     if ( thisField.showDisplay === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
-                        statusLog = notify(statusLog, step, f,  'setShowDisplay', 'Complete', setDisp);                     
-                    } 
+                        statusLog = notify(statusLog, step, f,  'setShowDisplay', 'Complete', setDisp);
+                    }
                 } //END: if ( step === 'create' || step === 'setForm' ) {
 
-                if ( step === 'create') { 
+                if ( step === 'create') {
                     if (thisField.onCreateChanges) {
                         const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
                         statusLog = notify(statusLog, step, f, 'onCreateChanges', JSON.stringify(thisField.onCreateChanges), createChanges);
                     } //END: if (thisField.onCreateChanges) {
-                        
+
                 } else if ( step !== 'setForm' ) { // Will do changes1, changes2, changes3 and changesFinal
                     //Loop through other types of changes
 

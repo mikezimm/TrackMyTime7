@@ -8,21 +8,21 @@ export function spliceCopyArray(sourceArray, startDel, countDelete, startAddOrig
     let skipMin = startDel === null ? "-1000" : startDel ;
     let skipMax = startDel === null ? "-1000" : startDel + countDelete - 1 ; 
     let addedArray = false;
-    
+
     if ( startAddOrigPos <= 0 ) {
       whole = whole.concat(addArray);
       addedArray = true;
     }
-    
+
     for (let i in sourceArray){
         let addedItem = false;
-        if ( i < skipMin ) {  
-            whole.push(sourceArray[i]); 
+        if ( i < skipMin ) {
+            whole.push(sourceArray[i]);
             addedItem = true; }
-        if ( i == startAddOrigPos ) { 
-            whole = whole.concat(addArray) ; 
+        if ( i == startAddOrigPos ) {
+            whole = whole.concat(addArray) ;
             addedArray = true; }
-       if ( i > skipMax && addedItem === false ) {  whole.push(sourceArray[i]);   }      
+       if ( i > skipMax && addedItem === false ) {  whole.push(sourceArray[i]);   }
     }
 
     if ( addedArray === false ) {  whole = whole.concat(addArray);  }
@@ -30,3 +30,17 @@ export function spliceCopyArray(sourceArray, startDel, countDelete, startAddOrig
     return whole;
 }
 
+export function doesObjectExistInArray(sourceArray, objectProperty : string, propValue){
+
+    let result : boolean | string = false;
+
+    for (let i in sourceArray){
+        if ( sourceArray[i][objectProperty] === propValue ) {
+            result = i;
+            break;
+        }
+    }
+
+    return result;
+
+}

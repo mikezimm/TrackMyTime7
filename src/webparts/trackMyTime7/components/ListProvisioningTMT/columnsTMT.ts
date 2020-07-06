@@ -113,8 +113,8 @@ export const Leader : IUserField = {
     }
 };
 
-//export const Team : IXMLField = { 
-export const Team : IUserField = { //IXMLField    
+//export const Team : IXMLField = {
+export const Team : IUserField = { //IXMLField
     fieldType: cMUser,
     name: 'Team',
     selectionMode: FieldUserSelectionMode.PeopleOnly,
@@ -439,7 +439,7 @@ export const CompletedDateTMT : IDateTimeField = {
 
 export const CompletedByTMT : IUserField = {
     fieldType: cUser,
-    name: 'CompletedDateTMT',
+    name: 'CompletedByTMT',
     selectionMode: FieldUserSelectionMode.PeopleOnly,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -563,7 +563,7 @@ export const OriginalStart : IDateTimeField = {
     name: 'OriginalStart',
     displayFormat:  DateTimeFieldFormatType.DateTime,
     onCreateProps: {
-        Group: thisColumnGroup,        
+        Group: thisColumnGroup,
         Description: DescriptionSaveAtTime,
         Indexed: true,
         Required: true,
@@ -769,13 +769,13 @@ export function TMTFields(listName: 'Projects' | 'TrackMyTime') {
     if (listName === 'Projects' ) { theseFields.push(SortOrder); }  //Project
     if (listName === 'Projects' ) { theseFields.push(Everyone); }  //Project
     if (listName === 'Projects' ) { theseFields.push(Active); }  //Project
-    
+
     theseFields.push(Leader);  //BOTH
     theseFields.push(Team);  //BOTH
 
     theseFields.push(Category1);  //BOTH
     theseFields.push(Category2);  //BOTH
-    
+
     theseFields.push(ProjectID1);  //BOTH
     theseFields.push(ProjectID2);  //BOTH
     theseFields.push(Story);  //BOTH

@@ -50,7 +50,17 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
     const ensuredList = await thisWeb.lists.ensure(theList.title);
     const listFields = ensuredList.list.fields;
     const listViews = ensuredList.list.views;
-    const  currentFields = await listFields.select('StaticName,Title,Hidden,Formula,Required,TypeAsString').filter(`StaticName eq 'Title' or StaticName eq 'Editor'`).get();
+
+    let fieldsToGet = createTheseFields.map ( thisField => {
+        return thisField.name;
+    });
+
+    let fieldFilter = "StaticName eq '" + fieldsToGet.join("' or StaticName eq '") + "'";
+
+    console.log('fieldFilter:', fieldFilter);
+
+    const  currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter(fieldFilter).get();
+
     const  currentViews = await listViews.get();
 
     console.log(theList.title + ' list fields and views', currentFields, currentViews);
