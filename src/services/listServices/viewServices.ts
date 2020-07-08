@@ -13,6 +13,8 @@ import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Conta
 
 import { IListInfo, IMyListInfo, IServiceLog, notify, getXMLObjectFromString } from './listTypes';
 
+import { doesObjectExistInArray } from '../arrayServices';
+
 import { getHelpfullError } from '../ErrorHandler';
 
 import "@pnp/sp/webs";
@@ -177,241 +179,253 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
         /**
          * Build view settings schema
          */
-
-
-/***
- *    db    db d888888b d88888b db   d8b   db      d88888b d888888b d88888b db      d8888b. .d8888. 
- *    88    88   `88'   88'     88   I8I   88      88'       `88'   88'     88      88  `8D 88'  YP 
- *    Y8    8P    88    88ooooo 88   I8I   88      88ooo      88    88ooooo 88      88   88 `8bo.   
- *    `8b  d8'    88    88~~~~~ Y8   I8I   88      88~~~      88    88~~~~~ 88      88   88   `Y8b. 
- *     `8bd8'    .88.   88.     `8b d8'8b d8'      88        .88.   88.     88booo. 88  .8D db   8D 
- *       YP    Y888888P Y88888P  `8b8' `8d8'       YP      Y888888P Y88888P Y88888P Y8888D' `8888Y' 
- *                                                                                                  
- *                                                                                                  
- */
-        //console.log('addTheseViews (v): ', v);
-        /**
-         * Build VewFields schema
-         */
-
-        let viewFieldsSchema = v.iFields.map( thisField => { 
-            let tempField : IViewField = JSON.parse(JSON.stringify(thisField));
-            let fieldName = typeof tempField  === 'object' ? tempField.name : tempField;
-            return '<FieldRef Name="' + fieldName + '" />';
-        });
-
-        let viewFieldsSchemaString: string = '';
-        if ( viewFieldsSchema.length > 0) {
-            //viewFieldsSchemaString = '<ViewFields>' + viewFieldsSchema.join('') + '</ViewFields>';
-            viewFieldsSchemaString = viewFieldsSchema.join('');            
+        let foundView = false;
+        //Assuming that if I'm creating a column, it's an object with .name value.
+        let checkView = v.Title ;
+        if ( doesObjectExistInArray(currentViews, 'Title', checkView ) ) {
+            foundView = true;
+        } else {
+            foundView = false;
+            let err = `The ${myList.title} list does not have this view yet:  ${checkView}`;
+            statusLog = notify(statusLog, 'create', v,  'Checked View', err, null);
         }
 
-        //console.log('addTheseViews', viewFieldsSchema, viewFieldsSchemaString);
+        if ( foundView === false ) {
 
+    /***
+     *    db    db d888888b d88888b db   d8b   db      d88888b d888888b d88888b db      d8888b. .d8888. 
+     *    88    88   `88'   88'     88   I8I   88      88'       `88'   88'     88      88  `8D 88'  YP 
+     *    Y8    8P    88    88ooooo 88   I8I   88      88ooo      88    88ooooo 88      88   88 `8bo.   
+     *    `8b  d8'    88    88~~~~~ Y8   I8I   88      88~~~      88    88~~~~~ 88      88   88   `Y8b. 
+     *     `8bd8'    .88.   88.     `8b d8'8b d8'      88        .88.   88.     88booo. 88  .8D db   8D 
+     *       YP    Y888888P Y88888P  `8b8' `8d8'       YP      Y888888P Y88888P Y88888P Y8888D' `8888Y' 
+     *                                                                                                  
+     *                                                                                                  
+     */
+            //console.log('addTheseViews (v): ', v);
+            /**
+             * Build VewFields schema
+             */
 
-/***
- *     d888b  d8888b.  .d88b.  db    db d8888b.      d8888b. db    db 
- *    88' Y8b 88  `8D .8P  Y8. 88    88 88  `8D      88  `8D `8b  d8' 
- *    88      88oobY' 88    88 88    88 88oodD'      88oooY'  `8bd8'  
- *    88  ooo 88`8b   88    88 88    88 88~~~        88~~~b.    88    
- *    88. ~8~ 88 `88. `8b  d8' 88b  d88 88           88   8D    88    
- *     Y888P  88   YD  `Y88P'  ~Y8888P' 88           Y8888P'    YP    
- *                                                                    
- *                                                                    
- */
-        /**
-          * Build view Query schema:  <GroupBy Stuff="Here"><OrderBy></OrderBy><Where></Where>
-          */
-
-        let viewGroupByXML = '';
-        if (v.groups != null) {
-            if ( v.groups.fields.length > 2) {
-                alert('You are trying to GroupBy more than 2 fields!: ' + v.groups.fields.length);
-            } else if (v.groups.fields != null && v.groups.fields.length > 0 ) {
-                if (v.groups.collapse === true ) { viewGroupByXML += ' Collapse="TRUE"'; }
-                if (v.groups.collapse === false ) { viewGroupByXML += ' Collapse="FALSE"'; }
-                if (v.groups.limit != null ) { viewGroupByXML += ' GroupLimit="' + v.groups.limit + '"'; }
-
-                viewGroupByXML = '<GroupBy' + viewGroupByXML + '>';
-
-                viewGroupByXML += v.groups.fields.map( thisField => {
-                    return buildFieldOrderTag(thisField);
-                }).join('');
-
-                viewGroupByXML += '</GroupBy>';
-                //console.log('<OrderBy><FieldRef Name="Modified" Ascending="False" /></OrderBy>');
-                //console.log('viewGroupByXML', viewGroupByXML);
-            }
-        }
-
-
-/***
- *     .d88b.  d8888b. d8888b. d88888b d8888b.      d8888b. db    db 
- *    .8P  Y8. 88  `8D 88  `8D 88'     88  `8D      88  `8D `8b  d8' 
- *    88    88 88oobY' 88   88 88ooooo 88oobY'      88oooY'  `8bd8'  
- *    88    88 88`8b   88   88 88~~~~~ 88`8b        88~~~b.    88    
- *    `8b  d8' 88 `88. 88  .8D 88.     88 `88.      88   8D    88    
- *     `Y88P'  88   YD Y8888D' Y88888P 88   YD      Y8888P'    YP    
- *                                                                   
- *                                                                   
- */
-
-        let viewOrderByXML = '';
-        if (v.orders != null) {
-            if ( v.orders.length > 2 ) {
-                alert('You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length);
-
-            } else if ( v.orders.length === 0 ) {
-                alert('You have view.orders object with no fields to order by!');
-
-            } else {
-
-                viewOrderByXML += v.orders.map( thisField => {
-                    return buildFieldOrderTag(thisField);
-                }).join('');
-            }
-
-        }
-
-
-/***
- *    db   d8b   db db   db d88888b d8888b. d88888b 
- *    88   I8I   88 88   88 88'     88  `8D 88'     
- *    88   I8I   88 88ooo88 88ooooo 88oobY' 88ooooo 
- *    Y8   I8I   88 88~~~88 88~~~~~ 88`8b   88~~~~~ 
- *    `8b d8'8b d8' 88   88 88.     88 `88. 88.     
- *     `8b8' `8d8'  YP   YP Y88888P 88   YD Y88888P 
- *                                                  
- *                                                  
- */
-
-        let viewWhereXML = '';
-        if ( v.wheres != null && v.wheres.length > 0 ) {
-
-            //Get array of where items
-            let viewWhereArray = v.wheres.map( thisWhere => {
-                return buildFieldWhereTag(thisWhere);
-
+            let viewFieldsSchema = v.iFields.map( thisField => { 
+                let tempField : IViewField = JSON.parse(JSON.stringify(thisField));
+                let fieldName = typeof tempField  === 'object' ? tempField.name : tempField;
+                return '<FieldRef Name="' + fieldName + '" />';
             });
-            //console.log('viewWhereArray', viewWhereArray);
 
-            //Go through each item and add the <Or> or <And> Tags around them
-            let hasPreviousAnd = false;
-            let previousAnd = '';
-            for (let i in viewWhereArray ) {
-                let thisClause = i === '0' ? '' : v.wheres[i].clause;
-                let thisFieldWhere = viewWhereArray[i];
+            let viewFieldsSchemaString: string = '';
+            if ( viewFieldsSchema.length > 0) {
+                //viewFieldsSchemaString = '<ViewFields>' + viewFieldsSchema.join('') + '</ViewFields>';
+                viewFieldsSchemaString = viewFieldsSchema.join('');            
+            }
 
-                if ( viewWhereArray.length === 0 ) {
-                    //You need to have something in here for it to work.
-                    alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
+            //console.log('addTheseViews', viewFieldsSchema, viewFieldsSchemaString);
 
-                } else if ( hasPreviousAnd === true && thisClause === 'Or' ) {
-                    //In UI, you can't have an OR after an AND... , it works but will not work editing the view through UI then.
-                    alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
+
+    /***
+     *     d888b  d8888b.  .d88b.  db    db d8888b.      d8888b. db    db 
+     *    88' Y8b 88  `8D .8P  Y8. 88    88 88  `8D      88  `8D `8b  d8' 
+     *    88      88oobY' 88    88 88    88 88oodD'      88oooY'  `8bd8'  
+     *    88  ooo 88`8b   88    88 88    88 88~~~        88~~~b.    88    
+     *    88. ~8~ 88 `88. `8b  d8' 88b  d88 88           88   8D    88    
+     *     Y888P  88   YD  `Y88P'  ~Y8888P' 88           Y8888P'    YP    
+     *                                                                    
+     *                                                                    
+     */
+            /**
+             * Build view Query schema:  <GroupBy Stuff="Here"><OrderBy></OrderBy><Where></Where>
+             */
+
+            let viewGroupByXML = '';
+            if (v.groups != null) {
+                if ( v.groups.fields.length > 2) {
+                    alert('You are trying to GroupBy more than 2 fields!: ' + v.groups.fields.length);
+                } else if (v.groups.fields != null && v.groups.fields.length > 0 ) {
+                    if (v.groups.collapse === true ) { viewGroupByXML += ' Collapse="TRUE"'; }
+                    if (v.groups.collapse === false ) { viewGroupByXML += ' Collapse="FALSE"'; }
+                    if (v.groups.limit != null ) { viewGroupByXML += ' GroupLimit="' + v.groups.limit + '"'; }
+
+                    viewGroupByXML = '<GroupBy' + viewGroupByXML + '>';
+
+                    viewGroupByXML += v.groups.fields.map( thisField => {
+                        return buildFieldOrderTag(thisField);
+                    }).join('');
+
+                    viewGroupByXML += '</GroupBy>';
+                    //console.log('<OrderBy><FieldRef Name="Modified" Ascending="False" /></OrderBy>');
+                    //console.log('viewGroupByXML', viewGroupByXML);
+                }
+            }
+
+
+    /***
+     *     .d88b.  d8888b. d8888b. d88888b d8888b.      d8888b. db    db 
+     *    .8P  Y8. 88  `8D 88  `8D 88'     88  `8D      88  `8D `8b  d8' 
+     *    88    88 88oobY' 88   88 88ooooo 88oobY'      88oooY'  `8bd8'  
+     *    88    88 88`8b   88   88 88~~~~~ 88`8b        88~~~b.    88    
+     *    `8b  d8' 88 `88. 88  .8D 88.     88 `88.      88   8D    88    
+     *     `Y88P'  88   YD Y8888D' Y88888P 88   YD      Y8888P'    YP    
+     *                                                                   
+     *                                                                   
+     */
+
+            let viewOrderByXML = '';
+            if (v.orders != null) {
+                if ( v.orders.length > 2 ) {
+                    alert('You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length);
+
+                } else if ( v.orders.length === 0 ) {
+                    alert('You have view.orders object with no fields to order by!');
 
                 } else {
-                    //console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
-                    // '<' + thisOper.q + '>'
 
-                    if ( thisClause != '' && thisFieldWhere != '' ){ //Valid clause found... wrap entire string in it
-                        if ( viewWhereXML != ''){
-                            viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
-                            viewWhereXML = '<' + thisClause + '>' + viewWhereXML + '</' + thisClause + '>';
-                            
-                        } else {
-                            alert('Can\'t wrap this in clause because there is not any existing field to compare to ' + thisFieldWhere );
-                            viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
-                        }
-
-                    }
-    
+                    viewOrderByXML += v.orders.map( thisField => {
+                        return buildFieldOrderTag(thisField);
+                    }).join('');
                 }
 
-                if ( thisClause === 'And') { hasPreviousAnd = true ; previousAnd = thisFieldWhere; }
+            }
+
+
+    /***
+     *    db   d8b   db db   db d88888b d8888b. d88888b 
+     *    88   I8I   88 88   88 88'     88  `8D 88'     
+     *    88   I8I   88 88ooo88 88ooooo 88oobY' 88ooooo 
+     *    Y8   I8I   88 88~~~88 88~~~~~ 88`8b   88~~~~~ 
+     *    `8b d8'8b d8' 88   88 88.     88 `88. 88.     
+     *     `8b8' `8d8'  YP   YP Y88888P 88   YD Y88888P 
+     *                                                  
+     *                                                  
+     */
+
+            let viewWhereXML = '';
+            if ( v.wheres != null && v.wheres.length > 0 ) {
+
+                //Get array of where items
+                let viewWhereArray = v.wheres.map( thisWhere => {
+                    return buildFieldWhereTag(thisWhere);
+
+                });
+                //console.log('viewWhereArray', viewWhereArray);
+
+                //Go through each item and add the <Or> or <And> Tags around them
+                let hasPreviousAnd = false;
+                let previousAnd = '';
+                for (let i in viewWhereArray ) {
+                    let thisClause = i === '0' ? '' : v.wheres[i].clause;
+                    let thisFieldWhere = viewWhereArray[i];
+
+                    if ( viewWhereArray.length === 0 ) {
+                        //You need to have something in here for it to work.
+                        alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
+
+                    } else if ( hasPreviousAnd === true && thisClause === 'Or' ) {
+                        //In UI, you can't have an OR after an AND... , it works but will not work editing the view through UI then.
+                        alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
+
+                    } else {
+                        //console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
+                        // '<' + thisOper.q + '>'
+
+                        if ( thisClause != '' && thisFieldWhere != '' ){ //Valid clause found... wrap entire string in it
+                            if ( viewWhereXML != ''){
+                                viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
+                                viewWhereXML = '<' + thisClause + '>' + viewWhereXML + '</' + thisClause + '>';
+                                
+                            } else {
+                                alert('Can\'t wrap this in clause because there is not any existing field to compare to ' + thisFieldWhere );
+                                viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
+                            }
+
+                        }
+        
+                    }
+
+                    if ( thisClause === 'And') { hasPreviousAnd = true ; previousAnd = thisFieldWhere; }
+
+                }
+
 
             }
 
 
-        }
+    /***
+     *    .d8888.  .o88b. db   db d88888b .88b  d88.  .d8b.                                      
+     *    88'  YP d8P  Y8 88   88 88'     88'YbdP`88 d8' `8b        db          db          db   
+     *    `8bo.   8P      88ooo88 88ooooo 88  88  88 88ooo88        88          88          88   
+     *      `Y8b. 8b      88~~~88 88~~~~~ 88  88  88 88~~~88      C8888D      C8888D      C8888D 
+     *    db   8D Y8b  d8 88   88 88.     88  88  88 88   88        88          88          88   
+     *    `8888Y'  `Y88P' YP   YP Y88888P YP  YP  YP YP   YP        VP          VP          VP   
+     *                                                                                           
+     *                                                                                           
+     */
 
+            /**
+             * Combine all schema elements together
+             */
 
-/***
- *    .d8888.  .o88b. db   db d88888b .88b  d88.  .d8b.                                      
- *    88'  YP d8P  Y8 88   88 88'     88'YbdP`88 d8' `8b        db          db          db   
- *    `8bo.   8P      88ooo88 88ooooo 88  88  88 88ooo88        88          88          88   
- *      `Y8b. 8b      88~~~88 88~~~~~ 88  88  88 88~~~88      C8888D      C8888D      C8888D 
- *    db   8D Y8b  d8 88   88 88.     88  88  88 88   88        88          88          88   
- *    `8888Y'  `Y88P' YP   YP Y88888P YP  YP  YP YP   YP        VP          VP          VP   
- *                                                                                           
- *                                                                                           
- */
-
-        /**
-         * Combine all schema elements together
-         */
-
-        let viewQueryXML = '';
-        if (viewWhereXML != '') { viewQueryXML += '<Where>' + viewWhereXML + '</Where>';}
-        if (viewGroupByXML != '') { viewQueryXML += '' + viewGroupByXML + '';} //Tags included in initial build because of special props.
-        if (viewOrderByXML != '') { viewQueryXML += '<OrderBy>' + viewOrderByXML + '</OrderBy>';}
+            let viewQueryXML = '';
+            if (viewWhereXML != '') { viewQueryXML += '<Where>' + viewWhereXML + '</Where>';}
+            if (viewGroupByXML != '') { viewQueryXML += '' + viewGroupByXML + '';} //Tags included in initial build because of special props.
+            if (viewOrderByXML != '') { viewQueryXML += '<OrderBy>' + viewOrderByXML + '</OrderBy>';}
 
 
 
-/***
- *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      db    db d888888b d88888b db   d8b   db 
- *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88    88   `88'   88'     88   I8I   88 
- *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo      Y8    8P    88    88ooooo 88   I8I   88 
- *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~      `8b  d8'    88    88~~~~~ Y8   I8I   88 
- *    Y8b  d8 88 `88. 88.     88   88    88    88.           `8bd8'    .88.   88.     `8b d8'8b d8' 
- *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P         YP    Y888888P Y88888P  `8b8' `8d8'  
- *                                                                                                  
- *                                                                                                  
- */
+    /***
+     *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      db    db d888888b d88888b db   d8b   db 
+     *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88    88   `88'   88'     88   I8I   88 
+     *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo      Y8    8P    88    88ooooo 88   I8I   88 
+     *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~      `8b  d8'    88    88~~~~~ Y8   I8I   88 
+     *    Y8b  d8 88 `88. 88.     88   88    88    88.           `8bd8'    .88.   88.     `8b d8'8b d8' 
+     *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P         YP    Y888888P Y88888P  `8b8' `8d8'  
+     *                                                                                                  
+     *                                                                                                  
+     */
 
 
-        /**
-         * Available options:  https://github.com/koltyakov/sp-metadata/blob/baf1162394caba1222947f223ed78c76b4a72255/docs/SP/EntityTypes/View.md
-         */
-        try {
-            //console.log('BEFORE CREATE VIEW:  viewQueryXML', viewQueryXML);
-            let createViewProps = { 
-                RowLimit: v.RowLimit == null ? 30 : v.RowLimit,
-                TabularView: v.TabularView !== false ? true : false,
-            };
+            /**
+             * Available options:  https://github.com/koltyakov/sp-metadata/blob/baf1162394caba1222947f223ed78c76b4a72255/docs/SP/EntityTypes/View.md
+             */
+            try {
+                //console.log('BEFORE CREATE VIEW:  viewQueryXML', viewQueryXML);
+                let createViewProps = { 
+                    RowLimit: v.RowLimit == null ? 30 : v.RowLimit,
+                    TabularView: v.TabularView !== false ? true : false,
+                };
 
-            if ( viewQueryXML != '' ) { createViewProps["ViewQuery"] = viewQueryXML; }
+                if ( viewQueryXML != '' ) { createViewProps["ViewQuery"] = viewQueryXML; }
 
-            //createViewProps["ViewQuery"] = "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>";
-            const result = await listViews.add(v.Title, false, createViewProps );
+                //createViewProps["ViewQuery"] = "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>";
+                const result = await listViews.add(v.Title, false, createViewProps );
 
-            statusLog = notify(statusLog, 'Create', v,  'Creating', null, null);
+                statusLog = notify(statusLog, 'Create', v,  'Creating View', null, null);
 
-            let viewXML = result.data.ListViewXml;
+                let viewXML = result.data.ListViewXml;
 
-            let ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
-            //console.log('ViewFieldsXML', ViewFieldsXML);
-            viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
+                let ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
+                //console.log('ViewFieldsXML', ViewFieldsXML);
+                viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
 
-            await result.view.setViewXml(viewXML);
+                await result.view.setViewXml(viewXML);
 
-            statusLog = notify(statusLog, 'Create', v,  'Updating', null, null);
-
-        } catch (e) {
-            // if any of the fields does not exist, raise an exception in the console log
-            let errMessage = getHelpfullError(e);
-            if (errMessage.indexOf('missing a column') > -1) {
-                let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
-                statusLog = notify(statusLog, 'Create', v,  'Creating', err, null);
-            } else {
-                let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
-                statusLog = notify(statusLog, 'Create', v,  'Creating', err, null);
+            } catch (e) {
+                // if any of the fields does not exist, raise an exception in the console log
+                let errMessage = getHelpfullError(e);
+                if (errMessage.indexOf('missing a column') > -1) {
+                    let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
+                    statusLog = notify(statusLog, 'Create', v,  'Creating View', err, null);
+                } else {
+                    let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
+                    statusLog = notify(statusLog, 'Create', v,  'Creating View', err, null);
+                }
             }
+
+            /**
+             * Add response, comments, alerts
+             */
+
         }
 
-        /**
-         * Add response, comments, alerts
-         */
 
     }  //END: for (let f of fieldsToAdd) {
     alert('Added views to list:' );

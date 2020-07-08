@@ -96,7 +96,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                     } else {
                         foundField = false;
                         let err = `The ${myList.title} list does not have this column yet:  ${checkField}`;
-                        statusLog = notify(statusLog, step, f,  'Checked', err, null);
+                        statusLog = notify(statusLog, step, f,  'Checked Field', err, null);
                     }
 
                     console.log('newTryField tested: ', foundField );
@@ -106,10 +106,10 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                     let errMessage = getHelpfullError(e, alertMe, consoleLog);
                     if (errMessage.indexOf('missing a column') > -1) {
                         let err = `The ${myList.title} list does not have this column yet:  ${f.name}`;
-                        statusLog = notify(statusLog, step, f,  'Checked', err, null);
+                        statusLog = notify(statusLog, step, f,  'Checked Field', err, null);
                     } else {
                         let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
-                        statusLog = notify(statusLog, step, f,  'Checked', err, null);
+                        statusLog = notify(statusLog, step, f,  'Checked Field', err, null);
                     }
                 }
             }
@@ -229,31 +229,31 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                     }
                 }
                 foundField = true;
-                statusLog = notify(statusLog, step, f,  'Created', 'Complete', actualField);
+                statusLog = notify(statusLog, step, f,  'Created Field', 'Complete', actualField);
             }
 
             if ( foundField === true ) {
                 if ( step === 'create' || step === 'setForm' ) {
                     if ( thisField.showNew === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
-                        statusLog = notify(statusLog, step, f,  'setShowNew', 'Complete',setDisp);
+                        statusLog = notify(statusLog, step, f,  'setShowNew Field', 'Complete',setDisp);
                     }
 
                     if ( thisField.showEdit === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
-                        statusLog = notify(statusLog, step, f,  'setShowEdit', 'Complete', setDisp);
+                        statusLog = notify(statusLog, step, f,  'setShowEdit Field', 'Complete', setDisp);
                     }
 
                     if ( thisField.showDisplay === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
-                        statusLog = notify(statusLog, step, f,  'setShowDisplay', 'Complete', setDisp);
+                        statusLog = notify(statusLog, step, f,  'setShowDisplay Field', 'Complete', setDisp);
                     }
                 } //END: if ( step === 'create' || step === 'setForm' ) {
 
                 if ( step === 'create') {
                     if (thisField.onCreateChanges) {
                         const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
-                        statusLog = notify(statusLog, step, f, 'onCreateChanges', JSON.stringify(thisField.onCreateChanges), createChanges);
+                        statusLog = notify(statusLog, step, f, 'onCreateChanges Field', JSON.stringify(thisField.onCreateChanges), createChanges);
                     } //END: if (thisField.onCreateChanges) {
 
                 } else if ( step !== 'setForm' ) { // Will do changes1, changes2, changes3 and changesFinal
@@ -261,7 +261,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
 
                     if ( thisField[step] != null ) {
                         const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
-                        statusLog = notify(statusLog, step, f,  step, JSON.stringify(thisField[step]), otherChanges);
+                        statusLog = notify(statusLog, step, f,  step + ' Field', JSON.stringify(thisField[step]), otherChanges);
                     }
 
                 } //END: else if ( step !== 'setForm' ) {

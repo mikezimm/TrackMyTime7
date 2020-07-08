@@ -18,7 +18,7 @@ export function notify(statusLog, step , f, verb, status, returnField, noAlert =
 
     let thisNotify = {
         time: (new Date()).toLocaleString() ,  
-        step: step, field: f.name,  
+        step: step, item: f.name ? f.name : f.Title,  
         verb: verb,   
         status: status,
     };
