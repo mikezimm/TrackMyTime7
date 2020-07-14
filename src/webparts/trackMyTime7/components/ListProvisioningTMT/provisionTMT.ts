@@ -8,6 +8,8 @@ import { changes, IMyFieldTypes } from '../../../../services/listServices/column
 
 import { IMyView,  } from '../../../../services/listServices/viewTypes'; //Import view arrays for Time list
 
+import { addTheseItemsToList } from '../../../../services/listServices/listServices';
+
 import { IFieldLog, addTheseFields } from '../../../../services/listServices/columnServices'; //Import view arrays for Time list
 
 import { IViewLog, addTheseViews } from '../../../../services/listServices/viewServices'; //Import view arrays for Time list
@@ -18,11 +20,14 @@ import { projectViews} from './viewsTMTProject';  //Import view arrays for Proje
 
 import { timeViews } from './viewsTMTTime'; //Import view arrays for Time list
 
+import { TMTDefaultProjectItems } from './ItemsTMT'; // Import items to create in the list
+
 export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', webURL: string ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let createTheseFields : IMyFieldTypes[] = [];
     let createTheseViews : IMyView[] = [];
+    let createTheseItems = [];
 
     let alertMe = false;
     let consoleLog = false;
@@ -38,6 +43,7 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
     if (listName === 'Projects') {
         createTheseFields = TMTProjectFields();
         createTheseViews = projectViews;
+        createTheseItems = TMTDefaultProjectItems;
 
     } else if (listName === 'TrackMyTime') {
         createTheseFields = TMTTimeFields();
@@ -70,6 +76,8 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
     //let testViews = projectViews;
     //alert('adding Views');
     let result2 = await addTheseViews(['create'],  theList, ensuredList, currentViews, createTheseViews, alertMe, consoleLog);
+
+    let result3 = await addTheseItemsToList(theList, thisWeb, createTheseItems, true, true);
 
 //    let result = addTheseFields(['setForm'],webURL, theList, testFields);
 

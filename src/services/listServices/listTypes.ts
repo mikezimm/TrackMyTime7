@@ -15,6 +15,7 @@
 // ensure(title: string, desc?: string, template?: number, enableContentTypes?: boolean, additionalSettings?: Partial<IListInfo>): Promise<IListEnsureResult>;
 
 export function notify(statusLog, step , f, verb, status, returnField, noAlert = false) {
+    if ( f == null ) { f = {name:''} ; }
 
     let thisNotify = {
         time: (new Date()).toLocaleString() ,  
