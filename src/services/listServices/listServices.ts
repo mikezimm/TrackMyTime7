@@ -41,7 +41,7 @@ export interface IListLog extends IServiceLog {
 export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsToAdd: any[], alertMe: boolean, consoleLog: boolean, alwaysCreateNew = true ): Promise<IListLog[]>{
 
     let statusLog : IListLog[] = [];
-    console.log('Starting addTheseItemsToList');
+    console.log('Starting addTheseItemsToList', ItemsToAdd);
 
     let list = thisWeb.lists.getByTitle(myList.title);
     const entityTypeFullName = await list.getListItemEntityTypeFullName();
@@ -56,16 +56,11 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
                 statusLog = notify(statusLog, null, null,  'Created Item', thisItem, null);
             });
         } catch (e) {
-            // if any of the fields does not exist, raise an exception in the console log
-            let errMessage = getHelpfullError(e, alertMe, consoleLog);
 
-            if (errMessage.indexOf('missing a column') > -1) {
-                let err = `The ${myList.title} list does not have XYZ or TBD yet:  ${thisItem}`;
-                statusLog = notify(statusLog, null, null,  'Created Item', err, null);
-            } else {
-                let err = errMessage;
-                statusLog = notify(statusLog, null, null,  'Problem Creating Item', thisItem, null);
-            }
+            // DO NOT SEEM TO CATCH ANY ERRORS HERE SO THIS MAY BE USELESS
+            let errMessage = getHelpfullError(e, alertMe, consoleLog);
+            statusLog = notify(statusLog, null, null,  'Problem Creating Item: ' + errMessage, thisItem, null);
+
         }
 
     }
@@ -74,6 +69,9 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
         await batch.execute();
         alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
     } catch (e) {
+        //ONLY SEEMS TO CATCH FIRST ERROR IN BATCH.
+        //OTHER BATCH ITEMS GET PROCESSED BUT ONLY FLAGS FIRST ONE.
+        //CONFIRMED LATER ITEMS IN ARRAY AFTER ERROR STILL GET PROCESSED, JUST NOT ERRORED OUT
         let errMessage = getHelpfullError(e, alertMe, consoleLog);
         if (errMessage.indexOf('missing a column') > -1) {
             let err = `The ${myList.title} list does not have XYZ or TBD yet:  ${'thisItem'}`;
@@ -83,7 +81,6 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
             statusLog = notify(statusLog, null, null,  'Problem processing Batch', err, null);
         }
     }
-
 
     //let returnArray: [] = [];
     alert('Added items to list:' );
