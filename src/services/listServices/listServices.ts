@@ -47,27 +47,24 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
     const entityTypeFullName = await list.getListItemEntityTypeFullName();
 
     let batch = thisWeb.createBatch();
-  
+
     for (let item of ItemsToAdd) {
     //, Category1: { results: ['Training']}
-        let thisItem = item[Object.keys(item)[0]];
-        try {
-            list.items.inBatch(batch).add( item , entityTypeFullName).then(b => {
-                statusLog = notify(statusLog, null, null,  'Created Item', thisItem, null);
-            });
-        } catch (e) {
-
-            // DO NOT SEEM TO CATCH ANY ERRORS HERE SO THIS MAY BE USELESS
-            let errMessage = getHelpfullError(e, alertMe, consoleLog);
-            statusLog = notify(statusLog, null, null,  'Problem Creating Item: ' + errMessage, thisItem, null);
-
-        }
-
+        let thisItem = Object.keys(item)[0] + '===' + item[Object.keys(item)[0]];
+        //let checkValue = thisItem;
+        // Removed try/catch per https://github.com/pnp/pnpjs/issues/1275#issuecomment-658578589
+        list.items.inBatch(batch).add( item , entityTypeFullName).then(b => {
+            statusLog = notify(statusLog, 'Created Item', 'Batched', null, null, null, thisItem );
+        });
     }
 
     try {
         await batch.execute();
+
+        // Have a way to check which items did not get added.
+
         alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
+
     } catch (e) {
         //ONLY SEEMS TO CATCH FIRST ERROR IN BATCH.
         //OTHER BATCH ITEMS GET PROCESSED BUT ONLY FLAGS FIRST ONE.
@@ -75,10 +72,10 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
         let errMessage = getHelpfullError(e, alertMe, consoleLog);
         if (errMessage.indexOf('missing a column') > -1) {
             let err = `The ${myList.title} list does not have XYZ or TBD yet:  ${'thisItem'}`;
-            statusLog = notify(statusLog, null, null,  'Created Item', err, null);
+            statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
         } else {
             let err = errMessage;
-            statusLog = notify(statusLog, null, null,  'Problem processing Batch', err, null);
+            statusLog = notify(statusLog, 'Problem processing Batch', err, null, null, null, null);
         }
     }
 

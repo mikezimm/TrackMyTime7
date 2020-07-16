@@ -52,7 +52,6 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
     }
 
     const thisWeb = Web(webURL);
-
     const ensuredList = await thisWeb.lists.ensure(theList.title);
     const listFields = ensuredList.list.fields;
     const listViews = ensuredList.list.views;

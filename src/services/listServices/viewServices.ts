@@ -187,7 +187,7 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
         } else {
             foundView = false;
             let err = `The ${myList.title} list does not have this view yet:  ${checkView}`;
-            statusLog = notify(statusLog, 'create', v,  'Checked View', err, null);
+            statusLog = notify(statusLog, v,  'Checked View', 'create', err, null);
         }
 
         if ( foundView === false ) {
@@ -398,7 +398,7 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                 //createViewProps["ViewQuery"] = "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>";
                 const result = await listViews.add(v.Title, false, createViewProps );
 
-                statusLog = notify(statusLog, 'Create', v,  'Creating View', null, null);
+                statusLog = notify(statusLog, v, 'Creating View', 'Create', null, null);
 
                 let viewXML = result.data.ListViewXml;
 
@@ -413,10 +413,10 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                 let errMessage = getHelpfullError(e);
                 if (errMessage.indexOf('missing a column') > -1) {
                     let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
-                    statusLog = notify(statusLog, 'Create', v,  'Creating View', err, null);
+                    statusLog = notify(statusLog,  v, 'Creating View', 'Create',err, null);
                 } else {
                     let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
-                    statusLog = notify(statusLog, 'Create', v,  'Creating View', err, null);
+                    statusLog = notify(statusLog, v, 'Creating View', 'Create', err, null);
                 }
             }
 

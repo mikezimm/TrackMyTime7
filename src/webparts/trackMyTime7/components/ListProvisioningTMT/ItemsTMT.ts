@@ -1,7 +1,9 @@
 /**
  * Items to create when privisioning the list
+ * 
+ * NOTE:   Always make the first item in the object be text that can be used to verify if the item was added.
+ * 
  */
-
 
 export const TMTDefaultProjectItems  = [
     { Title: "Training", Everyone: true, Story: 'Training', Chapter: 'Yet more training :)', Category1: { results: ['Training']}},

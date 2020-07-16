@@ -40,29 +40,17 @@ export const maxInfinity: number = -1 * minInfinity ;
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
 
-
-
-export async function addTheseFieldsOriginal( steps : changes[], webURL, myList: IMyListInfo, fieldsToAdd: IMyFieldTypes[], skipTry = false): Promise<IFieldLog[]>{
-
-    let statusLog : IFieldLog[] = [];
-
-    const thisWeb = Web(webURL);
-    //const thisList = JSON.parse(JSON.stringify(myList));
-
-    const ensuredList = await thisWeb.lists.ensure(myList.title);
-    const listFields = ensuredList.list.fields;
-    //    .select(selectColsProj).expand(expandTheseProj).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
-
-    const  myFields = await listFields.select('StaticName,Title,Hidden,Formula,Required,TypeAsString').filter(`StaticName eq 'Title' or StaticName eq 'Editor'`).get();
-    console.log('listFields:', listFields);
-    console.log('myFields:', myFields);
-
-    //let returnArray: [] = [];
-
-    return statusLog;
-}
-
-
+/**
+ * 
+ * @param steps - array of pre-defined steps... makes it easier to separate 'Create' process from 'updates' which need to happen later on.
+ * @param myList - list definition object
+ * @param ensuredList - ensured list which should be done prior to calling these functions so it's only done one time
+ * @param currentFields - list of existing fields fetched prior to calling this function
+ * @param fieldsToAdd - array of typed field objects you want to create or verify... code will do them in order of the array
+ * @param alertMe - used for logging and testing
+ * @param consoleLog - used for logging and testing
+ * @param skipTry - was used prior to adding 'currentFields' so you wouldn't have to 'try' adding/checking if column existed before creating it.
+ */
 export async function addTheseFields( steps : changes[], myList: IMyListInfo, ensuredList, currentFields , fieldsToAdd: IMyFieldTypes[], alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IFieldLog[]>{
 
     let statusLog : IFieldLog[] = [];
@@ -96,7 +84,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                     } else {
                         foundField = false;
                         let err = `The ${myList.title} list does not have this column yet:  ${checkField}`;
-                        statusLog = notify(statusLog, step, f,  'Checked Field', err, null);
+                        statusLog = notify(statusLog, 'Checked Field', err, step, f,  null);
                     }
 
                     console.log('newTryField tested: ', foundField );
@@ -106,10 +94,10 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                     let errMessage = getHelpfullError(e, alertMe, consoleLog);
                     if (errMessage.indexOf('missing a column') > -1) {
                         let err = `The ${myList.title} list does not have this column yet:  ${f.name}`;
-                        statusLog = notify(statusLog, step, f,  'Checked Field', err, null);
+                        statusLog = notify(statusLog, 'Checked Field', err, step, f, null);
                     } else {
                         let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
-                        statusLog = notify(statusLog, step, f,  'Checked Field', err, null);
+                        statusLog = notify(statusLog, 'Checked Field', err, step, f, null);
                     }
                 }
             }
@@ -229,31 +217,31 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                     }
                 }
                 foundField = true;
-                statusLog = notify(statusLog, step, f,  'Created Field', 'Complete', actualField);
+                statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
             }
 
             if ( foundField === true ) {
                 if ( step === 'create' || step === 'setForm' ) {
                     if ( thisField.showNew === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
-                        statusLog = notify(statusLog, step, f,  'setShowNew Field', 'Complete',setDisp);
+                        statusLog = notify(statusLog, 'setShowNew Field', 'Complete',step, f, setDisp);
                     }
 
                     if ( thisField.showEdit === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
-                        statusLog = notify(statusLog, step, f,  'setShowEdit Field', 'Complete', setDisp);
+                        statusLog = notify(statusLog, 'setShowEdit Field', 'Complete', step, f, setDisp);
                     }
 
                     if ( thisField.showDisplay === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
-                        statusLog = notify(statusLog, step, f,  'setShowDisplay Field', 'Complete', setDisp);
+                        statusLog = notify(statusLog, 'setShowDisplay Field', 'Complete', step, f, setDisp);
                     }
                 } //END: if ( step === 'create' || step === 'setForm' ) {
 
                 if ( step === 'create') {
                     if (thisField.onCreateChanges) {
                         const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
-                        statusLog = notify(statusLog, step, f, 'onCreateChanges Field', JSON.stringify(thisField.onCreateChanges), createChanges);
+                        statusLog = notify(statusLog, 'onCreateChanges Field', 'update===' + JSON.stringify(thisField.onCreateChanges), step, f, createChanges);
                     } //END: if (thisField.onCreateChanges) {
 
                 } else if ( step !== 'setForm' ) { // Will do changes1, changes2, changes3 and changesFinal
@@ -261,7 +249,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
 
                     if ( thisField[step] != null ) {
                         const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
-                        statusLog = notify(statusLog, step, f,  step + ' Field', JSON.stringify(thisField[step]), otherChanges);
+                        statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
                     }
 
                 } //END: else if ( step !== 'setForm' ) {

@@ -14,15 +14,23 @@
  */
 // ensure(title: string, desc?: string, template?: number, enableContentTypes?: boolean, additionalSettings?: Partial<IListInfo>): Promise<IListEnsureResult>;
 
-export function notify(statusLog, step , f, verb, status, returnField, noAlert = false) {
+export function notify(statusLog, verb, status, step , f, returnField, checkValue = null, noAlert = false) {
     if ( f == null ) { f = {name:''} ; }
+    let thisItem = f == null ? null : f.name ? f.name : f.Title;
 
     let thisNotify = {
         time: (new Date()).toLocaleString() ,  
-        step: step, item: f.name ? f.name : f.Title,  
         verb: verb,   
-        status: status,
+        //status: status,
+        //checkValue: checkValue,
     };
+
+    if ( step !== null && step !== undefined ) { thisNotify["step"] = step; }
+    if ( status !== null && status !== undefined ) { thisNotify["status"] = status; }
+    if ( thisItem !== null && thisItem !== undefined ) { thisNotify["item"] = thisItem; }
+    if ( returnField !== null && returnField !== undefined ) { thisNotify["returnField"] = returnField; }
+    if ( checkValue !== null && checkValue !== undefined ) { thisNotify["checkValue"] = checkValue; }
+
     //alert(verb + ' ' + f.name + ' ' + status );
     statusLog.push(thisNotify);
 
