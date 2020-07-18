@@ -118,7 +118,6 @@ export function doesObjectExistInArray(sourceArray, objectProperty : string, pro
     
             if ( splitArr.length !== 2 ) {
                 //There was a problem with the test value... needs to be syntax like this:  "Title===Email triage"
-                notFoundCount ++;
                 notFoundItems += '\n???: ' +splitStr;
             } else {
     
@@ -129,17 +128,27 @@ export function doesObjectExistInArray(sourceArray, objectProperty : string, pro
                     if ( inThisArray[i][testKey] === testVal ) {
                         //Value was found.... do whatever needs to be done.
                         objectToUpdate[compareKey] = foundTag;
-                        foundCount ++;
+                        /*
+                        if ( method === 'AddTag') { //Add item to result and then add keyTag to it
+                            objectToUpdate[compareKey] = foundTag;
+                            
+                        } else if ( method === 'ReturnNOTFound') { //Do not add this one to the result array
+    
+    
+                        } else if ( method === 'ReturnFound') { //Not sure about this loop yet
+    
+                        }
+                        */
+                       
                         foundThisCheck = true;
-                        //break;
+                        break;
                     }
                 }
-                if ( foundThisCheck === false  ) { 
-                    notFoundCount ++; 
-                    notFoundItems += '\n' + notFoundCount + splitStr;
-                }
             }
+
+
         }
+        if ( foundThisCheck === false  ) { notFoundItems += '\nNotFound: ' +splitStr; }
     }
 
     
@@ -151,13 +160,13 @@ export function doesObjectExistInArray(sourceArray, objectProperty : string, pro
         let objectToUpdate: any = inThisArray[i];
             //Value was found.... do whatever needs to be done.
             if ( method === 'AddTag') { //Add item to result and then add keyTag to it
-                if ( objectToUpdate[compareKey] ) { } else { objectToUpdate[compareKey] = 'NOTFound'; }
+                if ( objectToUpdate[compareKey] ) { foundCount ++; } else { objectToUpdate[compareKey] = 'NOTFound'; notFoundCount ++; }
                 result.push(objectToUpdate);
             } else if ( method === 'ReturnNOTFound') { //Do not add this one to the result array
-                if ( objectToUpdate[compareKey] === foundTag ) { } else { result.push(objectToUpdate); }
+                if ( objectToUpdate[compareKey] === foundTag ) { foundCount ++; } else { result.push(objectToUpdate);  notFoundCount ++; }
 
             } else if ( method === 'ReturnFound') { //If it's not found, do not add it
-                if ( objectToUpdate[compareKey] === foundTag ) { result.push(objectToUpdate); } else {  }
+                if ( objectToUpdate[compareKey] === foundTag ) { result.push(objectToUpdate); foundCount ++; } else { notFoundCount ++; }
 
             }
     }
