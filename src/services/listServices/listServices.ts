@@ -16,7 +16,7 @@ import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberF
 import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
     cMText, cText, cNumb, cURL, cUser, cMUser } from './columnTypes';
 
-import { doesObjectExistInArray } from '../arrayServices';
+import { doesObjectExistInArray, compareArrays } from '../arrayServices';
 
 import { IListInfo, IMyListInfo, IServiceLog, notify } from './listTypes';
 
@@ -79,9 +79,7 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
         }
     }
 
-    //let returnArray: [] = [];
-    alert('Added items to list:' );
-    console.log('addTheseItemsToList', statusLog);
+    let result : any [] = compareArrays(statusLog, ItemsToAdd, 'ReturnFound', 'checkValue','===', 'Both');
 
     return statusLog;
 }
