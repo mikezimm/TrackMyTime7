@@ -97,6 +97,7 @@ export function doesObjectExistInArray(sourceArray, objectProperty : string, pro
  export function compareArrays(checkForTheseItems: any [], inThisArray: any [], method: 'AddTag' | 'ReturnNOTFound' | 'ReturnFound', keyToCheck: string, checkDelimiter : string, messsages: 'Console'|'Alert'|'Both'|'None' ) {
     let compareKey = 'compareArrays';
     let foundTag = 'Found';
+    let notFoundTag = 'Not' + foundTag;
     let result : any[] = [];
     let foundCount = 0;
     let notFoundCount = 0;
@@ -145,10 +146,8 @@ export function doesObjectExistInArray(sourceArray, objectProperty : string, pro
                     }
                 }
             }
-
-
         }
-        if ( foundThisCheck === false  ) { notFoundItems += '\nNotFound: ' +splitStr; }
+        if ( foundThisCheck === false  ) { notFoundItems += '\nNotFound: ' +splitStr; checkForTheseItems[c][compareKey] = notFoundTag; }
     }
 
     
