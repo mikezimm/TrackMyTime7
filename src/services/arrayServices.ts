@@ -3,6 +3,19 @@
 import { Web } from "@pnp/sp/presets/all";
 
 /**
+ * This just takes an object, and returns a string of the Key and Value.
+ * Used for logging
+ * @param thisOne 
+ * @param keyNo 
+ * @param delimiter 
+ */
+export function stringifyKeyValue( thisOne: any, keyNo, delimiter : string ) {
+
+    return Object.keys(thisOne)[keyNo] + delimiter + thisOne[Object.keys(thisOne)[keyNo]];
+
+}
+
+/**
  * This function will take an array of objects, and insert into another array of objects at a specific index.
  * It will also remove objects at specific indexies.
  * 
@@ -75,6 +88,16 @@ export function doesObjectExistInArray(sourceArray, objectProperty : string, pro
 
 }
 
+
+export interface ICompareResult {
+    checkForTheseItems: any [];
+    inThisArray: any [];
+    found: any [];
+    notFound: any [];
+    result: any [];
+    message: string;
+}
+
 /**
  * The original goal of this function, would be to remove objects from one array if it were in another array.
  * As an example, I have an array of items I want to add to a list (addItemsArray)
@@ -98,7 +121,16 @@ export function doesObjectExistInArray(sourceArray, objectProperty : string, pro
     let compareKey = 'compareArrays';
     let foundTag = 'Found';
     let notFoundTag = 'Not' + foundTag;
-    let result : any[] = [];
+    
+    let result : ICompareResult = {
+        checkForTheseItems: checkForTheseItems,
+        inThisArray: inThisArray,
+        found: [],
+        notFound: [], 
+        result: [],
+        message: '',
+    };
+
     let foundCount = 0;
     let notFoundCount = 0;
     let notFoundItems = '';
@@ -158,21 +190,30 @@ export function doesObjectExistInArray(sourceArray, objectProperty : string, pro
     for (let i in inThisArray){
         let objectToUpdate: any = inThisArray[i];
             //Value was found.... do whatever needs to be done.
-            if ( method === 'AddTag') { //Add item to result and then add keyTag to it
-                if ( objectToUpdate[compareKey] ) { foundCount ++; } else { objectToUpdate[compareKey] = 'NOTFound'; notFoundCount ++; }
-                result.push(objectToUpdate);
-            } else if ( method === 'ReturnNOTFound') { //Do not add this one to the result array
-                if ( objectToUpdate[compareKey] === foundTag ) { foundCount ++; } else { result.push(objectToUpdate);  notFoundCount ++; }
-
-            } else if ( method === 'ReturnFound') { //If it's not found, do not add it
-                if ( objectToUpdate[compareKey] === foundTag ) { result.push(objectToUpdate); foundCount ++; } else { notFoundCount ++; }
-
+            if ( objectToUpdate[compareKey] ) { 
+                objectToUpdate[compareKey] = 'Found';
+                result.found.push(objectToUpdate);
+                foundCount ++;
+            } else { 
+                objectToUpdate[compareKey] = 'NOTFound';
+                result.notFound.push(objectToUpdate);
+                notFoundCount ++; 
             }
     }
 
+    result.message = result.notFound.map( thisOne => { 
+        return 'NF: ' + stringifyKeyValue(thisOne, 0, '===') + '\n';
+    }).join('');
+
+    if (method === 'ReturnFound') {
+        result.result = result.found;
+    } else if (method === 'ReturnNOTFound') {
+        result.result = result.notFound;
+    } else if ( method === 'AddTag' ) {
+        result.result = result.inThisArray;
+    }
+
     if ( messsages !== 'None' ) {
-        console.log('compareArrays - checkForTheseItems',checkForTheseItems);
-        console.log('compareArrays - inThisArray',inThisArray);
         console.log('compareArrays - result: ' + method ,result);
     }
 
@@ -183,7 +224,7 @@ export function doesObjectExistInArray(sourceArray, objectProperty : string, pro
         if (notFoundCount > 0 ) { 
             alertMessage += '\nCheck Console.log for details';
             alertMessage += `\nDid NOT find these (${notFoundCount}) items!`;
-            alertMessage += '\n+' + notFoundItems;
+            alertMessage += '\n' + result.message;
         }
         alert( alertMessage );
     }

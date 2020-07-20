@@ -16,7 +16,7 @@ import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberF
 import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
     cMText, cText, cNumb, cURL, cUser, cMUser } from './columnTypes';
 
-import { doesObjectExistInArray, compareArrays } from '../arrayServices';
+import { doesObjectExistInArray, compareArrays, ICompareResult, stringifyKeyValue } from '../arrayServices';
 
 import { IListInfo, IMyListInfo, IServiceLog, notify } from './listTypes';
 
@@ -50,7 +50,7 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
 
     for (let item of ItemsToAdd) {
     //, Category1: { results: ['Training']}
-        let thisItem = Object.keys(item)[0] + '===' + item[Object.keys(item)[0]];
+        let thisItem = stringifyKeyValue(item, 0, '===');
         //let checkValue = thisItem;
         // Removed try/catch per https://github.com/pnp/pnpjs/issues/1275#issuecomment-658578589
         list.items.inBatch(batch).add( item , entityTypeFullName).then(b => {
@@ -79,7 +79,7 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
         }
     }
 
-    let result : any [] = compareArrays(statusLog, ItemsToAdd, 'ReturnFound', 'checkValue','===', 'Both');
+    let result : ICompareResult = compareArrays(statusLog, ItemsToAdd, 'ReturnNOTFound', 'checkValue','===', 'Both');
 
     return statusLog;
 }
