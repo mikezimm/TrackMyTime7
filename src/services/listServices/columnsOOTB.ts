@@ -39,7 +39,7 @@ export const ootbID : ITextField = {
     onCreateProps: defGroup,
 };
 
-export const ootbVersion : ITextField = {
+export const ootbVersion : INumberField = {
     fieldType: cNumb,
     name: '_UIVersionString',
     title: 'UI Version',
@@ -53,28 +53,30 @@ export const ootbTitle : ITextField = {
     onCreateProps: defGroup,
 };
 
-export const ootbEditor : ITextField = {
+export const ootbEditor : IUserField = {
     fieldType: cInt,
+    selectionMode: FieldUserSelectionMode.PeopleOnly,
     name: 'Editor',
     title: 'Modified By',
     onCreateProps: defGroup,
 };
 
-export const ootbAuthor : ITextField = {
+export const ootbAuthor : IUserField = {
     fieldType: cInt,
+    selectionMode: FieldUserSelectionMode.PeopleOnly,
     name: 'Author',
     title: 'Created By',
     onCreateProps: defGroup,
 };
 
-export const ootbCreated : ITextField = {
+export const ootbCreated : IDateTimeField = {
     fieldType: cDate,
     name: 'Created',
     title: 'Created',
     onCreateProps: defGroup,
 };
 
-export const ootbModified : ITextField = {
+export const ootbModified : IDateTimeField = {
     fieldType: cDate,
     name: 'Modified',
     title: 'Modified',

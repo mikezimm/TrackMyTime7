@@ -87,6 +87,8 @@ import { TMTProjectFields } from './ListProvisioningTMT/columnsTMT';
 import { defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus, } from './ListProvisioningTMT/columnsTMT';
 
 import { provisionTheList } from './ListProvisioningTMT/provisionTMT';
+// let webURL = 'https://mcclickster.sharepoint.com/sites/Templates/Testing/';
+// let result = provisionTheList( 'Projects', webURL);
 
 //export enum TMTDialogMode { False, review, Plan, process, Park, Cancel, Complete }
 export enum TMTDialogMode { False, New, Edit, Copy, Review, Plan, Process, Park, Cancel, Complete }
@@ -879,7 +881,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   public componentDidMount() {
 
     let webURL = 'https://mcclickster.sharepoint.com/sites/Templates/Testing/';
-    let result = provisionTheList( 'Projects', webURL);
+    let result = provisionTheList( 'TrackMyTime', webURL);
 
     this._getListItems();
     

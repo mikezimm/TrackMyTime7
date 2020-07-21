@@ -337,6 +337,10 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                                 viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
                             }
 
+                        } else if ( i === '0' && thisFieldWhere != '' && viewWhereArray.length === 2 ) {
+                            //Had to add this while testing TMTView:  VerifyNoStoryOrChapterView
+                            viewWhereXML = thisFieldWhere;
+
                         }
         
                     }

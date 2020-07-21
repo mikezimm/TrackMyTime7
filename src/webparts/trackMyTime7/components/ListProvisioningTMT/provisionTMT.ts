@@ -20,14 +20,14 @@ import { projectViews} from './viewsTMTProject';  //Import view arrays for Proje
 
 import { timeViews } from './viewsTMTTime'; //Import view arrays for Time list
 
-import { TMTDefaultProjectItems } from './ItemsTMT'; // Import items to create in the list
+import { TMTDefaultProjectItems, TMTTestTimeItems, IAnyArray } from './ItemsTMT'; // Import items to create in the list
 
 export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', webURL: string ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let createTheseFields : IMyFieldTypes[] = [];
     let createTheseViews : IMyView[] = [];
-    let createTheseItems = [];
+    let createTheseItems : IAnyArray = [];
 
     let alertMe = false;
     let consoleLog = false;
@@ -49,6 +49,10 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
         createTheseFields = TMTTimeFields();
         createTheseViews = timeViews;
 
+        let currentUser = await sp.web.currentUser.get();
+        createTheseItems = TMTTestTimeItems(currentUser);
+        
+
     }
 
     const thisWeb = Web(webURL);
@@ -69,6 +73,8 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
     const  currentViews = await listViews.get();
 
     console.log(theList.title + ' list fields and views', currentFields, currentViews);
+
+    alert('Still need to check changesFinal - hidding original fields and setting and why Hours calculated is single line of text');
 
     let result = await addTheseFields(['create','changesFinal'], theList, ensuredList, currentFields, createTheseFields, alertMe, consoleLog );
 
