@@ -18,7 +18,7 @@ import { TMTProjectFields, TMTTimeFields} from './columnsTMT'; //Import column a
 
 import { projectViews} from './viewsTMTProject';  //Import view arrays for Project list
 
-import { timeViews } from './viewsTMTTime'; //Import view arrays for Time list
+import { timeViewsFull } from './viewsTMTTime'; //Import view arrays for Time list
 
 import { TMTDefaultProjectItems, TMTTestTimeItems, IAnyArray } from './ItemsTMT'; // Import items to create in the list
 
@@ -47,10 +47,10 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
 
     } else if (listName === 'TrackMyTime') {
         createTheseFields = TMTTimeFields();
-        createTheseViews = timeViews;
+        createTheseViews = timeViewsFull;
 
         let currentUser = await sp.web.currentUser.get();
-        createTheseItems = TMTTestTimeItems(currentUser);
+        //createTheseItems = TMTTestTimeItems(currentUser);
         
 
     }

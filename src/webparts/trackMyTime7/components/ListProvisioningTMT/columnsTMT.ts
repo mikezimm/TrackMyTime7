@@ -531,7 +531,7 @@ export const OriginalHours : INumberField = {
         Description: DescriptionSaveAtTime,
     },
     changesFinal: {
-        Hidden: true,
+        Hidden: true, //This needs to be hidden later because it's used in a calculated column.
     },
 };
 
@@ -566,10 +566,9 @@ export const OriginalStart : IDateTimeField = {
         Group: thisColumnGroup,
         Description: DescriptionSaveAtTime,
         Indexed: true,
-        Required: true,
     },
     changesFinal: {
-        Hidden: true,
+        Hidden: true, //This needs to be hidden later because it's used in a calculated column.
     },
 };
 
@@ -580,10 +579,9 @@ export const OriginalEnd : IDateTimeField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: DescriptionSaveAtTime,
-        Required: true,
     },
     changesFinal: {
-        Hidden: true,
+        Hidden: true, //This needs to be hidden later because it's used in a calculated column.
     },
 };
 

@@ -35,6 +35,13 @@ export interface IFieldLog extends IServiceLog {
 export const minInfinity: number = -1.7976931348623157e+308;
 export const maxInfinity: number = -1 * minInfinity ;
 
+function checkForKnownColumnIssues(){
+
+    //Need to add something to check the following:
+    //Columns that are Hidden, can't be 'Required' or they will be editable or cause issues.
+
+}
+
 // addText(title: string, maxLength?: number, properties?: IFieldCreationProperties)
 // ensure(title: string, desc?: string, template?: number, enableContentTypes?: boolean, additionalSettings?: Partial<IListInfo>): Promise<IListEnsureResult>;
 
@@ -56,6 +63,8 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
     let statusLog : IFieldLog[] = [];
 
     const listFields = ensuredList.list.fields;
+
+    alert('Need to check for checkForKnownColumnIssues here');
 
     for ( let step of steps ) {
 
@@ -220,7 +229,16 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                 statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
             }
 
-            if ( foundField === true ) {
+            
+            if ( step !== 'setForm' && step !== 'create' ) { // Will do changes1, changes2, changes3 and changesFinal
+                //Loop through other types of changes
+
+                if ( thisField[step] != null ) {
+                    const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
+                    statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
+                }
+
+            } else if ( foundField === true ) {
                 if ( step === 'create' || step === 'setForm' ) {
                     if ( thisField.showNew === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
@@ -244,15 +262,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                         statusLog = notify(statusLog, 'onCreateChanges Field', 'update===' + JSON.stringify(thisField.onCreateChanges), step, f, createChanges);
                     } //END: if (thisField.onCreateChanges) {
 
-                } else if ( step !== 'setForm' ) { // Will do changes1, changes2, changes3 and changesFinal
-                    //Loop through other types of changes
-
-                    if ( thisField[step] != null ) {
-                        const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
-                        statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
-                    }
-
-                } //END: else if ( step !== 'setForm' ) {
+                }
 
             }  //END:  if ( foundField === true ) {
 

@@ -319,6 +319,9 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                         //You need to have something in here for it to work.
                         alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
 
+                    } else if ( viewWhereArray.length === 1 ) {
+                        viewWhereXML = thisFieldWhere;
+
                     } else if ( hasPreviousAnd === true && thisClause === 'Or' ) {
                         //In UI, you can't have an OR after an AND... , it works but will not work editing the view through UI then.
                         alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);

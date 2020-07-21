@@ -52,6 +52,7 @@ function createRandomTimeEntry(qty, user = null){
     const chapters = ['Chapter 1', 'Chapter 2', 'Chapter 3','Chapter 4', 'Chapter 5', 'Chapter 6',null];
     const category1s = ['Cat A', 'Cat B', 'Cat C']; 
     const category2s = ['Cat 1', 'Cat 2', 'Cat 3'];
+    const entryTypes = ['manual','sinceLast','slider','start'];
 
     for (let i = 0; i < qty ; i++) {
         let thisStory = getRandomFromArray(stories);
@@ -60,7 +61,9 @@ function createRandomTimeEntry(qty, user = null){
         let start = randomDate(new Date(2020, 0, 1), new Date());
         let randomMinutes = getRandomInt(20, 180) * 60 * 1000;
         let end = new Date(start.getTime() + randomMinutes);
-        let thisUser = user === null ? getRandomInt(1,5) : user;
+
+        //Based on intial testing, ID 1 is an account, not a name, ID 2 Title is empty.
+        let thisUser = user === null ? getRandomInt(3,8) : user;
 
         allItems.push({
             Title: 'Test for user: ' + thisUser + ' - ' + thisStory + ' - ' + thisChapter + ' # ' + i,
@@ -73,6 +76,7 @@ function createRandomTimeEntry(qty, user = null){
             EndTime: end.toLocaleString(),
             Category1: { results: [getRandomFromArray(category1s)]},
             Category2: { results: [getRandomFromArray(category2s)]},
+            EntryType: getRandomFromArray(entryTypes),
             OriginalStart: start.toLocaleString(),
             OriginalEnd: end.toLocaleString(),
             OriginalHours: randomMinutes / (60000 * 60),

@@ -3402,6 +3402,9 @@ public toggleTips = (item: any): void => {
 
         let listComments = item.Comments ? item.Comments : "";
 
+        //Split this out for when creating test data and user may not have title.
+        let userInitials = item.User.Title == null ? 'TBD' : item.User.Title.split(" ").map((n)=>n[0]).join("");
+
         let timeEntry : ITimeEntry = {
 
             //Values that would come from Project item
@@ -3454,7 +3457,7 @@ public toggleTips = (item: any): void => {
 
           //This block for use in the history list component
           //Getting initials using:  https://stackoverflow.com/a/45867959/4210807
-          userInitials: item.User.Title.split(" ").map((n)=>n[0]).join(""),
+          userInitials: userInitials,
           listCategory: listCategory,
           listTimeSpan: getTimeSpan(item.StartTime, item.EndTime),
           listProjects: listProjects,

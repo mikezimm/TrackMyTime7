@@ -39,9 +39,9 @@ import { testAlertsView, createRecentUpdatesView } from '../../../../services/li
 
 import { spliceCopyArray } from '../../../../services/arrayServices';
 
-export const stdViewFields = [ootbID, StatusTMT, ootbTitle, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team, User, StartTime, Hours];
+export const stdViewFields = [ootbID, StatusTMT, ootbTitle, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team ];
 
-export const stdTimeViewFields = ['Edit', ootbID, ootbTitle, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team];
+export const stdTimeViewFields = ['Edit', ootbID, ootbTitle, User, StartTime, Hours, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter];
 export const TimeRecentUpdatesFields = spliceCopyArray ( stdTimeViewFields, null, null, 2, [ootbModified, ootbEditor ] );
 
 export const TimeByCreatedView : IMyView = {
@@ -96,7 +96,7 @@ export const TimeByUserView : IMyView = {
 export const VerifyNoStoryOrChapterView : IMyView = {
     Title: 'Verify - No Story or Chapter',
     iFields: 	
-	[ootbID,ootbTitle,Active,Leader,Team,User,StartTime,EndTime,Hours,EntryType,Story,Chapter],
+	[ootbID,ootbTitle,Active,User,StartTime,EndTime,Hours,EntryType,Story,Chapter],
     TabularView: true,
     RowLimit: 33,
 	orders: [ {field: ootbCreated, asc: false} ],
@@ -126,7 +126,7 @@ export const TimeStoriesView : IMyView = {
 
 export const VerifyTimeSummaryView : IMyView = {
     Title: 'Verify - Time Summary',
-    iFields: 	[ootbID,ootbTitle,Active,Leader,Team,Category1,Category2,User,StartTime,EndTime,Hours,Minutes,Days,Location,ProjectID1,ProjectID2,EntryType,DeltaT,Activity,Comments,CCList,CCEmail,SourceProject,SourceProjectRef],
+    iFields: 	[ootbID,ootbTitle,Active,User,StartTime,EndTime,Hours,Minutes,Days,Location,Category1,Category2,ProjectID1,ProjectID2,EntryType,DeltaT,Activity,Comments,CCList,CCEmail,SourceProject,SourceProjectRef],
     TabularView: true,
     RowLimit: 33,
     orders: [ {field: ootbCreated, asc: false} ],
@@ -134,7 +134,7 @@ export const VerifyTimeSummaryView : IMyView = {
 
 export const VerifyDataChangedView : IMyView = {
     Title: 'Verify - Data Changes',
-    iFields: 	[User,ootbTitle,Category1,Category2,StartTime,EndTime,Hours,OriginalHours,OriginalStart,OriginalEnd,KeyChanges],
+    iFields: 	[User,ootbTitle,StartTime,EndTime,Hours,OriginalHours,OriginalStart,OriginalEnd,KeyChanges],
     TabularView: true,
 	RowLimit: 33,
 	wheres: 	[ 	{field: KeyChanges, 	clause:'Or', 	oper: IsNotNull, 		val: "" },
@@ -160,7 +160,7 @@ export const VerifyActivityView : IMyView = {
     orders: [ {field: ootbCreated, asc: false} ],
 };
 
-export const timeViews : IMyView[] = [ 
+export const timeViewsFull : IMyView[] = [ 
 	createRecentUpdatesView(TimeRecentUpdatesFields),
 	TimeByCreatedView, TimeByEntryModeView, //Grouped By Views
 	TimeByUserView, TimeYourUserEntries, //User Centric Views
@@ -169,6 +169,12 @@ export const timeViews : IMyView[] = [
 	VerifyTimeSummaryView, VerifyDataView, VerifyDataChangedView, VerifyActivityView //Verify Views
 ] ;
 
+export const timeViewsTest : IMyView[] = [ 
+	createRecentUpdatesView(TimeRecentUpdatesFields),
+	TimeStoriesView, 
+	VerifyNoStoryOrChapterView, //Story Views
+
+] ;
 
 /**
  * 
