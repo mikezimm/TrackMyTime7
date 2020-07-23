@@ -5,6 +5,52 @@
 
 .projectPage {
 
+  // 2020-06-22:  Added per https://github.com/pnp/sp-dev-fx-controls-react/issues/568
+  // Makes label of dateTimePickers bold.
+  // See https://www.w3schools.com/cssref/css_selectors.asp for additional filters/selectors
+  .peopleFields {
+    font-size: inherit
+  }
+
+  :global {
+      [class^=dateTimePicker_] > .ms-Label {
+      font-weight: 700
+    }
+
+    [class^=ms-Dropdown-container] > .ms-Label {
+      font-weight: 700
+    }
+
+    [class^=ms-Toggle] > .ms-Label {
+      font-weight: 700
+    }
+
+    [class*=fieldWithIconButton_] > .ms-Label {
+      font-weight: 700
+    }
+
+    [class*=peopleFields] .ms-Label {
+      color: darkred
+    }
+
+    [style*=lavender] .ms-Label {
+      color: purple
+    }
+
+    [style*=lightgreen] .ms-Label {
+      color: darkgreen
+    }
+
+    [style*=wheat] .ms-Label {
+      color: #663500
+    }
+
+    [style*=powderblue] .ms-Label {
+      color: blue
+    }
+
+  }
+
   .peopleBlock {
     display: inline-block;
   }

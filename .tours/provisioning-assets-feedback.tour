@@ -1,0 +1,90 @@
+{
+  "title": "Provisioning assets feedback",
+  "steps": [
+    {
+      "file": "src/webparts/trackMyTime7/components/ListProvisioningTMT/provisionTMT.ts",
+      "line": 25,
+      "description": "Main function to start provisioning process.  This will eventually be called via property pane but for testing, I just call it in componentDidMount."
+    },
+    {
+      "file": "src/webparts/trackMyTime7/components/ListProvisioningTMT/provisionTMT.ts",
+      "line": 35,
+      "description": "Defines list properties which are used in helper functions later."
+    },
+    {
+      "file": "src/webparts/trackMyTime7/components/ListProvisioningTMT/provisionTMT.ts",
+      "line": 43,
+      "description": "Gets fields, views and items JSON Objects where are used to automate provisioning better.\r\nA field object can either be just the \"Name\" or a typed object structure depending on the type of column you are creating... like Text or User.\r\n\r\nThe typed structure uses a common object struture which can be put into arrays.\r\nYou can then easily build up an array for tasks like:\r\n  1. Create or verify columns exist.\r\n  2. Update columns after the were created (like change title which has to happen after it was created).\r\n  3. Create array of fields to a view.\r\n\r\nI put all columns for both lists in this project in columnsTMT.ts because there are many common fields.",
+      "selection": {
+        "start": {
+          "line": 43,
+          "character": 1
+        },
+        "end": {
+          "line": 44,
+          "character": 1
+        }
+      }
+    },
+    {
+      "file": "src/webparts/trackMyTime7/components/ListProvisioningTMT/provisionTMT.ts",
+      "line": 60,
+      "description": "Fetches list related objects once which get passed on to helper functions."
+    },
+    {
+      "file": "src/webparts/trackMyTime7/components/ListProvisioningTMT/provisionTMT.ts",
+      "line": 59,
+      "description": "Used to get array of all field static names so it can fetch all expected columns in single call...\r\nThis makes it much faster to verify if column/view exists later when you have many columns.\r\n\r\nIn coming lines:\r\n  \"currentFields\" will fetch all field information for fields you are expecting to add.\r\n  \"currentViews\" will get all views on the list so we can quickly see if they exist before creating again.",
+      "selection": {
+        "start": {
+          "line": 59,
+          "character": 9
+        },
+        "end": {
+          "line": 59,
+          "character": 20
+        }
+      }
+    },
+    {
+      "file": "src/webparts/trackMyTime7/components/ListProvisioningTMT/provisionTMT.ts",
+      "line": 80,
+      "description": "addTheseFields is the helper function that will take an array of field \"objects\" that have been defined, loop through the array and add using the pnp.sp commands.",
+      "selection": {
+        "start": {
+          "line": 73,
+          "character": 24
+        },
+        "end": {
+          "line": 73,
+          "character": 38
+        }
+      }
+    },
+    {
+      "file": "src/services/listServices/columnServices.ts",
+      "line": 43,
+      "description": "This is the function that takes an array of fields you want to verify/create (fieldsToAdd) and compares to the result of a query of fields already on the list.\r\nThis makes it much faster to verify/add multiple fields on a list.\r\nEventually it will also make it easy to not only check if the field exists, but also if specified properties had changed (like formulas or choices or whatever)",
+      "selection": {
+        "start": {
+          "line": 43,
+          "character": 1
+        },
+        "end": {
+          "line": 44,
+          "character": 1
+        }
+      }
+    },
+    {
+      "file": "src/services/listServices/columnServices.ts",
+      "line": 60,
+      "description": "for (let step of steps) loop will allow you to do things not recommended... like update a column before creating, but will allow more flexibility in future to re-use the code.\r\n\r\nThis function loops through the 'steps' and does various things defined in the column defintion (see type defs below).\r\n\r\n\r\nYou can do things out of order, like do 'changesFinal' before you 'create' a field... but you should not.\r\n\r\nThe expected order is defined in the changes type.\r\n\r\nIn this webpart, my steps are ['create','changesFinal'].  The reasoning is that I first want to 'create' the fields (includes verifiy first), then after some things are set like Formulas and view Fields, I can go back and change Field Titles and Visibility...\r\n\r\nExamples of where this is useful:\r\n\r\n   Sometimes I just copy calculated column formulas from a real field via the UI and formulas need the Field Title at time the formula is created... so you may.\r\n   \r\n   If you want to have a hidden field also be on a view, you first have to add it to the view and then hide it later... or it may cause an error.\r\n\r\n\r\n\r\n\r\n\r\nType definitions are in columnTypes.ts\r\n```\r\nexport type changes = 'create' | 'changes1' | 'changes2' | 'changes3' | 'changesFinal' | 'setForm';\r\n\r\nexport interface IBaseField extends Partial<IFieldInfo>{\r\n    fieldType: MyFieldDef;\r\n    name: string;  //Will be Title of list unless title is specified\r\n\r\n    onCreateProps?: IFieldCreationProperties;  //Initial Properties at time of creating field\r\n\r\n    showNew?: boolean;\r\n    showEdit?: boolean;\r\n    showDisplay?: boolean;\r\n\r\n    title?: string;\r\n\r\n    onCreateChanges?: IFieldCreationProperties;  //Properties you want changed right after creating field (like update Title so it's matches calculated column titles)\r\n    changes1?: IFieldCreationProperties;  //Properties you want changed any time in your code\r\n    changes2?: IFieldCreationProperties;  //Properties you want changed any time in your code\r\n    changes3?: IFieldCreationProperties;  //Properties you want changed any time in your code\r\n    changesFinal?: IFieldCreationProperties;  //Properties you want changed at the very end... like hiding fields once formula columns are created and views are also created (can't add to view if it's hidden)\r\n}\r\n```"
+    },
+    {
+      "file": "src/services/listServices/columnServices.ts",
+      "line": 220,
+      "description": "This is where I need to improve feedback.\r\n\r\nIs there a way to put a message in a dialog box that just constantly updates (or gets replaced) when it hits this line?\r\nThe idea is because it can take 30-45 seconds to provision a list with not of fields and views and I want to have some dynamic feedback showing progress.\r\nKind of like when applying a site design... it shows what it did as it's doing it.\r\n\r\n"
+    }
+  ]
+}

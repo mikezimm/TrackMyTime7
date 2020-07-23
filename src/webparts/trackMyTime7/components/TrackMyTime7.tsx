@@ -5,7 +5,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { sp } from '@pnp/sp';
 
 //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
-import { Web } from "@pnp/sp/presets/all";
+import { Web } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Pivot, PivotItem, PivotLinkSize, PivotLinkFormat, IPivotStyles, IPivotStyleProps } from 'office-ui-fabric-react/lib/Pivot';
@@ -70,6 +70,26 @@ import { nominalTypeHack } from 'prop-types';
 
 import { createDialog } from './Project/ConfirmUpdate';
 
+
+
+/**
+ * 
+ * 
+ * 
+ * THIS Section is for List Provisioning testing
+ * 
+ * 
+ * 
+ */
+import { addTheseFields } from '../../../services/listServices/columnServices';
+import { TMTProjectFields } from './ListProvisioningTMT/columnsTMT';
+
+import { defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus, } from './ListProvisioningTMT/columnsTMT';
+
+import { provisionTheList } from './ListProvisioningTMT/provisionTMT';
+// let webURL = 'https://mcclickster.sharepoint.com/sites/Templates/Testing/';
+// let result = provisionTheList( 'Projects', webURL);
+
 //export enum TMTDialogMode { False, review, Plan, process, Park, Cancel, Complete }
 export enum TMTDialogMode { False, New, Edit, Copy, Review, Plan, Process, Park, Cancel, Complete }
 
@@ -81,16 +101,9 @@ const allProjEditOptions = cleanProjEditOptions('activity;advanced;people;report
 
 const defProjEditOptions = cleanProjEditOptions('people;reporting');
 
-export const defStatus = `0. Review`;
-export const planStatus = `1. Plan`;
-export const processStatus = `2. Process`;
-export const parkStatus = `8. Parking lot`;
-export const cancelStatus = `9. Cancelled`;
-export const completeStatus = `9. Complete`;
+export const statusChoices : string[] = [defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus];
 
-export const statusChoices = [defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus];
-
-export const activityTMTChoices = [`TMT Issue`, `Socialiis Issue`];
+export const activityTMTChoices = ['TMT Issue', 'Socialiis Issue'];
 
 export const MyCons = {
   new: 'Add',
@@ -859,13 +872,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._createHistoryObjectNoDetails = this._createHistoryObjectNoDetails.bind(this); 
 
     this._processCatch = this._processCatch.bind(this); 
-    
-    
+
+    this._getMoreItems = this._getMoreItems.bind(this);
 
   }
 
 
   public componentDidMount() {
+
     this._getListItems();
     
   }
@@ -1382,6 +1396,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           allLoaded={ this.state.allLoaded }
           showCharts={ this.state.showCharts }
           entries= { this.state.entries }
+          entryCount={ this.state.allEntries.length }
           defaultStory="None"
           today={ this.props.today }
           selectedStory = { this.state.selectedStory }
@@ -1390,6 +1405,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           _updateStory={ this._updateStory.bind(this) }
           _updateUserFilter={ this._updateUserFilter.bind(this) }
           _updateChartFilter={ this._updateChartFilter.bind(this) }
+          _getMoreItems={ this._getMoreItems.bind(this) }
           WebpartHeight={ this.state.WebpartHeight }
           WebpartWidth={ this.state.WebpartWidth }
           parentState= { this.state }
@@ -2840,8 +2856,12 @@ public toggleTips = (item: any): void => {
   //Added for Get List Data:  https://www.youtube.com/watch?v=b9Ymnicb1kc
   @autobind 
 
+  private _getMoreItems() {
+    let currentCount = this.state.allEntries.length;
+    this._getListItems(currentCount + 200);
+  }
   //    private async loadListItems(): Promise<IPivotTileItemProps[]> {
-  private _getListItems(): void {
+  private _getListItems(timeItems = 200): void {
 
     let useTrackMyTimeList: string = strings.DefaultTrackMyTimeListTitle;
     if ( this.props.timeTrackListTitle ) {
@@ -3327,7 +3347,7 @@ public toggleTips = (item: any): void => {
  */  
 
     trackTimeWeb.lists.getByTitle(useTrackMyTimeList).items
-    .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(400).get()
+    .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(timeItems).get()
     .then((response) => {
 
       console.log('useTrackMyTimeList', response);
@@ -3385,6 +3405,9 @@ public toggleTips = (item: any): void => {
 
         let listComments = item.Comments ? item.Comments : "";
 
+        //Split this out for when creating test data and user may not have title.
+        let userInitials = item.User.Title == null ? 'TBD' : item.User.Title.split(" ").map((n)=>n[0]).join("");
+
         let timeEntry : ITimeEntry = {
 
             //Values that would come from Project item
@@ -3437,7 +3460,7 @@ public toggleTips = (item: any): void => {
 
           //This block for use in the history list component
           //Getting initials using:  https://stackoverflow.com/a/45867959/4210807
-          userInitials: item.User.Title.split(" ").map((n)=>n[0]).join(""),
+          userInitials: userInitials,
           listCategory: listCategory,
           listTimeSpan: getTimeSpan(item.StartTime, item.EndTime),
           listProjects: listProjects,
