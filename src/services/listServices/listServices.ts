@@ -63,8 +63,6 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
 
         // Have a way to check which items did not get added.
 
-        alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
-
     } catch (e) {
         //ONLY SEEMS TO CATCH FIRST ERROR IN BATCH.
         //OTHER BATCH ITEMS GET PROCESSED BUT ONLY FLAGS FIRST ONE.

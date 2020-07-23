@@ -590,6 +590,7 @@ export const Hours : ICalculatedField = {
     name: 'Hours',
     formula: '=IFERROR(24*(EndTime-StartTime),"")',
     dateFormat: DateTimeFieldFormatType.DateOnly,
+    //ReadOnlyField: true,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Calculates Start to End time in Hours.',
@@ -601,6 +602,7 @@ export const Days : ICalculatedField = {
     name: 'Days',
     formula: '=IFERROR((EndTime-StartTime),"")',
     dateFormat: DateTimeFieldFormatType.DateOnly,
+    //ReadOnlyField: true,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Calculates Start to End time in Days.',
@@ -612,6 +614,7 @@ export const Minutes : ICalculatedField = {
     name: 'Minutes',
     formula: '=IFERROR(24*60*(EndTime-StartTime),"")',
     dateFormat: DateTimeFieldFormatType.DateOnly,
+    //ReadOnlyField: true,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Calculates Start to End time in Minutes.',
@@ -623,10 +626,26 @@ export const KeyChanges : ICalculatedField = {
     name: 'KeyChanges',
     formula: '=IF(OriginalHours="","-NoOriginalHours",IF(ABS(Hours-OriginalHours)>0.05,"-HoursChanged",""))&IF(OriginalStart="","-NoOriginalStart",IF(StartTime<>OriginalStart,"-StartChanged",""))&IF(OriginalEnd="","-NoOriginalEnd",IF(EndTime<>OriginalEnd,"-EndChanged",""))',
     dateFormat: DateTimeFieldFormatType.DateOnly,
+    //ReadOnlyField: true,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Calculates if significant changes were made after item was created.',
     },
+};
+
+export const MinutesChanged : ICalculatedField = {
+    fieldType: cCalcN,
+    name: 'MinutesChanged',
+    formula: '=ROUNDDOWN((Hours-OriginalHours)*60,0)',
+    dateFormat: DateTimeFieldFormatType.DateOnly,
+    onCreateProps: {
+        Group: thisColumnGroup,
+        Description: 'Total Minutes that were adjusted since creating the item.',
+    },
+    onCreateChanges: {
+        Title: 'Minutes Changed',
+    }
+    
 };
 
 export const SourceProject : IURLField = {
@@ -818,7 +837,8 @@ export function TMTFields(listName: 'Projects' | 'TrackMyTime') {
     if (listName === 'TrackMyTime' ) { theseFields.push(Days); }  //Time
     if (listName === 'TrackMyTime' ) { theseFields.push(Minutes); }  //Time
     if (listName === 'TrackMyTime' ) { theseFields.push(KeyChanges); }  //Time
-
+    if (listName === 'TrackMyTime' ) { theseFields.push(MinutesChanged); }  //Time
+    
     if (listName === 'TrackMyTime' ) { theseFields.push(SourceProject); }  //Time
     if (listName === 'TrackMyTime' ) { theseFields.push(SourceProjectRef); }  //Time
 

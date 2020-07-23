@@ -3,6 +3,8 @@ import { sp } from '@pnp/sp';
 
 export type IAnyArray = any[];
 
+export const SampleComments = 'This item was created for sample purposes.  Please delete me before using!';
+
 /**
  * https://stackoverflow.com/a/1527820
  * 
@@ -16,6 +18,27 @@ function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Gets a default number or a random chance to get number in range
+ * @param def 
+ * @param chanceOther Enter whole number for %....  chanceOther = 49 for 49% Chance of getting number outside of default
+ * @param min 
+ * @param max 
+ */
+function getRandomChance(def: number, chanceOther: number, min: number, max: number,  ){
+
+    let result = def;
+    let thisChance = getRandomInt(1,100);
+    console.log('getRandomChance', thisChance);
+    if ( thisChance <= chanceOther ) {
+        //Get a randomized number instead of default
+        return getRandomInt(min,max);
+    } else {
+        return def;
+    }
+
 }
 
 function getRandomFromArray(arr) {
@@ -53,6 +76,7 @@ function createRandomTimeEntry(qty, user = null){
     const category1s = ['Cat A', 'Cat B', 'Cat C']; 
     const category2s = ['Cat 1', 'Cat 2', 'Cat 3'];
     const entryTypes = ['manual','sinceLast','slider','start'];
+    const location = ['Office','Customer','Home','Other'];
 
     for (let i = 0; i < qty ; i++) {
         let thisStory = getRandomFromArray(stories);
@@ -79,7 +103,10 @@ function createRandomTimeEntry(qty, user = null){
             EntryType: getRandomFromArray(entryTypes),
             OriginalStart: start.toLocaleString(),
             OriginalEnd: end.toLocaleString(),
-            OriginalHours: randomMinutes / (60000 * 60),
+            OriginalHours: randomMinutes / (60000 * 60) * 1 * ( 1 + getRandomChance(0, 30, -20,20)/100 ), // 15% chance that random minutes will be 10-20% higher than original
+            Location: getRandomFromArray(location),
+            Comments: SampleComments,
+            Settings: ''
 
         });
     }
@@ -95,4 +122,3 @@ export function TMTTestTimeItems(currentUser){
     return returnItems;
 
 } 
-

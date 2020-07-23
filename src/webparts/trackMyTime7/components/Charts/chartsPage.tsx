@@ -31,6 +31,8 @@ import Usage from './Usage';
 import Numbers from './Numbers';
 
 import * as choiceBuilders from '../fields/choiceFieldBuilder';
+import { createIconButton } from "../createButtons/IconButton";
+
 import { any } from 'prop-types';
 
 export interface ISelectedStory { key: string | number | undefined; text: string; }
@@ -49,6 +51,7 @@ export interface IChartPageProps {
     showCharts: boolean;
     allLoaded: boolean;
     entries: IEntryInfo;
+    entryCount: number;
     defaultStory?: string;
     defaultUser?: string;
     today: ITheTime;
@@ -58,6 +61,7 @@ export interface IChartPageProps {
     _updateStory: any;
     _updateUserFilter: any;
     _updateChartFilter: any;
+    _getMoreItems: any;
 
     WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
     WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -223,7 +227,15 @@ public constructor(props:IChartPageProps){
       //NOTE:  This is a duplicate call under _updateChartFilter but is required to redraw charts on story change.
       this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
       this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
+
+    } else if ( this.props.entryCount !== prevProps.entryCount ) {
+      console.log('chartsPage componentDidUpdate 3 Props:', this.props);
+      //NOTE:  This is a duplicate call under _updateChartFilter but is required to redraw charts on story change.
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
+      this.processChartData(this.props.selectedUser,['what??'],10,'string', this.props.selectedStory, null, this.props.chartStringFilter );
     }
+
+    
 
     /*
     if (rebuildTiles === true) {
@@ -369,7 +381,16 @@ public constructor(props:IChartPageProps){
               styles={{ root: { marginTop: 10, marginBottom: 10 } }}
             />;
 
+              const moreItemsStyles = {
+                root: {padding:'10px !important', marginTop: '6px', backgroundColor: 'white', id: 'ZZZZZChart1234'},//color: 'green' works here
+                icon: { 
+                    fontWeight: 900,
+                    //color: item.font.color ? item.font.color :'#00457e', //This will set icon color
+                },
+            };
 
+            let getMoreItems = createIconButton('Add','Get more items',this.props._getMoreItems.bind(this), null, moreItemsStyles );
+            
             const ColoredLine = ({ color }) => ( <hr style={{ color: color, backgroundColor: color, height: 1 }}/> );
 
             const stackToggleTokensBody: IStackTokens = { childrenGap: 20 };
@@ -382,6 +403,7 @@ public constructor(props:IChartPageProps){
                 { togWarnings }
                 { togErrors }
                 { togItems }
+                { getMoreItems }
               </Stack>
               { searchBox }
             </div>;

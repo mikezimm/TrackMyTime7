@@ -872,16 +872,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._createHistoryObjectNoDetails = this._createHistoryObjectNoDetails.bind(this); 
 
     this._processCatch = this._processCatch.bind(this); 
-    
-    
+
+    this._getMoreItems = this._getMoreItems.bind(this);
 
   }
 
 
   public componentDidMount() {
-
-    let webURL = 'https://mcclickster.sharepoint.com/sites/Templates/Testing/';
-    let result = provisionTheList( 'TrackMyTime', webURL);
 
     this._getListItems();
     
@@ -1399,6 +1396,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           allLoaded={ this.state.allLoaded }
           showCharts={ this.state.showCharts }
           entries= { this.state.entries }
+          entryCount={ this.state.allEntries.length }
           defaultStory="None"
           today={ this.props.today }
           selectedStory = { this.state.selectedStory }
@@ -1407,6 +1405,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           _updateStory={ this._updateStory.bind(this) }
           _updateUserFilter={ this._updateUserFilter.bind(this) }
           _updateChartFilter={ this._updateChartFilter.bind(this) }
+          _getMoreItems={ this._getMoreItems.bind(this) }
           WebpartHeight={ this.state.WebpartHeight }
           WebpartWidth={ this.state.WebpartWidth }
           parentState= { this.state }
@@ -2857,8 +2856,12 @@ public toggleTips = (item: any): void => {
   //Added for Get List Data:  https://www.youtube.com/watch?v=b9Ymnicb1kc
   @autobind 
 
+  private _getMoreItems() {
+    let currentCount = this.state.allEntries.length;
+    this._getListItems(currentCount + 200);
+  }
   //    private async loadListItems(): Promise<IPivotTileItemProps[]> {
-  private _getListItems(): void {
+  private _getListItems(timeItems = 200): void {
 
     let useTrackMyTimeList: string = strings.DefaultTrackMyTimeListTitle;
     if ( this.props.timeTrackListTitle ) {
@@ -3344,7 +3347,7 @@ public toggleTips = (item: any): void => {
  */  
 
     trackTimeWeb.lists.getByTitle(useTrackMyTimeList).items
-    .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(400).get()
+    .select(selectColsTrack).expand(expandTheseTrack).filter(trackTimeRestFilter).orderBy(trackTimeSort,false).top(timeItems).get()
     .then((response) => {
 
       console.log('useTrackMyTimeList', response);

@@ -31,7 +31,7 @@ import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc,
 	ProjectEditOptions, HistoryTMT, TimeTarget} from './columnsTMT';
 
 //TIME columns
-import { Activity, DeltaT, Comments, User, StartTime, EndTime, OriginalStart, OriginalEnd, OriginalHours,
+import { Activity, DeltaT, Comments, User, StartTime, EndTime, OriginalStart, OriginalEnd, OriginalHours, MinutesChanged,
     Hours, Days, Minutes, KeyChanges, SourceProject, SourceProjectRef, Settings, Location, EntryType } from './columnsTMT';
 
 	
@@ -134,7 +134,7 @@ export const VerifyTimeSummaryView : IMyView = {
 
 export const VerifyDataChangedView : IMyView = {
     Title: 'Verify - Data Changes',
-    iFields: 	[User,ootbTitle,StartTime,EndTime,Hours,OriginalHours,OriginalStart,OriginalEnd,KeyChanges],
+    iFields: 	[User,ootbTitle,StartTime,EndTime,Hours,OriginalHours,OriginalStart,OriginalEnd, KeyChanges, MinutesChanged],
     TabularView: true,
 	RowLimit: 33,
 	wheres: 	[ 	{field: KeyChanges, 	clause:'Or', 	oper: IsNotNull, 		val: "" },

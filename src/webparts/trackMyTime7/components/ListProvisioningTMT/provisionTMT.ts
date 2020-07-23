@@ -22,7 +22,7 @@ import { timeViewsFull } from './viewsTMTTime'; //Import view arrays for Time li
 
 import { TMTDefaultProjectItems, TMTTestTimeItems, IAnyArray } from './ItemsTMT'; // Import items to create in the list
 
-export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', webURL: string ): Promise<IServiceLog[]>{
+export async function provisionTheList( listName : string, listDefinition: 'Projects' | 'TrackMyTime' , webURL: string ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let createTheseFields : IMyFieldTypes[] = [];
@@ -34,24 +34,25 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
 
     let theList = {
         title: listName,
-        desc: 'Update List Desc in VSCode',
+        desc: 'Update List Description below',
         template: 100,
         enableContentTypes: true,
-        additionalSettings: { EnableVersioning: true, MajorVersionLimit: 50, },
+        additionalSettings: { EnableVersioning: true, MajorVersionLimit: 50, OnQuickLaunch: true },
       };
 
-    if (listName === 'Projects') {
+    if (listDefinition === 'Projects') {
+        theList.desc = 'Projects list for TrackMyTime Webpart';
         createTheseFields = TMTProjectFields();
         createTheseViews = projectViews;
         createTheseItems = TMTDefaultProjectItems;
 
-    } else if (listName === 'TrackMyTime') {
+    } else if (listDefinition === 'TrackMyTime') {
+        theList.desc = 'TrackMyTime list for TrackMyTime Webpart';
         createTheseFields = TMTTimeFields();
         createTheseViews = timeViewsFull;
 
         let currentUser = await sp.web.currentUser.get();
-        //createTheseItems = TMTTestTimeItems(currentUser);
-        
+        createTheseItems = TMTTestTimeItems(currentUser);
 
     }
 
@@ -74,7 +75,7 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
 
     console.log(theList.title + ' list fields and views', currentFields, currentViews);
 
-    alert('Still need to check changesFinal - hidding original fields and setting and why Hours calculated is single line of text');
+    alert('Still need to check:  Set Title in onCreate,  changesFinal - hidding original fields and setting and why Hours calculated is single line of text');
 
     let result = await addTheseFields(['create','changesFinal'], theList, ensuredList, currentFields, createTheseFields, alertMe, consoleLog );
 
@@ -82,9 +83,31 @@ export async function provisionTheList( listName : 'Projects' | 'TrackMyTime', w
     //alert('adding Views');
     let result2 = await addTheseViews(['create'],  theList, ensuredList, currentViews, createTheseViews, alertMe, consoleLog);
 
-    let result3 = await addTheseItemsToList(theList, thisWeb, createTheseItems, true, true);
+    let result3 = null;
 
-//    let result = addTheseFields(['setForm'],webURL, theList, testFields);
+    let createItems: boolean = false;
+    if (listDefinition === 'Projects') {
+        //Auto create new items
+        createItems = true;
+
+    } else {
+        //let confirmItems = confirm("We created your list, do you want us to create some sample Time entries so you can see how it looks?")
+        if (confirm("We created your list, do you want us to create some sample Time entries so you can see how it looks?")) {
+            //You pressed Ok, add items
+            createItems = true;
+          }
+    }
+
+    if ( createItems === true ) {
+        result3 = await addTheseItemsToList(theList, thisWeb, createTheseItems, true, true);
+        if (listDefinition === 'Projects') {
+            alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
+        } else {
+            alert(`All Test Data present and accounted for!  Don't forget to clear it before you start using this webpart for real!`);
+        }
+
+
+      }
 
     return statusLog;
 
