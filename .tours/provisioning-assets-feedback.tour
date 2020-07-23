@@ -28,7 +28,7 @@
     },
     {
       "file": "src/webparts/trackMyTime7/components/ListProvisioningTMT/provisionTMT.ts",
-      "line": 54,
+      "line": 60,
       "description": "Fetches list related objects once which get passed on to helper functions."
     },
     {
@@ -48,7 +48,7 @@
     },
     {
       "file": "src/webparts/trackMyTime7/components/ListProvisioningTMT/provisionTMT.ts",
-      "line": 73,
+      "line": 80,
       "description": "addTheseFields is the helper function that will take an array of field \"objects\" that have been defined, loop through the array and add using the pnp.sp commands.",
       "selection": {
         "start": {
