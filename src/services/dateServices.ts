@@ -1,7 +1,6 @@
 
 
-import { IUser} from '../webparts/trackMyTime7/components/ITrackMyTime7State';
-
+import { IUser} from '../webparts/trackMyTime7/components/IReUsableInterfaces';
 
 export const msPerMin = 60000;
 export const msPerHr = 3600000;

@@ -8,7 +8,9 @@ import * as strings from 'TrackMyTime7WebPartStrings';
 //import * as links from './AllLinks';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
-import { ITrackMyTime7State, IProjectOptions, IProject, IUser, IProjectColumns, IProjectHistory } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IProjectOptions, IProject, IProjectColumns, IProjectHistory } from '../ITrackMyTime7State';
+
+import { ILink, IUser, } from '../IReUsableInterfaces';
 
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 import {CommandBarButton,} from "office-ui-fabric-react/lib/Button";

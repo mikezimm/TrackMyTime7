@@ -37,11 +37,12 @@ import { saveTheTime, saveAnalytics, getTheCurrentTime } from '../../../services
 import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
           getNicks, makeTheTimeObject, getTimeDelta, monthStr3, monthStr, weekday3} from '../../../services/dateServices';
 
-import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
-        IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
-        IChartData, IChartSeries,
-        IMyIcons, IMyFonts, IProjectOptions, IStory, IStories,
+import {IProject, ISmartText, ITimeEntry, IProjectTarget, IProjects, IProjectInfo, 
+        IEntryInfo, IEntries, ITrackMyTime7State, ISaveEntry,
+        IChartData, IProjectOptions, IStory, IStories,
         IPropsActivityURL, IProjectHistory, IProjectAction } from './ITrackMyTime7State';
+
+import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from './IReUsableInterfaces';
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';

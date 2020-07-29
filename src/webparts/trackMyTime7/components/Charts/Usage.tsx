@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IChartData, IChartSeries} from '../ITrackMyTime7State';
+import { IChartData, } from '../ITrackMyTime7State';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 

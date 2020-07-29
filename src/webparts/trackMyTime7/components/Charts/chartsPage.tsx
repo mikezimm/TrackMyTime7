@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { ITrackMyTime7State, IChartData, IChartSeries, ITimeEntry, IStories, ICoreTimes, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IChartData, ITimeEntry, IStories, ICoreTimes, IEntryInfo, IUserSummary } from '../ITrackMyTime7State';
 
 import { ITheTime } from '../../../../services/dateServices';
 
@@ -8,6 +8,8 @@ import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeS
     getNicks, makeTheTimeObject, getTimeDelta, monthStr3, weekday3, createDeltaDateArrays} from '../../../../services/dateServices';
 
 import { camelize, } from '../../../../services/stringServices';
+
+import { ILink, IUser, IChartSeries, ICharNote } from '../IReUsableInterfaces';
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 
