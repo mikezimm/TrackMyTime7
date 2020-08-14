@@ -399,7 +399,7 @@ export function getGreeting(name: IUser){
   //console.log('getGreeting:', name);
   let userName = name;
   if (userName ){
-    if (userName.title.indexOf("Click") > -1 ) {
+    if (userName.title.indexOf("Click") > 0 ) {
       message = message.replace('Afternoon partner',"Servus");
       message = message.replace('Top O the mornin to you',"Neata");
       message = message.replace('nick'," BK");
@@ -420,7 +420,7 @@ export function getNicks(name: IUser){
   let message = name;
   let result = "";
   if ( message) {
-    if (message.title == 'Clickity McClickster'){
+    if (message.title.indexOf('Click') === 0 ){
       result = "Hey Sunshine!";
     } else if (message.title == 'Mike Zimmerman'){
       result = "Hey Zimmerman!";
