@@ -1,0 +1,39 @@
+
+/*  https://docs.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/guidance/reference-third-party-css-styles  */
+/*  Usage in Webpart.ts:  require('../../services/propPane/GrayPropPaneAccordions.css'); */
+/*  */
+/*  Sample with aria-expanded:  https://stackoverflow.com/a/39927006  */
+/*  */
+
+*[data-automation-id="propertyPanePageContent"] > div > button [data-icon-name="ChevronUp"] {
+/*    color:   white;  */
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+*[data-automation-id="propertyPanePageContent"] > div > button [data-icon-name="ChevronDown"] {
+/*    color:   black;  */
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+
+*[data-automation-id="propertyPanePageContent"] > div > button[aria-expanded="false"] {
+
+    background-color:   #e4e4e4;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+*[data-automation-id="propertyPanePageContent"] > div > button[aria-expanded="true"] {
+
+    background-color:  #bfbfbf ;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+*[data-automation-id="propertyPanePageContent"] > div > button:hover {
+    background-color:   lightgray;
+    transition: all 0.3s ease;
+
+}

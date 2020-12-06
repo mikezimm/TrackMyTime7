@@ -70,7 +70,10 @@ import { nominalTypeHack } from 'prop-types';
 
 import { createDialog } from './Project/ConfirmUpdate';
 
+import  EarlyAccess from './HelpInfo/EarlyAccess';
 
+
+import * as links from './HelpInfo/AllLinks';
 
 /**
  * 
@@ -1412,8 +1415,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         ></ChartsPage>
       </div>;
   
-      let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this), null, null );
-      let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this), null, null );
+      let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this), null, null, false );
+      let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this), null, null, false );
   
       let centerPane = <CenterPane 
           allLoaded={ true } 
@@ -1463,7 +1466,20 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       } 
 
+      let earlyAccess = 
+      <div style={{ paddingBottom: 10 }}>
+        <EarlyAccess 
+            image = { "https://autoliv.sharepoint.com/sites/crs/PublishingImages/Early%20Access%20Image.png" }
+            messages = { [ <div><span><b>Welcome to ALV Webpart Early Access!!!</b></span></div>, "Get more info here -->"] }
+            links = { [ links.gitRepoTrackMyTime.wiki, links.gitRepoTrackMyTime.issues ]}
+            email = { 'mailto:General - WebPart Dev <0313a49d.Autoliv.onmicrosoft.com@amer.teams.ms>?subject=Track My Time Webpart Feedback&body=Enter your message here :)  \nScreenshots help!' }
+            farRightIcons = { [ ] }
+        ></EarlyAccess>
+      </div>
+      ;
       const newProjCommands = null;
+
+      let devHeader = null;// this.state.showDevHeader === true ? <div><b>Props: </b> { this.props.lastPropChange + ', ' + this.props.lastPropDetailChange } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
   /***
    *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -1481,6 +1497,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       return (
         <div className={ styles.trackMyTime7 }>
           <div className={ styles.container }>
+          { devHeader }
+          { earlyAccess }
           <div className={styles.floatLeft}>
   
               { this.createPivotObject(choice2, display2)  }

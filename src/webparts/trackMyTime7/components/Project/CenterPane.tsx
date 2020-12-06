@@ -235,7 +235,7 @@ public constructor(props:ICenterPaneProps){
 
         itemID = item.title + '|Splitme|' + itemID;
         console.log('ActivityButton item:', item);
-        let activityButton = createIconButton(item.icon.name, item.title, _onActivityClick, itemID, activityButtonStyles );
+        let activityButton = createIconButton(item.icon.name, item.title, _onActivityClick, itemID, activityButtonStyles, false );
 
         return activityButton;
     }

@@ -1,27 +1,44 @@
+
+//2020-12-05:  Copied entire file from PivotTiles7 for Early Access bar
+
 .createButtons {
-    .floatRight {
-        //width: 1200px;
-        //max-width: 500px;
-        display: flex;
-        justify-content: space-between;
-        //align-items: center makes items centered vertically
-        align-items: center;
-      }
+  .floatRight {
+      //width: 1200px;
+      //max-width: 500px;
+      display: flex;
+      justify-content: space-between;
+      //align-items: center makes items centered vertically
+      align-items: center;
+    }
 }
 
 .buttons{
-  padding-right: 10px;
-  -webkit-font-smoothing: antialiased;
-  transition:all 0.3s ease;
+  //2020-12-05:  commented out from PivotTiles7
+//padding-right: 10px;  
+-webkit-font-smoothing: antialiased;
+transition:all 0.4s ease;
+border-radius: 5px;
+:hover{
+  background-color: lightgray;
+  transition:all 0.4s ease;
   border-radius: 5px;
-  :hover{
-    background-color: lightgray;
-    transition:all 0.3s ease;
-    border-radius: 5px;
-  }
+}
+}
+
+
+.buttonsTransparent{
+//padding-right: 10px;
+-webkit-font-smoothing: antialiased;
+transition:all 0.4s ease;
+border-radius: 5px;
+:hover{
+  background-color: transparent;
+  transition:all 0.4s ease;
+  border-radius: 5px;
+}
 }
 
 .buttonsBig {
-  @extend .buttons;
-  margin:10px;
+@extend .buttons;
+margin:10px;
 }

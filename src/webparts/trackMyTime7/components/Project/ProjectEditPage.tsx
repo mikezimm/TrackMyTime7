@@ -863,7 +863,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         let myIconStyles = defCommandIconStyles;
         myIconStyles.icon.fontSize = 14;
         myIconStyles.icon.fontWeight = "900";
-        let clearThisDate = _clearDate === null ? null : createIconButton('Clear','ClearDate',_clearDate, null, myIconStyles );
+        let clearThisDate = _clearDate === null ? null : createIconButton('Clear','ClearDate',_clearDate, null, myIconStyles, false );
 
         return (
             // Uncontrolled
@@ -954,7 +954,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         return null;
       });
 
-      let addUserButton = createIconButton('FollowUser','Add you',addYouToField, null, null );
+      let addUserButton = createIconButton('FollowUser','Add you',addYouToField, null, null, false );
 
         return (
             // Uncontrolled
@@ -1454,7 +1454,7 @@ private buildTaskFields(isVisible: boolean) {
     selectedProject.completedBy = newUsers[0];
     selectedProject.completedById = newUsers[0] != null ? newUsers[0].id : null;
     this.setState({ selectedProject: selectedProject });
-  }  
+  }
 
 
   private _clearDateField(){
