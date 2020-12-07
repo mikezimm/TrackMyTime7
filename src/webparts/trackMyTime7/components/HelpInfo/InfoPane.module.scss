@@ -1,9 +1,134 @@
 @import '~office-ui-fabric-react/dist/sass/References.scss';
 
+//2020-12-05:  Copied entire file from PivotTiles7 for Early Access bar
+
 //Copied to chartsPage.module.scss so it can be more stand alone.
+
 
 .infoPane {
 
+    .earlyAccess {
+      opacity: .25;
+      transition: all, .3s ease;
+    }
+
+    .earlyAccess:hover {
+      opacity: 1;
+      transition: all, .3s ease;
+    }
+
+    .innerShadow {
+        -moz-box-shadow:    inset 10px 1010px 10px #000000cc;
+        -webkit-box-shadow: inset 10px 10px 10px #000000cc;
+        box-shadow:         inset 10px 10px 10px #000000cc;
+    }
+
+    .mailLinkHover {
+      margin-left: 10px;
+      margin-right: 10px;
+      overflow: hidden;
+      border: 1px transparent;
+      transition: all, .25s ease;
+    }
+
+    .mailLinkHover:hover {
+      transform: scale(1.2);
+      transition: all, .25s ease;
+      background: transparent;
+    }
+
+    .barLinkHover {
+      margin-left: 10px;
+      margin-right: 10px;
+      overflow: hidden;
+      border: 1px transparent;
+      transition: all, .25s ease;
+      font-size: 'normal';
+    }
+
+    .barLinkHover:hover {
+      transition: all, .25s ease;
+      font-size: 'larger';
+    }
+
+    .farLinkHover {
+      margin-left: 10px;
+      margin-right: 10px;
+      overflow: hidden;
+      border: 1px transparent;
+      transition: all, .25s ease;
+      font-size: 'normal';
+    }
+    .farLinkHover:hover {
+      transform: scale(1.2);
+      transition: all, .25s ease;
+      font-size: 'larger';
+      background: transparent;
+    }
+    
+
+  .block {
+    display: "";
+    color:'darkred';  //Sets color of text on bar ( like 55%)
+    font-size: .75em;
+    float: left;    //Makes bars stack to right, set to Inherrit makes bars vertial (like pareto)
+    background-color: #334D5C;  //Sets default bar color
+    position: relative;
+    overflow: hidden;
+    transition: opacity, .3s ease;
+    cursor: pointer;
+  }
+
+  //Copied these 3 from PivotTileItem.module.scss
+      /* [2] Transition property for smooth transformation of images */
+      .imgHoverZoom {
+        @extend .pTileItemImageCustom;
+        transition:all 2s ease;
+        transition-delay:0.25s;
+        //*** Does not impact shift    width: 100%;
+        //*** Does not impact shift    height: 100%;
+    }
+  
+    /* [3] Finally, transforming the image when container gets hovered */
+    .imgHoverZoomHover { 
+      @extend .pTileItemImageCustom;
+      transition:all 3.25s ease;
+      // transform: scale(1.2);
+      transition-delay:0.25s;
+      //*** Does not impact shift    width: 100%;
+      //*** Does not impact shift    height: 100%;
+    }
+
+    .pTileItemImageCustom {
+      // Need to set both height and width to be able to see tile
+      //width: 100%;
+      //height: 100%;
+  
+      // Added -backface-visibility: hidden per this post:  https://theme.co/apex/forums/topic/image-move-when-hover/
+      // Without it, the non-Hero tiles would shift a couple pixels in Chrome on hover.
+      // When editing web part props (like hero or size), effect will come back until you refresh the page.
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      //These did nothing to prevent the left icons from shifting on hover.
+      //border: 0px;
+      //margin: 0px;
+      //padding: 0px;
+  
+      //height: $box-height;
+    }
+
+    .innerShadow {
+        -moz-box-shadow:    inset 0 0 2px 1px #000000cc;
+        -webkit-box-shadow: inset 0 0 2px 1px #000000cc;
+        box-shadow:         inset 0 0 2px 1px #000000cc;
+    }
+
+    .listLink {
+      font-size: small;
+      width: null !important;
+      background: transparent;
+
+    }    
 
     .infoTable {
   
@@ -77,5 +202,103 @@
       padding-left: 20px;
       padding-right: 20px;
     }
+
+}
+
+// define variables first
+//https://docs.microsoft.com/en-us/sharepoint/dev/spfx/use-theme-colors-in-your-customizations#available-theme-tokens-and-their-occurances
+$themePrimary: '[theme:themePrimary, default:#0078d7]';
+$themeWhite: '[theme:white, default:white]';
+
+.infoPaneTight {
+
+  .infoHeading {
+    font-size: 24px;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    //width: 100%;  Removed when adding Go to list link
+    font-weight: 500;
+    background-color: $themePrimary;
+    color: $themeWhite;
+
+    #myTableTitle {
+      padding-left: 20px;
+    }
+
+  }
+
+  .infoTable {
+
+    tr {
+      padding-top: 0px;
+    }
+
+    tr :hover {
+      background-color: lightgray;
+      transition:all 0.4s ease;
+    }
+
+    th {
+      @extend .headerPadding;
+      color: black;
+      background-color: lightgray;
+      border: none;
+      text-align: left;
+    }
+
+    td {
+      @extend .cellPadding;
+    }
+
+  }
+
+  .infoTableTHRed {
+    @extend .infoTable;
+    th {
+      color: red;
+    }
+
+  }
+
+  .cellPadding {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 5px;
+  }
+
+  .headerPadding {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  
+
+  .iColNam{
+    font-weight: bolder;
+    padding-left: 10px;
+    padding-right: 20px;
+  }
+
+  .iColNamU {
+    @extend .iColNam;
+    color: red;
+  } 
+
+  .iColNamV {
+    @extend .iColNam;
+    color: green;
+  } 
+
+  .iColNamH {
+    @extend .iColNam;
+    color: blue;
+  } 
+
+  .infoPane {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 
 }

@@ -389,7 +389,7 @@ public constructor(props:IChartPageProps){
                 },
             };
 
-            let getMoreItems = createIconButton('Add','Get more items',this.props._getMoreItems.bind(this), null, moreItemsStyles );
+            let getMoreItems = createIconButton('Add','Get more items',this.props._getMoreItems.bind(this), null, moreItemsStyles, false );
             
             const ColoredLine = ({ color }) => ( <hr style={{ color: color, backgroundColor: color, height: 1 }}/> );
 

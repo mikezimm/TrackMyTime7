@@ -38,6 +38,8 @@ import { IItemAddResult } from "@pnp/sp/items";
 
 import { provisionTheList } from './components/ListProvisioningTMT/provisionTMT';
 
+require('../../services/propPane/GrayPropPaneAccordions.css');
+
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/fields";
