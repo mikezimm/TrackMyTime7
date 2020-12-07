@@ -580,6 +580,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
 
     private buildProjectToSave( oldProject: IProject, newProject: IProject, mode: ProjectMode ){
 
+      //2020-12-06:  This is where the project to save gets finalized... is called when updating a project or copying a project
+
       let saveItem: any = { };
 
       let historyObject : IProjectHistory = null;
@@ -692,6 +694,8 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
         } else {
+          //2020-12-06:  This is where OptionsTMT value gets added to the saveItem based on newVal.
+          //Being on the top level of the selected object is what lets it get saved.
           saveItem[field.column] = newVal;
           saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
 
@@ -734,6 +738,19 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
           saveItem.HistoryTMT = this.updateSaveHistory(saveItem.HistoryTMT, field, newVal);
         }
 
+      //2020-12-06:  This is where OptionsTMT value gets added to the selectedProject state object. 
+      //Note origVal is always null for OptionsTMT but is there on newVal
+      //Being on the top level of the selected object is what lets it get saved.
+
+      } else if ( field.name === 'optionString' ) {
+        if (origVal !== newVal ) {
+          saveItem[field.column] = newVal;
+        }
+
+      } else if ( field.name === 'timeTarget' ) {
+        if (origVal !== newVal ) {
+          saveItem[field.column] = newVal;
+        }
 
       } else if (origVal !== newVal ) {
         //Add column and value to object
@@ -749,12 +766,20 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
       let fieldName = field.name;
       let objVal = project[fieldName];
       let val = null;
+
       if (fieldName === "category1" || fieldName === "category2" )  { val = objVal == null ? null : objVal.join(';'); }
       else if (fieldName === "projectID1" || fieldName === "projectID2" || fieldName === "timeTarget" )  { val = objVal.projListValue == null ? null : objVal.projListValue ; }
       else if ( fieldName === "projOptions" )  { val = objVal.optionString == null ? null : objVal.optionString; }
       else if ( fieldName === "activityType" )  { val = project.projOptions.type == null ? null : project.projOptions.type;  }
       else if ( fieldName === "activity" )  { val = project.projOptions.activity == null ? null : project.projOptions.activity;  }
       else if ( fieldName === "projectEditOptions" )  { val = project.projOptions.projectEditOptions == null ? null : project.projOptions.projectEditOptions;  }
+
+
+      //2020-12-06:  Added this becasue it did not seem to save updates to field
+      else if ( fieldName === "timeTarget" )  { val = project[field.name].projListValue == null ? null : project[field.name].projListValue; }
+
+      //2020-12-06:  This is where optionsString (field) now gets a value like projectEditOptions
+      else if ( fieldName === "optionString" )  { val = project.projOptions.optionString == null ? null : project.projOptions.optionString;  }
 
       else if (field.type === 'User') { val = objVal == null ? null : { results: [objVal.ID] }; }      
       else if (field.type === 'MultiUser') { 
@@ -767,6 +792,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         }  
       }
       else if (field.type === 'Boolean') { val = objVal == null ? null : objVal; }
+
       else if (field.type === 'Text') { val = objVal == null ? null : objVal; }
       else if (field.type === 'Choice') { val = objVal == null ? null : objVal; }
       else if (field.type === 'Date') { val = objVal == null ? null : new Date(objVal); }
@@ -808,7 +834,7 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
         if (field.name === "category1" || field.name === "category2" )  { defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject[field.name].join(';'); }
         else if (field.name === "projectID1" || field.name === "projectID2" )  { defaultValue = this.state.selectedProject[field.name].projListValue; }
         else if (field.name === "timeTarget" )  { 
-            defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject[field.name].value;
+            defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject[field.name].projListValue;
          }
          else if (field.name === "optionString")  { 
             defaultValue = this.state.selectedProject[field.name] === null ? '' : this.state.selectedProject.projOptions.optionString;
@@ -1593,8 +1619,15 @@ private buildTaskFields(isVisible: boolean) {
 
     if (fieldName === "category1" || fieldName === "category2" )  { selectedProject[fieldName] = fieldVal == null ? null : fieldVal.split(';'); }
     else if (fieldName === "projectID1" || fieldName === "projectID2" )  { selectedProject[fieldName].projListValue = fieldVal; }
-    else if ( fieldName === "timeTarget" )  { selectedProject[fieldName].value = fieldVal; }
-    else if ( fieldName === "projOptions" )  { selectedProject[fieldName].optionString = fieldVal; }
+    else if ( fieldName === "timeTarget" )  { selectedProject[fieldName].projListValue = fieldVal; }
+
+    //2020-12-06:  Changed fieldName to correct one for this special case
+    else if ( fieldName === "optionString" )  { 
+      selectedProject[fieldName] = fieldVal;
+      //2020-12-06:  Added this so that projectOptions optionString is consistent. 
+      selectedProject.projOptions.optionString = fieldVal;
+     }
+
     else if (this.props.projectFields[fieldID].type === 'Text') { selectedProject[fieldName] = fieldVal; }
     else if (this.props.projectFields[fieldID].type === 'Date') { selectedProject[fieldName] = fieldVal; }
     //else if (field.type === 'Smart') { defaultValue = this.state.selectedProject[fieldID].value; }
