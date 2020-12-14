@@ -17,7 +17,19 @@
  *                                                                                               
  */
 
-import { ISeriesSort } from '../webparts/trackMyTime7/components/IReUsableInterfaces';
+import { ISeriesSort } from './IReUsableInterfaces';
+
+
+/***
+ *    .d8888. d888888b d8888b. d888888b d8b   db  d888b  d888888b d88888b db    db db   dD d88888b db    db db    db  .d8b.  db      db    db d88888b 
+ *    88'  YP `~~88~~' 88  `8D   `88'   888o  88 88' Y8b   `88'   88'     `8b  d8' 88 ,8P' 88'     `8b  d8' 88    88 d8' `8b 88      88    88 88'     
+ *    `8bo.      88    88oobY'    88    88V8o 88 88         88    88ooo    `8bd8'  88,8P   88ooooo  `8bd8'  Y8    8P 88ooo88 88      88    88 88ooooo 
+ *      `Y8b.    88    88`8b      88    88 V8o88 88  ooo    88    88~~~      88    88`8b   88~~~~~    88    `8b  d8' 88~~~88 88      88    88 88~~~~~ 
+ *    db   8D    88    88 `88.   .88.   88  V888 88. ~8~   .88.   88         88    88 `88. 88.        88     `8bd8'  88   88 88booo. 88b  d88 88.     
+ *    `8888Y'    YP    88   YD Y888888P VP   V8P  Y888P  Y888888P YP         YP    YP   YD Y88888P    YP       YP    YP   YP Y88888P ~Y8888P' Y88888P 
+ *                                                                                                                                                    
+ *                                                                                                                                                    
+ */
 
 /**
  * This just takes an object, and returns a string of the Key and Value.
@@ -31,6 +43,18 @@ export function stringifyKeyValue( thisOne: any, keyNo, delimiter : string ) {
     return Object.keys(thisOne)[keyNo] + delimiter + thisOne[Object.keys(thisOne)[keyNo]];
 
 }
+
+
+/***
+ *    .d8888. d8888b. db      d888888b  .o88b. d88888b  .o88b.  .d88b.  d8888b. db    db  .d8b.  d8888b. d8888b.  .d8b.  db    db 
+ *    88'  YP 88  `8D 88        `88'   d8P  Y8 88'     d8P  Y8 .8P  Y8. 88  `8D `8b  d8' d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 
+ *    `8bo.   88oodD' 88         88    8P      88ooooo 8P      88    88 88oodD'  `8bd8'  88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'  
+ *      `Y8b. 88~~~   88         88    8b      88~~~~~ 8b      88    88 88~~~      88    88~~~88 88`8b   88`8b   88~~~88    88    
+ *    db   8D 88      88booo.   .88.   Y8b  d8 88.     Y8b  d8 `8b  d8' 88         88    88   88 88 `88. 88 `88. 88   88    88    
+ *    `8888Y' 88      Y88888P Y888888P  `Y88P' Y88888P  `Y88P'  `Y88P'  88         YP    YP   YP 88   YD 88   YD YP   YP    YP    
+ *                                                                                                                                
+ *                                                                                                                                
+ */
 
 /**
  * This function will take an array of objects, and insert into another array of objects at a specific index.
@@ -79,6 +103,17 @@ export function spliceCopyArray(sourceArray, startDel, countDelete, startAddOrig
     return whole;
 }
 
+/***
+ *    d8888b.  .d88b.  d88888b .d8888.       .d88b.  d8888b.    d88b d88888b  .o88b. d888888b      d88888b db    db d888888b .d8888. d888888b      d888888b d8b   db  .d8b.  d8888b. d8888b.  .d8b.  db    db 
+ *    88  `8D .8P  Y8. 88'     88'  YP      .8P  Y8. 88  `8D    `8P' 88'     d8P  Y8 `~~88~~'      88'     `8b  d8'   `88'   88'  YP `~~88~~'        `88'   888o  88 d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 
+ *    88   88 88    88 88ooooo `8bo.        88    88 88oooY'     88  88ooooo 8P         88         88ooooo  `8bd8'     88    `8bo.      88            88    88V8o 88 88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'  
+ *    88   88 88    88 88~~~~~   `Y8b.      88    88 88~~~b.     88  88~~~~~ 8b         88         88~~~~~  .dPYb.     88      `Y8b.    88            88    88 V8o88 88~~~88 88`8b   88`8b   88~~~88    88    
+ *    88  .8D `8b  d8' 88.     db   8D      `8b  d8' 88   8D db. 88  88.     Y8b  d8    88         88.     .8P  Y8.   .88.   db   8D    88           .88.   88  V888 88   88 88 `88. 88 `88. 88   88    88    
+ *    Y8888D'  `Y88P'  Y88888P `8888Y'       `Y88P'  Y8888P' Y8888P  Y88888P  `Y88P'    YP         Y88888P YP    YP Y888888P `8888Y'    YP         Y888888P VP   V8P YP   YP 88   YD 88   YD YP   YP    YP    
+ *                                                                                                                                                                                                            
+ *                                                                                                                                                                                                            
+ */
+
 /**
  * This function checks to see if an element of an array (object) contains a specific property/value pair.
  * 
@@ -121,16 +156,22 @@ export interface ICompareResult {
     message: string;
 }
 
-/**
+
+/***
+ *     .o88b.  .d88b.  .88b  d88. d8888b.  .d8b.  d8888b. d88888b  .d8b.  d8888b. d8888b.  .d8b.  db    db .d8888. 
+ *    d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D d8' `8b 88  `8D 88'     d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 88'  YP 
+ *    8P      88    88 88  88  88 88oodD' 88ooo88 88oobY' 88ooooo 88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'  `8bo.   
+ *    8b      88    88 88  88  88 88~~~   88~~~88 88`8b   88~~~~~ 88~~~88 88`8b   88`8b   88~~~88    88      `Y8b. 
+ *    Y8b  d8 `8b  d8' 88  88  88 88      88   88 88 `88. 88.     88   88 88 `88. 88 `88. 88   88    88    db   8D 
+ *     `Y88P'  `Y88P'  YP  YP  YP 88      YP   YP 88   YD Y88888P YP   YP 88   YD 88   YD YP   YP    YP    `8888Y' 
+ *                                                                                                                 
+ *                                                                                                                 
  * The original goal of this function, would be to remove objects from one array if it were in another array.
  * As an example, I have an array of items I want to add to a list (addItemsArray)
  * Then I run a process which creates another 'result' array of what things were actually added - minus any errors
  * The function will remove the items in the 'result' array from the 'addItemsArray.
  * Only the items that were not added (ie the ones that errored out) will be left... or maybe it would add a key with the result.
  * 
- */
-
- /**
   * 
   * @param checkForTheseItems - this is the array of items you want to check for in the sourceArray ('inThisArray')
   * @param inThisArray - this is the array where you are looking for items in
@@ -256,7 +297,18 @@ export interface ICompareResult {
 
  }
 
-// 2020-09-24:  Updated from drilldown-filter webpart
+
+/***
+ *     .d8b.  d8888b. d8888b. d888888b d888888b d88888b .88b  d88.      d888888b  .d88b.   .d8b.  d8888b. d8888b.  .d8b.  db    db      d888888b d88888b      d888888b d888888b d8888b.  .d88b.  d88888b .d8888. d8b   db  .d88b.  d888888b d88888b db    db d888888b .d8888. d888888b 
+ *    d8' `8b 88  `8D 88  `8D   `88'   `~~88~~' 88'     88'YbdP`88      `~~88~~' .8P  Y8. d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8'        `88'   88'            `88'   `~~88~~' 88  `8D .8P  Y8. 88'     88'  YP 888o  88 .8P  Y8. `~~88~~' 88'     `8b  d8'   `88'   88'  YP `~~88~~' 
+ *    88ooo88 88   88 88   88    88       88    88ooooo 88  88  88         88    88    88 88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'          88    88ooo           88       88    88   88 88    88 88ooooo `8bo.   88V8o 88 88    88    88    88ooooo  `8bd8'     88    `8bo.      88    
+ *    88~~~88 88   88 88   88    88       88    88~~~~~ 88  88  88         88    88    88 88~~~88 88`8b   88`8b   88~~~88    88            88    88~~~           88       88    88   88 88    88 88~~~~~   `Y8b. 88 V8o88 88    88    88    88~~~~~  .dPYb.     88      `Y8b.    88    
+ *    88   88 88  .8D 88  .8D   .88.      88    88.     88  88  88         88    `8b  d8' 88   88 88 `88. 88 `88. 88   88    88           .88.   88             .88.      88    88  .8D `8b  d8' 88.     db   8D 88  V888 `8b  d8'    88    88.     .8P  Y8.   .88.   db   8D    88    
+ *    YP   YP Y8888D' Y8888D' Y888888P    YP    Y88888P YP  YP  YP         YP     `Y88P'  YP   YP 88   YD 88   YD YP   YP    YP         Y888888P YP           Y888888P    YP    Y8888D'  `Y88P'  Y88888P `8888Y' VP   V8P  `Y88P'     YP    Y88888P YP    YP Y888888P `8888Y'    YP    
+ *                                                                                                                                                                                                                                                                                     
+ *     2020-09-24:  Updated from drilldown-filter webpart                                                                                                                                                                                                                                                                                
+ */
+
 export function addItemToArrayIfItDoesNotExist (arr : string[], item: string, suppressUndefined: boolean = true ) {
     if ( item === undefined ) { 
         if ( suppressUndefined != true ) {
@@ -267,11 +319,21 @@ export function addItemToArrayIfItDoesNotExist (arr : string[], item: string, su
     return arr;
 }
 
-/**
+
+/***
+ *     .o88b.  .d88b.  d8b   db db    db d88888b d8888b. d888888b      d8b   db db    db .88b  d88. d8888b. d88888b d8888b.  .d8b.  d8888b. d8888b.  .d8b.  db    db      d888888b  .d88b.  d8888b. d88888b db       .d8b.  d888888b d888888b db    db d88888b      d8888b. d88888b d8888b.  .o88b. d88888b d8b   db d888888b .d8888. 
+ *    d8P  Y8 .8P  Y8. 888o  88 88    88 88'     88  `8D `~~88~~'      888o  88 88    88 88'YbdP`88 88  `8D 88'     88  `8D d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8'      `~~88~~' .8P  Y8. 88  `8D 88'     88      d8' `8b `~~88~~'   `88'   88    88 88'          88  `8D 88'     88  `8D d8P  Y8 88'     888o  88 `~~88~~' 88'  YP 
+ *    8P      88    88 88V8o 88 Y8    8P 88ooooo 88oobY'    88         88V8o 88 88    88 88  88  88 88oooY' 88ooooo 88oobY' 88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'          88    88    88 88oobY' 88ooooo 88      88ooo88    88       88    Y8    8P 88ooooo      88oodD' 88ooooo 88oobY' 8P      88ooooo 88V8o 88    88    `8bo.   
+ *    8b      88    88 88 V8o88 `8b  d8' 88~~~~~ 88`8b      88         88 V8o88 88    88 88  88  88 88~~~b. 88~~~~~ 88`8b   88~~~88 88`8b   88`8b   88~~~88    88            88    88    88 88`8b   88~~~~~ 88      88~~~88    88       88    `8b  d8' 88~~~~~      88~~~   88~~~~~ 88`8b   8b      88~~~~~ 88 V8o88    88      `Y8b. 
+ *    Y8b  d8 `8b  d8' 88  V888  `8bd8'  88.     88 `88.    88         88  V888 88b  d88 88  88  88 88   8D 88.     88 `88. 88   88 88 `88. 88 `88. 88   88    88            88    `8b  d8' 88 `88. 88.     88booo. 88   88    88      .88.    `8bd8'  88.          88      88.     88 `88. Y8b  d8 88.     88  V888    88    db   8D 
+ *     `Y88P'  `Y88P'  VP   V8P    YP    Y88888P 88   YD    YP         VP   V8P ~Y8888P' YP  YP  YP Y8888P' Y88888P 88   YD YP   YP 88   YD 88   YD YP   YP    YP            YP     `Y88P'  88   YD Y88888P Y88888P YP   YP    YP    Y888888P    YP    Y88888P      88      Y88888P 88   YD  `Y88P' Y88888P VP   V8P    YP    `8888Y' 
+ *                                                                                                                                                                                                                                                                                                                                    
  * 
  * @param arr 
  * @param percentsAsWholeNumbers -- If true, converts 25% from 0.25 to 25.
+ *                                                                                                                                                                                                                                                                                                                                 
  */
+
 export function convertNumberArrayToRelativePercents( arr: number[] , percentsAsWholeNumbers : boolean = true ) {
 
     let result : number[] = [];
@@ -291,19 +353,90 @@ export function convertNumberArrayToRelativePercents( arr: number[] , percentsAs
     return result;
 }
 
+
+/***
+ *    .d8888.  .d88b.  d8888b. d888888b      .d8888. d888888b d8888b. d888888b d8b   db  d888b        .d8b.  d8888b. d8888b.  .d8b.  db    db 
+ *    88'  YP .8P  Y8. 88  `8D `~~88~~'      88'  YP `~~88~~' 88  `8D   `88'   888o  88 88' Y8b      d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 
+ *    `8bo.   88    88 88oobY'    88         `8bo.      88    88oobY'    88    88V8o 88 88           88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'  
+ *      `Y8b. 88    88 88`8b      88           `Y8b.    88    88`8b      88    88 V8o88 88  ooo      88~~~88 88`8b   88`8b   88~~~88    88    
+ *    db   8D `8b  d8' 88 `88.    88         db   8D    88    88 `88.   .88.   88  V888 88. ~8~      88   88 88 `88. 88 `88. 88   88    88    
+ *    `8888Y'  `Y88P'  88   YD    YP         `8888Y'    YP    88   YD Y888888P VP   V8P  Y888P       YP   YP 88   YD 88   YD YP   YP    YP    
+ *                                                                                                                                            
+ * 2020-12-14
+ * sortStringArray was added to remove typescript errors in sortKeysByOtherKey
+ * @param arr 
+ * @param order                                                                                                                                         
+ */
+
+export function sortStringArray( arr: string[], order: ISeriesSort ) : string[] {
+
+    if ( order === 'asc' ) { 
+        arr.sort((a,b) => a.localeCompare(b));
+    } else if ( order === 'dec' ) {
+        arr.sort((a,b) => b.localeCompare(a));
+    } else {
+        
+    }
+    return arr;
+}
+
+/***
+ *    .d8888.  .d88b.  d8888b. d888888b      d8b   db db    db .88b  d88. d8888b. d88888b d8888b.       .d8b.  d8888b. d8888b.  .d8b.  db    db 
+ *    88'  YP .8P  Y8. 88  `8D `~~88~~'      888o  88 88    88 88'YbdP`88 88  `8D 88'     88  `8D      d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 
+ *    `8bo.   88    88 88oobY'    88         88V8o 88 88    88 88  88  88 88oooY' 88ooooo 88oobY'      88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'  
+ *      `Y8b. 88    88 88`8b      88         88 V8o88 88    88 88  88  88 88~~~b. 88~~~~~ 88`8b        88~~~88 88`8b   88`8b   88~~~88    88    
+ *    db   8D `8b  d8' 88 `88.    88         88  V888 88b  d88 88  88  88 88   8D 88.     88 `88.      88   88 88 `88. 88 `88. 88   88    88    
+ *    `8888Y'  `Y88P'  88   YD    YP         VP   V8P ~Y8888P' YP  YP  YP Y8888P' Y88888P 88   YD      YP   YP 88   YD 88   YD YP   YP    YP    
+ *                                                                                                                                              
+ *     
+ * 2020-12-14
+ * sortNumberArray was added to remove typescript errors in sortKeysByOtherKey
+ * @param arr 
+ * @param order                                                                                                                                          
+ */
+
+export function sortNumberArray( arr: number[], order: ISeriesSort ) : number[] {
+
+    if ( order === 'asc' ) { 
+        arr.sort();
+    } else if ( order === 'dec' ) {
+        arr.sort((a, b) => b-a );
+    } else {
+        
+    }
+    return arr;
+
+}
+
+
+/***
+ *    .d8888.  .d88b.  d8888b. d888888b      db   dD d88888b db    db .d8888.      d8888b. db    db       .d88b.  d888888b db   db d88888b d8888b.      db   dD d88888b db    db 
+ *    88'  YP .8P  Y8. 88  `8D `~~88~~'      88 ,8P' 88'     `8b  d8' 88'  YP      88  `8D `8b  d8'      .8P  Y8. `~~88~~' 88   88 88'     88  `8D      88 ,8P' 88'     `8b  d8' 
+ *    `8bo.   88    88 88oobY'    88         88,8P   88ooooo  `8bd8'  `8bo.        88oooY'  `8bd8'       88    88    88    88ooo88 88ooooo 88oobY'      88,8P   88ooooo  `8bd8'  
+ *      `Y8b. 88    88 88`8b      88         88`8b   88~~~~~    88      `Y8b.      88~~~b.    88         88    88    88    88~~~88 88~~~~~ 88`8b        88`8b   88~~~~~    88    
+ *    db   8D `8b  d8' 88 `88.    88         88 `88. 88.        88    db   8D      88   8D    88         `8b  d8'    88    88   88 88.     88 `88.      88 `88. 88.        88    
+ *    `8888Y'  `Y88P'  88   YD    YP         YP   YD Y88888P    YP    `8888Y'      Y8888P'    YP          `Y88P'     YP    YP   YP Y88888P 88   YD      YP   YD Y88888P    YP    
+ *                                                                                                                                                                               
+ *  2020-12-14
+ *  This function caused errors in TrackMyTime which was based on @yo 1.9.1 but works in Drilldown and ActionNews @yo 1.11.0 
+ * 
+ *  Cannot invoke an expression whose type lacks a call signature. Type '((compareFn?: (a: string, b: string) => number) => string[]) | ((compareFn?: (a: number, b: numbe...' has no compatible call signatures.
+ * 
+ *  Rebuilt and added sortNumberArray and sortStringArray and it seems to work ok.
+*/
+
 export function sortKeysByOtherKey( obj: any, sortKey: ISeriesSort, order: ISeriesSort, dataType: 'number' | 'string', otherKeys: string[]) {
 
-    let sortCopy : number[] | string[] = JSON.parse(JSON.stringify(obj[sortKey]));
-  
+    let sortCopy : any[] = JSON.parse(JSON.stringify(obj[sortKey]));
     let otherKeyArrays : any = {};
     otherKeys.map( m => { otherKeyArrays[m] = [] ; } );
-    if ( order === 'asc' ) {
-      sortCopy.sort();
+    
+    if ( dataType === 'number' ) {
+        sortCopy = sortNumberArray( sortCopy, order );
     } else {
-      sortCopy.sort((a, b) => { return b-a ;});
+        sortCopy = sortStringArray( sortCopy, order );
     }
-    
-    
+
     let x = 0;
     for ( let v of sortCopy) {
       let currentIndex = obj[sortKey].indexOf(v); //Get index of the first sortable value in original array
@@ -329,28 +462,47 @@ export function sortKeysByOtherKey( obj: any, sortKey: ISeriesSort, order: ISeri
 
     return obj;
   
-  }
+}
 
   
-  //import { removeItemFromArrayOnce, removeItemFromArrayAll } from '../../../services/arrayServices';
-  //https://stackoverflow.com/a/5767357
-  export function removeItemFromArrayOnce(arr, value) {
-      
+/***
+ *    d8888b. d88888b .88b  d88.  .d88b.  db    db d88888b      d888888b d888888b d88888b .88b  d88.      d88888b d8888b.  .d88b.  .88b  d88.       .d8b.  d8888b. d8888b.  .d8b.  db    db       .d88b.  d8b   db  .o88b. d88888b 
+ *    88  `8D 88'     88'YbdP`88 .8P  Y8. 88    88 88'            `88'   `~~88~~' 88'     88'YbdP`88      88'     88  `8D .8P  Y8. 88'YbdP`88      d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8'      .8P  Y8. 888o  88 d8P  Y8 88'     
+ *    88oobY' 88ooooo 88  88  88 88    88 Y8    8P 88ooooo         88       88    88ooooo 88  88  88      88ooo   88oobY' 88    88 88  88  88      88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'       88    88 88V8o 88 8P      88ooooo 
+ *    88`8b   88~~~~~ 88  88  88 88    88 `8b  d8' 88~~~~~         88       88    88~~~~~ 88  88  88      88~~~   88`8b   88    88 88  88  88      88~~~88 88`8b   88`8b   88~~~88    88         88    88 88 V8o88 8b      88~~~~~ 
+ *    88 `88. 88.     88  88  88 `8b  d8'  `8bd8'  88.            .88.      88    88.     88  88  88      88      88 `88. `8b  d8' 88  88  88      88   88 88 `88. 88 `88. 88   88    88         `8b  d8' 88  V888 Y8b  d8 88.     
+ *    88   YD Y88888P YP  YP  YP  `Y88P'     YP    Y88888P      Y888888P    YP    Y88888P YP  YP  YP      YP      88   YD  `Y88P'  YP  YP  YP      YP   YP 88   YD 88   YD YP   YP    YP          `Y88P'  VP   V8P  `Y88P' Y88888P 
+ * 
+ * import { removeItemFromArrayOnce, removeItemFromArrayAll } from '../../../services/arrayServices';
+ * https://stackoverflow.com/a/5767357                                                                                                                                                                                                                               
+ *                                                                                                                                                                                                                                 
+ */
+
+export function removeItemFromArrayOnce(arr, value) {
     if ( arr === null || arr === undefined ) {
         //Do nothing... 
     } else {
         var index = arr.indexOf(value);
         if (index > -1) {
-          arr.splice(index, 1);
+        arr.splice(index, 1);
         }
     }
-
     return arr;
-  }
+}
   
-  //https://stackoverflow.com/a/5767357
-  export function removeItemFromArrayAll(arr, value) {
+/***
+ *    d8888b. d88888b .88b  d88.  .d88b.  db    db d88888b      d888888b d888888b d88888b .88b  d88.      d88888b d8888b.  .d88b.  .88b  d88.       .d8b.  d8888b. d8888b.  .d8b.  db    db       .d8b.  db      db      
+ *    88  `8D 88'     88'YbdP`88 .8P  Y8. 88    88 88'            `88'   `~~88~~' 88'     88'YbdP`88      88'     88  `8D .8P  Y8. 88'YbdP`88      d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8'      d8' `8b 88      88      
+ *    88oobY' 88ooooo 88  88  88 88    88 Y8    8P 88ooooo         88       88    88ooooo 88  88  88      88ooo   88oobY' 88    88 88  88  88      88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'       88ooo88 88      88      
+ *    88`8b   88~~~~~ 88  88  88 88    88 `8b  d8' 88~~~~~         88       88    88~~~~~ 88  88  88      88~~~   88`8b   88    88 88  88  88      88~~~88 88`8b   88`8b   88~~~88    88         88~~~88 88      88      
+ *    88 `88. 88.     88  88  88 `8b  d8'  `8bd8'  88.            .88.      88    88.     88  88  88      88      88 `88. `8b  d8' 88  88  88      88   88 88 `88. 88 `88. 88   88    88         88   88 88booo. 88booo. 
+ *    88   YD Y88888P YP  YP  YP  `Y88P'     YP    Y88888P      Y888888P    YP    Y88888P YP  YP  YP      YP      88   YD  `Y88P'  YP  YP  YP      YP   YP 88   YD 88   YD YP   YP    YP         YP   YP Y88888P Y88888P 
+ *                                                                                                                                                                                                                       
+ * import { removeItemFromArrayOnce, removeItemFromArrayAll } from '../../../services/arrayServices';
+ * https://stackoverflow.com/a/5767357                                                                                                                                                                                                                        
+ */
 
+export function removeItemFromArrayAll(arr, value) {
     if ( arr === null || arr === undefined ) {
         //Do nothing... 
     } else {
@@ -363,6 +515,5 @@ export function sortKeysByOtherKey( obj: any, sortKey: ISeriesSort, order: ISeri
           }
         }
     }
-
     return arr;
-  }
+}

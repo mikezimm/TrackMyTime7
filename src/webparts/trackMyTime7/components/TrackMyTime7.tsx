@@ -12,7 +12,7 @@ import { Pivot, PivotItem, PivotLinkSize, PivotLinkFormat, IPivotStyles, IPivotS
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
 import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
 
-import * as cStyles from './DebugStyles';
+import * as cStyles from '../../../services/styleReact';
 
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
@@ -37,15 +37,20 @@ import { saveTheTime, saveAnalytics, getTheCurrentTime } from '../../../services
 import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
           getNicks, makeTheTimeObject, getTimeDelta, monthStr3, monthStr, weekday3} from '../../../services/dateServices';
 
-import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, 
-        IEntryInfo, IEntries, IMyPivots, IPivot, ITrackMyTime7State, ISaveEntry,
-        IChartData, IChartSeries,
-        IMyIcons, IMyFonts, IProjectOptions, IStory, IStories,
+import { IPickedWebBasic, IPickedList, IMyProgress,
+  IPivot, IMyPivots, ILink, IUser, IMyFonts, IMyIcons,
+} from '../../../services/IReUsableInterfaces';
+
+
+import {IProject, ISmartText, ITimeEntry, IProjectTarget, IProjectInfo, 
+        IEntryInfo, IEntries, ITrackMyTime7State, ISaveEntry,
+        IChartData, 
+        IProjectOptions, IStory, IStories,
         IPropsActivityURL, IProjectHistory, IProjectAction } from './ITrackMyTime7State';
 
 import { pivotOptionsGroup, } from '../../../services/propPane';
 import { getHelpfullError, } from '../../../services/ErrorHandler';
-import { camelize, } from '../../../services/stringServices';
+import { camelize, cleanEmptyElementsFromString } from '../../../services/stringServices';
 
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
@@ -100,13 +105,25 @@ const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
 };
 
-const allProjEditOptions = cleanProjEditOptions('activity;advanced;people;reporting;task');
+const allProjEditOptions = cleanEmptyElementsFromString( 'activity;advanced;people;reporting;task', ';', true, 'asc' );
 
-const defProjEditOptions = cleanProjEditOptions('people;reporting');
+const defProjEditOptions = cleanEmptyElementsFromString( 'people;reporting', ';', true, 'asc' );
 
 export const statusChoices : string[] = [defStatus, planStatus, processStatus, parkStatus, cancelStatus, completeStatus];
 
 export const activityTMTChoices = ['TMT Issue', 'Socialiis Issue'];
+
+
+/***
+ *    .88b  d88. db    db  .o88b.  .d88b.  d8b   db .d8888. 
+ *    88'YbdP`88 `8b  d8' d8P  Y8 .8P  Y8. 888o  88 88'  YP 
+ *    88  88  88  `8bd8'  8P      88    88 88V8o 88 `8bo.   
+ *    88  88  88    88    8b      88    88 88 V8o88   `Y8b. 
+ *    88  88  88    88    Y8b  d8 `8b  d8' 88  V888 db   8D 
+ *    YP  YP  YP    YP     `Y88P'  `Y88P'  VP   V8P `8888Y' 
+ *                                                          
+ *                                                          
+ */
 
 export const MyCons = {
   new: 'Add',
@@ -227,23 +244,7 @@ export const projActions = {
   cancel: actionCancel,
 };
 
-/**
- * This function takes a string with ;, converts to array of strings and removes empty elements (like if ; is at the end.)
- * @param str
- */
-export function cleanProjEditOptions( str : string ){
 
-  if (str == null ) { return null; }
-
-  let arr = str.split(';').sort();
-
-  let filteredProjectEditOptions = arr.filter( (el) => {
-    return el != null;
-  });
-
-  return filteredProjectEditOptions.join(';');
-
-}
 
 export function getColumnProp( findProp: string, findMe : string, returnProp: string, arr: any ){
 
@@ -391,6 +392,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ID: null,
       isSiteAdmin:null,
       LoginName: "",
+      remoteID: null,
     };
     return user;
 
@@ -399,7 +401,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   private createPivotData(onlyActiveProjects:boolean){
     // Using https://stackoverflow.com/questions/3103962/converting-html-string-into-dom-elements
     let pivots : IMyPivots = {
-      projects: 
+      heading1: 
         [
           { headerText: "Yours",
             filter: "your",
@@ -427,7 +429,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           },
         ]
       ,
-      history: 
+      heading2: 
         [
           { headerText: "Yours",
             filter: "your",
@@ -457,7 +459,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       ,
     };
 
-    pivots.projects.push(
+    pivots.heading1.push(
       { headerText: "Parking lot",
       filter: "parkingLot",
       itemKey: "parkingLot",
@@ -466,7 +468,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     });
 
     if ( !onlyActiveProjects ) { 
-      pivots.projects.push(
+      pivots.heading1.push(
         { headerText: "Closed",
         filter: "closed",
         itemKey: "closed",
@@ -1087,8 +1089,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     } else {
 
 
-
-
       const isSinceEntry = this.state.currentTimePicker === 'sinceLast' ? true : false;   
       const isSliderEntry = this.state.currentTimePicker === 'slider' ? true : false;
       const isManualEntry = this.state.currentTimePicker === 'manual' ? true : false;
@@ -1098,21 +1098,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       //console.log('Public render props:', this.props);
       console.log('TRACK MY TIME STATE:', this.state);
   
-      /**
-       * this section was added to keep pivots in sync when syncProjectPivotsOnToggle === true
-       */
-      let display1 = this.state.projectType === true ? "block" :"none";
-      let display2 = this.state.projectType === true ? "none" :"block";
-      let choice1 = this.state.projectMasterPriorityChoice;
-      let choice2 = this.state.projectUserPriorityChoice;
-  
-      if (this.state.syncProjectPivotsOnToggle){
-        display1 = "block";
-        display2 = "none";
-        choice1 = this.state.projectMasterPriorityChoice;
-        choice2 = this.state.projectMasterPriorityChoice;
-      }
-  
+ 
+
+/***
+ *     .o88b. db   db d88888b  .o88b. db   dD      d8888b. d888888b .d8888.  .d8b.  d8888b. db      d88888b      .d8888.  .d8b.  db    db d88888b 
+ *    d8P  Y8 88   88 88'     d8P  Y8 88 ,8P'      88  `8D   `88'   88'  YP d8' `8b 88  `8D 88      88'          88'  YP d8' `8b 88    88 88'     
+ *    8P      88ooo88 88ooooo 8P      88,8P        88   88    88    `8bo.   88ooo88 88oooY' 88      88ooooo      `8bo.   88ooo88 Y8    8P 88ooooo 
+ *    8b      88~~~88 88~~~~~ 8b      88`8b        88   88    88      `Y8b. 88~~~88 88~~~b. 88      88~~~~~        `Y8b. 88~~~88 `8b  d8' 88~~~~~ 
+ *    Y8b  d8 88   88 88.     Y8b  d8 88 `88.      88  .8D   .88.   db   8D 88   88 88   8D 88booo. 88.          db   8D 88   88  `8bd8'  88.     
+ *     `Y88P' YP   YP Y88888P  `Y88P' YP   YD      Y8888D' Y888888P `8888Y' YP   YP Y8888P' Y88888P Y88888P      `8888Y' YP   YP    YP    Y88888P 
+ *                                                                                                                                                
+ *                                                                                                                                                
+ */
+
       const stackButtonTokensBody: IStackTokens = { childrenGap: 40 };
       const stackButtonTokens: IStackTokens = { childrenGap: 40 };
       const stackFormRowTokens: IStackTokens = { childrenGap: 20 };
@@ -1169,6 +1167,18 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   
   
       let entryOptions = choiceBuilders.creatEntryTypeChoices(this.state.currentTimePicker, this._updateEntryType.bind(this));
+
+/***
+ *     d888b  d88888b d888888b      .d8888. d888888b  .d8b.  d8888b. d888888b      d888888b d888888b .88b  d88. d88888b 
+ *    88' Y8b 88'     `~~88~~'      88'  YP `~~88~~' d8' `8b 88  `8D `~~88~~'      `~~88~~'   `88'   88'YbdP`88 88'     
+ *    88      88ooooo    88         `8bo.      88    88ooo88 88oobY'    88            88       88    88  88  88 88ooooo 
+ *    88  ooo 88~~~~~    88           `Y8b.    88    88~~~88 88`8b      88            88       88    88  88  88 88~~~~~ 
+ *    88. ~8~ 88.        88         db   8D    88    88   88 88 `88.    88            88      .88.   88  88  88 88.     
+ *     Y888P  Y88888P    YP         `8888Y'    YP    YP   YP 88   YD    YP            YP    Y888888P YP  YP  YP Y88888P 
+ *                                                                                                                      
+ *                                                                                                                      
+ */
+
       let theTime;
   
       //How to set personal time settings
@@ -1219,6 +1229,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   
       } else { theTime = ""; }
   
+/***
+ *    d8888b. d8888b.  .d88b.     d88b      db   d8b   db d88888b d8888b.      d88888b d8888b. d8888b. 
+ *    88  `8D 88  `8D .8P  Y8.    `8P'      88   I8I   88 88'     88  `8D      88'     88  `8D 88  `8D 
+ *    88oodD' 88oobY' 88    88     88       88   I8I   88 88ooooo 88oooY'      88ooooo 88oobY' 88oobY' 
+ *    88~~~   88`8b   88    88     88       Y8   I8I   88 88~~~~~ 88~~~b.      88~~~~~ 88`8b   88`8b   
+ *    88      88 `88. `8b  d8' db. 88       `8b d8'8b d8' 88.     88   8D      88.     88 `88. 88 `88. 
+ *    88      88   YD  `Y88P'  Y8888P        `8b8' `8d8'  Y88888P Y8888P'      Y88888P 88   YD 88   YD 
+ *                                                                                                     
+ *                                                                                                     
+ */
+
       const projectsWebError = this.props.projectListWeb.indexOf(this.props.tenant) > -1 ? '' :
       <div>
           <p>Your Project List is not in this Tenanat...</p>
@@ -1228,6 +1249,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           </ul>
       </div>;
   
+/***
+ *    d888888b d888888b .88b  d88. d88888b      db   d8b   db d88888b d8888b.      d88888b d8888b. d8888b. 
+ *    `~~88~~'   `88'   88'YbdP`88 88'          88   I8I   88 88'     88  `8D      88'     88  `8D 88  `8D 
+ *       88       88    88  88  88 88ooooo      88   I8I   88 88ooooo 88oooY'      88ooooo 88oobY' 88oobY' 
+ *       88       88    88  88  88 88~~~~~      Y8   I8I   88 88~~~~~ 88~~~b.      88~~~~~ 88`8b   88`8b   
+ *       88      .88.   88  88  88 88.          `8b d8'8b d8' 88.     88   8D      88.     88 `88. 88 `88. 
+ *       YP    Y888888P YP  YP  YP Y88888P       `8b8' `8d8'  Y88888P Y8888P'      Y88888P 88   YD 88   YD 
+ *                                                                                                         
+ *                                                                                                         
+ */
+
       const timeWebError = this.props.timeTrackListWeb.indexOf(this.props.tenant) > -1 ? '' :
       <div>
           <p>Your TimeTrack List is not in this Tenanat...</p>
@@ -1237,6 +1269,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           </ul>
       </div>;
   
+/***
+ *    d8888b. d8888b.  .d88b.     d88b      db      d888888b .d8888. d888888b      d88888b d8888b. d8888b. 
+ *    88  `8D 88  `8D .8P  Y8.    `8P'      88        `88'   88'  YP `~~88~~'      88'     88  `8D 88  `8D 
+ *    88oodD' 88oobY' 88    88     88       88         88    `8bo.      88         88ooooo 88oobY' 88oobY' 
+ *    88~~~   88`8b   88    88     88       88         88      `Y8b.    88         88~~~~~ 88`8b   88`8b   
+ *    88      88 `88. `8b  d8' db. 88       88booo.   .88.   db   8D    88         88.     88 `88. 88 `88. 
+ *    88      88   YD  `Y88P'  Y8888P       Y88888P Y888888P `8888Y'    YP         Y88888P 88   YD 88   YD 
+ *                                                                                                         
+ *                                                                                                         
+ */
       const projectsListError = this.state.projects.master.length !== 0 ? '' :
         <div>
           <ul>
@@ -1250,6 +1292,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           </ul>
         </div>;
   
+
+/***
+ *    d888888b d888888b .88b  d88. d88888b      db      d888888b .d8888. d888888b      d88888b d8888b. d8888b. 
+ *    `~~88~~'   `88'   88'YbdP`88 88'          88        `88'   88'  YP `~~88~~'      88'     88  `8D 88  `8D 
+ *       88       88    88  88  88 88ooooo      88         88    `8bo.      88         88ooooo 88oobY' 88oobY' 
+ *       88       88    88  88  88 88~~~~~      88         88      `Y8b.    88         88~~~~~ 88`8b   88`8b   
+ *       88      .88.   88  88  88 88.          88booo.   .88.   db   8D    88         88.     88 `88. 88 `88. 
+ *       YP    Y888888P YP  YP  YP Y88888P      Y88888P Y888888P `8888Y'    YP         Y88888P 88   YD 88   YD 
+ *                                                                                                             
+ *                                                                                                             
+ */
       const timeListError = this.state.projects.user.length !== 0 ? '' :
       <div>
         <ul>
@@ -1263,6 +1316,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         </ul>
       </div>;
   
+/***
+ *    db      d888888b .d8888. d888888b      d88888b d8888b. d8888b. 
+ *    88        `88'   88'  YP `~~88~~'      88'     88  `8D 88  `8D 
+ *    88         88    `8bo.      88         88ooooo 88oobY' 88oobY' 
+ *    88         88      `Y8b.    88         88~~~~~ 88`8b   88`8b   
+ *    88booo.   .88.   db   8D    88         88.     88 `88. 88 `88. 
+ *    Y88888P Y888888P `8888Y'    YP         Y88888P 88   YD 88   YD 
+ *                                                                   
+ *                                                                   
+ */
       const listError = this.state.listError === false ? '' :
         <div style={{ paddingTop: '0px' }}>
           <h2>{ this.state.errTitle }</h2>
@@ -1276,7 +1339,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
   
         </div>;
       
-  
+/***
+ *    d8b   db  .d88b.       d8888b. d8888b.  .d88b.     d88b      d88888b  .d88b.  db    db d8b   db d8888b. 
+ *    888o  88 .8P  Y8.      88  `8D 88  `8D .8P  Y8.    `8P'      88'     .8P  Y8. 88    88 888o  88 88  `8D 
+ *    88V8o 88 88    88      88oodD' 88oobY' 88    88     88       88ooo   88    88 88    88 88V8o 88 88   88 
+ *    88 V8o88 88    88      88~~~   88`8b   88    88     88       88~~~   88    88 88    88 88 V8o88 88   88 
+ *    88  V888 `8b  d8'      88      88 `88. `8b  d8' db. 88       88      `8b  d8' 88b  d88 88  V888 88  .8D 
+ *    VP   V8P  `Y88P'       88      88   YD  `Y88P'  Y8888P       YP       `Y88P'  ~Y8888P' VP   V8P Y8888D' 
+ *                                                                                                            
+ *                                                                                                            
+ */
+
       const noProjectsFound = this.state.projectType !== false && this.state.projectsLoadStatus === 'Complete' ? '' :
       <div style={{ paddingTop: '0px' }}>
         <h2>No Projects found in "{this.state.filteredCategory}" :(</h2>
@@ -1284,10 +1357,10 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         <ul>
         <li>Click on the other Project Categories like</li>
           <ol>
-            <li>{this.state.pivots.projects[0].headerText}</li>
-            <li>{this.state.pivots.projects[1].headerText}</li>
-            <li>{this.state.pivots.projects[2].headerText}</li>
-            <li>{this.state.pivots.projects[3].headerText}</li>
+            <li>{this.state.pivots.heading1[0].headerText}</li>
+            <li>{this.state.pivots.heading1[1].headerText}</li>
+            <li>{this.state.pivots.heading1[2].headerText}</li>
+            <li>{this.state.pivots.heading1[3].headerText}</li>
           </ol>
         </ul>
         <h3>Can't find any? Create a new one!</h3>
@@ -1303,7 +1376,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         </ol>
       </div>;
   
-  
+/***
+ *    .d8888.  .d8b.  db    db d88888b      d8888b. db    db d888888b d888888b  .d88b.  d8b   db .d8888. 
+ *    88'  YP d8' `8b 88    88 88'          88  `8D 88    88 `~~88~~' `~~88~~' .8P  Y8. 888o  88 88'  YP 
+ *    `8bo.   88ooo88 Y8    8P 88ooooo      88oooY' 88    88    88       88    88    88 88V8o 88 `8bo.   
+ *      `Y8b. 88~~~88 `8b  d8' 88~~~~~      88~~~b. 88    88    88       88    88    88 88 V8o88   `Y8b. 
+ *    db   8D 88   88  `8bd8'  88.          88   8D 88b  d88    88       88    `8b  d8' 88  V888 db   8D 
+ *    `8888Y' YP   YP    YP    Y88888P      Y8888P' ~Y8888P'    YP       YP     `Y88P'  VP   V8P `8888Y' 
+ *                                                                                                       
+ *                                                                                                       
+ */
+
       const buttons: ISingleButtonProps[] =
         [/*
           {
@@ -1363,10 +1446,18 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       //let activity = ( this.state.projects.newFiltered[this.state.selectedProjectIndex].projActivity.showLink === true ) ? null :
         //formBuilders.createThisField(this.props,this.state, this.state.fields.Activity, isSaveDisabledFields,  this._updateActivity.bind(this));
   
-  
-      let startDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.Start, false, this._updateStart.bind(this)) : '';
-      let endDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.End, false, this._updateEnd.bind(this)) : '';
-  
+
+/***
+ *    d8888b. d8888b.  .d88b.     d88b d88888b  .o88b. d888888b      db      d888888b .d8888. d888888b 
+ *    88  `8D 88  `8D .8P  Y8.    `8P' 88'     d8P  Y8 `~~88~~'      88        `88'   88'  YP `~~88~~' 
+ *    88oodD' 88oobY' 88    88     88  88ooooo 8P         88         88         88    `8bo.      88    
+ *    88~~~   88`8b   88    88     88  88~~~~~ 8b         88         88         88      `Y8b.    88    
+ *    88      88 `88. `8b  d8' db. 88  88.     Y8b  d8    88         88booo.   .88.   db   8D    88    
+ *    88      88   YD  `Y88P'  Y8888P  Y88888P  `Y88P'    YP         Y88888P Y888888P `8888Y'    YP    
+ *                                                                                                     
+ *                                                                                                     
+ */
+
       //let entryType = formBuilders.createThisField(this.props,this.state, this.state.fields., this._updateEntryType.bind(this));
       
       let listProjects = null;
@@ -1383,6 +1474,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         ? getNicks(this.state.currentUser) + " ( Id: " + this.state.currentUser.Id + " ) entry count: " + this.state.allEntries.length
         : "";
   
+/***
+ *    d888888b d8b   db d88888b  .d88b.       d8888b.  .d8b.   d888b  d88888b 
+ *      `88'   888o  88 88'     .8P  Y8.      88  `8D d8' `8b 88' Y8b 88'     
+ *       88    88V8o 88 88ooo   88    88      88oodD' 88ooo88 88      88ooooo 
+ *       88    88 V8o88 88~~~   88    88      88~~~   88~~~88 88  ooo 88~~~~~ 
+ *      .88.   88  V888 88      `8b  d8'      88      88   88 88. ~8~ 88.     
+ *    Y888888P VP   V8P YP       `Y88P'       88      YP   YP  Y888P  Y88888P 
+ *                                                                            
+ *                                                                            
+ */
       const infoPage = <div>
         <InfoPage 
             allLoaded={ this.state.allLoaded }
@@ -1393,6 +1494,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         ></InfoPage>
       </div>;
   
+  /***
+ *     .o88b. db   db  .d8b.  d8888b. d888888b .d8888. 
+ *    d8P  Y8 88   88 d8' `8b 88  `8D `~~88~~' 88'  YP 
+ *    8P      88ooo88 88ooo88 88oobY'    88    `8bo.   
+ *    8b      88~~~88 88~~~88 88`8b      88      `Y8b. 
+ *    Y8b  d8 88   88 88   88 88 `88.    88    db   8D 
+ *     `Y88P' YP   YP YP   YP 88   YD    YP    `8888Y' 
+ *                                                     
+ *                                                     
+ */
+
       let loadCharts = this.state.allLoaded && this.state.showCharts ? true : false;
       const chartPage = !loadCharts ? null : <div>
         <ChartsPage 
@@ -1418,6 +1530,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       let toggleChartsButton = createIconButton('BarChartVerticalFill','Toggle Charts',this.toggleCharts.bind(this), null, null, false );
       let toggleTipsButton = createIconButton('Help','Toggle Tips',this.toggleTips.bind(this), null, null, false );
   
+      
+    
+/***
+ *     .o88b. d88888b d8b   db d888888b d88888b d8888b.      d8888b.  .d8b.  d8b   db d88888b 
+ *    d8P  Y8 88'     888o  88 `~~88~~' 88'     88  `8D      88  `8D d8' `8b 888o  88 88'     
+ *    8P      88ooooo 88V8o 88    88    88ooooo 88oobY'      88oodD' 88ooo88 88V8o 88 88ooooo 
+ *    8b      88~~~~~ 88 V8o88    88    88~~~~~ 88`8b        88~~~   88~~~88 88 V8o88 88~~~~~ 
+ *    Y8b  d8 88.     88  V888    88    88.     88 `88.      88      88   88 88  V888 88.     
+ *     `Y88P' Y88888P VP   V8P    YP    Y88888P 88   YD      88      YP   YP VP   V8P Y88888P 
+ *                                                                                            
+ *                                                                                            
+ */
+
       let centerPane = <CenterPane 
           allLoaded={ true } 
           projectIndex={ this.state.selectedProjectIndex }
@@ -1427,6 +1552,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           _onActivityClick={ this._onActivityClick.bind(this) }
       ></CenterPane>;
   
+/***
+ *    d8888b. d8888b.  .d88b.     d88b       .o88b.  .d88b.  .88b  d88. .88b  d88.  .d8b.  d8b   db d8888b.      d8888b.  .d8b.  d8888b. 
+ *    88  `8D 88  `8D .8P  Y8.    `8P'      d8P  Y8 .8P  Y8. 88'YbdP`88 88'YbdP`88 d8' `8b 888o  88 88  `8D      88  `8D d8' `8b 88  `8D 
+ *    88oodD' 88oobY' 88    88     88       8P      88    88 88  88  88 88  88  88 88ooo88 88V8o 88 88   88      88oooY' 88ooo88 88oobY' 
+ *    88~~~   88`8b   88    88     88       8b      88    88 88  88  88 88  88  88 88~~~88 88 V8o88 88   88      88~~~b. 88~~~88 88`8b   
+ *    88      88 `88. `8b  d8' db. 88       Y8b  d8 `8b  d8' 88  88  88 88  88  88 88   88 88  V888 88  .8D      88   8D 88   88 88 `88. 
+ *    88      88   YD  `Y88P'  Y8888P        `Y88P'  `Y88P'  YP  YP  YP YP  YP  YP YP   YP VP   V8P Y8888D'      Y8888P' YP   YP 88   YD 
+ *                                                                                                                                       
+ *                                                                                                                                       
+ */
+
       const projCommands = <div>
         <MyCommandBar 
           hasProject={ this.state.selectedProject === null ? false : true }
@@ -1466,6 +1602,17 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       } 
 
+/***
+ *    d88888b  .d8b.  d8888b. db      db    db       .d8b.   .o88b.  .o88b. d88888b .d8888. .d8888. 
+ *    88'     d8' `8b 88  `8D 88      `8b  d8'      d8' `8b d8P  Y8 d8P  Y8 88'     88'  YP 88'  YP 
+ *    88ooooo 88ooo88 88oobY' 88       `8bd8'       88ooo88 8P      8P      88ooooo `8bo.   `8bo.   
+ *    88~~~~~ 88~~~88 88`8b   88         88         88~~~88 8b      8b      88~~~~~   `Y8b.   `Y8b. 
+ *    88.     88   88 88 `88. 88booo.    88         88   88 Y8b  d8 Y8b  d8 88.     db   8D db   8D 
+ *    Y88888P YP   YP 88   YD Y88888P    YP         YP   YP  `Y88P'  `Y88P' Y88888P `8888Y' `8888Y' 
+ *                                                                                                  
+ *                                                                                                  
+ */
+
       let earlyAccess = 
       <div style={{ paddingBottom: 10 }}>
         <EarlyAccess 
@@ -1493,7 +1640,25 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
    */
   
       let greeting = this.state.WebpartWidth < 800 ? null : <div><span style={{fontSize: 20, paddingRight: 30,}}>{ getGreeting(this.state.currentUser)}</span></div>;
+    
+      let startDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.Start, false, this._updateStart.bind(this)) : '';
+      let endDate = isManualEntry ? dateBuilders.creatDateTimeControled(this.props,this.state,this.state.fields.End, false, this._updateEnd.bind(this)) : '';
   
+      /**
+       * this section was added to keep pivots in sync when syncProjectPivotsOnToggle === true
+      */
+      let display1 = this.state.projectType === true ? "block" :"none";
+      let display2 = this.state.projectType === true ? "none" :"block";
+      let choice1 = this.state.projectMasterPriorityChoice;
+      let choice2 = this.state.projectUserPriorityChoice;
+  
+      if (this.state.syncProjectPivotsOnToggle){
+        display1 = "block";
+        display2 = "none";
+        choice1 = this.state.projectMasterPriorityChoice;
+        choice2 = this.state.projectMasterPriorityChoice;
+      }
+
       return (
         <div className={ styles.trackMyTime7 }>
           <div className={ styles.container }>
@@ -1844,8 +2009,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
      /**
      * This section was added to save the selected project index in the Pivot object so it can be retrieved and set when changing pivots.
      */
-    let pivProj = newPivots.projects;
-    let pivHist = newPivots.history;
+    let pivProj = newPivots.heading1;
+    let pivHist = newPivots.heading2;
     let pivots = projectType === false ? pivProj : pivHist;
     let pivotHeader = projectType === false ? this.state.projectMasterPriorityChoice : this.state.projectUserPriorityChoice;  
 
@@ -1884,8 +2049,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
      /**
      * This section was added to save the selected project index in the Pivot object so it can be retrieved and set when changing pivots.
      */
-    let pivProj = newPivots.projects;
-    let pivHist = newPivots.history;
+    let pivProj = newPivots.heading1;
+    let pivHist = newPivots.heading2;
     let pivots = projectType === false ? pivProj : pivHist;
 
     let returnValue = null;
@@ -2748,7 +2913,7 @@ public toggleTips = (item: any): void => {
   }
 
   public createPivots(thisState,thisProps){
-    let pivots = this.state.projectType === false ? this.state.pivots.projects : this.state.pivots.history;  
+    let pivots = this.state.projectType === false ? this.state.pivots.heading1 : this.state.pivots.heading2;  
     let piv2 = pivots.map(this.createPivot);
     return (
       piv2
@@ -2759,7 +2924,7 @@ public toggleTips = (item: any): void => {
   private getPivotHelpText (parentState: ITrackMyTime7State, parentProps: ITrackMyTime7Props) {
           
     let helpText = null;
-    let pivots = parentState.projectType === false ? parentState.pivots.projects : parentState.pivots.history;  
+    let pivots = parentState.projectType === false ? parentState.pivots.heading1 : parentState.pivots.heading2;  
     let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
 
 
@@ -2988,6 +3153,7 @@ public toggleTips = (item: any): void => {
         isSiteAdmin: r['IsSiteAdmin'],
         LoginName: r['LoginName'],
         Name: r['LoginName'],
+        remoteID: null,
       };
 
       let formEntry =this.createFormEntry();
@@ -3243,7 +3409,7 @@ public toggleTips = (item: any): void => {
           font: getFontOptions(pOptions,'='),
           icon: getIconOptions(pOptions,'='),
 
-          projectEditOptions: p.ProjectEditOptions == null ? defProjEditOptions : cleanProjEditOptions(p.ProjectEditOptions),
+          projectEditOptions: p.ProjectEditOptions == null ? defProjEditOptions : cleanEmptyElementsFromString( p.ProjectEditOptions, ';', true, 'asc' ),
 
         };
 
@@ -3257,7 +3423,8 @@ public toggleTips = (item: any): void => {
           Title: 'p.' , //
           id: p.LeaderId , //
           Id: p.LeaderId , //
-          ID: p.LeaderId , //          
+          ID: p.LeaderId , //         
+          remoteID: null, 
         };
 
         let team : IUser = {
@@ -3268,6 +3435,7 @@ public toggleTips = (item: any): void => {
           id: p.TeamId , //
           Id: p.TeamId , //
           ID: p.TeamId , //  
+          remoteID: null,
         };
 
         let project : IProject = {

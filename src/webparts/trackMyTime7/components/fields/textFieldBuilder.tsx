@@ -2,7 +2,9 @@
 
 import * as React from 'react';
 
-import {IProject, ILink, ISmartText, ITimeEntry, IProjectTarget, IUser, IProjects, IProjectInfo, IEntryInfo, IEntries, ITrackMyTime7State, ISaveEntry} from '../ITrackMyTime7State';
+import {IProject, ISmartText, ITimeEntry, IProjectTarget, IProjects, IProjectInfo, IEntryInfo, IEntries, ITrackMyTime7State, ISaveEntry} from '../ITrackMyTime7State';
+
+import { IUser, ILink, IChartSeries, ICharNote,  } from '../../../../services/IReUsableInterfaces';
 
 import { ITrackMyTime7Props } from '../ITrackMyTime7Props';
 import * as strings from 'TrackMyTime7WebPartStrings';

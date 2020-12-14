@@ -1,6 +1,8 @@
 import * as React from 'react';
 
-import { ITrackMyTime7State, IChartData, IChartSeries, ITimeEntry, IStories, ICoreTimes, IEntryInfo, ICharNote, IUserSummary } from '../ITrackMyTime7State';
+import { ITrackMyTime7State, IChartData, ITimeEntry, IStories, ICoreTimes, IEntryInfo, IUserSummary } from '../ITrackMyTime7State';
+
+import { IUser, ILink, IChartSeries, ICharNote,  } from '../../../../services/IReUsableInterfaces';
 
 import { ITheTime } from '../../../../services/dateServices';
 
