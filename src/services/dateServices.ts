@@ -1,4 +1,21 @@
-
+/***
+ *    .d888b.  .d88b.  .d888b.  .d88b.          db .d888b.         db   j88D                     
+ *    VP  `8D .8P  88. VP  `8D .8P  88.        o88 VP  `8D        o88  j8~88                     
+ *       odD' 88  d'88    odD' 88  d'88         88    odD'         88 j8' 88                     
+ *     .88'   88 d' 88  .88'   88 d' 88 C8888D  88  .88'   C8888D  88 V88888D                    
+ *    j88.    `88  d8' j88.    `88  d8'         88 j88.            88     88                     
+ *    888888D  `Y88P'  888888D  `Y88P'          VP 888888D         VP     VP                     
+ *                                                                                               
+ *                                                                                               
+ *    d8888b. d888888b db    db  .d88b.  d888888b      d888888b d888888b db      d88888b .d8888. 
+ *    88  `8D   `88'   88    88 .8P  Y8. `~~88~~'      `~~88~~'   `88'   88      88'     88'  YP 
+ *    88oodD'    88    Y8    8P 88    88    88            88       88    88      88ooooo `8bo.   
+ *    88~~~      88    `8b  d8' 88    88    88            88       88    88      88~~~~~   `Y8b. 
+ *    88        .88.    `8bd8'  `8b  d8'    88            88      .88.   88booo. 88.     db   8D 
+ *    88      Y888888P    YP     `Y88P'     YP            YP    Y888888P Y88888P Y88888P `8888Y' 
+ *                                                                                               
+ *                                                                                               
+ */
 
 import { IUser} from './IReUsableInterfaces';
 
@@ -93,6 +110,8 @@ export interface ITheTime {
   dayMMMDD?: string;
   dayDDDMMMDD?: string;
   dayYYYYMMDD?: string;
+  dayOfWeekDDD?: string;
+  dayOfWeekDxx?: string;
 
   coreTime?: string;
   hoursEarly?: number;
@@ -122,6 +141,36 @@ function getDayOfWeek(d,sunOrMon: string) {
 
   return returnDate;
 }
+
+const zuluRegex = /\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2]\d|3[0-1])T(?:[0-1]\d|2[0-3]):[0-5]\d:[0-5]\dZ/; // SharePoint Created/Modified:  "2020-09-01T02:10:08Z"
+const yyyymmRegex = /^([0-9]{4})[\/\-.](1[0-2]|0[1-9])$/; //2018-10
+const yyyymmddRegex = /^(([12]\d{3})[\/\-.](0[1-9]|1[0-2])[\/\-.](0[1-9]|[12]\d|3[01]))$/; //2018-10-31
+const yyyymmddhhmmssRegex = /^([0-9]{4})[\/\-.](1[0-2]|0[1-9])[\/\-.](3[01]|0[1-9]|[12][0-9]) (2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])$/; //2008-10-30 17:21:59
+const mmddyyyyRegex = /\d{2}[\/\-.]\d{2}[\/\-.]\d{4}/;
+const isoRegex = /(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})[+-](\d{2})\:(\d{2})/; //2012-10-06T04:13:00+00:00
+
+
+export function isStringValidDate( test: string, type : 'zulu' | 'us' | 'eu' | 'iso' | 'common') {
+  
+  let result = false;
+
+  if ( result === false && ( type === 'zulu' || type === 'common' ) ) { 
+    result = zuluRegex.exec(test) ? true : false;
+  }
+  if ( result === false && ( type === 'us' || type === 'common' ) ) { 
+    result = yyyymmRegex.exec(test) || yyyymmddRegex.exec(test) || yyyymmddhhmmssRegex.exec(test) ? true : false;
+  }
+  if ( result === false && ( type === 'eu' || type === 'common' ) ) { 
+    result = mmddyyyyRegex.exec(test) ? true : false;
+  }
+  if ( result === false && ( type === 'iso' || type === 'common' ) ) { 
+    result = isoRegex.exec(test) ? true : false;
+  }
+
+  return result;
+
+}
+
 
 //https://www.w3resource.com/javascript-exercises/javascript-date-exercise-24.php
 export function ISO8601_week_no(dt) 
@@ -251,6 +300,7 @@ export function makeTheTimeObject(timeString, coreStart = 8, coreEnd = 18, useHo
     dayMMMDD: monthStr3['en-us'][givenMonth] + '-' + givenDate,
     dayDDDMMMDD: [weekday3['en-us'][givenDay],monthStr3['en-us'][givenMonth],givenDate].join(' '),
     dayYYYYMMDD: [givenYear,("0" + (givenMonth + 1)).slice(-2),givenDate].join('-'),
+    dayOfWeekDDD: weekday3['en-us'][givenDay],
 
     coreTime: coreTime,
     hoursEarly: hoursEarly,
@@ -263,7 +313,54 @@ export function makeTheTimeObject(timeString, coreStart = 8, coreEnd = 18, useHo
 
 }
 
+export function makeSmallTimeObject(timeString) {
 
+  //console.log('makeTimeObject: ', timeString);
+  let rightNow = new Date();
+
+  let todayYear = rightNow.getFullYear();
+  let todayMonth = rightNow.getMonth() ;
+  let todayDate = rightNow.getDate();
+  let todaysDate = new Date(todayYear,todayMonth,todayDate);
+
+  let giveTime = new Date();
+
+  if (timeString != null && timeString.length > 0 ) { 
+    giveTime = new Date(timeString);
+  } else {
+    timeString = giveTime.toLocaleString();
+  }
+
+  let givenYear = giveTime.getFullYear();
+  let givenMonth = giveTime.getMonth() ; //Zero Index
+  let givenWeek = ISO8601_week_no(giveTime);
+  let givenDate = giveTime.getDate();
+  let givenDay = giveTime.getDay();
+
+  let givenDateMidnight = new Date(givenYear,givenMonth,givenDate);
+
+  let theTime : ITheTime = {
+    now: giveTime,
+    theTime: giveTime.toUTCString(),
+    milliseconds: giveTime.getTime(),
+    year: givenYear,
+    month: givenMonth,
+    week: givenWeek,
+    date: givenDate,
+    day: givenDay,
+
+    daysAgo: getTimeDelta(givenDateMidnight, todaysDate, 'days'),
+
+    dayMMMDD: monthStr3['en-us'][givenMonth] + '-' + givenDate,
+    dayDDDMMMDD: [weekday3['en-us'][givenDay],monthStr3['en-us'][givenMonth],givenDate].join(' '),
+    dayYYYYMMDD: [givenYear,("0" + (givenMonth + 1)).slice(-2),givenDate].join('-'),
+
+  };
+
+  //console.log('theTime:', theTime);
+  return theTime;
+
+}
 
 export function getLocalMonths(local,format){
 
@@ -349,7 +446,12 @@ export function getTimeDelta(time1, time2, inWhat : string){
   let date = new Date(time1).getTime();
   let now = new Date(time2).getTime();
   let age : number = (now - date);
-  if (inWhat === 'days') { 
+
+  if (inWhat === 'months') { 
+    age =  age/(1000 * 60 * 60 * 24 * 30.44 ) ;
+    age = Math.round(age * 10) / 10;  //2020-03-02:  Added so that delta days is always whole number when in reality, 8 months out of the year there is an extra hour per day
+  }
+  else if (inWhat === 'days') { 
     age =  age/(1000 * 60 * 60 * 24) ;
     age = Math.round(age);  //2020-03-02:  Added so that delta days is always whole number when in reality, 8 months out of the year there is an extra hour per day
   }
@@ -398,7 +500,7 @@ export function getGreeting(name: IUser){
   //console.log('getGreeting:', name);
   let userName = name;
   if (userName ){
-    if (userName.title.indexOf("Click") === 0 ) {
+    if (userName.title.indexOf("Click") > -1 ) {
       message = message.replace('Afternoon partner',"Servus");
       message = message.replace('Top O the mornin to you',"Neata");
       message = message.replace('nick'," BK");
