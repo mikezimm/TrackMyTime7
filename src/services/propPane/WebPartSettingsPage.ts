@@ -89,10 +89,18 @@ import {
             isCollapsed: true ,
           groupFields: [
             
-            PropertyPaneSlider('stressMultiplier', {
-              label: 'TESTING ONLY - Compound Entry count',
+            PropertyPaneSlider('stressMultiplierTime', {
+              label: 'TESTING ONLY - Compound Time Entry count',
               min: 1,
               max: 10,
+              value: 1,
+              step: 1,
+            }),
+
+            PropertyPaneSlider('stressMultiplierProject', {
+              label: 'TESTING ONLY - Compound Project Entry count',
+              min: 1,
+              max: 30,
               value: 1,
               step: 1,
             }),

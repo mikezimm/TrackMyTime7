@@ -65,7 +65,8 @@ export interface ITrackMyTimeWebPartProps {
   useListAnalytics: boolean;
   analyticsWeb?: string;
   analyticsList?: string;
-  stressMultiplier?: number;
+  stressMultiplierTime?: number;
+  stressMultiplierProject?: number;
 
   // 2 - Source and destination list information
   createVerifyLists: boolean;
@@ -207,7 +208,8 @@ export default class TrackMyTimeWebPart extends BaseClientSideWebPart<ITrackMyTi
         useListAnalytics: this.properties.useListAnalytics,
         analyticsWeb: strings.analyticsWeb,
         analyticsList: strings.analyticsList,
-        stressMultiplier: this.properties.stressMultiplier,
+        stressMultiplierTime: this.properties.stressMultiplierTime,
+        stressMultiplierProject: this.properties.stressMultiplierProject,
       
         // 2 - Source and destination list information
         projectListTitle: this.properties.projectListTitle,
