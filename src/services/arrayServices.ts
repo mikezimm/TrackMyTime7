@@ -380,6 +380,18 @@ export function sortStringArray( arr: string[], order: ISeriesSort ) : string[] 
     return arr;
 }
 
+export function sortObjectArrayByStringKey( arr: any[], order: ISeriesSort, key: string ) : any[] {
+
+    if ( order === 'asc' ) { 
+        arr.sort((a,b) => a[key].localeCompare(b[key]));
+    } else if ( order === 'dec' ) {
+        arr.sort((a,b) => b[key].localeCompare(a[key]));
+    } else {
+        
+    }
+    return arr;
+}
+
 /***
  *    .d8888.  .d88b.  d8888b. d888888b      d8b   db db    db .88b  d88. d8888b. d88888b d8888b.       .d8b.  d8888b. d8888b.  .d8b.  db    db 
  *    88'  YP .8P  Y8. 88  `8D `~~88~~'      888o  88 88    88 88'YbdP`88 88  `8D 88'     88  `8D      d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 
@@ -408,6 +420,18 @@ export function sortNumberArray( arr: number[], order: ISeriesSort ) : number[] 
 
 }
 
+export function sortObjectArrayByNumberKey( arr: any[], order: ISeriesSort, key: string ) : any[] {
+
+    if ( order === 'asc' ) { 
+        arr.sort((a, b) => a[key]-b[key] );
+    } else if ( order === 'dec' ) {
+        arr.sort((a, b) => b[key]-a[key] );
+    } else {
+        
+    }
+    return arr;
+
+}
 
 /***
  *    .d8888.  .d88b.  d8888b. d888888b      db   dD d88888b db    db .d8888.      d8888b. db    db       .d88b.  d888888b db   db d88888b d8888b.      db   dD d88888b db    db 
