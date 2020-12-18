@@ -1,13 +1,9 @@
-import {
-    IPropertyPanePage,
-    PropertyPaneLabel,
-    IPropertyPaneLabelProps,
-    PropertyPaneHorizontalRule,
-    PropertyPaneTextField, IPropertyPaneTextFieldProps,
-    PropertyPaneLink, IPropertyPaneLinkProps,
-    PropertyPaneDropdown, IPropertyPaneDropdownProps,
-    IPropertyPaneDropdownOption
-  } from '@microsoft/sp-webpart-base';
+import { IPropertyPanePage, PropertyPaneLabel, IPropertyPaneLabelProps, 
+    PropertyPaneHorizontalRule, PropertyPaneTextField, IPropertyPaneTextFieldProps, 
+    PropertyPaneLink, IPropertyPaneLinkProps, PropertyPaneDropdown, 
+    IPropertyPaneDropdownProps, IPropertyPaneDropdownOption, PropertyPaneToggle, 
+    IPropertyPaneConfiguration, PropertyPaneButton, PropertyPaneButtonType,
+  } from "@microsoft/sp-property-pane";
 
   import { Pivot, IPivotStyles, PivotLinkSize, PivotLinkFormat } from 'office-ui-fabric-react/lib/Pivot';
   import { Image, ImageFit, ImageCoverStyle,IImageProps,IImageState } from 'office-ui-fabric-react/lib/Image';

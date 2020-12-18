@@ -44,6 +44,8 @@ import { IPickedWebBasic, IPickedList, IMyProgress,
   IPivot, IMyPivots, ILink, IUser, IMyFonts, IMyIcons,
 } from '../../../services/IReUsableInterfaces';
 
+import * as fields from './ListView/ViewFields';
+import { ListView, IViewField, SelectionMode, GroupOrder, IGrouping } from "@pnp/spfx-controls-react/lib/ListView";
 
 import {IProject, ISmartText, ITimeEntry, IProjectTarget, IProjectInfo, 
         IEntryInfo, IEntries, ITrackMyTime7State, ISaveEntry,
@@ -1463,12 +1465,31 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       //let entryType = formBuilders.createThisField(this.props,this.state, this.state.fields., this._updateEntryType.bind(this));
       
+
+      /**
+       * Do inline project list view here
+       * this.state.projectType = false then this is a project list based
+       *    else it's based on Time
+       */
+
       let listProjects = null;
       if (this.state.listError) { listProjects = listError; }
       else if ( this.state.projectsLoadStatus === 'Complete' && this.state.projects.newFiltered.length===0 ) {
         listProjects =  noProjectsFound;
       } else {
-        listProjects = listBuilders.projectBuilder(this.props,this.state,this.state.projects.newFiltered, this._getSelectedProject.bind(this));
+        listProjects = <div className={ this.state.debugColors ? styles.projectListView : '' } >
+            <ListView
+              items={ this.state.projects.newFiltered }
+              viewFields={ [ fields.projectWide2 ] }
+              compact={true}
+              selectionMode={SelectionMode.single}
+              selection={ this._getSelectedProject.bind(this) }
+              showFilter={false}
+              filterPlaceHolder="Search..."    
+              //defaultSelection={ [this.state.selectedProjectIndex] }
+      
+            />
+          </div>;
       }
   
       let listBuild = listBuilders.listViewBuilder(this.props,this.state,this.state.entries.newFiltered);

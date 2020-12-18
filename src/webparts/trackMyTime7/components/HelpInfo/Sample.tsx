@@ -115,7 +115,7 @@ public constructor(props:IProjectListProps){
 
             thisPage = <div>
                 
-            </div>
+            </div>;
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 

@@ -1,17 +1,10 @@
-import {
-  IPropertyPanePage,
-  PropertyPaneLabel,
-  IPropertyPaneLabelProps,
-  PropertyPaneHorizontalRule,
-  PropertyPaneTextField, IPropertyPaneTextFieldProps,
-  PropertyPaneLink, IPropertyPaneLinkProps,
-  PropertyPaneDropdown, IPropertyPaneDropdownProps,
-  IPropertyPaneDropdownOption,PropertyPaneToggle,
-  BaseClientSideWebPart,
-  IPropertyPaneConfiguration,
-  PropertyPaneButton,
-  PropertyPaneButtonType,
-} from '@microsoft/sp-webpart-base';
+import { BaseClientSideWebPart,  } from "@microsoft/sp-webpart-base";
+import { IPropertyPanePage, PropertyPaneLabel, IPropertyPaneLabelProps, 
+  PropertyPaneHorizontalRule, PropertyPaneTextField, IPropertyPaneTextFieldProps, 
+  PropertyPaneLink, IPropertyPaneLinkProps, PropertyPaneDropdown, 
+  IPropertyPaneDropdownProps, IPropertyPaneDropdownOption, PropertyPaneToggle, 
+  IPropertyPaneConfiguration, PropertyPaneButton, PropertyPaneButtonType,
+} from "@microsoft/sp-property-pane";
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 import { pivotOptionsGroup} from './index';

@@ -135,7 +135,7 @@ export function viewFieldsMin() {
     
 }
 
-export const  projectWide2 : IViewField = {
+export const projectWide2 : IViewField = {
   name: "titleProject",
   displayName: "Project",
   isResizable: true,

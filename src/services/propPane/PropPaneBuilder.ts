@@ -1,6 +1,5 @@
-import {
-  IPropertyPaneConfiguration,
-} from '@microsoft/sp-webpart-base';
+import {  } from "@microsoft/sp-webpart-base";
+import { IPropertyPaneConfiguration } from "@microsoft/sp-property-pane";
 
 import {
   introPage,
