@@ -2320,6 +2320,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     //2020-05-11:  Issue 44 Added so activity can have / or \ from partial URLs
     buttonID = buttonID.replace(/forwardSSlash/gi, '\/');
     buttonID = buttonID.replace(/backwardSSlash/gi, '\\');
+    buttonID = buttonID.replace(/singlePeriod/gi, '\.');
 
     let splitID = buttonID.split('|Splitme|');
 

@@ -34,9 +34,11 @@ export function createIconButton(iconName, titleText, _onClick, thisID,  iconSty
       //First replace slashes with words so that they will go through and can be returned back to those values in the onclick url
       thisID = thisID.replace(/\//gi, 'forwardSSlash');
       thisID = thisID.replace(/\\/gi, 'backwardSSlash');
+      thisID = thisID.replace(/\./gi, 'singlePeriod');
       
       //Remove all special characters in Title or this so that it can be made an element ID
       thisID = thisID.replace(/[^\w\s|-]/gi, '');
+      
     }
 
     //console.log('createIconButton:', iconStyles);
