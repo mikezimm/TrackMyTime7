@@ -2625,7 +2625,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     if ( sortProp && sortProp.length > 0 ) {
       filteredProjects = sortObjectArrayByStringKey( filteredProjects, sortOrder, sortProp ) ;
     }
-
     console.log('getTheseProjects: filteredProjects', filteredProjects);
     return filteredProjects;
   }
@@ -3264,7 +3263,6 @@ public toggleTips = (item: any): void => {
     .then((response) => {
       //console.log('useProjectList', response);
       console.log('fetched Project Info:', response);
-
       trackMyProjectsInfo.projectData = response.map((p) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
 
@@ -3566,8 +3564,8 @@ public toggleTips = (item: any): void => {
         * End test performance loop
       */
 
-      if (this.props.stressMultiplierTime > 1) {
-        for (let i = 0; i < this.props.stressMultiplierTime; i++ ) {
+      if (this.props.stressMultiplier > 1) {
+        for (let i = 0; i < this.props.stressMultiplier; i++ ) {
           //trackMyProjectsInfo.timeTrackData = trackMyProjectsInfo.timeTrackData.concat(trackMyProjectsInfo.timeTrackData);
           response = response.concat(response);
         }
