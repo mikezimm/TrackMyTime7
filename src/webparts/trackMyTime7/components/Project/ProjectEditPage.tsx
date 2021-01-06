@@ -995,9 +995,9 @@ export default class MyProjectPage extends React.Component<IProjectPageProps, IP
                     personSelectionLimit={maxCount}
                     //groupName={"Team Site Owners"} // Leave this blank in case you want to filter from all users
                     showtooltip={false}
-                    isRequired={false}
+                    required={false}
                     disabled={false}
-                    selectedItems={_onChange}
+                    onChange={_onChange}
                     showHiddenInUI={false}
                     principalTypes={[PrincipalType.User]}
                     resolveDelay={1000} 

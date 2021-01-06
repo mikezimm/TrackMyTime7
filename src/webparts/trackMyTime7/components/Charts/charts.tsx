@@ -22,7 +22,7 @@ import { IDataOptions } from './chartsPage';
 export function create1SeriesCharts(series: IChartSeries, thisType: ChartType, dataOptions: IDataOptions){
 
   // set the options
-  const lineOptions: Chart.ChartOptions = {
+  const lineOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
@@ -36,7 +36,7 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType, d
   };
 
   // set the options
-  const doughnutOptions: Chart.ChartOptions = {
+  const doughnutOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     //scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
@@ -49,7 +49,7 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType, d
     },
   };
 
-  let chartOptions: Chart.ChartOptions = null;
+  let chartOptions: any = null;
   if ( thisType === ChartType.Bar ) { chartOptions = lineOptions; }
   else if ( thisType === ChartType.Doughnut ) { chartOptions = doughnutOptions; }
   else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
@@ -119,7 +119,7 @@ export function create1SeriesCharts(series: IChartSeries, thisType: ChartType, d
 export function create1TallSeriesCharts(series: IChartSeries, thisType: ChartType, WebpartRatio: number, dataOptions: IDataOptions, chartClass: null | string){
   // WebpartWidth /( 800 )
   // set the options
-  const lineOptions: Chart.ChartOptions = {
+  const lineOptions: any = {
     responsive: true,
     maintainAspectRatio: WebpartRatio == null ? false : true, //false = regular works
     aspectRatio: WebpartRatio,
@@ -134,7 +134,7 @@ export function create1TallSeriesCharts(series: IChartSeries, thisType: ChartTyp
   };
 
   // set the options
-  const doughnutOptions: Chart.ChartOptions = {
+  const doughnutOptions: any = {
     responsive: true,
     maintainAspectRatio: WebpartRatio == null ? false : true, //false = regular works
     aspectRatio: WebpartRatio,
@@ -148,7 +148,7 @@ export function create1TallSeriesCharts(series: IChartSeries, thisType: ChartTyp
     },
   };
 
-  let chartOptions: Chart.ChartOptions = null;
+  let chartOptions: any = null;
   if ( thisType === ChartType.Bar ) { chartOptions = lineOptions; }
   else if ( thisType === ChartType.Doughnut ) { chartOptions = doughnutOptions; }
   else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
@@ -259,7 +259,7 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
 //https://codepen.io/natenorberg/pen/WwqRar?editors=0010
 
   // set the options
-  const lineOptions: Chart.ChartOptions = {
+  const lineOptions: any = {
     responsive: true,
     maintainAspectRatio: true, //false = regular works
     aspectRatio: WebpartWidth/300,
@@ -274,7 +274,7 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
   };
 /*
     // set the options
-    const doughnutOptions: Chart.ChartOptions = {
+    const doughnutOptions: any = {
       responsive: true,
       maintainAspectRatio: true,
       //scales:  { yAxes:[{ticks:{beginAtZero: true}}] },
@@ -288,7 +288,7 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
     };
   */
 
-    let chartOptions: Chart.ChartOptions = null;
+    let chartOptions: any = null;
     if ( thisType === ChartType.Bar ) { chartOptions = lineOptions; }
     //else if ( thisType === ChartType.Doughnut ) { chartOptions = doughnutOptions; }
     else if ( thisType === ChartType.Line ) { chartOptions = lineOptions; }
@@ -345,7 +345,7 @@ export function createMultiSeries1ScaleCharts(chartTitle: string, stackMe: boole
 export function creatLineChart(parentProps:ITrackMyTime7Props , parentState: ITrackMyTime7State, series: IChartSeries){
 
   // set the options
-  const options: Chart.ChartOptions = {
+  const options: any = {
     responsive: true,
     maintainAspectRatio: false,
     scales:

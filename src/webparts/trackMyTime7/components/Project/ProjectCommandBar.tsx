@@ -148,7 +148,12 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
 
     private buildCommandBarProps ( thisAction: IProjectAction , onClick: any ) {
 
-        const newProps: ICommandBarItemProps = { key: thisAction.status, text: thisAction.status,  name: '',   ariaLabel: thisAction.status, commandBarButtonAs: customButton,
+        const newProps: ICommandBarItemProps = { 
+            key: thisAction.status, 
+            text: thisAction.status,  
+            name: '',   
+            ariaLabel: thisAction.status, 
+            commandBarButtonAs: customButton,
             iconProps: {  iconName: thisAction.icon, },
             onClick: () => onClick(),
         };
@@ -209,7 +214,7 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
         <div>
             <CommandBar 
             items={ this.props.hasProject === true ? _items : _itemsHasNoProjects }
-            overflowItems={ this.props.hasProject === true ? _overFlowItems : _itemsHasNoProjects }
+            overflowItems={ this.props.hasProject === true ? _overFlowItems : [] }
             //items={ _items }
             //overflowItems={ _overFlowItems }    
             farItems={ [] }

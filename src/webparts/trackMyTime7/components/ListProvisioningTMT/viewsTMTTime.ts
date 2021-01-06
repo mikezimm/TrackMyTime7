@@ -37,7 +37,7 @@ import { Activity, DeltaT, Comments, User, StartTime, EndTime, OriginalStart, Or
 	
 import { testAlertsView, createRecentUpdatesView } from '../../../../services/listServices/viewsGeneric';
 
-import { spliceCopyArray } from '../../../../services/arrayServices';
+import { spliceCopyArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 export const stdViewFields = [ootbID, StatusTMT, ootbTitle, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team ];
 

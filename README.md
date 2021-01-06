@@ -15,6 +15,7 @@ npm install --save @pnp/polyfill-ie11
 npm install @pnp/spfx-property-controls
 npm install --save office-ui-fabric-react
 npm install webpack-bundle-analyzer --save-dev  (2020-02-04:  To analyze web pack size)
+npm install @mikezimm/npmfunctions@0.0.3
 
 ```
 

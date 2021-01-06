@@ -19,7 +19,7 @@
 
 import * as React from 'react';
 
-import { sortStringArray , sortNumberArray } from './arrayServices';
+import { sortStringArray , sortNumberArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 //https://stackoverflow.com/a/2970667/4210807
 export function camelize(str,firstCap: boolean) {
 

@@ -17,7 +17,7 @@ import * as cStyles from '../../../services/styleReact';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import { DefaultButton, autobind, getLanguage, ZIndexes, IconButton, IIconProps } from 'office-ui-fabric-react';
-import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
+import { Spinner, SpinnerSize, SpinnerLabelPosition } from 'office-ui-fabric-react/lib/Spinner';
 import { Link } from 'office-ui-fabric-react/lib/Link';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
@@ -37,8 +37,9 @@ import { saveTheTime, saveAnalytics, getTheCurrentTime } from '../../../services
 import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
           getNicks, makeTheTimeObject, getTimeDelta, monthStr3, monthStr, weekday3} from '../../../services/dateServices';
 
-import { sortObjectArrayByStringKey, doesObjectExistInArray } from '../../../services/arrayServices';
-          
+//import { sortObjectArrayByStringKey, doesObjectExistInArray } from '../../../services/arrayServices';
+
+import { sortObjectArrayByStringKey, doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 import { IPickedWebBasic, IPickedList, IMyProgress,
   IPivot, IMyPivots, ILink, IUser, IMyFonts, IMyIcons,
@@ -795,6 +796,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       // 9 - Other web part options
 
       selectedProjectIndex: null,  //Adding these 2 sets the default as the first project ever time, then the number of the selection stays between pivots.
+      selectedProjectIndexArr: [],
       lastSelectedProjectIndex: null,
 
       showProjectScreen: ProjectMode.False,
@@ -884,6 +886,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     this._processCatch = this._processCatch.bind(this); 
 
     this._getMoreItems = this._getMoreItems.bind(this);
+
+    //this._getSelectedProject = this._getSelectedProject.bind(this)
 
   }
 
@@ -1466,6 +1470,20 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       //let entryType = formBuilders.createThisField(this.props,this.state, this.state.fields., this._updateEntryType.bind(this));
       
 
+      let testUpdate = '' + this.state.filteredCategory + this.state.selectedProjectIndex;
+      let hasProject = false;
+      
+      console.log('MYCOMMANDBAR Testing: selectedProjectIndex', this.state.selectedProjectIndex );
+      console.log('MYCOMMANDBAR Testing: selectedProject', this.state.selectedProject );
+
+      if ( this.state.selectedProjectIndex !== null && this.state.selectedProjectIndex !== undefined ) { 
+        if ( this.state.selectedProjectIndex > -1 ) { 
+          hasProject = true ; 
+          let titleProject = this.state.selectedProject ? this.state.selectedProject.titleProject : 'null';
+          testUpdate += titleProject ;
+        }
+      }
+
       /**
        * Do inline project list view here
        * this.state.projectType = false then this is a project list based
@@ -1476,7 +1494,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       if (this.state.listError) { listProjects = listError; }
       else if ( this.state.projectsLoadStatus === 'Complete' && this.state.projects.newFiltered.length===0 ) {
         listProjects =  noProjectsFound;
+      } else if ( this.state.projectsLoadStatus === 'Loading' || this.state.projectsLoadStatus === 'Pending' ) {
+        listProjects =  <Spinner 
+          size={SpinnerSize.medium}
+          label={ this.state.projectsLoadStatus + ' Projects' }
+          labelPosition='left'
+        ></Spinner>;
       } else {
+
         listProjects = <div className={ this.state.debugColors ? styles.projectListView : '' } >
             <ListView
               items={ this.state.projects.newFiltered }
@@ -1484,13 +1509,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
               compact={true}
               selectionMode={SelectionMode.single}
               selection={ this._getSelectedProject.bind(this) }
-              showFilter={false}
-              //filterPlaceHolder="Search..."    
-              //defaultSelection={ [this.state.selectedProjectIndex] }
-      
+              showFilter={true}
+              filterPlaceHolder="Search..."
+              //defaultSelection={ this.state.selectedProjectIndex ? [this.state.selectedProjectIndex] : [] }
+              defaultSelection={ this.state.selectedProjectIndexArr }
             />
           </div>;
-      }
+          /*     
+          listProjects = listBuilders.projectBuilder(this.props,this.state,this.state.projects.newFiltered, this._getSelectedProject.bind(this));
+          */
+        }
   
       let listBuild = listBuilders.listViewBuilder(this.props,this.state,this.state.entries.newFiltered);
   
@@ -1587,23 +1615,13 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                                                                                       
  */
 
-      let testUpdate = '' + this.state.filteredCategory + this.state.selectedProjectIndex;
-      let hasProject = false;
-      
-      console.log('MYCOMMANDBAR Testing: selectedProjectIndex', this.state.selectedProjectIndex );
-      console.log('MYCOMMANDBAR Testing: selectedProject', this.state.selectedProject );
-
-      if ( this.state.selectedProjectIndex !== null && this.state.selectedProjectIndex !== undefined ) { 
-        if ( this.state.selectedProjectIndex > -1 ) { hasProject = true ; testUpdate += this.state.selectedProject.titleProject ; }
-      }
-
       console.log('MYCOMMANDBAR Testing: testUpdate', testUpdate );
       console.log('MYCOMMANDBAR Testing: hasProject', hasProject );
 
-      const projCommands = <div>
-        <MyCommandBar 
-          testUpdate= { testUpdate }
-          hasProject={ hasProject }
+      const projCommands = this.state.allLoaded === true ? <div>
+        <MyCommandBar
+          testUpdate= { '' }
+          hasProject={ true }
           newProject={ this._newProject.bind(this) }
           editProject={ this._editProject.bind(this) }
           copyProject={ this._copyProject.bind(this) }
@@ -1616,7 +1634,25 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
           processProject={ this._processProjectDialog.bind(this) }
 
         ></MyCommandBar>
-      </div>;
+      </div> : <div></div>;
+
+      const projCommandsNewOnly = this.state.allLoaded === true ? <div>
+        <MyCommandBar
+          testUpdate= { '' }
+          hasProject={ false }
+          newProject={ this._newProject.bind(this) }
+          editProject={ this._editProject.bind(this) }
+          copyProject={ this._copyProject.bind(this) }
+          parkProject={ this._parkProjectDialog.bind(this) }
+          cancelProject={ this._cancelProjectDialog.bind(this) }
+          completeProject={ this._completeProjectDialog.bind(this) }
+
+          reviewProject={ this._reviewProjectDialog.bind(this) }
+          planProject={ this._planProjectDialog.bind(this) }
+          processProject={ this._processProjectDialog.bind(this) }
+
+        ></MyCommandBar>
+      </div> : <div></div>;
 
       let makeDialog = null;
       if ( this.state.dialogMode === TMTDialogMode.False ) {
@@ -1729,7 +1765,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
                 { /* this.createProjectChoices(this.state) */ }
                 <Stack horizontal={false} horizontalAlign={"start"} tokens={stackFormRowsTokens}>{/* Stack for Pivot Help and Projects */}
                   { this.getPivotHelpText(this.state, this.props)}
-                  { projCommands }
+                  { hasProject === true ? projCommands : projCommandsNewOnly }
                   { listProjects }
                 </Stack>  {/* Stack for Pivot Help and Projects */}
                 { centerPane }
@@ -1888,13 +1924,16 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
    * @param items 
    * @param exitMe 
    */
-  private _getSelectedProject(items: any[], exitMe : boolean){
+
+  private _getSelectedProject(items: any[], exitMe : boolean) {
+
+    console.log( "_getSelectedProject items:", items );
     let selectedProject: IProject = null;
 
     if (this.state.userLoadStatus !== 'Complete') { return; }
     if (this.state.timeTrackerLoadStatus !== 'Complete') { return; }
     if (this.state.userLoadStatus !== 'Complete') { return; }
-    if (event) { event.preventDefault(); }
+    //if (event) { event.preventDefault(); }
 
     if (items.length === 0 ) {
 
@@ -1973,6 +2012,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         formEntry:formEntry, 
         blinkOnProject: this.state.blinkOnProject === 1 ? 2 : 1,
         selectedProjectIndex : selectedProjectIndex,
+        selectedProjectIndexArr : selectedProjectIndex ? [selectedProjectIndex] : [],
         selectedProject: selectedProject,
         lastSelectedProjectIndex: this.state.selectedProjectIndex,
         lastTrackedClick: lastTrackedClick,
@@ -2618,10 +2658,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     clickHistory.push(trackedClick);
 
     //2020-05-22:  Copying into separate object to pass to Project Edit screen.
+    //2021-01-05:  WTH was I thinking on 5-22?  Not sure!
     let selectedProject: IProject = null;
-    if (projects.newFiltered.length > 0 ) {
-      selectedProject = null;
-    } else if (selectedProjectIndex != null ) {
+    if (projects.newFiltered.length > 0 && selectedProjectIndex != null ) {
       selectedProject = JSON.parse(JSON.stringify(projects.newFiltered[selectedProjectIndex]));
     }
 
@@ -2641,6 +2680,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       lastTrackedClick: trackedClick,
       clickHistory: clickHistory,
       selectedProjectIndex: selectedProjectIndex,
+      selectedProjectIndexArr : selectedProjectIndex ? [selectedProjectIndex] : [],
       
     });
 
@@ -3000,9 +3040,13 @@ public toggleTips = (item: any): void => {
  */
 
   private _updateStateOnPropsChange(params: any ): void {
+  
+    /*
     this.setState({
 
     });
+    */
+
   }
 
   /***
@@ -3208,6 +3252,7 @@ public toggleTips = (item: any): void => {
         loadOrder: (this.state.loadOrder === "") ? 'User' : this.state.loadOrder + ' > User',
         currentUser: currentUser,
         userLoadStatus: "Complete",
+        allLoaded: (this.state.projectsLoadStatus === 'Complete' && this.state.timeTrackerLoadStatus === 'Complete') ? true : false,
         showProjectScreen: ProjectMode.False,
       });
 
@@ -3903,6 +3948,7 @@ public toggleTips = (item: any): void => {
       allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.timeTrackerLoadStatus === 'Complete') ? true : false,
       selectedProject: null,
       selectedProjectIndex: null,
+      selectedProjectIndexArr : [],
       dialogMode: TMTDialogMode.False,
       showProjectScreen: ProjectMode.False,
     });

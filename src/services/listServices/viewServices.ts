@@ -13,7 +13,7 @@ import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Conta
 
 import { IListInfo, IMyListInfo, IServiceLog, notify, getXMLObjectFromString } from './listTypes';
 
-import { doesObjectExistInArray } from '../arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 import { getHelpfullError } from '../ErrorHandler';
 

@@ -14,7 +14,7 @@ import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, 
 	
 import { IMyView, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from './viewTypes';
 
-import { spliceCopyArray } from '../arrayServices';
+import { spliceCopyArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 //Standard Queries
 import { queryValueCurrentUser, queryValueToday } from './viewTypes';
