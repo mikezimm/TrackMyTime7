@@ -1502,19 +1502,19 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
         ></Spinner>;
       } else {
 
-        listProjects = <div className={ this.state.debugColors ? styles.projectListView : '' } >
+        listProjects = //<div className={ this.state.debugColors ? styles.projectListView : '' } >
             <ListView
               items={ this.state.projects.newFiltered }
               viewFields={ [ fields.projectWide2 ] }
               compact={true}
               selectionMode={SelectionMode.single}
               selection={ this._getSelectedProject.bind(this) }
-              showFilter={true}
+              showFilter={false}
               filterPlaceHolder="Search..."
               //defaultSelection={ this.state.selectedProjectIndex ? [this.state.selectedProjectIndex] : [] }
               defaultSelection={ this.state.selectedProjectIndexArr }
             />
-          </div>;
+          //</div>;
           /*     
           listProjects = listBuilders.projectBuilder(this.props,this.state,this.state.projects.newFiltered, this._getSelectedProject.bind(this));
           */
@@ -1925,7 +1925,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
    * @param exitMe 
    */
 
-  private _getSelectedProject(items: any[], exitMe : boolean) {
+  private _getSelectedProject = ( items: any[]): void => {
 
     console.log( "_getSelectedProject items:", items );
     let selectedProject: IProject = null;
