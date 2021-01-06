@@ -3265,25 +3265,6 @@ public toggleTips = (item: any): void => {
       //console.log('useProjectList', response);
       console.log('fetched Project Info:', response);
 
-
-      /**
-       * This loop loosely increases performance by compounding number of entries.
-        * End test performance loop
-      */
-
-      if (this.props.stressMultiplierProject > 1) {
-        let stressProjects : any[] = [];
-        for (let i = 0; i < this.props.stressMultiplierProject; i++ ) {
-          //trackMyProjectsInfo.timeTrackData = trackMyProjectsInfo.timeTrackData.concat(trackMyProjectsInfo.timeTrackData);
-          response.map( project => {
-            let projectX = JSON.parse(JSON.stringify(project));
-            projectX.Title += '-' + i;
-            stressProjects.push(projectX);
-          });
-        }
-        response = stressProjects;
-      }
-
       trackMyProjectsInfo.projectData = response.map((p) => {
         //https://stackoverflow.com/questions/13142635/how-can-i-create-an-object-based-on-an-interface-file-definition-in-typescript
 
