@@ -18,23 +18,11 @@ initializeIcons();
 
 import styles from './CommandBar.module.scss';
 
-/***
- *    d888888b                  d8888b. d8888b.  .d88b.  d8888b. .d8888. 
- *      `88'                    88  `8D 88  `8D .8P  Y8. 88  `8D 88'  YP 
- *       88                     88oodD' 88oobY' 88    88 88oodD' `8bo.   
- *       88         C8888D      88~~~   88`8b   88    88 88~~~     `Y8b. 
- *      .88.                    88      88 `88. `8b  d8' 88      db   8D 
- *    Y888888P                  88      88   YD  `Y88P'  88      `8888Y' 
- *                                                                       
- *                                                                       
- */
-
 export interface ICommandBarProps {
     /**
      * Callback for when the selected pivot item is changed.
      */
     hasProject: boolean;
-    testUpdate: any; //Object with current props to compare with to check update
     newProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
     editProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
     copyProject?: (item?: any, ev?: React.MouseEvent<HTMLElement>) => void;
@@ -51,33 +39,10 @@ export interface ICommandBarProps {
 
 }
 
-/***
- *    d888888b                  .d8888. d888888b  .d8b.  d888888b d88888b 
- *      `88'                    88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
- *       88                     `8bo.      88    88ooo88    88    88ooooo 
- *       88         C8888D        `Y8b.    88    88~~~88    88    88~~~~~ 
- *      .88.                    db   8D    88    88   88    88    88.     
- *    Y888888P                  `8888Y'    YP    YP   YP    YP    Y88888P 
- *                                                                        
- *                                                                        
- */
-
 export interface ICommandBarState {
     hovering?: any;
     visible?: any;
 }
-
-
-/***
- *     .o88b.  .d88b.  d8b   db .d8888. d888888b 
- *    d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 
- *    8P      88    88 88V8o 88 `8bo.      88    
- *    8b      88    88 88 V8o88   `Y8b.    88    
- *    Y8b  d8 `8b  d8' 88  V888 db   8D    88    
- *     `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    
- *                                               
- *                                               
- */
 
 export const customButton = (props: IButtonProps) => {
 
@@ -98,19 +63,6 @@ export const customButton = (props: IButtonProps) => {
       />
     );
   };
-
-
-/***
- *    d8888b. d88888b d88888b  .d8b.  db    db db      d888888b       .o88b. db       .d8b.  .d8888. .d8888. 
- *    88  `8D 88'     88'     d8' `8b 88    88 88      `~~88~~'      d8P  Y8 88      d8' `8b 88'  YP 88'  YP 
- *    88   88 88ooooo 88ooo   88ooo88 88    88 88         88         8P      88      88ooo88 `8bo.   `8bo.   
- *    88   88 88~~~~~ 88~~~   88~~~88 88    88 88         88         8b      88      88~~~88   `Y8b.   `Y8b. 
- *    88  .8D 88.     88      88   88 88b  d88 88booo.    88         Y8b  d8 88booo. 88   88 db   8D db   8D 
- *    Y8888D' Y88888P YP      YP   YP ~Y8888P' Y88888P    YP          `Y88P' Y88888P YP   YP `8888Y' `8888Y' 
- *                                                                                                           
- *                                                                                                           
- */  
-
 
 export default class MyCommandBar extends React.Component<ICommandBarProps, ICommandBarState> {
 
@@ -138,14 +90,12 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
 
         let rebuild = false;
         if (this.props.hasProject !== prevProps.hasProject) {  rebuild = true ; }
-        else if (this.props.testUpdate !== prevProps.testUpdate) {  rebuild = true ; }
 
         if (rebuild === true) {
             this._updateStateOnPropsChange(this.props.hasProject);
         }
     }
     
-
     private buildCommandBarProps ( thisAction: IProjectAction , onClick: any ) {
 
         const newProps: ICommandBarItemProps = { key: thisAction.status, text: thisAction.status,  name: '',   ariaLabel: thisAction.status, commandBarButtonAs: customButton,
@@ -156,18 +106,6 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
         return newProps;
     }
     
-
-        /***
-     *         d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
-     *         88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
-     *         88oobY' 88ooooo 88V8o 88 88   88 88ooooo 88oobY' 
-     *         88`8b   88~~~~~ 88 V8o88 88   88 88~~~~~ 88`8b   
-     *         88 `88. 88.     88  V888 88  .8D 88.     88 `88. 
-     *         88   YD Y88888P VP   V8P Y8888D' Y88888P 88   YD 
-     *                                                          
-     *                                                          
-     */
-
     //public render(): JSX.Element {
     public render(): React.ReactElement<ICommandBarProps> {
         //2020-05-19:  Copied from Socialiis7/Master CommandBar.tsx
@@ -186,30 +124,16 @@ export default class MyCommandBar extends React.Component<ICommandBarProps, ICom
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
         const _items: ICommandBarItemProps[] = [ _new, _edit, _copy ] ;
-        const _itemsHasNoProjects: ICommandBarItemProps[] = [ _new, ] ;
 
         //2020-05-19:  Format copied from Socialiis7/Master CommandBar.tsx
         const _overFlowItems: ICommandBarItemProps[] = [  _review, _plan, _process, _park, _cancel, _complete  ] ;
-
-        
-        
-  /***
- *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
- *                   88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
- *                   88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
- *                   88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
- *                   88 `88. 88.        88    88b  d88 88 `88. 88  V888 
- *                   88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
- *                                                                      
- *                                                                      
- */
 
         // <div className={ styles.container }></div>
         return (
         <div>
             <CommandBar 
-            items={ this.props.hasProject === true ? _items : _itemsHasNoProjects }
-            overflowItems={ this.props.hasProject === true ? _overFlowItems : _itemsHasNoProjects }
+            items={ _items }
+            overflowItems={_overFlowItems }
             //items={ _items }
             //overflowItems={ _overFlowItems }    
             farItems={ [] }

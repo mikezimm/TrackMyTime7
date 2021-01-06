@@ -1563,21 +1563,9 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                                                                                       
  */
 
-      let testUpdate = '' + this.state.filteredCategory + this.state.selectedProjectIndex;
-      let hasProject = false;
-      if ( this.state.selectedProjectIndex !== null && this.state.selectedProjectIndex !== undefined ) { 
-        if ( this.state.selectedProjectIndex > -1 ) { hasProject = true ; testUpdate += this.state.selectedProject.titleProject ; }
-      }
-
-      console.log('MYCOMMANDBAR Testing: testUpdate', testUpdate );
-      console.log('MYCOMMANDBAR Testing: hasProject', hasProject );
-      console.log('MYCOMMANDBAR Testing: selectedProjectIndex', this.state.selectedProjectIndex );
-      console.log('MYCOMMANDBAR Testing: selectedProject', this.state.selectedProject );
-
       const projCommands = <div>
         <MyCommandBar 
-          testUpdate= { testUpdate }
-          hasProject={ hasProject }
+          hasProject={ this.state.selectedProject === null ? false : true }
           newProject={ this._newProject.bind(this) }
           editProject={ this._editProject.bind(this) }
           copyProject={ this._copyProject.bind(this) }
@@ -1703,7 +1691,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
                 { /* this.createProjectChoices(this.state) */ }
                 <Stack horizontal={false} horizontalAlign={"start"} tokens={stackFormRowsTokens}>{/* Stack for Pivot Help and Projects */}
                   { this.getPivotHelpText(this.state, this.props)}
-                  { projCommands }
+                  { this.state.selectedProject === null ? newProjCommands : projCommands }
                   { listProjects }
                 </Stack>  {/* Stack for Pivot Help and Projects */}
                 { centerPane }
@@ -3847,8 +3835,6 @@ public toggleTips = (item: any): void => {
       projectsListError: false,
       projectsItemsError: false,
       allLoaded: (this.state.userLoadStatus === 'Complete' && this.state.timeTrackerLoadStatus === 'Complete') ? true : false,
-      selectedProject: null,
-      selectedProjectIndex: null,
       dialogMode: TMTDialogMode.False,
       showProjectScreen: ProjectMode.False,
     });
