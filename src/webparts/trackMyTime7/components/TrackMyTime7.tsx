@@ -37,9 +37,12 @@ import { saveTheTime, saveAnalytics, getTheCurrentTime } from '../../../services
 import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
           getNicks, makeTheTimeObject, getTimeDelta, monthStr3, monthStr, weekday3} from '../../../services/dateServices';
 
+<<<<<<< HEAD
 import { sortObjectArrayByStringKey, doesObjectExistInArray } from '../../../services/arrayServices';
           
 
+=======
+>>>>>>> parent of 2cec6e6... Now Project Sorting works
 import { IPickedWebBasic, IPickedList, IMyProgress,
   IPivot, IMyPivots, ILink, IUser, IMyFonts, IMyIcons,
 } from '../../../services/IReUsableInterfaces';
@@ -2561,7 +2564,15 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
   } //End onClick
 
+<<<<<<< HEAD
   private updateProjectSelection( filteredCategory: string, newProjectType : boolean, trackedClick: string, filterText : string ) {
+=======
+      let projects = this.state.projects;
+      projects.lastFiltered = projects.newFiltered;
+      let filterThese = this.state.projectType ? projects.user : projects.master ;
+      projects.newFiltered = this.getTheseProjects(filterThese, thisFilter);
+      //projects.lastFiltered = (searchType === 'all' ? this.state.projects.all : this.state.lastFilteredProjects );
+>>>>>>> parent of 2cec6e6... Now Project Sorting works
 
     console.log('onLinkClick: this.state', this.state);
       
@@ -2635,7 +2646,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                                                                      
  */
 
-  public getTheseProjects(startingProjects: IProject[], filterFlags : string[], sortOrder: 'asc' | 'dec', sortProp: string){
+  public getTheseProjects(startingProjects: IProject[], filterFlags : string[]){
 
     //console.log('getTheseProjects: filterFlags', filterFlags);
 
@@ -2649,10 +2660,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
       if (Utils.arrayContainsArray(thisItem.filterFlags,filterFlags)) {
         filteredProjects.push(thisItem);
       }
-    }
-
-    if ( sortProp && sortProp.length > 0 ) {
-      filteredProjects = sortObjectArrayByStringKey( filteredProjects, sortOrder, sortProp ) ;
     }
     console.log('getTheseProjects: filteredProjects', filteredProjects);
     return filteredProjects;
@@ -2756,6 +2763,23 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     }
 
     let newProjectType = !this.state.projectType;
+<<<<<<< HEAD
+=======
+    console.log('toggleType: item', item);
+    console.log('toggleType from ' +  this.state.projectType + ' to ' + newProjectType);
+    let projects = this.state.projects;
+
+    projects.lastFiltered = projects.newFiltered;
+    let filterThese = newProjectType ? projects.user : projects.master ;
+
+    let setPivot = newProjectType ? this.state.projectUserPriorityChoice  :this.state.projectMasterPriorityChoice ;
+    projects.newFiltered = this.getTheseProjects(filterThese, [setPivot]);
+    
+    let clickHistory = this.state.clickHistory;
+    let lastTrackedClick = 'ToggleType from ' +  this.state.projectType + ' to ' + newProjectType;
+    clickHistory.push(lastTrackedClick);
+
+>>>>>>> parent of 2cec6e6... Now Project Sorting works
     let pivotHeader = newProjectType === false ? this.state.projectMasterPriorityChoice : this.state.projectUserPriorityChoice;  
     let trackedClick = 'ToggleType from ' +  this.state.projectType + ' to ' + newProjectType;
     this.updateProjectSelection( pivotHeader , this.state.projectType,  trackedClick , null ) ;
@@ -3077,7 +3101,6 @@ public toggleTips = (item: any): void => {
     //const fixedURL = Utils.fixURLs(this.props.listWebURL, this.props.pageContext);
 
     let projectSort: string = "SortOrder";
-    //let projectSort: string = "Title";
     let trackTimeSort: string = "StartTime";
 
 //    let projectRestFilter: string = "Team eq '" + 20 + "'";
@@ -3120,7 +3143,7 @@ public toggleTips = (item: any): void => {
     //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
     const trackTimeWeb = Web(useTrackMyTimeWeb);
 
-    //let batch: any = sp.createBatch();
+    let batch: any = sp.createBatch();
 
     let loadProjectItems = new Array<IProject>();
     let loadTrackMyTimeItems = new Array<ITimeEntry>();
@@ -3162,7 +3185,7 @@ public toggleTips = (item: any): void => {
     //  console.log('sp.web:', sp.web);
     //  console.log('sp.web.currentUser:', sp.web.currentUser);    
 
-    sp.web.currentUser.get().then((r) => {
+    sp.web.currentUser.inBatch(batch).get().then((r) => {
 
       let currentUser : IUser = {
         title: r['Title'] , //
@@ -3261,7 +3284,7 @@ public toggleTips = (item: any): void => {
 
 
     projListObject.items
-    .select(selectColsProj).expand(expandTheseProj).filter(projectRestFilter).getAll()
+    .select(selectColsProj).expand(expandTheseProj).filter(projectRestFilter).orderBy(projectSort,true).inBatch(batch).getAll()
     .then((response) => {
       //console.log('useProjectList', response);
       console.log('fetched Project Info:', response);
@@ -3730,11 +3753,11 @@ public toggleTips = (item: any): void => {
       this._processCatch(e);
     });
 
-    //return batch.execute().then(() => {
+    return batch.execute().then(() => {
 
       //this.processResponse(trackMyProjectsInfo);
       //return trackMyProjectsInfo;
-    //});
+    });
 
   }  
 
@@ -3844,7 +3867,7 @@ public toggleTips = (item: any): void => {
      let filterThese = this.state.projectType ? stateProjects.user : stateProjects.master ;
 
      let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
-     stateProjects.newFiltered = this.getTheseProjects(filterThese, [setPivot], 'asc', 'titleProject');
+     stateProjects.newFiltered = this.getTheseProjects(filterThese, [setPivot]);
      stateProjects.lastFiltered = this.state.projectType === false ? master : stateProjects.user ;
 
      let masterPriority: IProject[] = [];
@@ -4175,7 +4198,7 @@ public toggleTips = (item: any): void => {
 
    let filterThese = this.state.projectType ? stateProjects.user : stateProjects.master ;
    let setPivot = !this.state.projectType ? this.state.projectMasterPriorityChoice :this.state.projectUserPriorityChoice ;
-   stateProjects.newFiltered = this.getTheseProjects(filterThese, [setPivot], 'asc', 'titleProject');
+   stateProjects.newFiltered = this.getTheseProjects(filterThese, [setPivot]);
    stateProjects.lastFiltered = stateProjects.newFiltered ;
 
    stateProjects.userKeys = userKeys;
