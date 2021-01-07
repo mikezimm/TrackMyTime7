@@ -38,9 +38,12 @@ import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeS
           getNicks, makeTheTimeObject, getTimeDelta, monthStr3, monthStr, weekday3} from '../../../services/dateServices';
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { sortObjectArrayByStringKey, doesObjectExistInArray } from '../../../services/arrayServices';
           
 
+=======
+>>>>>>> parent of 2cec6e6... Now Project Sorting works
 =======
 >>>>>>> parent of 2cec6e6... Now Project Sorting works
 import { IPickedWebBasic, IPickedList, IMyProgress,
