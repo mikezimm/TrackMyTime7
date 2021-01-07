@@ -37,7 +37,7 @@ import { saveTheTime, saveAnalytics, getTheCurrentTime } from '../../../services
 import { getAge, getDayTimeToMinutes, getBestTimeDelta, getLocalMonths, getTimeSpan, getGreeting,
           getNicks, makeTheTimeObject, getTimeDelta, monthStr3, monthStr, weekday3} from '../../../services/dateServices';
 
-import { sortObjectArrayByStringKey, doesObjectExistInArray } from '../../../services/arrayServices';
+import { sortObjectArrayByStringKey } from '../../../services/arrayServices';
           
 
 import { IPickedWebBasic, IPickedList, IMyProgress,
@@ -792,8 +792,8 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       // 9 - Other web part options
 
-      selectedProjectIndex: null,  //Adding these 2 sets the default as the first project ever time, then the number of the selection stays between pivots.
-      lastSelectedProjectIndex: null,
+      //selectedProjectIndex: null,  Adding these 2 sets the default as the first project ever time, then the number of the selection stays between pivots.
+      //lastSelectedProjectIndex: null,
 
       showProjectScreen: ProjectMode.False,
 
@@ -1568,16 +1568,14 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
       let testUpdate = '' + this.state.filteredCategory + this.state.selectedProjectIndex;
       let hasProject = false;
-      
-      console.log('MYCOMMANDBAR Testing: selectedProjectIndex', this.state.selectedProjectIndex );
-      console.log('MYCOMMANDBAR Testing: selectedProject', this.state.selectedProject );
-
       if ( this.state.selectedProjectIndex !== null && this.state.selectedProjectIndex !== undefined ) { 
         if ( this.state.selectedProjectIndex > -1 ) { hasProject = true ; testUpdate += this.state.selectedProject.titleProject ; }
       }
 
       console.log('MYCOMMANDBAR Testing: testUpdate', testUpdate );
       console.log('MYCOMMANDBAR Testing: hasProject', hasProject );
+      console.log('MYCOMMANDBAR Testing: selectedProjectIndex', this.state.selectedProjectIndex );
+      console.log('MYCOMMANDBAR Testing: selectedProject', this.state.selectedProject );
 
       const projCommands = <div>
         <MyCommandBar 
@@ -1841,14 +1839,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  *                                                                                                         
  */
 
- /**
-  * This is called from within _getSelectedProject
-  * It takes an array of items, checks a prop (key) for a val, and then returns the index of the item in the array
-  * 
-  * @param val 
-  * @param prop 
-  * @param array 
-  */
   private _getProjectIndexFromArray(val,prop,array){
 
     for (let index = 0; index < array.length; index++) {
@@ -1859,14 +1849,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     }
   }
 
-  /**
-   * This should run when a project is selected in the list.
-   * It will return an array of the items selected.
-   * The array should only be of length 0 (if nothing is selected) or length 1
-   * 
-   * @param items 
-   * @param exitMe 
-   */
   private _getSelectedProject(items: any[], exitMe : boolean){
     let selectedProject: IProject = null;
 
@@ -1913,52 +1895,42 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     //2020-04-03:  let selectedProjectIndex = isItemNull ? this.state.selectedProjectIndex + 1 : this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
     //2020-04-03:  let selectedProjectIndex = isItemNull ? 0 : this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
 
-//    let selectedProjectIndex = isItemNull ? this.state.selectedProjectIndex : this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
-    let selectedProjectIndexAny : any = isItemNull ? this.state.selectedProjectIndex : doesObjectExistInArray(this.state.projects.newFiltered,'id', item.id, true );
-    if ( typeof selectedProjectIndexAny === 'string' ) { selectedProjectIndexAny = parseInt(selectedProjectIndexAny) ; }
-    let selectedProjectIndex : number = selectedProjectIndexAny === false ? null : selectedProjectIndexAny ;
+    let selectedProjectIndex = isItemNull ? this.state.selectedProjectIndex : this._getProjectIndexFromArray(item.id,'id',this.state.projects.newFiltered);
 
-    if (selectedProjectIndex === -66666666 ) { //this.state.selectedProjectIndex ) { 
-      //The project is already selected... do not do an update.
+    if (selectedProjectIndex === this.state.selectedProjectIndex) { return ;}
 
-      //BUT Do we need to update anything else????
+    let formEntry = this.state.formEntry;
 
+    if (isItemNull) {
+      formEntry = this.createFormEntry();
     } else {
-      
-      let formEntry = this.state.formEntry;
-
-      if (isItemNull) {
-        formEntry = this.createFormEntry();
-      } else {
-        formEntry = this.updateFormEntry(formEntry, item);
-      }
-  
-      //2020-05-22:  Copying into separate object to pass to Project Edit screen.
-      if (isItemNull != null) {
-        selectedProject = JSON.parse(JSON.stringify(item));
-      }
-  
-      /**
-       * This section was added to save the selected project index in the Pivot object so it can be retrieved and set when changing pivots.
-       */
-      let statePivots = this.updateStatePivots( this.state.pivots, selectedProjectIndex, this.state.projectType);
-  
-      let clickHistory = this.state.clickHistory;
-      let lastTrackedClick = 'Project: ' + formEntry.sourceProject.Description;
-      clickHistory.push(lastTrackedClick);
-  
-      this.setState({ 
-        pivots: statePivots,
-        formEntry:formEntry, 
-        blinkOnProject: this.state.blinkOnProject === 1 ? 2 : 1,
-        selectedProjectIndex : selectedProjectIndex,
-        selectedProject: selectedProject,
-        lastSelectedProjectIndex: this.state.selectedProjectIndex,
-        lastTrackedClick: lastTrackedClick,
-        clickHistory: clickHistory,
-       });
-
+      formEntry = this.updateFormEntry(formEntry, item);
     }
+
+    //2020-05-22:  Copying into separate object to pass to Project Edit screen.
+    if (isItemNull != null) {
+      selectedProject = JSON.parse(JSON.stringify(item));
+    }
+
+    /**
+     * This section was added to save the selected project index in the Pivot object so it can be retrieved and set when changing pivots.
+     */
+    let statePivots = this.updateStatePivots( this.state.pivots, selectedProjectIndex, this.state.projectType);
+
+    let clickHistory = this.state.clickHistory;
+    let lastTrackedClick = 'Project: ' + formEntry.sourceProject.Description;
+    clickHistory.push(lastTrackedClick);
+
+    this.setState({ 
+      pivots: statePivots,
+      formEntry:formEntry, 
+      blinkOnProject: this.state.blinkOnProject === 1 ? 2 : 1,
+      selectedProjectIndex : selectedProjectIndex,
+      selectedProject: selectedProject,
+      lastSelectedProjectIndex: this.state.selectedProjectIndex,
+      lastTrackedClick: lastTrackedClick,
+      clickHistory: clickHistory,
+     });
 
   }
 
@@ -2086,7 +2058,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
  * @param propFind - value of pivot object to find
  * @param returnProp - return property of pivot
  */
-  private getSStatePivotProp( statePivots: IMyPivots, projectType: boolean, pivProp: string, propFindValue: string, returnProp: string ){
+  private getSStatePivotProp( statePivots: IMyPivots, projectType: boolean, pivProp: string, propFind: string, returnProp: string ){
 
     let newPivots = statePivots;
      /**
@@ -2100,7 +2072,7 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     //get last index from pivot object... then set it to lastIndex here.
     for (let p of pivots){
-      if ( p[pivProp] === propFindValue ) {
+      if ( p[pivProp] === propFind ) {
         returnValue = p[returnProp];
         console.log('1233-get Pivot index:', p);
       }
@@ -2375,10 +2347,6 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     
   } //End searchMe
 
-  /**
-   * This does not seem to be used.
-   * @param item 
-   */
   public searchForItems = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;
@@ -2555,74 +2523,77 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
 
     } else {
 
-      this.updateProjectSelection( item.props.headerText , this.state.projectType,  'Pivot: ' + item.props.headerText , null ) ;
+      console.log('onLinkClick: this.state', this.state);
+      
+      let thisFilter = [];
+      
+      //get last index from pivot object... then set it to lastIndex here.
+
+      let lastIndex = this.getSStatePivotProp( this.state.pivots, this.state.projectType, 'headerText' , item.props.headerText, 'lastIndex' );
+      let thisFilterString = this.getSStatePivotProp( this.state.pivots, this.state.projectType, 'headerText' , item.props.headerText, 'filter' );
+
+      if (thisFilterString != null ) {
+        thisFilter.push(thisFilterString);
+      }
+/*
+      for (let p of pivots){
+        if ( p.headerText === item.props.headerText ) {
+          thisFilter.push(p.filter);
+          lastIndex = p.lastIndex;
+        }
+      }
+      console.log('pivots', pivots);
+      */
+      console.log('thisFilter', thisFilter);
+
+      let projects = this.state.projects;
+      projects.lastFiltered = projects.newFiltered;
+      let filterThese = this.state.projectType ? projects.user : projects.master ;
+      projects.newFiltered = this.getTheseProjects(filterThese, thisFilter, 'asc', 'titleProject');
+      //projects.lastFiltered = (searchType === 'all' ? this.state.projects.all : this.state.lastFilteredProjects );
+
+      let newProjectMasterPriorityChoice = !this.state.projectType ? thisFilter[0] : this.state.projectMasterPriorityChoice;
+      let newProjectUserPriorityChoice = this.state.projectType ? thisFilter[0] : this.state.projectUserPriorityChoice;
+      
+      if ( this.state.syncProjectPivotsOnToggle ) {
+        newProjectMasterPriorityChoice = thisFilter[0];
+        newProjectUserPriorityChoice = thisFilter[0];
+      }
+
+      let clickHistory = this.state.clickHistory;
+      let lastTrackedClick = 'Pivot: ' + thisFilter[0];
+      clickHistory.push(lastTrackedClick);
+
+      //2020-05-22:  Copying into separate object to pass to Project Edit screen.
+      let selectedProject: IProject = null;
+      if (projects.newFiltered.length > 0 ) {
+        selectedProject = null;
+      } else if (lastIndex != null ) {
+        selectedProject = JSON.parse(JSON.stringify(projects.newFiltered[lastIndex]));
+      }
+
+      this.setState({
+        filteredCategory: item.props.headerText,
+        projectMasterPriorityChoice: newProjectMasterPriorityChoice,
+        projectUserPriorityChoice: newProjectUserPriorityChoice,
+        projects: projects,
+        //searchCount: newFilteredProjects.length,
+        searchType: '',
+        searchWhere: ' in ' + item.props.headerText,
+        //pivotDefSelKey: defaultSelectedKey,
+        blinkOnProject: 0,
+        selectedProject: selectedProject,
+        lastTrackedClick: lastTrackedClick,
+        clickHistory: clickHistory,
+        selectedProjectIndex: lastIndex,
+        
+
+      });
 
     }
 
   } //End onClick
 
-  private updateProjectSelection( filteredCategory: string, newProjectType : boolean, trackedClick: string, filterText : string ) {
-
-    console.log('onLinkClick: this.state', this.state);
-      
-    let thisFilter = [];
-    
-    //get last index from pivot object... then set it to lastIndex here.
-
-    let selectedProjectIndex = this.getSStatePivotProp( this.state.pivots, newProjectType, 'headerText' , filteredCategory, 'lastIndex' );
-    let thisFilterString = this.getSStatePivotProp( this.state.pivots, newProjectType, 'headerText' , filteredCategory, 'filter' );
-
-    if (thisFilterString != null ) {
-      thisFilter.push(thisFilterString);
-    }
-
-    console.log('thisFilter', thisFilter);
-
-    let projects = this.state.projects;
-    projects.lastFiltered = projects.newFiltered;
-    let filterThese = newProjectType ? projects.user : projects.master ;
-    projects.newFiltered = this.getTheseProjects(filterThese, thisFilter, 'asc', 'titleProject');
-    //projects.lastFiltered = (searchType === 'all' ? this.state.projects.all : this.state.lastFilteredProjects );
-
-    let newProjectMasterPriorityChoice = !newProjectType ? thisFilter[0] : this.state.projectMasterPriorityChoice;
-    let newProjectUserPriorityChoice = newProjectType ? thisFilter[0] : this.state.projectUserPriorityChoice;
-    
-    if ( this.state.syncProjectPivotsOnToggle ) {
-      newProjectMasterPriorityChoice = thisFilter[0];
-      newProjectUserPriorityChoice = thisFilter[0];
-    }
-
-    let clickHistory = this.state.clickHistory;
-    clickHistory.push(trackedClick);
-
-    //2020-05-22:  Copying into separate object to pass to Project Edit screen.
-    let selectedProject: IProject = null;
-    if (projects.newFiltered.length > 0 ) {
-      selectedProject = null;
-    } else if (selectedProjectIndex != null ) {
-      selectedProject = JSON.parse(JSON.stringify(projects.newFiltered[selectedProjectIndex]));
-    }
-
-    //public updateProjectSelection
-    this.setState({
-      projectType: newProjectType,
-      filteredCategory: filteredCategory,
-      projectMasterPriorityChoice: newProjectMasterPriorityChoice,
-      projectUserPriorityChoice: newProjectUserPriorityChoice,
-      projects: projects,
-      //searchCount: newFilteredProjects.length,
-      searchType: '',
-      searchWhere: ' in ' + filteredCategory,
-      //pivotDefSelKey: defaultSelectedKey,
-      blinkOnProject: 0,
-      selectedProject: selectedProject,
-      lastTrackedClick: trackedClick,
-      clickHistory: clickHistory,
-      selectedProjectIndex: selectedProjectIndex,
-      
-    });
-
-  }
 
 /***
  *          d888b  d88888b d888888b      d888888b db   db d88888b .d8888. d88888b      d8888b. d8888b.  .d88b.     d88b 
@@ -2757,11 +2728,38 @@ export default class TrackMyTime7 extends React.Component<ITrackMyTime7Props, IT
     }
 
     let newProjectType = !this.state.projectType;
-    let pivotHeader = newProjectType === false ? this.state.projectMasterPriorityChoice : this.state.projectUserPriorityChoice;  
-    let trackedClick = 'ToggleType from ' +  this.state.projectType + ' to ' + newProjectType;
-    this.updateProjectSelection( pivotHeader , this.state.projectType,  trackedClick , null ) ;
+    console.log('toggleType: item', item);
+    console.log('toggleType from ' +  this.state.projectType + ' to ' + newProjectType);
+    let projects = this.state.projects;
 
-  } //End toggleType
+    projects.lastFiltered = projects.newFiltered;
+    let filterThese = newProjectType ? projects.user : projects.master ;
+
+    let setPivot = newProjectType ? this.state.projectUserPriorityChoice  :this.state.projectMasterPriorityChoice ;
+    projects.newFiltered = this.getTheseProjects(filterThese, [setPivot], 'asc', 'titleProject');
+    
+    let clickHistory = this.state.clickHistory;
+    let lastTrackedClick = 'ToggleType from ' +  this.state.projectType + ' to ' + newProjectType;
+    clickHistory.push(lastTrackedClick);
+
+    let pivotHeader = newProjectType === false ? this.state.projectMasterPriorityChoice : this.state.projectUserPriorityChoice;  
+
+    let selectedProjectIndex = this.getSStatePivotProp( this.state.pivots, newProjectType, 'filter' , pivotHeader, 'lastIndex' );
+
+    this.setState({
+      projectType: newProjectType,
+      projects: projects,
+      blinkOnProject: 0,
+      lastTrackedClick: lastTrackedClick,
+      clickHistory: clickHistory,
+      selectedProjectIndex: selectedProjectIndex,
+    });
+
+
+    return; 
+
+
+  } //End onClick
 
 
 /***
@@ -3870,7 +3868,6 @@ public toggleTips = (item: any): void => {
 
      let masterPriority: IProject[] = [];
 
-    //private processProjects
     this.setState({  
       loadOrder: (this.state.loadOrder === "") ? 'Process Projects' : this.state.loadOrder + ' > Process Projects',
       projects: stateProjects,
