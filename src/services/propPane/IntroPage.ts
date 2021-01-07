@@ -1,17 +1,10 @@
-import {
-  IPropertyPanePage,
-  PropertyPaneLabel,
-  IPropertyPaneLabelProps,
-  PropertyPaneHorizontalRule,
-  PropertyPaneTextField, IPropertyPaneTextFieldProps,
-  PropertyPaneLink, IPropertyPaneLinkProps,
-  PropertyPaneDropdown, IPropertyPaneDropdownProps,
-  IPropertyPaneDropdownOption,PropertyPaneToggle,
-  BaseClientSideWebPart,
-  IPropertyPaneConfiguration,
-  PropertyPaneButton,
-  PropertyPaneButtonType,
-} from '@microsoft/sp-webpart-base';
+import { BaseClientSideWebPart,  } from "@microsoft/sp-webpart-base";
+import { IPropertyPanePage, PropertyPaneLabel, IPropertyPaneLabelProps, 
+  PropertyPaneHorizontalRule, PropertyPaneTextField, IPropertyPaneTextFieldProps, 
+  PropertyPaneLink, IPropertyPaneLinkProps, PropertyPaneDropdown, 
+  IPropertyPaneDropdownProps, IPropertyPaneDropdownOption, PropertyPaneToggle, 
+  IPropertyPaneConfiguration, PropertyPaneButton, PropertyPaneButtonType,
+} from "@microsoft/sp-property-pane";
 
 import * as strings from 'TrackMyTime7WebPartStrings';
 import { pivotOptionsGroup} from './index';
@@ -73,6 +66,8 @@ import { ITrackMyTimeWebPartProps } from '../../webparts/trackMyTime7/TrackMyTim
 
 export class IntroPage {
   public getPropertyPanePage(webPartProps: ITrackMyTimeWebPartProps, _onClickCreateTime, _onClickCreateProject, _onClickUpdateTitles ): IPropertyPanePage {
+
+
     return <IPropertyPanePage>
     { // <page1>
       header: {
